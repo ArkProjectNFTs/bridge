@@ -1,0 +1,44 @@
+{
+  "projectName": "starklane",
+  "projectOwner": "ScreenshotLabs",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": true,
+  "commitConvention": "angular",
+  "contributorsPerLine": 7,
+  "linkToUsage": true,
+  "contributors": [
+    {
+      "login": "remiroyc",
+      "name": "Rémi",
+      "avatar_url": "https://avatars.githubusercontent.com/u/11146088?v=4",
+      "profile": "https://github.com/remiroyc",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "kwiss",
+      "name": "Christophe",
+      "avatar_url": "https://avatars.githubusercontent.com/u/243668?v=4",
+      "profile": "https://github.com/kwiss",
+      "contributions": [
+        "code",
+        "design"
+      ]
+    },
+    {
+      "login": "gershon",
+      "name": "Paul",
+      "avatar_url": "https://avatars.githubusercontent.com/u/55589?v=4",
+      "profile": "https://github.com/gershon",
+      "contributions": [
+        "code"
+      ]
+    }
+  ]
+}
