@@ -5,14 +5,14 @@ import { XMarkIcon } from '@heroicons/react/24/solid';
 
 import braavosLogo from '#/public/braavos.png';
 import argentXLogo from '#/public/argentx.png';
-import Image from 'next/image';
+import Image, { StaticImageData } from 'next/image';
 
-const LOGOS_BY_ID = {
+const LOGOS_BY_ID: Record<string, StaticImageData> = {
   braavos: braavosLogo,
   argentX: argentXLogo,
 };
 
-const LABELS_BY_ID = {
+const LABELS_BY_ID: Record<string, string> = {
   braavos: 'Braavos',
   argentX: 'Argent X',
 };
