@@ -1,6 +1,6 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalEnv": ["ACCOUNT, PRIVATE_KEY"],
+  "globalEnv": ["ACCOUNT, PRIVATE_KEY", "ALCHEMY_API_KEY"],
   "pipeline": {
     "build": {
       "dependsOn": ["^build"],
@@ -11,6 +11,9 @@
     },
     "dev": {
       "cache": false
+    },
+    "test": {
+      "outputs": ["coverage/**"]
     }
   }
 }
