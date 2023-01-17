@@ -10,6 +10,7 @@
     "contributors:add": "all-contributors add",
     "contributors:generate": "all-contributors generate",
     "build": "turbo run build",
+    "build:L1": "turbo run build:L1",
     "dev": "turbo run dev --parallel",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",

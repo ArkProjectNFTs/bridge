@@ -16,5 +16,8 @@
     "hardhat-gas-reporter": "^1.0.9",
     "solidity-coverage": "^0.8.2",
     "ts-node": "^10.9.1"
+  },
+  "scripts": {
+    "build:l1": "hardhat compile --network localhost"
   }
 }
