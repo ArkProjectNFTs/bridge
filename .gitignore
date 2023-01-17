@@ -39,3 +39,4 @@ typechain
 typechain-types
 cache
 artifacts
+*.key

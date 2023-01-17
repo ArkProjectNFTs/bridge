@@ -1,12 +1,10 @@
 import { ethers } from "hardhat";
-import * as dotenv from "dotenv";
 
 async function main() {
-  const starknetCore = process.env.STARKNET_CORE_L1_ADDRESS;
+  const starknetCore = process.env.STARKNET_CORE_L1_ADDRESS || "";
   const Bridge = await ethers.getContractFactory("Bridge");
   const bridge = await Bridge.deploy(starknetCore);  
   await bridge.deployed();
-
   console.log(`deployed to ${bridge.address}`);
 }
 

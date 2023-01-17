@@ -20,8 +20,32 @@ The Starklane NFT Bridge: seamless transfer of NFTs between ETH L1 &amp; Starkne
 
 `yarn build`
 
-## Contributors ✨
+## Ethereum
 
+##### Build your contract:
+```yarn build:l1```
+or
+```npx run hardhat compile``` in the blockchain folder
+
+##### Deploy your contract:
+```npx hardhat run --network <your-network> scripts/deploy.js```
+
+##### Verify your contract your contract:
+```npx hardhat verify --network goerli <your_deploy_contract> 0xde29d060D45901Fb19ED6C6e959EB22d8626708e```
+*where "0xde29d060D45901Fb19ED6C6e959EB22d8626708e" is the starknetCore contract*
+
+## Starknet
+
+##### Build your contract:
+```$ protostar build```
+
+##### Declare your contract:
+```$ protostar declare ./build/main.json```
+
+##### Deploy your contract:
+```$  protostar deploy your_class_hash```
+
+## Contributors ✨
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable -->

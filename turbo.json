@@ -9,6 +9,8 @@
     "ALCHEMY_API_KEY"
   ],
   "pipeline": {
+    "build:l1": {},
+    "deploy:l1": {},
     "build": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**", ".next/**"]
