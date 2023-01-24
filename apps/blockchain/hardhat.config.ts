@@ -51,4 +51,6 @@ const config: HardhatUserConfig = {
   },
 };
 
+// console.log("config", JSON.stringify(config));
+
 export default config;

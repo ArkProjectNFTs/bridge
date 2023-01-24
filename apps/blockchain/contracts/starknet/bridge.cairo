@@ -101,11 +101,11 @@ func get_token_id{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_pt
 func deposit{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     from_address: felt,
     l1_contract_address: felt,
+    to: felt,
+    token_id: felt,
     name: felt,
     symbol: felt,
-    to: felt,
     token_uri: felt,
-    token_id: felt,
 ) {
     depositToken(l1_contract_address, name, symbol, to, token_uri, token_id);
     return ();

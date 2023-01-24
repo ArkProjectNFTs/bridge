@@ -11,11 +11,11 @@ async function main() {
   const bridge = await Bridge.deploy(starknetCore);
   await bridge.deployed();
   console.log(`Bridge deployed to ${bridge.address}`);
-  
+
   // Wait 5 validations before verifying
   await bridge.deployTransaction.wait(5);
   console.log(`Bridge validations complete`);
-  
+
   // Verify Bridge on Etherscan
   // TODO: remove try catch when https://github.com/NomicFoundation/hardhat/pull/3609 is merged
   try {
@@ -29,7 +29,7 @@ async function main() {
     }
   }
   console.log(`Bridge verified on Etherscan`);
-  process.exit(0)
+  process.exit(0);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

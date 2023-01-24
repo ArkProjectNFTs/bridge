@@ -48,32 +48,28 @@ contract Bridge is Ownable {
         return stringInUint256;
     }
 
-    function deposit(
-        address l1TokenAddress,
-        uint256 l2OwnerAddress,
-        uint256 tokenId
-    ) public payable {
-        // NFTContract tokenContract = NFTContract(l1TokenAddress);
+    function deposit(address contractAddress, uint256 tokenId) public payable {
+        NFTContract tokenContract = NFTContract(contractAddress);
 
         // optimistic transfer, should revert if no approved or not owner
-        // tokenContract.transferFrom(msg.sender, address(this), tokenId);
+        tokenContract.transferFrom(msg.sender, address(this), tokenId);
 
-        // string memory symbol = tokenContract.symbol();
-        // string memory name = tokenContract.name();
-        // string memory tokenUri = tokenContract.tokenURI(tokenId);
+        string memory symbol = tokenContract.symbol();
+        string memory name = tokenContract.name();
+        string memory tokenUri = tokenContract.tokenURI(tokenId);
 
-        uint256[] memory payload = new uint256[](6);
+        uint256[] memory payload = new uint256[](5);
 
-        payload[0] = uint256(uint160(l1TokenAddress)); // l1_contract_address
-        payload[1] = strToUint("StarknetNFT"); // name
-        payload[2] = strToUint("StarknetNFT"); // symbol
-        payload[3] = l2OwnerAddress; // to
-        payload[4] = 2329422148041661608983683184550376550254735213; // token_uri
-        payload[5] = tokenId; // token_id
+        payload[0] = uint256(uint160(contractAddress)); // l1_contract_address
+        payload[1] = uint256(uint160(msg.sender)); // to
+        payload[2] = tokenId; // token_id
+        payload[3] = strToUint(name);
+        payload[4] = strToUint(symbol);
+        payload[5] = strToUint(tokenUri);
 
         starknetCore.sendMessageToL2{value: msg.value}(
-            l2GatewayAddress,
-            selector,
+            L2ContractAddress,
+            CLAIM_SELECTOR,
             payload
         );
     }
