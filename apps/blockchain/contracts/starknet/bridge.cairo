@@ -100,11 +100,94 @@ func get_token_id{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_pt
 @l1_handler
 func deposit{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     from_address: felt,
-    l1_owner_address_: felt,
-    l2_owner_address_: felt,
-    l1_contract_address_: felt,
-    tokenId_: felt,
-    amount_: felt,
+    l1_contract_address: felt,
+    name: felt,
+    symbol: felt,
+    to: felt,
+    token_uri: felt,
+    token_id: felt,
+) {
+    depositToken(l1_contract_address, name, symbol, to, token_uri, token_id);
+    return ();
+}
+
+func depositToken{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    l1_contract_address: felt, name: felt, symbol: felt, to: felt, token_uri: felt, token_id: felt
+) {
+    alloc_locals;
+
+    let uint_token_id = Uint256(token_id.high, token_id.low);
+    let (contract_address) = _l1_to_l2_addresses.read(l1_contract_address);
+    if (contract_address == 0) {
+        let (deployed_contract_address) = deploy_new_contract(l1_contract_address, name, symbol);
+        mintToken(deployed_contract_address, to, token_id);
+    } else {
+        mintToken(contract_address, to, token_id);
+    }
+    return ();
+}
+
+func mintToken{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    deployed_contract_address: felt, to: felt, token_id: Uint256
+) -> (deployed_contract_address: felt) {
+    alloc_locals;
+    let (data: felt*) = alloc();
+
+    IDefaultToken.permissionedMint(
+        contract_address=deployed_contract_address,
+        to=to,
+        tokenId=token_id,
+        data_len=0,
+        data=data,
+        tokenURI=0,
+    );
+
+    return (deployed_contract_address=deployed_contract_address);
+}
+
+func deploy_new_contract{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    l1_contract_address: felt, name: felt, symbol: felt
+) -> (contract_address: felt) {
+    alloc_locals;
+
+    let (bridge_contract_address) = get_contract_address();
+    let (message_payload: felt*) = alloc();
+
+    assert message_payload[0] = bridge_contract_address;
+    assert message_payload[1] = name;
+    assert message_payload[2] = symbol;
+
+    let (token_class_hash) = _token_class_hash.read();
+    let (udc_contract_address) = _udc_contract.read();
+    let (salt) = _contract_salt.read();
+    let new_salt = salt + 1;
+
+    let (deployed_contract_address) = IUniversalDeployerContract.deployContract(
+        contract_address=udc_contract_address,
+        classHash=token_class_hash,
+        salt=new_salt,
+        unique=0,
+        calldata_len=3,
+        calldata=message_payload,
+    );
+
+    _contract_salt.write(new_salt);
+    _l1_to_l2_addresses.write(l1_contract_address, deployed_contract_address);
+
+    collection_created.emit(address=deployed_contract_address);
+    return (contract_address=deployed_contract_address);
+}
+
+@external
+func set_salt{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(salt: felt) {
+    Ownable.assert_only_owner();
+    _contract_salt.write(salt);
+    return ();
+}
+
+@external
+func set_udc_contract{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    udc_contract: felt
 ) {
     // Make sure the message was sent by the intended L1 contract.
     let (res) = balance.read();
