@@ -15,7 +15,9 @@ export default function L1TokenList() {
   const [transaction, setTransaction] = useState<any>(null);
   const { address } = useAccount();
   const { address: l2Address } = useStarkNetAccount();
-  const [selectedNft, setSelectedNft] = useState(nfts[0] || null);
+  const [selectedNft, setSelectedNft] = useState(
+    nfts && nfts.length > 0 ? nfts[0] : null,
+  );
 
   function closeModal() {
     setIsOpen(false);

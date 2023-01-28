@@ -17,14 +17,15 @@ export default function ContinueButton({
   onSuccess,
 }: ContinueButtonProps) {
   const { config } = usePrepareContractWrite({
-    address: '0xD0d5f4b5308CeFa87630cD2D9Fe808F974116616',
+    address: process.env.NEXT_PUBLIC_L1_BRIDGE_ADDRESS as `0x${string}`,
     abi,
-    functionName: 'claim',
+    functionName: 'deposit',
     args: [nft.contract.address, nft.tokenId, l2Address, 1],
   });
   const { data, isLoading, isSuccess, write } = useContractWrite(config);
 
   const handleClick = () => {
+    console.log('handleClick', write);
     if (write) {
       write();
     }

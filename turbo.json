@@ -1,6 +1,10 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalEnv": ["ACCOUNT, PRIVATE_KEY", "ALCHEMY_API_KEY"],
+  "globalEnv": [
+    "ACCOUNT, PRIVATE_KEY",
+    "ALCHEMY_API_KEY",
+    "NEXT_PUBLIC_L1_BRIDGE_ADDRESS"
+  ],
   "pipeline": {
     "build": {
       "dependsOn": ["^build"],
