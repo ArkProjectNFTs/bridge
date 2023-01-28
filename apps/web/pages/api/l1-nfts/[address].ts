@@ -1,8 +1,6 @@
 import { NextApiResponse, NextApiRequest } from 'next';
 import { Alchemy, Network } from 'alchemy-sdk';
 
-type Data = any;
-
 type ResponseError = {
   message: string;
 };
@@ -13,9 +11,18 @@ const alchemy = new Alchemy({
   network: Network.ETH_GOERLI,
 });
 
+interface ApiResponseData {
+  nfts: {
+    title?: string;
+    image?: string;
+    tokenId: string;
+    contract: string;
+  }[];
+}
+
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<Data | ResponseError>,
+  res: NextApiResponse<ApiResponseData | ResponseError>,
 ) {
   const { query } = req;
 
@@ -24,22 +31,27 @@ export default async function handler(
   }
 
   const address = query.address as string;
-  let nfts;
 
   try {
     const { ownedNfts } = await alchemy.nft.getNftsForOwner(
       address.toLowerCase(),
     );
-    nfts = ownedNfts.map((nft) => ({
-      title: nft.title,
-      image: nft.media[0].thumbnail,
-      tokenId: nft.tokenId,
-      contract: nft.contract,
-      // contractAddress: nft.contract,
-    }));
+
+    const nfts = ownedNfts.map((nft) => {
+      return {
+        title: nft.title || nft.contract.name,
+        image:
+          nft.media && nft.media.length > 0
+            ? nft.media[0].thumbnail
+            : undefined,
+        tokenId: nft.tokenId,
+        contract: nft.contract.address,
+      };
+    });
+
+    return res.status(200).json({ nfts });
   } catch (error) {
+    console.error(error);
     return res.status(500).json({ message: 'Server error' });
   }
-
-  return res.status(200).json({ nfts });
 }
