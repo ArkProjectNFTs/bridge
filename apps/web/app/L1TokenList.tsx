@@ -63,7 +63,7 @@ export default function L1TokenList() {
           <Listbox value={selectedNft} onChange={setSelectedNft}>
             <Listbox.Button className="relative w-full cursor-default rounded-lg border border-gray-100 bg-white py-2 pl-3 pr-10 text-left focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm">
               <div className="flex items-center space-x-4">
-                {selectedNft && (
+                {selectedNft && selectedNft.image && (
                   <Image
                     src={selectedNft.image}
                     alt={selectedNft.title}
@@ -101,15 +101,17 @@ export default function L1TokenList() {
                       }`
                     }
                   >
-                    <Image
-                      src={nft.image}
-                      alt={nft.title}
-                      className="h6 w-6"
-                      width={20}
-                      height={20}
-                      priority
-                    />
-                    <div className="">{nft.title}</div>
+                    {nft.image && (
+                      <Image
+                        src={nft.image}
+                        alt={nft.title}
+                        className="h6 w-6"
+                        width={20}
+                        height={20}
+                        priority
+                      />
+                    )}
+                    <div>{nft.title}</div>
                   </Listbox.Option>
                 ))}
               </Listbox.Options>
