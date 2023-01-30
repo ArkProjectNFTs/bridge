@@ -3,7 +3,8 @@
 import { useContractWrite, usePrepareContractWrite } from 'wagmi';
 
 import abi from '#/abi/abi.json';
-import { useEffect } from 'react';
+import { FC, useEffect } from 'react';
+import { ethers } from 'ethers';
 
 type ContinueButtonProps = {
   nft: any;
@@ -11,21 +12,21 @@ type ContinueButtonProps = {
   onSuccess: (t: `0x${string}` | undefined) => void;
 };
 
-export default function ContinueButton({
-  nft,
-  l2Address,
-  onSuccess,
-}: ContinueButtonProps) {
+const ContinueButton: FC<ContinueButtonProps> = (props) => {
+  const { nft, l2Address, onSuccess } = props;
   const { config } = usePrepareContractWrite({
     address: process.env.NEXT_PUBLIC_L1_BRIDGE_ADDRESS as `0x${string}`,
     abi,
     functionName: 'deposit',
-    args: [nft.contract.address, nft.tokenId, l2Address, 1],
+    args: [],
+    overrides: {
+      value: ethers.utils.parseEther('0.01'),
+    },
   });
-  const { data, isLoading, isSuccess, write } = useContractWrite(config);
+  const writeContract = useContractWrite(config);
+  const { data, isLoading, isSuccess, write } = writeContract;
 
   const handleClick = () => {
-    console.log('handleClick', write);
     if (write) {
       write();
     }
@@ -48,4 +49,6 @@ export default function ContinueButton({
       </button>
     </>
   );
-}
+};
+
+export default ContinueButton;
