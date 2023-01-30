@@ -29,7 +29,7 @@
     "@heroicons/react": "2.0.14",
     "@starknet-react/core": "0.14.8",
     "@tailwindcss/forms": "0.5.3",
-    "alchemy-sdk": "2.4.0",
+    "alchemy-sdk": "2.4.1",
     "api": "5.0.7",
     "clsx": "1.2.1",
     "connectkit": "1.1.2",
