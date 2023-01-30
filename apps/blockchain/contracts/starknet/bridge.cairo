@@ -55,33 +55,48 @@ func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
     return ();
 }
 
-@external
-func handle_message{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    l1_contract_address: felt,
-    to: felt,
-    token_id: Uint256,
-    data_len: felt,
-    data: felt*,
-    name: felt,
-    symbol: felt,
-    token_uri: felt,
-) -> (contract_address: felt) {
+@l1_handler
+func deposit{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(from_address: felt) {
+    depositToken();
+    return ();
+}
+
+func depositToken{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
     alloc_locals;
+
+    let l1_contract_address = 409063246281866883492697047241404877511475000675;
+    let name = 100890435119007175025772116;
+    let symbol = 100890435119007175025772116;
+    let to = 141209322633449662575690049095428871608455322718108909912289871335706295711;
+    let token_uri = 2329422148041661608983683184550376550254735213;
+    let token_id = Uint256(50, 0);
 
     let (contract_address) = _l1_to_l2_addresses.read(l1_contract_address);
     if (contract_address == 0) {
         let (deployed_contract_address) = deploy_new_contract(l1_contract_address, name, symbol);
-        mint(
-            contract_address=deployed_contract_address,
-            token_id=token_id,
-            to=to,
-            token_uri=token_uri,
-        );
-        return (contract_address=deployed_contract_address);
+        mintToken(deployed_contract_address, to, token_id);
     } else {
-        mint(contract_address=contract_address, token_id=token_id, to=to, token_uri=token_uri);
-        return (contract_address=contract_address);
+        mintToken(contract_address, to, token_id);
     }
+    return ();
+}
+
+func mintToken{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    deployed_contract_address: felt, to: felt, token_id: Uint256
+) -> (deployed_contract_address: felt) {
+    alloc_locals;
+    let (data: felt*) = alloc();
+
+    IDefaultToken.permissionedMint(
+        contract_address=deployed_contract_address,
+        to=to,
+        tokenId=token_id,
+        data_len=0,
+        data=data,
+        tokenURI=0,
+    );
+
+    return (deployed_contract_address=deployed_contract_address);
 }
 
 func deploy_new_contract{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
@@ -116,24 +131,6 @@ func deploy_new_contract{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_c
 
     collection_created.emit(address=deployed_contract_address);
     return (contract_address=deployed_contract_address);
-}
-
-func mint{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    contract_address: felt, token_id: Uint256, to: felt, token_uri: felt
-) {
-    alloc_locals;
-    let (data: felt*) = alloc();
-
-    IDefaultToken.permissionedMint(
-        contract_address=contract_address,
-        to=to,
-        tokenId=token_id,
-        data_len=0,
-        data=data,
-        tokenURI=token_uri,
-    );
-
-    return ();
 }
 
 @external
