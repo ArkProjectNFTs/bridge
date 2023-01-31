@@ -1,5 +1,5 @@
 {
-  "name": "@starklane/smart-contracts",
+  "name": "@starklane/blockchain",
   "description": "The Starklane NFT Bridge: seamless transfer of NFTs between ETH L1 & Starknet L2. Smart contracts, user-friendly interface, secure & efficient solution. Experience the future of NFT ownership today",
   "version": "1.0.0",
   "main": "index.js",
@@ -29,11 +29,13 @@
   },
   "scripts": {
     "test": "hardhat --network l1_testnet test",
-    "deploy-l1:goerli": "hardhat run --network goerli ./scripts/deploy-L1.ts",
-    "deploy-l2:goerli": "hardhat run --network goerli ./scripts/deploy-L2.ts",
+    "deploy-l1:goerli": "hardhat run ./scripts/deploy-L1.ts --network goerli",
+    "deploy-l2:goerli": "hardhat run ./scripts/deploy-L2.ts --network goerli",
+    "deploy-account:goerli": "hardhat run ./scripts/deploy-account.ts --network goerli",
     "build:l1": "hardhat compile",
     "build:l2": "hardhat starknet-compile",
-    "deploy:account": "yarn hardhat starknet-deploy-account --starknet-network l2_testnet --wallet OpenZeppelin",
+    "new:account:goerli": "yarn hardhat starknet-new-account --starknet-network alpha-goerli --wallet OpenZeppelin",
+    "deploy:account:goerli": "yarn hardhat starknet-deploy-account --starknet-network alpha-goerli --wallet OpenZeppelin",
     "lint": "npx prettier --check . && find contracts/ -iname '*.cairo' -exec ~/cairo_venv/bin/cairo-format -c {} +",
     "lint:fix": "npx prettier --write . && find contracts/ -iname '*.cairo' -exec ~/cairo_venv/bin/cairo-format -i {} +",
     "testnet:l2": "~/cairo_venv/bin/starknet-devnet --host 0.0.0.0 --lite-mode"
