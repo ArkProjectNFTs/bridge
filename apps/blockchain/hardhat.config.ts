@@ -12,13 +12,12 @@ chai.use(solidity);
 
 const {
   PRIVATE_KEY,
-  ALCHEMY_KEY,
   GOERLI_ALCHEMY_KEY,
   HOSTNAME_L1,
   HOSTNAME_L2,
   ETHERSCAN_API_KEY,
-  L2_NETWORK,
   GOERLI_PRIVATE_KEY,
+  MAINNET_ALCHEMY_KEY,
 } = process.env;
 
 const config: HardhatUserConfig = {
@@ -46,17 +45,10 @@ const config: HardhatUserConfig = {
     l1_testnet: {
       url: `http://${HOSTNAME_L1 || "localhost"}:8545`,
     },
-    mainnet: {
-      url: `https://eth-mainnet.alchemyapi.io/v2/${ALCHEMY_KEY}`,
-      accounts: [PRIVATE_KEY || ""],
-      allowUnlimitedContractSize: true,
-    },
   },
   etherscan: {
     apiKey: ETHERSCAN_API_KEY,
   },
 };
-
-// console.log("config", JSON.stringify(config));
 
 export default config;
