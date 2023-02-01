@@ -50,25 +50,25 @@ contract Bridge is Ownable {
 
     function deposit(
         address l1TokenAddress,
-        uint256 tokenId,
-        uint256 l2OwnerAddress
+        uint256 l2OwnerAddress,
+        uint256 tokenId
     ) public payable {
-        NFTContract tokenContract = NFTContract(l1TokenAddress);
+        // NFTContract tokenContract = NFTContract(l1TokenAddress);
 
         // optimistic transfer, should revert if no approved or not owner
         // tokenContract.transferFrom(msg.sender, address(this), tokenId);
 
-        string memory symbol = tokenContract.symbol();
-        string memory name = tokenContract.name();
+        // string memory symbol = tokenContract.symbol();
+        // string memory name = tokenContract.name();
         // string memory tokenUri = tokenContract.tokenURI(tokenId);
 
-        uint256[] memory payload = new uint256[](5);
+        uint256[] memory payload = new uint256[](6);
 
-        payload[0] = uint256(uint160(contractAddress)); // l1_contract_address
-        payload[1] = strToUint(name);
-        payload[2] = strToUint(symbol);
-        payload[3] = uint256(uint160(msg.sender)); // to
-        payload[4] = strToUint(tokenUri);
+        payload[0] = uint256(uint160(l1TokenAddress)); // l1_contract_address
+        payload[1] = strToUint("StarknetNFT"); // name
+        payload[2] = strToUint("StarknetNFT"); // symbol
+        payload[3] = l2OwnerAddress; // to
+        payload[4] = 2329422148041661608983683184550376550254735213; // token_uri
         payload[5] = tokenId; // token_id
 
         starknetCore.sendMessageToL2{value: msg.value}(
