@@ -2,99 +2,57 @@
 
 %lang starknet
 
-from starkware.cairo.common.alloc import alloc
 from starkware.cairo.common.cairo_builtins import HashBuiltin
-from starkware.cairo.common.math import assert_nn
-from starkware.cairo.common.uint256 import Uint256
-from starkware.starknet.common.messages import send_message_to_l1
+from starkware.cairo.common.uint256 import Uint256, uint256_unsigned_div_rem
+from starkware.starknet.common.syscalls import get_caller_address
+from starkware.cairo.common.math import assert_not_zero
+from starkware.cairo.common.alloc import alloc
+from openzeppelin.access.ownable.library import Ownable
+from starkware.starknet.common.syscalls import get_contract_address
 
-@storage_var
-func balance() -> (res: felt) {
+@contract_interface
+namespace IUniversalDeployerContract {
+    func deployContract(
+        classHash: felt, salt: felt, unique: felt, calldata_len: felt, calldata: felt*
+    ) -> (address: felt) {
+    }
+}
+
+@contract_interface
+namespace IDefaultToken {
+    func permissionedMint(to: felt, tokenId: Uint256, data_len: felt, data: felt*, tokenURI: felt) {
+    }
+}
+
+@event
+func collection_created(address: felt) {
 }
 
 @storage_var
-func origin_l1_contract_address() -> (res: felt) {
+func _l1_to_l2_addresses(l1_address: felt) -> (l1_address: felt) {
 }
 
 @storage_var
-func l1_owner_address() -> (res: felt) {
+func _contract_salt() -> (salt: felt) {
 }
 
 @storage_var
-func l2_owner_address() -> (res: felt) {
+func _token_class_hash() -> (res: felt) {
 }
 
 @storage_var
-func l1_contract_address() -> (res: felt) {
-}
-
-@storage_var
-func token_id() -> (res: felt) {
+func _udc_contract() -> (res: felt) {
 }
 
 @constructor
-func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
-    balance.write(0);
+func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    owner: felt, class_hash: felt, initial_salt: felt, udc_contract: felt
+) {
+    Ownable.initializer(owner);
+    _token_class_hash.write(class_hash);
+    _contract_salt.write(initial_salt);
+    _udc_contract.write(udc_contract);
     return ();
-}
-
-@external
-func increase_balance{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    amount: felt
-) {
-    with_attr error_message("Amount must be positive. Got: {amount}.") {
-        assert_nn(amount);
-    }
-
-    let (res) = balance.read();
-    balance.write(res + amount);
-    return ();
-}
-
-@external
-func set_origin_l1_contract_address{
-    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
-}(l1_contract_address_: felt) {
-    origin_l1_contract_address.write(l1_contract_address_);
-    return ();
-}
-
-@view
-func get_balance{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (res: felt) {
-    let (res) = balance.read();
-    return (res,);
-}
-
-@view
-func get_l1_owner_address{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
-    res: felt
-) {
-    let (res) = l1_owner_address.read();
-    return (res,);
-}
-
-@view
-func get_l2_owner_address{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
-    res: felt
-) {
-    let (res) = l2_owner_address.read();
-    return (res,);
-}
-
-@view
-func get_l1_contract_address{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
-    res: felt
-) {
-    let (res) = l1_contract_address.read();
-    return (res,);
-}
-
-@view
-func get_token_id{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
-    res: felt
-) {
-    let (res) = token_id.read();
-    return (res,);
 }
 
 @l1_handler
@@ -116,13 +74,13 @@ func depositToken{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_pt
 ) {
     alloc_locals;
 
-    let uint_token_id = Uint256(token_id.high, token_id.low);
+    let uint_token_id = Uint256(token_id, 0);
     let (contract_address) = _l1_to_l2_addresses.read(l1_contract_address);
     if (contract_address == 0) {
         let (deployed_contract_address) = deploy_new_contract(l1_contract_address, name, symbol);
-        mintToken(deployed_contract_address, to, token_id);
+        mintToken(deployed_contract_address, to, uint_token_id);
     } else {
-        mintToken(contract_address, to, token_id);
+        mintToken(contract_address, to, uint_token_id);
     }
     return ();
 }
@@ -189,14 +147,29 @@ func set_salt{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(s
 func set_udc_contract{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     udc_contract: felt
 ) {
-    // Make sure the message was sent by the intended L1 contract.
-    let (res) = balance.read();
-    let (origin_l1_contract_address_) = origin_l1_contract_address.read();
-    assert from_address = origin_l1_contract_address_;
-    l1_owner_address.write(l1_owner_address_);
-    l2_owner_address.write(l2_owner_address_);
-    l1_contract_address.write(l1_contract_address_);
-    token_id.write(tokenId_);
-    balance.write(res + amount_);
+    Ownable.assert_only_owner();
+    _udc_contract.write(udc_contract);
     return ();
+}
+
+@view
+func get_token_class_hash{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (
+    res: felt
+) {
+    let (res) = _token_class_hash.read();
+    return (res=res);
+}
+
+@view
+func get_salt{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (salt: felt) {
+    let (salt) = _contract_salt.read();
+    return (salt=salt);
+}
+
+@view
+func get_l2_address{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    l1_address: felt
+) -> (l2_address: felt) {
+    let (l2_address) = _l1_to_l2_addresses.read(l1_address);
+    return (l2_address,);
 }
