@@ -39,3 +39,6 @@ typechain
 typechain-types
 cache
 artifacts
+*.key
+
+starknet-artifacts
