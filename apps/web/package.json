@@ -37,13 +37,15 @@
     "dinero.js": "2.0.0-alpha.8",
     "ethers": "5.7.2",
     "get-starknet": "2.0.0",
+    "lokijs": "^1.5.12",
     "next": "13.1.6",
+    "pino-pretty": "^9.1.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "starknet": "4.17.1",
     "styled-components": "6.0.0-beta.9",
     "use-count-up": "3.0.1",
-    "wagmi": "0.11.5"
+    "wagmi": "0.10.15"
   },
   "devDependencies": {
     "@types/ms": "0.7.31",

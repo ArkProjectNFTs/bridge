@@ -9,11 +9,18 @@
   "scripts": {
     "contributors:add": "all-contributors add",
     "contributors:generate": "all-contributors generate",
-    "build": "turbo run build",
-    "dev": "turbo run dev --parallel",
-    "lint": "turbo run lint",
+    "build": "dotenv -- turbo run build",
+    "build:l1": "dotenv -- turbo run build:l1",
+    "build:l2": "dotenv -- turbo run build:l2",
+    "deploy-l1:goerli": "dotenv -- turbo run deploy-l1:goerli",
+    "deploy-l2:goerli": "dotenv -- turbo run deploy-l2:goerli",
+    "deploy-account:goerli": "dotenv -- turbo run deploy-account:goerli",
+    "new:account:goerli": "dotenv -- turbo run new:account:goerli",
+    "deploy:account:goerli": "dotenv -- turbo run deploy:account:goerli",
+    "dev": "dotenv -- turbo run dev --parallel",
+    "lint": "dotenv -- turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "test": "turbo run test"
+    "test": "dotenv -- turbo run test"
   },
   "devDependencies": {
     "all-contributors-cli": "^6.24.0",
@@ -24,6 +31,8 @@
   "engines": {
     "node": ">=14.0.0"
   },
-  "dependencies": {},
+  "dependencies": {
+    "dotenv-cli": "^7.0.0"
+  },
   "packageManager": "yarn@1.22.19"
 }
