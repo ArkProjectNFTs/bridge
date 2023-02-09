@@ -1,6 +1,0 @@
-[submodule "cairo_contracts"]
-	path = apps/blockchain/lib/cairo_contracts
-	url = https://github.com/OpenZeppelin/cairo-contracts
-[submodule "open_zeppelin"]
-	path = apps/blockchain/lib/open_zeppelin
-	url = https://github.com/OpenZeppelin/cairo-contracts
