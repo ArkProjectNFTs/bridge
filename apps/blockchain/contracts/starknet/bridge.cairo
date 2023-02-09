@@ -65,11 +65,11 @@ func deposit{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     symbol: felt,
     token_uri: felt,
 ) {
-    depositToken(l1_contract_address, name, symbol, to, token_uri, token_id);
+    deposit_token(l1_contract_address, name, symbol, to, token_uri, token_id);
     return ();
 }
 
-func depositToken{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+func deposit_token{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     l1_contract_address: felt, name: felt, symbol: felt, to: felt, token_uri: felt, token_id: felt
 ) {
     alloc_locals;
@@ -78,15 +78,15 @@ func depositToken{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_pt
     let (contract_address) = _l1_to_l2_addresses.read(l1_contract_address);
     if (contract_address == 0) {
         let (deployed_contract_address) = deploy_new_contract(l1_contract_address, name, symbol);
-        mintToken(deployed_contract_address, to, uint_token_id);
+        mint_token(deployed_contract_address, to, token_uri, uint_token_id);
     } else {
-        mintToken(contract_address, to, uint_token_id);
+        mint_token(contract_address, to, token_uri, uint_token_id);
     }
     return ();
 }
 
-func mintToken{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    deployed_contract_address: felt, to: felt, token_id: Uint256
+func mint_token{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    deployed_contract_address: felt, to: felt, token_uri: felt, token_id: Uint256
 ) -> (deployed_contract_address: felt) {
     alloc_locals;
     let (data: felt*) = alloc();
@@ -97,7 +97,7 @@ func mintToken{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
         tokenId=token_id,
         data_len=0,
         data=data,
-        tokenURI=0,
+        tokenURI=token_uri,
     );
 
     return (deployed_contract_address=deployed_contract_address);
