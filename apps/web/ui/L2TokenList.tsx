@@ -1,10 +1,18 @@
 'use client';
 
 import { useAccount } from '@starknet-react/core';
+import { OwnedNft } from 'alchemy-sdk';
 import { useEffect, useState } from 'react';
 
 export default function L2TokenList() {
-  const [nfts, setNfts] = useState<any[]>([]);
+  const [nfts, setNfts] = useState<
+    {
+      title: string;
+      image: string;
+      tokenId: string;
+      address: string;
+    }[]
+  >([]);
   const { address } = useAccount();
 
   useEffect(() => {
@@ -33,8 +41,8 @@ export default function L2TokenList() {
     <div className="flex flex-col space-y-2">
       <div className="mb-4 font-medium">L2 Tokens</div>
       {nfts.map((nft) => (
-        <div key={`${nft.title}-${nft.tokenId}`} className="flex space-x-2">
-          <img src={nft.image} className="h-6 w-6" alt={nft.title} />
+        <div key={`${nft.address}-${nft.tokenId}`} className="flex space-x-2">
+          {/* <img src={nft.} className="h-6 w-6" alt={nft.title} /> */}
           <div className="">{nft.title}</div>
         </div>
       ))}

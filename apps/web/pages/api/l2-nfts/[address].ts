@@ -1,6 +1,15 @@
 import { NextApiResponse, NextApiRequest } from 'next';
 
-type Data = any;
+type NFT = {
+  title: string;
+  image: string;
+  tokenId: string;
+  address: string;
+};
+
+type Data = {
+  nfts: NFT[];
+};
 
 type ResponseError = {
   message: string;
@@ -14,6 +23,7 @@ type AspectAsset = {
   name: string;
   image_medium_url_copy: string;
   contract: { name: string };
+  contract_address: string;
 };
 
 export default async function handler(
@@ -28,7 +38,7 @@ export default async function handler(
 
   const address = query.address as string;
 
-  let nfts = [];
+  let nfts: NFT[] = [];
 
   try {
     const options = {
@@ -42,6 +52,7 @@ export default async function handler(
       title: asset.name || `${asset.contract.name} #${asset.token_id}`,
       image: asset.image_medium_url_copy,
       tokenId: asset.token_id,
+      address: asset.contract_address,
     }));
   } catch (error) {
     return res.status(500).json({ message: 'Server error' });

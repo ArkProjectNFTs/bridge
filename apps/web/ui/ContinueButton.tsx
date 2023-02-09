@@ -5,10 +5,10 @@ import { useContractWrite, usePrepareContractWrite } from 'wagmi';
 import abi from '#/abi/abi.json';
 import { FC, useEffect } from 'react';
 import { ethers } from 'ethers';
-import { NFT } from '#/types';
+import { OwnedNft } from 'alchemy-sdk';
 
 type ContinueButtonProps = {
-  nft: NFT;
+  nft: OwnedNft;
   l2Address: string;
   onSuccess: (t: `0x${string}` | undefined) => void;
 };
@@ -19,9 +19,9 @@ const ContinueButton: FC<ContinueButtonProps> = (props) => {
     address: process.env.NEXT_PUBLIC_L1_BRIDGE_ADDRESS as `0x${string}`,
     abi,
     functionName: 'deposit',
-    args: [nft.contract, l2Address, nft.tokenId],
+    args: [nft.contract.address, l2Address, nft.tokenId],
     overrides: {
-      value: ethers.utils.parseEther('0.01'),
+      value: ethers.utils.parseEther('0.02'),
     },
   });
   const writeContract = useContractWrite(config);

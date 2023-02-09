@@ -1,5 +1,5 @@
 import { NextApiResponse, NextApiRequest } from 'next';
-import { Alchemy, Network } from 'alchemy-sdk';
+import { Alchemy, Network, OwnedNft } from 'alchemy-sdk';
 
 type ResponseError = {
   message: string;
@@ -12,12 +12,7 @@ const alchemy = new Alchemy({
 });
 
 interface ApiResponseData {
-  nfts: {
-    title?: string;
-    image?: string;
-    tokenId: string;
-    contract: string;
-  }[];
+  nfts: OwnedNft[];
 }
 
 export default async function handler(
@@ -37,17 +32,12 @@ export default async function handler(
       address.toLowerCase(),
     );
 
-    const nfts = ownedNfts.map((nft) => {
-      return {
-        title: nft.title || nft.contract.name,
-        image:
-          nft.media && nft.media.length > 0
-            ? nft.media[0].thumbnail
-            : undefined,
-        tokenId: nft.tokenId,
-        contract: nft.contract.address,
-      };
-    });
+    let nfts: OwnedNft[] = [];
+    for await (const nft of alchemy.nft.getNftsForOwnerIterator(
+      address.toLowerCase(),
+    )) {
+      nfts.push(nft);
+    }
 
     return res.status(200).json({ nfts });
   } catch (error) {

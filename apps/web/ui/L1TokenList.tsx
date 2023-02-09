@@ -3,22 +3,35 @@
 import { Fragment, useEffect, useState } from 'react';
 import { useAccount } from 'wagmi';
 import { useAccount as useStarkNetAccount } from '@starknet-react/core';
-import { Dialog, Listbox, Transition } from '@headlessui/react';
-import { ChevronUpDownIcon } from '@heroicons/react/24/solid';
+import { Dialog, Listbox, Transition, Combobox } from '@headlessui/react';
+import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/24/solid';
 
 import ContinueButton from '#/ui/ContinueButton';
 import Image from 'next/image';
-import { NFT } from '#/types';
+import { OwnedNft } from 'alchemy-sdk';
 
 export default function L1TokenList() {
-  const [nfts, setNfts] = useState<NFT[]>([]);
+  const [nfts, setNfts] = useState<OwnedNft[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [transaction, setTransaction] = useState<any>(null);
   const { address } = useAccount();
   const { address: l2Address } = useStarkNetAccount();
-  const [selectedNft, setSelectedNft] = useState(
+  const [selectedNft, setSelectedNft] = useState<OwnedNft | null>(
     nfts && nfts.length > 0 ? nfts[0] : null,
   );
+
+  const [query, setQuery] = useState('');
+
+  const filteredNFTs =
+    query === ''
+      ? nfts
+      : nfts.filter((nft) => {
+          return `${(
+            nft.contract.name || ''
+          ).toLowerCase()} #${nft.tokenId.toLowerCase()}`.includes(
+            query.toLowerCase(),
+          );
+        });
 
   function closeModal() {
     setIsOpen(false);
@@ -63,64 +76,81 @@ export default function L1TokenList() {
     <div className="">
       <div className="mb-4 font-medium">L1 Tokens</div>
       <div className="relative mb-4">
-        <div className="">
-          <Listbox value={selectedNft} onChange={setSelectedNft}>
-            <Listbox.Button className="relative w-full cursor-default rounded-lg border border-gray-100 bg-white py-2 pl-3 pr-10 text-left focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm">
-              <div className="flex items-center space-x-4">
-                {selectedNft && selectedNft.image && (
-                  <Image
-                    src={selectedNft.image}
-                    alt={selectedNft.title}
-                    className="h6 w-6"
-                    width={20}
-                    height={20}
-                    priority
-                  />
-                )}
-                <span className="truncate">
-                  {selectedNft?.title || 'Select a token'}
-                </span>
-              </div>
-              <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                <ChevronUpDownIcon
-                  className="h-5 w-5 text-gray-400"
-                  aria-hidden="true"
+        <div>
+          <Combobox value={selectedNft} onChange={setSelectedNft}>
+            <div className="relative mt-1">
+              <div className="relative w-full cursor-default overflow-hidden rounded-lg bg-white text-left shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm">
+                <Combobox.Input
+                  className="w-full border-none py-2 pl-3 pr-10 text-sm leading-5 text-gray-900 focus:ring-0"
+                  displayValue={(nft) =>
+                    nft
+                      ? `${(nft as any as OwnedNft).contract.name} #${
+                          (nft as any as OwnedNft).tokenId
+                        }`
+                      : ''
+                  }
+                  onChange={(event) => setQuery(event.target.value)}
                 />
-              </span>
-            </Listbox.Button>
-            <Transition
-              as={Fragment}
-              leave="transition ease-in duration-100"
-              leaveFrom="opacity-100"
-              leaveTo="opacity-0"
-            >
-              <Listbox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                {nfts.map((nft) => (
-                  <Listbox.Option
-                    key={`${nft.title}-${nft.tokenId}`}
-                    value={nft}
-                    className={({ active }) =>
-                      `relative flex cursor-default select-none items-center space-x-4 py-2 px-2 pr-4 ${
-                        active ? 'bg-gray-100 text-indigo-500' : 'text-gray-900'
-                      }`
-                    }
-                  >
-                    {nft.image && (
-                      <Image
-                        src={nft.image}
-                        alt={nft.title}
-                        className="h6 w-6"
-                        width={20}
-                        height={20}
-                        priority
-                      />
-                    )}
-                    <div>{nft.title}</div>
-                  </Listbox.Option>
-                ))}
-              </Listbox.Options>
-            </Transition>
-          </Listbox>
+                <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
+                  <ChevronUpDownIcon
+                    className="h-5 w-5 text-gray-400"
+                    aria-hidden="true"
+                  />
+                </Combobox.Button>
+              </div>
+              <Transition
+                as={Fragment}
+                leave="transition ease-in duration-100"
+                leaveFrom="opacity-100"
+                leaveTo="opacity-0"
+                afterLeave={() => setQuery('')}
+              >
+                <Combobox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                  {filteredNFTs.length === 0 && query !== '' ? (
+                    <div className="relative cursor-default select-none py-2 px-4 text-gray-700">
+                      Nothing found.
+                    </div>
+                  ) : (
+                    filteredNFTs.map((nft) => (
+                      <Combobox.Option
+                        key={`${nft.contract.address}-#${nft.tokenId}`}
+                        className={({ active }) =>
+                          `relative cursor-default select-none py-2 pl-10 pr-4 ${
+                            active ? 'bg-teal-600 text-white' : 'text-gray-900'
+                          }`
+                        }
+                        value={nft}
+                      >
+                        {({ selected, active }) => (
+                          <>
+                            <span
+                              className={`block truncate ${
+                                selected ? 'font-medium' : 'font-normal'
+                              }`}
+                            >
+                              {nft.contract.name} #{nft.tokenId}
+                            </span>
+                            {selected ? (
+                              <span
+                                className={`absolute inset-y-0 left-0 flex items-center pl-3 ${
+                                  active ? 'text-white' : 'text-teal-600'
+                                }`}
+                              >
+                                <CheckIcon
+                                  className="h-5 w-5"
+                                  aria-hidden="true"
+                                />
+                              </span>
+                            ) : null}
+                          </>
+                        )}
+                      </Combobox.Option>
+                    ))
+                  )}
+                </Combobox.Options>
+              </Transition>
+            </div>
+          </Combobox>
         </div>
       </div>
       <Transition appear show={isOpen} as={Fragment}>
@@ -176,12 +206,16 @@ export default function L1TokenList() {
           </div>
         </Dialog>
       </Transition>
+
       {l2Address && selectedNft && (
-        <ContinueButton
-          nft={selectedNft}
-          l2Address={l2Address}
-          onSuccess={handleSuccess}
-        />
+        <div>
+          <ContinueButton
+            nft={selectedNft}
+            l2Address={l2Address}
+            onSuccess={handleSuccess}
+          />
+          <div>{selectedNft.contract.address}</div>
+        </div>
       )}
     </div>
   );
