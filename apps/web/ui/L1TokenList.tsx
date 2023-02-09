@@ -41,14 +41,17 @@ export default function L1TokenList() {
     async function fetchNfts() {
       const res = await fetch(`/api/l1-nfts/${address}`);
       const { nfts } = await res.json();
-      setNfts(nfts);
+
+      if (nfts && nfts.length) {
+        setNfts(nfts);
+      }
     }
 
     fetchNfts();
   }, [address]);
 
-  if (!nfts) {
-    return null;
+  if (!nfts.length) {
+    return <div className="font-medium">L1 wallet has no tokens</div>;
   }
 
   if (!address) {
