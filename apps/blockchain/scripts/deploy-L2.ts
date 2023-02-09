@@ -22,16 +22,37 @@ async function main() {
   }
   console.log("Deploying L2 bridge...");
   console.log("L2 deployer address: ", L2_DEPLOYER_ADDRESS);
-  const contractFactory = await starknet.getContractFactory("bridge");
+
   console.log("Getting OpenZepplin Account...");
   const deployerAccount = await getOZAccount();
   console.log("Declaring hash...");
-  const bridgeImplHash = await deployerAccount.declare(contractFactory, {
+
+  const defaultTokenContractFactory = await starknet.getContractFactory(
+    "default_token"
+  );
+  const defaultTokenClasshash = await deployerAccount.declare(
+    defaultTokenContractFactory
+  );
+
+  const bridgeContractFactory = await starknet.getContractFactory("bridge");
+  const bridgeClasshash = await deployerAccount.declare(bridgeContractFactory, {
     maxFee,
   });
-  console.log("L2 bridge class is declared at hash: ", bridgeImplHash);
+
+  console.log("L2 bridge class is declared at hash: ", bridgeClasshash);
   console.log("Deploying contract...");
-  const contract = await deployerAccount.deploy(contractFactory, {});
+
+  const contract = await deployerAccount.deploy(
+    bridgeContractFactory,
+    {
+      owner: 0x004febf0e16616092df71a707615cbe8f89046787688fcfa2e778e0a99b77d9f,
+      class_hash: defaultTokenClasshash,
+      initial_salt: 0,
+      udc_contract: 0x041a78e741e5af2fec34b695679bc6891742439f7afb8484ecd7766661ad02bf,
+    },
+    { maxFee }
+  );
+
   console.log("Deployed to:", contract.address);
   process.exit(0);
 }
