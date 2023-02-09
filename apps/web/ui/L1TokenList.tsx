@@ -8,9 +8,10 @@ import { ChevronUpDownIcon } from '@heroicons/react/24/solid';
 
 import ContinueButton from '#/ui/ContinueButton';
 import Image from 'next/image';
+import { NFT } from '#/types';
 
 export default function L1TokenList() {
-  const [nfts, setNfts] = useState<any[]>([]);
+  const [nfts, setNfts] = useState<NFT[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [transaction, setTransaction] = useState<any>(null);
   const { address } = useAccount();

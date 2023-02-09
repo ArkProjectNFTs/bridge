@@ -5,9 +5,10 @@ import { useContractWrite, usePrepareContractWrite } from 'wagmi';
 import abi from '#/abi/abi.json';
 import { FC, useEffect } from 'react';
 import { ethers } from 'ethers';
+import { NFT } from '#/types';
 
 type ContinueButtonProps = {
-  nft: any;
+  nft: NFT;
   l2Address: string;
   onSuccess: (t: `0x${string}` | undefined) => void;
 };
@@ -18,7 +19,7 @@ const ContinueButton: FC<ContinueButtonProps> = (props) => {
     address: process.env.NEXT_PUBLIC_L1_BRIDGE_ADDRESS as `0x${string}`,
     abi,
     functionName: 'deposit',
-    args: [],
+    args: [nft.contract, l2Address, nft.tokenId],
     overrides: {
       value: ethers.utils.parseEther('0.01'),
     },
