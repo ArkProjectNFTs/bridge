@@ -45,7 +45,7 @@
     "@openzeppelin/contracts": "^4.8.1",
     "@openzeppelin/contracts-upgradeable": "^4.8.1",
     "@shardlabs/starknet-hardhat-plugin": "^0.7.1",
-    "ethereum-waffle": "^3.4.4",
+    "ethereum-waffle": "^4.0.0",
     "lint-staged": "^13.1.0",
     "prettier": "^2.8.3",
     "prettier-plugin-solidity": "^1.1.1"
