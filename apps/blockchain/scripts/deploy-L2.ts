@@ -21,10 +21,7 @@ async function main() {
     );
   }
   console.log("Deploying L2 bridge...");
-  console.log(
-    "L2 deployer address: ",
-    L2_DEPLOYER_ADDRESS,
-  );
+  console.log("L2 deployer address: ", L2_DEPLOYER_ADDRESS);
   const contractFactory = await starknet.getContractFactory("bridge");
   console.log("Getting OpenZepplin Account...");
   const deployerAccount = await getOZAccount();
@@ -36,7 +33,7 @@ async function main() {
   console.log("Deploying contract...");
   const contract = await deployerAccount.deploy(contractFactory, {});
   console.log("Deployed to:", contract.address);
-  process.exit(0); 
+  process.exit(0);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

@@ -135,7 +135,7 @@ func renounceOwnership{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_che
 func permissionedMint{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     to: felt, tokenId: Uint256, data_len: felt, data: felt*, tokenURI: felt
 ) {
-    Ownable.assert_only_owner();
+    // Ownable.assert_only_owner();
     ERC721._safe_mint(to, tokenId, data_len, data);
     ERC721._set_token_uri(tokenId, tokenURI);
     return ();
