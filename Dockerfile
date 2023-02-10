@@ -1,4 +1,4 @@
-FROM python:3.9
+FROM python:3.11
 
 ENV HOSTNAME_L1 testnet-l1
 ENV HOSTNAME_L2 testnet-l2
