@@ -66,5 +66,3 @@ These contracts are only given as an example. They HAVE NOT undergone any audit.
 
 <!-- markdownlint-restore -->
 <!-- prettier-ignore-end -->
-
-<!-- ALL-CONTRIBUTORS-LIST:END -->
