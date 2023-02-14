@@ -1,0 +1,55 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalEnv": [
+    "ACCOUNT",
+    "PRIVATE_KEY",
+    "ALCHEMY_API_KEY",
+    "NEXT_PUBLIC_L1_BRIDGE_ADDRESS",
+    "STARKNET_CORE_L1_ADDRESS",
+    "PRIVATE_KEY",
+    "GOERLI_PRIVATE_KEY",
+    "ETHERSCAN_API_KEY",
+    "ALCHEMY_API_KEY",
+    "PRIVATE_KEY",
+    "HOSTNAME_L1",
+    "HOSTNAME_L2",
+    "L2_DEPLOYER_PRIVATE_KEY",
+    "L2_DEPLOYER_ADDRESS",
+    "GOERLI_ALCHEMY_KEY",
+    "MAINNET_ALCHEMY_KEY",
+    "L2_DEPLOYER_SALT"
+  ],
+  "pipeline": {
+    "build:l1": {
+      "cache": false
+    },
+    "build:l2": {
+      "cache": false
+    },
+    "deploy:account": {
+      "cache": false
+    },
+    "deploy-account:goerli": {
+      "cache": false
+    },
+    "deploy-l1:goerli": {
+      "cache": false
+    },
+    "deploy-l2:goerli": {
+      "cache": false
+    },
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", ".next/**"]
+    },
+    "lint": {
+      "outputs": []
+    },
+    "dev": {
+      "cache": false
+    },
+    "test": {
+      "outputs": ["coverage/**"]
+    }
+  }
+}
