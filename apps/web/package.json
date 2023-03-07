@@ -35,7 +35,7 @@
     "connectkit": "1.1.3",
     "date-fns": "2.29.3",
     "dinero.js": "2.0.0-alpha.8",
-    "ethers": "5.7.2",
+    "ethers": "6.1.0",
     "get-starknet": "2.0.0",
     "lokijs": "^1.5.12",
     "next": "13.1.6",
