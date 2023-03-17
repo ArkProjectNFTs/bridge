@@ -45,7 +45,7 @@
     "starknet": "4.17.1",
     "styled-components": "6.0.0-beta.11",
     "use-count-up": "3.0.1",
-    "wagmi": "0.10.15"
+    "wagmi": "0.12.2"
   },
   "devDependencies": {
     "@types/ms": "0.7.31",
