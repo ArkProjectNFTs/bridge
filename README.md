@@ -12,21 +12,8 @@ The Starklane NFT Bridge: seamless transfer of NFTs between ETH L1 &amp; Starkne
 
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
-##
-
-## ➡️ L1 - L2 Flow
-
-- The L1 gateway sends a message to the L2 gateway
-
-- The L2 bridge contract verifies the presence of the L1 address in the registry structure `_l1_to_l2_addresses`
-
-- If the L2 contract doesn't exist, the Universal Deployer Contract is automatically called to deploy a default ERC-721 contract, resulting in a replica of the L1 contract on L2.
-
-- The bridge contract has the authority to mint a new token on the deployed smart contract.
-
-## ⬅️ L2 - L1 Flow
-
-TBD
+## Documentation
+Please find the documentation here: https://github.com/TheArkProjekt/Starklane-documentation
 
 ## Quickstart
 
