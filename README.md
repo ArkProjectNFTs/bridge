@@ -1,5 +1,7 @@
 # Starklane
 
+![banner](https://user-images.githubusercontent.com/243668/234813287-fec9d95b-247e-413b-bae3-b2f58511dbc6.png)
+
 The Starklane NFT Bridge: seamless transfer of NFTs between ETH L1 &amp; Starknet L2. Smart contracts, user-friendly interface, secure &amp; efficient solution. Experience the future of NFT ownership today
 
 [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
