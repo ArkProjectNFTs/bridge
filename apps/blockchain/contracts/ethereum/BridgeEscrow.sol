@@ -3,7 +3,6 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
-import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
 
 contract BridgeEscrow is Ownable, ERC721Holder {
@@ -37,15 +36,26 @@ contract BridgeEscrow is Ownable, ERC721Holder {
         require(depositorAddress != address(0), "Invalid sender address.");
         require(tokenAddress.isContract(), "Token address is not a contract.");
         require(msg.sender.isContract(), "Bridge address is not a contract.");
+
+        IERC721 nftToken = IERC721(tokenAddress);
+
+        // Check if NFT is approved or owned by the depositor
         require(
-            IERC721(tokenAddress).getApproved(tokenId) == address(this),
-            "The NFT must be approved for transfer."
+            nftToken.getApproved(tokenId) == address(this) ||
+                nftToken.ownerOf(tokenId) == depositorAddress,
+            "The NFT must be approved for transfer or owned by the depositor."
         );
 
-        escrowCount++;
-        EscrowEntry storage escrowEntry = allEscrowEntries[escrowCount];
+        // Approve the NFT for transfer if not already approved
+        if (nftToken.getApproved(tokenId) != address(this)) {
+            nftToken.approve(address(this), tokenId);
+        }
 
-        escrowEntry.entryId = escrowCount;
+        escrowCount++;
+        uint256 currentEscrowCount = escrowCount;
+        EscrowEntry storage escrowEntry = allEscrowEntries[currentEscrowCount];
+
+        escrowEntry.entryId = currentEscrowCount;
         escrowEntry.nftId = tokenId;
         escrowEntry.nftContractAddress = tokenAddress;
         escrowEntry.depositor = depositorAddress;
@@ -53,7 +63,7 @@ contract BridgeEscrow is Ownable, ERC721Holder {
         escrowEntry.timestamp = block.timestamp;
         escrowEntry.status = EscrowStatus.Locked;
 
-        activeEscrowEntryIds[tokenAddress][tokenId] = escrowCount;
+        activeEscrowEntryIds[tokenAddress][tokenId] = currentEscrowCount;
 
         IERC721(tokenAddress).safeTransferFrom(
             depositorAddress,
@@ -62,11 +72,11 @@ contract BridgeEscrow is Ownable, ERC721Holder {
         );
 
         emit TokenTransfered(
-            escrowEntry.entryId,
-            escrowEntry.nftId,
-            escrowEntry.nftContractAddress,
-            escrowEntry.depositor,
-            escrowEntry.bridgeContractAddress,
+            currentEscrowCount,
+            tokenId,
+            tokenAddress,
+            depositorAddress,
+            msg.sender,
             escrowEntry.timestamp,
             escrowEntry.status
         );
@@ -76,13 +86,13 @@ contract BridgeEscrow is Ownable, ERC721Holder {
         address tokenAddress,
         uint tokenId
     ) public view returns (EscrowEntry memory) {
-        return allEscrowEntries[activeEscrowEntryIds[tokenAddress][tokenId]];
+        uint256 entryId = activeEscrowEntryIds[tokenAddress][tokenId];
+        return allEscrowEntries[entryId];
     }
 
     function withdrawDeposit(address tokenAddress, uint tokenId) external {
-        EscrowEntry storage escrowEntry = allEscrowEntries[
-            activeEscrowEntryIds[tokenAddress][tokenId]
-        ];
+        uint256 entryId = activeEscrowEntryIds[tokenAddress][tokenId];
+        EscrowEntry storage escrowEntry = allEscrowEntries[entryId];
 
         require(
             escrowEntry.bridgeContractAddress == msg.sender,
@@ -90,21 +100,23 @@ contract BridgeEscrow is Ownable, ERC721Holder {
         );
         require(
             escrowEntry.status == EscrowStatus.Locked,
-            "Invalid deposit status."
+            "Deposit status must be Locked for cancellation."
         );
 
         escrowEntry.status = EscrowStatus.Completed;
+        address depositor = escrowEntry.depositor;
+        uint nftId = escrowEntry.nftId;
         IERC721(escrowEntry.nftContractAddress).safeTransferFrom(
             address(this),
-            escrowEntry.depositor,
-            escrowEntry.nftId
+            depositor,
+            nftId
         );
 
-        emit TokenTransfered(
-            escrowEntry.entryId,
-            escrowEntry.nftId,
+        emit TokenTransferred(
+            entryId,
+            nftId,
             escrowEntry.nftContractAddress,
-            escrowEntry.depositor,
+            depositor,
             escrowEntry.bridgeContractAddress,
             escrowEntry.timestamp,
             escrowEntry.status
@@ -112,9 +124,8 @@ contract BridgeEscrow is Ownable, ERC721Holder {
     }
 
     function cancelDeposit(address tokenAddress, uint tokenId) external {
-        EscrowEntry storage escrowEntry = allEscrowEntries[
-            activeEscrowEntryIds[tokenAddress][tokenId]
-        ];
+        uint256 entryId = activeEscrowEntryIds[tokenAddress][tokenId];
+        EscrowEntry storage escrowEntry = allEscrowEntries[entryId];
 
         require(
             escrowEntry.bridgeContractAddress == msg.sender,
@@ -126,16 +137,18 @@ contract BridgeEscrow is Ownable, ERC721Holder {
         );
 
         escrowEntry.status = EscrowStatus.Cancelled;
-        IERC721(escrowEntry.nftContractAddress).safeTransferFrom(
+        address nftContractAddress = escrowEntry.nftContractAddress;
+        uint nftId = escrowEntry.nftId;
+        IERC721(nftContractAddress).safeTransferFrom(
             address(this),
             msg.sender,
-            escrowEntry.nftId
+            nftId
         );
 
-        emit TokenTransfered(
-            escrowEntry.entryId,
-            escrowEntry.nftId,
-            escrowEntry.nftContractAddress,
+        emit TokenTransferred(
+            entryId,
+            nftId,
+            nftContractAddress,
             escrowEntry.depositor,
             escrowEntry.bridgeContractAddress,
             escrowEntry.timestamp,
@@ -143,7 +156,7 @@ contract BridgeEscrow is Ownable, ERC721Holder {
         );
     }
 
-    event TokenTransfered(
+    event TokenTransferred(
         uint256 indexed id,
         uint256 indexed tokenId,
         address indexed tokenAddress,
