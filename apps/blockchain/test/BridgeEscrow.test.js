@@ -28,7 +28,7 @@ describe("BridgeEscrow", function () {
       const testBridge = await TestBridge.deploy(bridgeEscrow.address);
       await testBridge.deployed();
 
-      console.log("-> TestERC721 deployed to:", testERC721.address);
+      await bridgeEscrow.grantBridgeRole(testBridge.address);
 
       const tokenId = BigNumber.from(1);
       await testERC721.mint(depositor.address, tokenId);
@@ -43,7 +43,7 @@ describe("BridgeEscrow", function () {
       );
 
       await expect(transaction)
-        .to.emit(bridgeEscrow, "TokenTransfered")
+        .to.emit(bridgeEscrow, "TokenTransferred")
         .withArgs(
           1,
           tokenId,
@@ -68,6 +68,8 @@ describe("BridgeEscrow", function () {
       const testBridge = await TestBridge.deploy(bridgeEscrow.address);
       await testBridge.deployed();
 
+      await bridgeEscrow.grantBridgeRole(testBridge.address);
+
       const tokenId = BigNumber.from(1);
       await testERC721.mint(depositor.address, tokenId);
       await testERC721
@@ -82,7 +84,7 @@ describe("BridgeEscrow", function () {
       );
 
       await expect(withdrawTransaction)
-        .to.emit(bridgeEscrow, "TokenTransfered")
+        .to.emit(bridgeEscrow, "TokenTransferred")
         .withArgs(
           1,
           tokenId,
@@ -109,6 +111,8 @@ describe("BridgeEscrow", function () {
       const testBridge = await TestBridge.deploy(bridgeEscrow.address);
       await testBridge.deployed();
 
+      await bridgeEscrow.grantBridgeRole(testBridge.address);
+
       await testBridge
         .connect(depositor)
         .deposit(testERC721.address, tokenId, depositor.address);
@@ -117,7 +121,7 @@ describe("BridgeEscrow", function () {
         bridgeEscrow
           .connect(depositor)
           .withdrawDeposit(testERC721.address, tokenId)
-      ).to.be.revertedWith("Only the bridge can withdraw the NFT.");
+      ).to.be.revertedWith("E3");
     });
 
     it("should fail in case of double withdraw", async function () {
@@ -135,6 +139,8 @@ describe("BridgeEscrow", function () {
       const testBridge = await TestBridge.deploy(bridgeEscrow.address);
       await testBridge.deployed();
 
+      await bridgeEscrow.grantBridgeRole(testBridge.address);
+
       await testBridge
         .connect(depositor)
         .deposit(testERC721.address, tokenId, depositor.address);
@@ -143,7 +149,7 @@ describe("BridgeEscrow", function () {
 
       await expect(
         testBridge.connect(depositor).withdraw(testERC721.address, tokenId)
-      ).to.be.revertedWith("Invalid deposit status.");
+      ).to.be.revertedWith("E3");
     });
   });
 
@@ -163,6 +169,8 @@ describe("BridgeEscrow", function () {
       const testBridge = await TestBridge.deploy(bridgeEscrow.address);
       await testBridge.deployed();
 
+      await bridgeEscrow.grantBridgeRole(testBridge.address);
+
       await testBridge
         .connect(depositor)
         .deposit(testERC721.address, tokenId, depositor.address);
@@ -171,7 +179,7 @@ describe("BridgeEscrow", function () {
         bridgeEscrow
           .connect(depositor)
           .withdrawDeposit(testERC721.address, tokenId)
-      ).to.be.revertedWith("Only the bridge can withdraw the NFT.");
+      ).to.be.revertedWith("E3");
     });
   });
 });

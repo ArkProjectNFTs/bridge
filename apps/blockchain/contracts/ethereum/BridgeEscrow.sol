@@ -1,11 +1,11 @@
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
 
-contract BridgeEscrow is Ownable, ERC721Holder {
+contract BridgeEscrow is AccessControl, ERC721Holder {
     using Address for address;
 
     enum EscrowStatus {
@@ -28,14 +28,39 @@ contract BridgeEscrow is Ownable, ERC721Holder {
     mapping(uint => EscrowEntry) public allEscrowEntries;
     mapping(address => mapping(uint => uint)) public activeEscrowEntryIds;
 
+    bytes32 public constant BRIDGE_ROLE = keccak256("BRIDGE_ROLE");
+
+    constructor() {
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+    }
+
+    function grantBridgeRole(address bridgeAddress) external {
+        require(
+            hasRole(DEFAULT_ADMIN_ROLE, msg.sender),
+            "Caller is not an admin"
+        );
+        _grantRole(BRIDGE_ROLE, bridgeAddress);
+    }
+
+    function revokeBridgeRole(address bridgeAddress) external {
+        require(
+            hasRole(DEFAULT_ADMIN_ROLE, msg.sender),
+            "Caller is not an admin"
+        );
+        _revokeRole(BRIDGE_ROLE, bridgeAddress);
+    }
+
     function depositNFT(
         address tokenAddress,
         uint256 tokenId,
         address depositorAddress
     ) external {
-        require(depositorAddress != address(0), "Invalid sender address.");
-        require(tokenAddress.isContract(), "Token address is not a contract.");
-        require(msg.sender.isContract(), "Bridge address is not a contract.");
+        require(
+            depositorAddress != address(0) &&
+                tokenAddress.isContract() &&
+                hasRole(BRIDGE_ROLE, msg.sender),
+            "E1"
+        );
 
         IERC721 nftToken = IERC721(tokenAddress);
 
@@ -43,7 +68,7 @@ contract BridgeEscrow is Ownable, ERC721Holder {
         require(
             nftToken.getApproved(tokenId) == address(this) ||
                 nftToken.ownerOf(tokenId) == depositorAddress,
-            "The NFT must be approved for transfer or owned by the depositor."
+            "E2"
         );
 
         // Approve the NFT for transfer if not already approved
@@ -71,7 +96,7 @@ contract BridgeEscrow is Ownable, ERC721Holder {
             tokenId
         );
 
-        emit TokenTransfered(
+        emit TokenTransferred(
             currentEscrowCount,
             tokenId,
             tokenAddress,
@@ -95,12 +120,10 @@ contract BridgeEscrow is Ownable, ERC721Holder {
         EscrowEntry storage escrowEntry = allEscrowEntries[entryId];
 
         require(
-            escrowEntry.bridgeContractAddress == msg.sender,
-            "Only the bridge can withdraw the NFT."
-        );
-        require(
-            escrowEntry.status == EscrowStatus.Locked,
-            "Deposit status must be Locked for cancellation."
+            hasRole(BRIDGE_ROLE, msg.sender) &&
+                escrowEntry.bridgeContractAddress == msg.sender &&
+                escrowEntry.status == EscrowStatus.Locked,
+            "E3"
         );
 
         escrowEntry.status = EscrowStatus.Completed;
@@ -128,12 +151,10 @@ contract BridgeEscrow is Ownable, ERC721Holder {
         EscrowEntry storage escrowEntry = allEscrowEntries[entryId];
 
         require(
-            escrowEntry.bridgeContractAddress == msg.sender,
-            "Only the bridge can withdraw the NFT."
-        );
-        require(
-            escrowEntry.status == EscrowStatus.Locked,
-            "Invalid deposit status."
+            hasRole(BRIDGE_ROLE, msg.sender) &&
+                escrowEntry.bridgeContractAddress == msg.sender &&
+                escrowEntry.status == EscrowStatus.Locked,
+            "E4"
         );
 
         escrowEntry.status = EscrowStatus.Cancelled;
