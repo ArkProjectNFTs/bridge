@@ -94,64 +94,84 @@ describe("BridgeEscrow", function () {
         );
     });
 
-    //   it("should fail if the caller is not the depositor", async function () {
-    //     const TestERC721 = await ethers.getContractFactory("TestERC721");
-    //     const testERC721 = await TestERC721.deploy("Test Token", "TT");
-    //     await testERC721.deployed();
+    it("should fail if the caller is not the depositor", async function () {
+      const TestERC721 = await ethers.getContractFactory("TestERC721");
+      const testERC721 = await TestERC721.deploy("Test Token", "TT");
+      await testERC721.deployed();
 
-    //     const tokenId = BigNumber.from(1);
-    //     await testERC721.mint(depositor.address, tokenId);
-    //     await testERC721
-    //       .connect(depositor)
-    //       .approve(bridgeEscrow.address, tokenId);
+      const tokenId = BigNumber.from(1);
+      await testERC721.mint(depositor.address, tokenId);
+      await testERC721
+        .connect(depositor)
+        .approve(bridgeEscrow.address, tokenId);
 
-    //     await bridgeContract.connect(depositor).sendTransaction({
-    //       to: bridgeEscrow.address,
-    //       data: bridgeEscrow.interface.encodeFunctionData("depositNFT", [
-    //         tokenId,
-    //         testERC721.address,
-    //         depositor.address,
-    //       ]),
-    //     });
+      const TestBridge = await ethers.getContractFactory("TestBridge");
+      const testBridge = await TestBridge.deploy(bridgeEscrow.address);
+      await testBridge.deployed();
 
-    //     await expect(
-    //       bridgeEscrow.connect(owner).withdrawDeposit(testERC721.address, tokenId)
-    //     ).to.be.revertedWith("Only the sender can withdraw the NFT.");
-    //   });
+      await testBridge
+        .connect(depositor)
+        .deposit(testERC721.address, tokenId, depositor.address);
 
-    //   it("should fail if the deposit status is not Locked", async function () {
-    //     const TestERC721 = await ethers.getContractFactory("TestERC721");
-    //     const testERC721 = await TestERC721.deploy("Test Token", "TT");
-    //     await testERC721.deployed();
+      await expect(
+        bridgeEscrow
+          .connect(depositor)
+          .withdrawDeposit(testERC721.address, tokenId)
+      ).to.be.revertedWith("Only the bridge can withdraw the NFT.");
+    });
 
-    //     const tokenId = BigNumber.from(1);
-    //     await testERC721.mint(depositor.address, tokenId);
-    //     await testERC721
-    //       .connect(depositor)
-    //       .approve(bridgeEscrow.address, tokenId);
+    it("should fail in case of double withdraw", async function () {
+      const TestERC721 = await ethers.getContractFactory("TestERC721");
+      const testERC721 = await TestERC721.deploy("Test Token", "TT");
+      await testERC721.deployed();
 
-    //     await bridgeContract.connect(depositor).sendTransaction({
-    //       to: bridgeEscrow.address,
-    //       data: bridgeEscrow.interface.encodeFunctionData("depositNFT", [
-    //         tokenId,
-    //         testERC721.address,
-    //         depositor.address,
-    //       ]),
-    //     });
+      const tokenId = BigNumber.from(1);
+      await testERC721.mint(depositor.address, tokenId);
+      await testERC721
+        .connect(depositor)
+        .approve(bridgeEscrow.address, tokenId);
 
-    //     await bridgeEscrow
-    //       .connect(owner)
-    //       .cancelDeposit(testERC721.address, tokenId);
+      const TestBridge = await ethers.getContractFactory("TestBridge");
+      const testBridge = await TestBridge.deploy(bridgeEscrow.address);
+      await testBridge.deployed();
 
-    //     await expect(
-    //       bridgeEscrow
-    //         .connect(depositor)
-    //         .withdrawDeposit(testERC721.address, tokenId)
-    //     ).to.be.revertedWith("Invalid deposit status.");
-    //   });
-    // });
+      await testBridge
+        .connect(depositor)
+        .deposit(testERC721.address, tokenId, depositor.address);
 
-    // describe("cancelDeposit", function () {
-    //   // Add test cases for the cancelDeposit function
+      await testBridge.connect(depositor).withdraw(testERC721.address, tokenId);
+
+      await expect(
+        testBridge.connect(depositor).withdraw(testERC721.address, tokenId)
+      ).to.be.revertedWith("Invalid deposit status.");
+    });
+  });
+
+  describe("cancelDeposit", function () {
+    it("should fail if the caller is not the depositor", async function () {
+      const TestERC721 = await ethers.getContractFactory("TestERC721");
+      const testERC721 = await TestERC721.deploy("Test Token", "TT");
+      await testERC721.deployed();
+
+      const tokenId = BigNumber.from(1);
+      await testERC721.mint(depositor.address, tokenId);
+      await testERC721
+        .connect(depositor)
+        .approve(bridgeEscrow.address, tokenId);
+
+      const TestBridge = await ethers.getContractFactory("TestBridge");
+      const testBridge = await TestBridge.deploy(bridgeEscrow.address);
+      await testBridge.deployed();
+
+      await testBridge
+        .connect(depositor)
+        .deposit(testERC721.address, tokenId, depositor.address);
+
+      await expect(
+        bridgeEscrow
+          .connect(depositor)
+          .withdrawDeposit(testERC721.address, tokenId)
+      ).to.be.revertedWith("Only the bridge can withdraw the NFT.");
+    });
   });
 });

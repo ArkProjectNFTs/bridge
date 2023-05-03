@@ -111,14 +111,15 @@ contract BridgeEscrow is Ownable, ERC721Holder {
         );
     }
 
-    function cancelDeposit(
-        address tokenAddress,
-        uint tokenId
-    ) external onlyOwner {
+    function cancelDeposit(address tokenAddress, uint tokenId) external {
         EscrowEntry storage escrowEntry = allEscrowEntries[
             activeEscrowEntryIds[tokenAddress][tokenId]
         ];
 
+        require(
+            escrowEntry.bridgeContractAddress == msg.sender,
+            "Only the bridge can withdraw the NFT."
+        );
         require(
             escrowEntry.status == EscrowStatus.Locked,
             "Invalid deposit status."

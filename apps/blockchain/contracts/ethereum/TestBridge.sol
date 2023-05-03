@@ -24,4 +24,8 @@ contract TestBridge is Ownable {
     function withdraw(address tokenAddress, uint tokenId) public {
         escrowContract.withdrawDeposit(tokenAddress, tokenId);
     }
+
+    function cancel(address tokenAddress, uint tokenId) public {
+        escrowContract.cancelDeposit(tokenAddress, tokenId);
+    }
 }
