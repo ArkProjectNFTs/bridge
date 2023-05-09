@@ -8,17 +8,12 @@ const maxFee = 5e16;
 const { L2_DEPLOYER_ADDRESS = "", L2_DEPLOYER_PRIVATE_KEY = "" } = process.env;
 
 export async function getOZAccount() {
-  return await starknet.OpenZeppelinAccount.getAccountFromAddress(
-    L2_DEPLOYER_ADDRESS,
-    L2_DEPLOYER_PRIVATE_KEY
-  );
+  return await starknet.OpenZeppelinAccount.getAccountFromAddress(L2_DEPLOYER_ADDRESS, L2_DEPLOYER_PRIVATE_KEY);
 }
 
 async function main() {
   if (!L2_DEPLOYER_ADDRESS || !L2_DEPLOYER_PRIVATE_KEY) {
-    throw new Error(
-      "Please set your L2 deployer private key & address in your .env file"
-    );
+    throw new Error("Please set your L2 deployer private key & address in your .env file");
   }
   console.log("Deploying L2 bridge...");
   console.log("L2 deployer address: ", L2_DEPLOYER_ADDRESS);
@@ -38,7 +33,7 @@ async function main() {
 
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.
-main().catch((error) => {
+main().catch(error => {
   console.error(error);
   process.exitCode = 1;
 });
