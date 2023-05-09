@@ -5,6 +5,7 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
+    "build": "yarn run ethereum:compile",
     "lint": "eslint --config ./.eslintrc.json --ignore-path ./.eslintignore ./*.ts ./deploy/**/*.ts ./scripts/**/*.ts ./test/**/*.ts",
     "lint:cairo": "find contracts/ -iname '*.cairo' -exec ~/cairo_venv/bin/cairo-fomat -c {} +",
     "chain": "hardhat node --network hardhat  --no-deploy",
