@@ -1,3 +1,2 @@
 #[contract]
-mod DefaultToken {
-}
+mod DefaultToken {}
