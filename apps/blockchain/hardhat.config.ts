@@ -20,6 +20,7 @@ const config: HardhatUserConfig = {
     deployer: 0,
   },
   starknet: {
+    cairo1BinDir: "~/.cairo/target/release/",
     venv: "active",
     wallets: {
       OpenZeppelin: {

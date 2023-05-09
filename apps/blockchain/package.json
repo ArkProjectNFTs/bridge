@@ -15,6 +15,7 @@
     "ethereum:deploy": "hardhat deploy --export-all ./temp/hardhat_contracts.json \"$@\"",
     "ethereum:fork": "MAINNET_FORKING_ENABLED=true hardhat node --network hardhat --no-deploy",
     "ethereum:generate": "hardhat run ./scripts/ethereum/generateAccount.ts",
+    "starknet:compile": "hardhat starknet-compile",
     "lint-staged": "eslint --config ./.eslintrc.json --ignore-path ./.eslintignore"
   },
   "devDependencies": {
