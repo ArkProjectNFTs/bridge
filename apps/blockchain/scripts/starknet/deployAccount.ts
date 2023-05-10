@@ -4,11 +4,11 @@ async function keypress() {
   if (process.stdin.isTTY) {
     process.stdin.setRawMode(true);
   }
-  return new Promise<void>((resolve) =>
+  return new Promise<void>(resolve =>
     process.stdin.once("data", () => {
       process.stdin.setRawMode(false);
       resolve();
-    })
+    }),
   );
 }
 
@@ -18,10 +18,10 @@ async function keypress() {
     privateKey: process.env.L2_DEPLOYER_PRIVATE_KEY,
   });
   console.log(
-    `Account created at ${account.address} with private key=${account.privateKey} and public key=${account.publicKey}`
+    `Account created at ${account.address} with private key=${account.privateKey} and public key=${account.publicKey}`,
   );
   console.log(
-    "Please fund the address. Even after you get a confirmation that the funds were transferred, you may want to wait for a couple of minutes."
+    "Please fund the address. Even after you get a confirmation that the funds were transferred, you may want to wait for a couple of minutes.",
   );
   console.log("Press any key to continue...");
   await keypress();
@@ -31,7 +31,7 @@ async function keypress() {
   process.exit(0);
 })()
   .then(() => process.exit(0))
-  .catch((err) => {
+  .catch(err => {
     console.error(err);
     process.exit(1);
   });
