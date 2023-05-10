@@ -17,7 +17,9 @@
     "L2_DEPLOYER_ADDRESS",
     "GOERLI_ALCHEMY_KEY",
     "MAINNET_ALCHEMY_KEY",
-    "L2_DEPLOYER_SALT"
+    "L2_DEPLOYER_SALT",
+    "MAINNET_FORKING_ENABLED",
+    "DEPLOYER_PRIVATE_KEY"
   ],
   "pipeline": {
     "build:l1": {
