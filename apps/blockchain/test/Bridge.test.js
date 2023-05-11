@@ -3,7 +3,8 @@ const { expect } = require("chai");
 
 describe("Bridge", function () {
   let bridge;
-  let starknetCore;
+  let bridgeEscrow;
+  let erc721Contract;
 
   let owner;
   let addr1;
@@ -13,50 +14,31 @@ describe("Bridge", function () {
     [owner, addr1, addr2] = await ethers.getSigners();
 
     const starknetCoreFactory = await ethers.getContractFactory("TestStarknetCore");
-    starknetCore = await starknetCoreFactory.deploy();
+    const starknetCore = await starknetCoreFactory.deploy();
 
-    // const bridgeFactory = await ethers.getContractFactory("Bridge");
-    // bridge = await bridgeFactory.deploy(starknetCore.address, "<ESCROW_CONTRACT_ADDRESS>");
-    // await bridge.deployed();
+    const bridgeEscrowFactory = await ethers.getContractFactory("BridgeEscrow");
+    bridgeEscrow = await bridgeEscrowFactory.deploy();
+
+    const bridgeFactory = await ethers.getContractFactory("Bridge");
+    bridge = await bridgeFactory.deploy(starknetCore.address, bridgeEscrow.address);
+    await bridge.deployed();
+
+    await bridgeEscrow.grantBridgeRole(bridge.address);
+
+    const erc721ContractFactory = await ethers.getContractFactory("TestERC721");
+    erc721Contract = await erc721ContractFactory.deploy("Test", "Test");
+    await erc721Contract.deployed();
   });
 
-  //   it("should deposit token from L1 to L2", async function () {
-  //     const l1TokenAddress = "<L1_TOKEN_ADDRESS>";
-  //     const l2OwnerAddress = 1234;
-  //     const tokenId = 1;
+  it("should have the right access role on the escrow contract", async () => {
+    const bridgeRole = await bridgeEscrow.BRIDGE_ROLE();
+    const hasRole = await bridgeEscrow.hasRole(bridgeRole, bridge.address);
+    expect(hasRole).to.equal(true);
+  });
 
-  //     // Mock the IBridgeEscrow contract
-  //     const MockEscrow = await ethers.getContractFactory("MockEscrow");
-  //     const mockEscrow = await MockEscrow.deploy();
-  //     await mockEscrow.deployed();
-
-  //     // Deposit NFT in IBridgeEscrow
-  //     await mockEscrow.depositNFT(l1TokenAddress, tokenId, owner.address);
-
-  //     // Mock the IStarknetMessaging contract
-  //     const MockStarknetMessaging = await ethers.getContractFactory("MockStarknetMessaging");
-  //     const mockStarknetMessaging = await MockStarknetMessaging.deploy();
-  //     await mockStarknetMessaging.deployed();
-
-  //     // Send message to L2 using IStarknetMessaging
-  //     const payload = [
-  //       ethers.utils.hexlify(l1TokenAddress),
-  //       l2OwnerAddress,
-  //       tokenId,
-  //       ethers.utils.hexlify("MyToken"),
-  //       ethers.utils.hexlify("MTK"),
-  //       ethers.utils.hexlify("https://mytoken.com/token/1"),
-  //     ];
-  //     await mockStarknetMessaging.sendMessageToL2("<L2_GATEWAY_ADDRESS>", "<SELECTOR>", payload, { value: 100 });
-
-  //     // Call depositTokenFromL1ToL2 function
-  //     await expect(
-  //       bridge.depositTokenFromL1ToL2(l1TokenAddress, l2OwnerAddress, tokenId, {
-  //         value: 100,
-  //       }),
-  //     ).to.emit(mockStarknetMessaging, "SendMessageToL2");
-
-  //     // Check that the deposit was made in the IBridgeEscrow contract
-  //     expect(await mockEscrow.getEscrowedNFT(l1TokenAddress, tokenId)).to.equal(owner.address);
+  //   it("should deposit token from L1", async () => {
+  //     const l2OwnerAddress = "0x07a096EcAa08A3a50dc2E1283C38586C497e0e684648aB2ABe02427E2aFe1e77";
+  //     const tokenId = 0;
+  //     await bridge.depositTokenFromL1ToL2(erc721Contract.address, l2OwnerAddress, tokenId);
   //   });
 });
