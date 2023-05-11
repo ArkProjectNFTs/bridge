@@ -3,6 +3,8 @@ name: Contracts
 on:
   push:
     branches: [main, dev]
+    paths:
+      - "apps/blockchain/**"
   pull_request:
     branches: [main, dev]
 
@@ -40,7 +42,7 @@ jobs:
         run: yarn install
 
       - name: Compile contracts
-        run: yarn build
+        run: yarn build --scope=@starklane/blockchain
 
       - name: Test contracts
-        run: yarn test
+        run: yarn test --scope=@starklane/blockchain
