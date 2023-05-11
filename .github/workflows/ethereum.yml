@@ -12,9 +12,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
-        with:
-          path: apps/blockchain
+        uses: actions/checkout@v3
 
       - name: Set up Node.js
         uses: actions/setup-node@v2
