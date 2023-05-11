@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
+import "./interfaces/IBridgeEscrow.sol";
 import "./interfaces/IStarknetMessaging.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
@@ -14,13 +15,16 @@ interface NFTContract is IERC721 {
 }
 
 contract Bridge is Ownable {
+  IBridgeEscrow public escrowContract;
   IStarknetMessaging public starknetCore;
+
   uint256 public selector;
   uint256 public l2GatewayAddress;
 
-  constructor(address starknetCore_) {
+  constructor(address starknetCore_, address escrowContract_) {
     require(starknetCore_ != address(0), "Gateway/invalid-starknet-core-address");
     starknetCore = IStarknetMessaging(starknetCore_);
+    escrowContract = IBridgeEscrow(escrowContract_);
   }
 
   function setSelector(uint256 value) external onlyOwner {
@@ -45,12 +49,9 @@ contract Bridge is Ownable {
     return stringInUint256;
   }
 
-  // l1TokenAddress, l1OwnerAddress, l2OwnerAddress, tokenId
   function depositTokenFromL1ToL2(address l1TokenAddress, uint256 l2OwnerAddress, uint256 tokenId) public payable {
     NFTContract tokenContract = NFTContract(l1TokenAddress);
-
-    // optimistic transfer, should revert if no approved or not owner
-    tokenContract.transferFrom(msg.sender, address(this), tokenId);
+    escrowContract.depositNFT(l1TokenAddress, tokenId, msg.sender);
 
     string memory symbol = tokenContract.symbol();
     string memory name = tokenContract.name();
