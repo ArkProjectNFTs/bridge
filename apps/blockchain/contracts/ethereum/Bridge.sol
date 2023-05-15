@@ -17,18 +17,33 @@ interface NFTContract is IERC721 {
 contract Bridge is Ownable {
   IBridgeEscrow public escrowContract;
   IStarknetMessaging public starknetCore;
+  address public escrowContractAddress;
 
   uint256 public selector;
   uint256 public l2GatewayAddress;
 
+  event Deposit(
+    address l1TokenAddress,
+    uint256 l2OwnerAddress,
+    uint256 tokenId,
+    address escrowContractAddress,
+    address depositor
+  );
+
   constructor(address starknetCore_, address escrowContract_) {
     require(starknetCore_ != address(0), "Gateway/invalid-starknet-core-address");
     starknetCore = IStarknetMessaging(starknetCore_);
+    escrowContractAddress = escrowContract_;
     escrowContract = IBridgeEscrow(escrowContract_);
   }
 
   function setSelector(uint256 value) external onlyOwner {
     selector = value;
+  }
+
+  function setEscrowContract(address escrowContract_) external onlyOwner {
+    escrowContractAddress = escrowContract_;
+    escrowContract = IBridgeEscrow(escrowContract_);
   }
 
   function setL2GatewayAddress(uint256 value) external onlyOwner {
@@ -49,7 +64,7 @@ contract Bridge is Ownable {
     return stringInUint256;
   }
 
-  function depositTokenFromL1ToL2(address l1TokenAddress, uint256 l2OwnerAddress, uint256 tokenId) public payable {
+  function depositTokenFromL1ToL2(address l1TokenAddress, uint256 l2OwnerAddress, uint256 tokenId) external payable {
     NFTContract tokenContract = NFTContract(l1TokenAddress);
     escrowContract.depositNFT(l1TokenAddress, tokenId, msg.sender);
 
@@ -67,5 +82,6 @@ contract Bridge is Ownable {
     payload[5] = strToUint(tokenUri);
 
     starknetCore.sendMessageToL2{value: msg.value}(l2GatewayAddress, selector, payload);
+    emit Deposit(l1TokenAddress, l2OwnerAddress, tokenId, escrowContractAddress, msg.sender);
   }
 }
