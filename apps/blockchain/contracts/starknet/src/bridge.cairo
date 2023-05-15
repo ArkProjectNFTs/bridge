@@ -1,4 +1,17 @@
+use array::SpanTrait;
+use serde::Serde;
+use serde::serialize_array_helper;
+use serde::deserialize_array_helper;
+use array::ArrayTrait;
+use core::result::ResultTrait;
+use core::traits::Into;
+use debug::PrintTrait;
+use option::OptionTrait;
+use starknet::class_hash::ClassHash;
+use starknet::class_hash::Felt252TryIntoClassHash;
 use starknet::ContractAddress;
+use starknet::contract_address_const;
+use traits::TryInto;
 
 #[abi]
 trait IBridgableToken {
@@ -7,6 +20,7 @@ trait IBridgableToken {
 
 #[contract]
 mod Bridge {
+    use super::SpanSerde;
     use starknet::ContractAddress;
     use super::IBridgableTokenDispatcherTrait;
     use super::IBridgableTokenDispatcher;
@@ -37,4 +51,19 @@ mod Bridge {
 
     #[internal]
     fn deploy_new_contract() {}
+}
+
+impl SpanSerde<T,
+impl TSerde: Serde<T>,
+impl TCopy: Copy<T>,
+impl TDrop: Drop<T>> of Serde<Span<T>> {
+    fn serialize(self: @Span<T>, ref output: Array<felt252>) {
+        (*self).len().serialize(ref output);
+        serialize_array_helper(*self, ref output);
+    }
+    fn deserialize(ref serialized: Span<felt252>) -> Option<Span<T>> {
+        let length = *serialized.pop_front()?;
+        let mut arr = ArrayTrait::new();
+        Option::Some(deserialize_array_helper(ref serialized, arr, length)?.span())
+    }
 }
