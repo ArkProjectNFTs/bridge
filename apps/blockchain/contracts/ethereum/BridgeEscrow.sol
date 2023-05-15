@@ -121,7 +121,7 @@ contract BridgeEscrow is AccessControl, ERC721Holder {
     escrowEntry.status = EscrowStatus.Cancelled;
     address nftContractAddress = escrowEntry.nftContractAddress;
     uint nftId = escrowEntry.nftId;
-    IERC721(nftContractAddress).safeTransferFrom(address(this), msg.sender, nftId);
+    IERC721(nftContractAddress).safeTransferFrom(address(this), escrowEntry.depositor, nftId);
 
     emit TokenTransferred(
       entryId,
