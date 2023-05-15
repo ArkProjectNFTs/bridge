@@ -2345,10 +2345,10 @@
     "@sentry/types" "5.30.0"
     tslib "^1.9.3"
 
-"@shardlabs/starknet-hardhat-plugin@^0.8.0-alpha.1":
-  version "0.8.0-alpha.1"
-  resolved "https://registry.yarnpkg.com/@shardlabs/starknet-hardhat-plugin/-/starknet-hardhat-plugin-0.8.0-alpha.1.tgz#addbb18a78d146bf32e37fbbe78701d6319ab4c1"
-  integrity sha512-4T2Efcf89Afo4m7EQ4vYkqajklFh6kNBOgBOena70zHxaotVTLPJ1XECSExiRpGpcvSU1OShU/FjljyU80COmw==
+"@shardlabs/starknet-hardhat-plugin@^0.8.0-alpha.2":
+  version "0.8.0-alpha.2"
+  resolved "https://registry.yarnpkg.com/@shardlabs/starknet-hardhat-plugin/-/starknet-hardhat-plugin-0.8.0-alpha.2.tgz#74eae89bd283f0419aa5577d5b872c6483a62429"
+  integrity sha512-985y7GON4/1UjCCiBwIyTJVTwcSFwbkMf3ect5F0rz2h0n9mnjfimvo63+hMLivuwMyLYuK0ddtoSD+EVsYywA==
   dependencies:
     "@nomiclabs/hardhat-docker" "^2.0.2"
     axios "^1.0.0"
@@ -2735,10 +2735,10 @@
   resolved "https://registry.npmjs.org/@types/node/-/node-18.11.18.tgz"
   integrity sha512-DHQpWGjyQKSHj3ebjFI/wRKcqQcdR+MoFBygntYOZytCqNfkd2ZC4ARDJ2DQqhjH5p85Nnd3jhUJIXrszFX/JA==
 
-"@types/node@18.13.0":
-  version "18.13.0"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.13.0.tgz#0400d1e6ce87e9d3032c19eb6c58205b0d3f7850"
-  integrity sha512-gC3TazRzGoOnoKAhUx+Q0t8S9Tzs74z7m0ipwGpSqQrleP14hKxP4/JUeEQcD3W1/aIpnWl8pHowI7WokuZpXg==
+"@types/node@18.15.3":
+  version "18.15.3"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.15.3.tgz#f0b991c32cfc6a4e7f3399d6cb4b8cf9a0315014"
+  integrity sha512-p6ua9zBxz5otCmbpb5D3U4B5Nanw6Pk3PPyX05xnxbB/fRv71N7CPmORg7uAD5P70T0xmx1pzAx/FUfa5X+3cw==
 
 "@types/node@^10.0.3":
   version "10.17.60"
