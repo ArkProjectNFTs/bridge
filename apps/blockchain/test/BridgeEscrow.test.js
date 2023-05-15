@@ -32,15 +32,9 @@ describe("BridgeEscrow", function () {
 
       const tokenId = BigNumber.from(1);
       await testERC721.mint(depositor.address, tokenId);
-      await testERC721
-        .connect(depositor)
-        .approve(bridgeEscrow.address, tokenId);
+      await testERC721.connect(depositor).approve(bridgeEscrow.address, tokenId);
 
-      const transaction = await testBridge.deposit(
-        testERC721.address,
-        tokenId,
-        depositor.address
-      );
+      const transaction = await testBridge.deposit(testERC721.address, tokenId, depositor.address);
 
       await expect(transaction)
         .to.emit(bridgeEscrow, "TokenTransferred")
@@ -53,7 +47,7 @@ describe("BridgeEscrow", function () {
           (
             await ethers.provider.getBlock("latest")
           ).timestamp,
-          0
+          0,
         );
     });
   });
@@ -72,28 +66,15 @@ describe("BridgeEscrow", function () {
 
       const tokenId = BigNumber.from(1);
       await testERC721.mint(depositor.address, tokenId);
-      await testERC721
-        .connect(depositor)
-        .approve(bridgeEscrow.address, tokenId);
+      await testERC721.connect(depositor).approve(bridgeEscrow.address, tokenId);
 
       await testBridge.deposit(testERC721.address, tokenId, depositor.address);
       const latestBlock = await ethers.provider.getBlock("latest");
-      const withdrawTransaction = await testBridge.withdraw(
-        testERC721.address,
-        tokenId
-      );
+      const withdrawTransaction = await testBridge.withdraw(testERC721.address, tokenId);
 
       await expect(withdrawTransaction)
         .to.emit(bridgeEscrow, "TokenTransferred")
-        .withArgs(
-          1,
-          tokenId,
-          testERC721.address,
-          depositor.address,
-          testBridge.address,
-          latestBlock.timestamp,
-          1
-        );
+        .withArgs(1, tokenId, testERC721.address, depositor.address, testBridge.address, latestBlock.timestamp, 1);
     });
 
     it("should fail if the caller is not the depositor", async function () {
@@ -103,9 +84,7 @@ describe("BridgeEscrow", function () {
 
       const tokenId = BigNumber.from(1);
       await testERC721.mint(depositor.address, tokenId);
-      await testERC721
-        .connect(depositor)
-        .approve(bridgeEscrow.address, tokenId);
+      await testERC721.connect(depositor).approve(bridgeEscrow.address, tokenId);
 
       const TestBridge = await ethers.getContractFactory("TestBridge");
       const testBridge = await TestBridge.deploy(bridgeEscrow.address);
@@ -113,15 +92,11 @@ describe("BridgeEscrow", function () {
 
       await bridgeEscrow.grantBridgeRole(testBridge.address);
 
-      await testBridge
-        .connect(depositor)
-        .deposit(testERC721.address, tokenId, depositor.address);
+      await testBridge.connect(depositor).deposit(testERC721.address, tokenId, depositor.address);
 
-      await expect(
-        bridgeEscrow
-          .connect(depositor)
-          .withdrawDeposit(testERC721.address, tokenId)
-      ).to.be.revertedWith("E3");
+      await expect(bridgeEscrow.connect(depositor).withdrawDeposit(testERC721.address, tokenId)).to.be.revertedWith(
+        "Caller is not the bridge contract",
+      );
     });
 
     it("should fail in case of double withdraw", async function () {
@@ -131,9 +106,7 @@ describe("BridgeEscrow", function () {
 
       const tokenId = BigNumber.from(1);
       await testERC721.mint(depositor.address, tokenId);
-      await testERC721
-        .connect(depositor)
-        .approve(bridgeEscrow.address, tokenId);
+      await testERC721.connect(depositor).approve(bridgeEscrow.address, tokenId);
 
       const TestBridge = await ethers.getContractFactory("TestBridge");
       const testBridge = await TestBridge.deploy(bridgeEscrow.address);
@@ -141,15 +114,13 @@ describe("BridgeEscrow", function () {
 
       await bridgeEscrow.grantBridgeRole(testBridge.address);
 
-      await testBridge
-        .connect(depositor)
-        .deposit(testERC721.address, tokenId, depositor.address);
+      await testBridge.connect(depositor).deposit(testERC721.address, tokenId, depositor.address);
 
       await testBridge.connect(depositor).withdraw(testERC721.address, tokenId);
 
-      await expect(
-        testBridge.connect(depositor).withdraw(testERC721.address, tokenId)
-      ).to.be.revertedWith("E3");
+      await expect(testBridge.connect(depositor).withdraw(testERC721.address, tokenId)).to.be.revertedWith(
+        "Deposit status is not locked",
+      );
     });
   });
 
@@ -161,9 +132,7 @@ describe("BridgeEscrow", function () {
 
       const tokenId = BigNumber.from(1);
       await testERC721.mint(depositor.address, tokenId);
-      await testERC721
-        .connect(depositor)
-        .approve(bridgeEscrow.address, tokenId);
+      await testERC721.connect(depositor).approve(bridgeEscrow.address, tokenId);
 
       const TestBridge = await ethers.getContractFactory("TestBridge");
       const testBridge = await TestBridge.deploy(bridgeEscrow.address);
@@ -171,15 +140,11 @@ describe("BridgeEscrow", function () {
 
       await bridgeEscrow.grantBridgeRole(testBridge.address);
 
-      await testBridge
-        .connect(depositor)
-        .deposit(testERC721.address, tokenId, depositor.address);
+      await testBridge.connect(depositor).deposit(testERC721.address, tokenId, depositor.address);
 
-      await expect(
-        bridgeEscrow
-          .connect(depositor)
-          .withdrawDeposit(testERC721.address, tokenId)
-      ).to.be.revertedWith("E3");
+      await expect(bridgeEscrow.connect(depositor).withdrawDeposit(testERC721.address, tokenId)).to.be.revertedWith(
+        "Caller is not the bridge contract",
+      );
     });
   });
 });
