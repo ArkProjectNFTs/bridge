@@ -68,10 +68,4 @@ contract Bridge is Ownable {
 
     starknetCore.sendMessageToL2{value: msg.value}(l2GatewayAddress, selector, payload);
   }
-
-  // TO REMOVE
-  function forceWithdraw(address l1_contract_address, uint256 tokenId) public onlyOwner {
-    IERC721 tokenContract = NFTContract(l1_contract_address);
-    tokenContract.transferFrom(address(this), msg.sender, tokenId);
-  }
 }
