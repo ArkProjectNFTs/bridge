@@ -1,16 +1,15 @@
+use core::result::ResultTrait;
 use array::SpanTrait;
 use serde::Serde;
 use serde::serialize_array_helper;
 use serde::deserialize_array_helper;
 use array::ArrayTrait;
-use core::result::ResultTrait;
 use core::traits::Into;
 use debug::PrintTrait;
 use option::OptionTrait;
 use starknet::class_hash::ClassHash;
 use starknet::class_hash::Felt252TryIntoClassHash;
 use starknet::ContractAddress;
-use starknet::contract_address_const;
 use traits::TryInto;
 
 #[abi]
@@ -20,14 +19,20 @@ trait IBridgableToken {
 
 #[contract]
 mod Bridge {
-    use super::SpanSerde;
-    use starknet::ContractAddress;
     use super::IBridgableTokenDispatcherTrait;
     use super::IBridgableTokenDispatcher;
+    use super::SpanSerde;
+    use starknet::class_hash::ClassHash;
+    use array::SpanTrait;
+    use array::ArrayTrait;
+    use starknet::ContractAddress;
     use starknet::contract_address_const;
+    use starknet::syscalls::deploy_syscall;
+    use starknet::contract_address_to_felt252;
 
     struct Storage {
-        _l1_to_l2_addresses: LegacyMap::<ContractAddress, ContractAddress>
+        _l1_to_l2_addresses: LegacyMap::<ContractAddress, ContractAddress>,
+        erc721_default_contract: ClassHash
     }
 
     #[view]
@@ -37,20 +42,48 @@ mod Bridge {
 
     #[external]
     fn mint_token(
-        l1_address: ContractAddress, l2_recipient_address: ContractAddress, token_id: u256
+        l1_address: ContractAddress,
+        l2_recipient_address: ContractAddress,
+        token_id: u256,
+        name: felt252,
+        symbol: felt252
     ) {
         let l2_contract_address: ContractAddress = _l1_to_l2_addresses::read(l1_address);
-        if (l2_contract_address != contract_address_const::<0>()) {
+        let felt_contract_address: felt252 = contract_address_to_felt252(l2_contract_address);
+
+        if (felt_contract_address != 0) {
             IBridgableTokenDispatcher {
                 contract_address: l2_contract_address
-            }.permissioned_mint(l2_recipient_address, token_id)
+            }.permissioned_mint(l2_recipient_address, token_id);
         } else {
-            deploy_new_contract()
+            deploy_new_contract(l1_address, l2_recipient_address, name, symbol);
         }
     }
 
     #[internal]
-    fn deploy_new_contract() {}
+    fn deploy_new_contract(
+        l1_address: ContractAddress,
+        l2_recipient_address: ContractAddress,
+        name: felt252,
+        symbol: felt252
+    ) -> ContractAddress {
+        // TODO: Determine the contract type (erc721 / erc1155)
+        let class_hash: ClassHash = erc721_default_contract::read();
+
+        let salt = pedersen(
+            contract_address_to_felt252(l1_address),
+            contract_address_to_felt252(l2_recipient_address)
+        );
+
+        let mut calldata = ArrayTrait::<felt252>::new();
+        calldata.append(name);
+        calldata.append(symbol);
+
+        let syscall_result = deploy_syscall(class_hash, salt, calldata.span(), false);
+        let (deployed_contract_address, _) = syscall_result.unwrap_syscall();
+        _l1_to_l2_addresses::write(l1_address, deployed_contract_address);
+        deployed_contract_address
+    }
 }
 
 impl SpanSerde<T,
