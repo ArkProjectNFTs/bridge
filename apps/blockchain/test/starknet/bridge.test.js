@@ -20,6 +20,7 @@ describe("Bridge", function () {
     // const account = await starknet.OpenZeppelinAccount.getAccountFromAddress(accountAddress);
 
     const bridgeFactory = await starknet.getContractFactory("bridge");
+
     // const txHash = await account.declare(bridgeFactory);
     // console.log("=> txHash", txHash);
 
