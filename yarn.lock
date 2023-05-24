@@ -2528,12 +2528,13 @@
     "@stablelib/random" "^1.0.2"
     "@stablelib/wipe" "^1.0.1"
 
-"@starknet-react/core@0.14.8":
-  version "0.14.8"
-  resolved "https://registry.yarnpkg.com/@starknet-react/core/-/core-0.14.8.tgz#3e063e3d3d2832d76de44eda85b2879e93d069e0"
-  integrity sha512-PouT9Njd2Um+rbuh3thg+YGalR30uen2D9cnJsayQ+UbPwXs0W2Y1n0Kp/pSxi0z+D7wGXO8Vu3pi7jU5ZLjVg==
+"@starknet-react/core@^0.17.1":
+  version "0.17.1"
+  resolved "https://registry.yarnpkg.com/@starknet-react/core/-/core-0.17.1.tgz#d3a2c8d3ad8cbd1a1fffe94b5fb05b73c4d6454a"
+  integrity sha512-rHDbg0IkJPnlBRZbEm90CpQxJtouCMSIX67NuRTNoo8k2ZmF0rtuPnv/HuehImKxWIsEyjxb5gHVCvDyMjDNrg==
   dependencies:
     "@tanstack/react-query" "^4.3.4"
+    get-starknet-core "^2.0.0"
     immutable "^4.0.0"
 
 "@swc/helpers@0.4.14":
