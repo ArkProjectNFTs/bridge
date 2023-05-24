@@ -15,6 +15,7 @@ const LOGOS_BY_ID: Record<string, StaticImageData> = {
 const LABELS_BY_ID: Record<string, string> = {
   braavos: 'Braavos',
   argentX: 'Argent X',
+  argentWebWallet: 'Argent X Web wallet',
 };
 
 type ConnectStarkNetModalProps = {
@@ -77,25 +78,27 @@ export default function ConnectStarkNetModal({
                   </div>
                   {isDisconnected ? (
                     <div className="flex flex-col space-y-4">
-                      {connectors.map((connector) => (
-                        <button
-                          key={connector.id()}
-                          className="flex h-[64px] w-full items-center justify-between rounded-xl bg-gray-100 px-4 py-2 text-left"
-                          onClick={() => connect(connector)}
-                        >
-                          <div className="text-lg font-medium">
-                            {LABELS_BY_ID[connector.id()]}
-                          </div>
-                          <Image
-                            src={LOGOS_BY_ID[connector.id()]}
-                            alt={connector.id()}
-                            className=""
-                            width={32}
-                            height={32}
-                            priority
-                          />
-                        </button>
-                      ))}
+                      {connectors.map((connector) => {
+                        return (
+                          <button
+                            key={connector.id()}
+                            className="flex h-[64px] w-full items-center justify-between rounded-xl bg-gray-100 px-4 py-2 text-left"
+                            onClick={() => connect(connector)}
+                          >
+                            <div className="text-lg font-medium">
+                              {LABELS_BY_ID[connector.id()]}
+                            </div>
+                            <Image
+                              src={LOGOS_BY_ID[connector.id()]}
+                              alt={connector.id()}
+                              className=""
+                              width={32}
+                              height={32}
+                              priority
+                            />
+                          </button>
+                        );
+                      })}
                     </div>
                   ) : (
                     <div className="text-center">

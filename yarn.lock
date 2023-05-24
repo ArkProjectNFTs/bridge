@@ -20,6 +20,28 @@
   resolved "https://registry.yarnpkg.com/@apidevtools/swagger-methods/-/swagger-methods-3.0.2.tgz#b789a362e055b0340d04712eafe7027ddc1ac267"
   integrity sha512-QAkD5kK2b1WfjDS/UQn/qQkbwF31uqRjPTrsCs5ZG9BQGAkjwvqGFjjPqAuzac/IYzpPtRzjCP1WrTuAIjMrXg==
 
+"@argent/starknet-react-webwallet-connector@^6.1.2":
+  version "6.1.2"
+  resolved "https://registry.yarnpkg.com/@argent/starknet-react-webwallet-connector/-/starknet-react-webwallet-connector-6.1.2.tgz#454fea34274f82ce4d7ccfe71d77222292816cb0"
+  integrity sha512-niqNlRhs3+jq5R3apvEfLMBZdKURSwoVRSSCddgeAymHLp9/i0mWOXgwP8ODh61fOu5i6MtWGc5ArXwMmQX2rA==
+  dependencies:
+    "@argent/web-sdk" "^6.1.1"
+    "@starknet-react/core" "^0.15.1"
+
+"@argent/web-sdk@^6.1.1":
+  version "6.1.1"
+  resolved "https://registry.yarnpkg.com/@argent/web-sdk/-/web-sdk-6.1.1.tgz#5b02df709ebe92d9b6e923e8e565a69547e42952"
+  integrity sha512-Y0fe1Kx/MLwY1dnnKKinOLWoSqN7mC1O+O3Yj+tKMMul5xgTFOVgGyVARkI7yIFgXlX3QryDYokeyJOLVuhrRg==
+  dependencies:
+    "@argent/x-window" "^6.1.1"
+    get-starknet-core "^2.0.0"
+    lodash-es "^4.17.21"
+
+"@argent/x-window@^6.1.1":
+  version "6.1.1"
+  resolved "https://registry.yarnpkg.com/@argent/x-window/-/x-window-6.1.1.tgz#a588fca47b322a508229f169c44f794e8a31b558"
+  integrity sha512-46vIlT21crzxKuPaZx56VpBrARQSCQAAlYuuRDEeH3R6D9joSI3s+nH5iLZo9mDo6leZVatLPXUdxio16mDnng==
+
 "@babel/cli@^7.20.7":
   version "7.20.7"
   resolved "https://registry.yarnpkg.com/@babel/cli/-/cli-7.20.7.tgz#8fc12e85c744a1a617680eacb488fab1fcd35b7c"
@@ -2527,6 +2549,15 @@
     "@stablelib/keyagreement" "^1.0.1"
     "@stablelib/random" "^1.0.2"
     "@stablelib/wipe" "^1.0.1"
+
+"@starknet-react/core@^0.15.1":
+  version "0.15.1"
+  resolved "https://registry.yarnpkg.com/@starknet-react/core/-/core-0.15.1.tgz#e6aa6749230449ba0f1fcd1eda68901459d57d15"
+  integrity sha512-m2Lge8FokDm0Kpja+ZfhoaFm1NgRf3wIraaxHNLuNzo14AuXQaIfXzRssJvSqb7CG747ihle8lxmZj3MIHBrWg==
+  dependencies:
+    "@tanstack/react-query" "^4.3.4"
+    get-starknet-core "^2.0.0"
+    immutable "^4.0.0"
 
 "@starknet-react/core@^0.17.1":
   version "0.17.1"
@@ -7914,6 +7945,11 @@ locate-path@^6.0.0:
   integrity sha512-iPZK6eYjbxRu3uB4/WZ3EsEIMJFMqAoopl3R+zuq0UjcAm/MO6KCweDgPfP3elTztoKP3KtnVHxTn2NHBSDVUw==
   dependencies:
     p-locate "^5.0.0"
+
+lodash-es@^4.17.21:
+  version "4.17.21"
+  resolved "https://registry.yarnpkg.com/lodash-es/-/lodash-es-4.17.21.tgz#43e626c46e6591b7750beb2b50117390c609e3ee"
+  integrity sha512-mKnC+QJ9pWVzv+C4/U3rRsHapFfHvQFoFB92e52xeyGMcX6/OlIl78je1u8vePzYZSkkogMPJ2yjxxsb89cxyw==
 
 lodash.camelcase@^4.3.0:
   version "4.3.0"

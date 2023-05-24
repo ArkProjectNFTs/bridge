@@ -6,6 +6,7 @@ import { WagmiConfig, createClient } from 'wagmi';
 import { goerli } from 'wagmi/chains';
 import { ConnectKitProvider, getDefaultClient } from 'connectkit';
 import { InjectedConnector, StarknetConfig } from '@starknet-react/core';
+import { WebWalletConnector } from '@argent/starknet-react-webwallet-connector';
 
 import Header from '#/ui/Header';
 import Footer from '#/ui/Footer';
@@ -24,6 +25,7 @@ const wagmiClient = createClient(
 const connectors = [
   new InjectedConnector({ options: { id: 'braavos' } }),
   new InjectedConnector({ options: { id: 'argentX' } }),
+  new WebWalletConnector(),
 ];
 
 export default function RootLayout({

@@ -25,6 +25,7 @@
     "singleQuote": true
   },
   "dependencies": {
+    "@argent/starknet-react-webwallet-connector": "^6.1.2",
     "@headlessui/react": "1.7.10",
     "@heroicons/react": "2.0.15",
     "@starknet-react/core": "^0.17.1",
