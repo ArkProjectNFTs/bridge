@@ -22,9 +22,11 @@ contract Bridge is Ownable {
   IBridgeEscrow public escrowContract;
   IStarknetMessaging public starknetCore;
   address public escrowContractAddress;
-
+  uint256 public isOpen = 1;
   uint256 public selector;
   uint256 public l2GatewayAddress;
+
+  // EVENTS
 
   event Deposit(
     address l1TokenAddress,
@@ -33,6 +35,8 @@ contract Bridge is Ownable {
     address escrowContractAddress,
     address depositor
   );
+
+  event Closed();
 
   constructor(address starknetCore_, address escrowContract_) {
     require(starknetCore_ != address(0), "Gateway/invalid-starknet-core-address");
@@ -54,7 +58,9 @@ contract Bridge is Ownable {
     l2GatewayAddress = value;
   }
 
-  function strToUint(string memory text) public pure returns (uint256 res) {
+  // INTERNAL
+
+  function strToUint(string memory text) internal pure returns (uint256 res) {
     bytes32 stringInBytes32 = bytes32(bytes(text));
     uint256 strLen = bytes(text).length; // TODO: cannot be above 32
     require(strLen <= 32, "String cannot be longer than 32");
@@ -68,12 +74,19 @@ contract Bridge is Ownable {
     return stringInUint256;
   }
 
+  // EXTERNAL
+
+  function close() external onlyOwner {
+    isOpen = 0;
+    emit Closed();
+  }
+
   function depositTokenFromL1ToL2(
     address l1TokenAddress,
     uint256 l2RecipientAddress,
     uint256 tokenId
-  ) external payable {
-    require(l2RecipientAddress != 0 && l2Recipient < SN_PRIME, "Invalid L2 address");
+  ) external payable whenOpen {
+    require(l2RecipientAddress != 0 && l2RecipientAddress < SN_PRIME, "Invalid L2 address");
 
     NFTContract tokenContract = NFTContract(l1TokenAddress);
     escrowContract.depositNFT(l1TokenAddress, tokenId, msg.sender);
@@ -93,5 +106,10 @@ contract Bridge is Ownable {
 
     starknetCore.sendMessageToL2{value: msg.value}(l2GatewayAddress, selector, payload);
     emit Deposit(l1TokenAddress, l2RecipientAddress, tokenId, escrowContractAddress, msg.sender);
+  }
+
+  modifier whenOpen() {
+    require(isOpen == 1, "Bridge is closed");
+    _;
   }
 }
