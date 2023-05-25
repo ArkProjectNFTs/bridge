@@ -5,11 +5,12 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
+    "test": "yarn run ethereum:test",
     "build": "yarn run ethereum:compile",
     "lint": "eslint --config ./.eslintrc.json --ignore-path ./.eslintignore ./*.ts ./deploy/**/*.ts ./scripts/**/*.ts ./test/**/*.ts",
     "lint-staged": "eslint --config ./.eslintrc.json --ignore-path ./.eslintignore",
     "lint:cairo": "find contracts/ -iname '*.cairo' -exec ~/cairo_venv/bin/cairo-fomat -c {} +",
-    "chain": "hardhat node --network hardhat  --no-deploy",
+    "ethereum:chain": "hardhat node --network hardhat  --no-deploy",
     "ethereum:accounts": "hardhat run scripts/ethereum/listAccount.ts",
     "ethereum:compile": "hardhat compile",
     "ethereum:test": "hardhat test --network hardhat",
