@@ -1,0 +1,9 @@
+[package]
+name = "starklane_contracts"
+version = "1.0.0"
+
+[cairo]
+sierra-replace-ids = true
+
+[[target.starknet-contract]]
+sierra = true

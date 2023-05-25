@@ -25,7 +25,7 @@ jobs:
           echo "$GITHUB_WORKSPACE/scarb-${{ env.SCARB_VERSION }}-x86_64-unknown-linux-gnu/bin" >> $GITHUB_PATH
 
       - run: scarb build
-        working-directory: apps/blockchain
+        working-directory: apps/blockchain/contracts/starknet
 
   test-ethereum-contracts:
     runs-on: ubuntu-latest
