@@ -14,6 +14,10 @@ interface NFTContract is IERC721 {
   function tokenURI(uint256 tokenId) external view returns (string memory);
 }
 
+// src/starkware/cairo/lang/cairo_constants.py
+//  2 ** 251 + 17 * 2 ** 192 + 1;
+uint256 constant SN_PRIME = 3618502788666131213697322783095070105623107215331596699973092056135872020481;
+
 contract Bridge is Ownable {
   IBridgeEscrow public escrowContract;
   IStarknetMessaging public starknetCore;
@@ -64,7 +68,13 @@ contract Bridge is Ownable {
     return stringInUint256;
   }
 
-  function depositTokenFromL1ToL2(address l1TokenAddress, uint256 l2OwnerAddress, uint256 tokenId) external payable {
+  function depositTokenFromL1ToL2(
+    address l1TokenAddress,
+    uint256 l2RecipientAddress,
+    uint256 tokenId
+  ) external payable {
+    require(l2RecipientAddress != 0 && l2Recipient < SN_PRIME, "Invalid L2 address");
+
     NFTContract tokenContract = NFTContract(l1TokenAddress);
     escrowContract.depositNFT(l1TokenAddress, tokenId, msg.sender);
 
@@ -75,13 +85,13 @@ contract Bridge is Ownable {
     uint256[] memory payload = new uint256[](6);
 
     payload[0] = uint256(uint160(l1TokenAddress)); // l1_contract_address
-    payload[1] = l2OwnerAddress; // to
+    payload[1] = l2RecipientAddress; // to
     payload[2] = tokenId;
     payload[3] = strToUint(name);
     payload[4] = strToUint(symbol);
     payload[5] = strToUint(tokenUri);
 
     starknetCore.sendMessageToL2{value: msg.value}(l2GatewayAddress, selector, payload);
-    emit Deposit(l1TokenAddress, l2OwnerAddress, tokenId, escrowContractAddress, msg.sender);
+    emit Deposit(l1TokenAddress, l2RecipientAddress, tokenId, escrowContractAddress, msg.sender);
   }
 }
