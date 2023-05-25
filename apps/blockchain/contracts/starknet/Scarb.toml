@@ -7,3 +7,6 @@ sierra-replace-ids = true
 
 [[target.starknet-contract]]
 sierra = true
+
+[scripts]
+test-docker = "sudo docker run --rm -v $(pwd):/work --entrypoint cairo-test starknet/cairo:1.0.0 --starknet /work/"
