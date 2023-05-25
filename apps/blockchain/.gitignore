@@ -11,3 +11,4 @@ cache
 artifacts
 
 deployments
+contracts/**/target/**/*
