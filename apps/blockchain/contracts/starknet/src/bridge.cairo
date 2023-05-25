@@ -84,6 +84,12 @@ mod Bridge {
         _l1_to_l2_addresses::write(l1_address, deployed_contract_address);
         deployed_contract_address
     }
+
+    #[external]
+    fn set_erc721_default_contract(contract_address: ClassHash) {
+        // TODO: Acess control.
+        erc721_default_contract::write(contract_address);
+    }
 }
 
 impl SpanSerde<T,
