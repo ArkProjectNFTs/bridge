@@ -20,17 +20,14 @@ const config: HardhatUserConfig = {
     deployer: 0,
   },
   starknet: {
-    cairo1BinDir: "~/.cairo/target/release/",
-    venv: "active",
-    wallets: {
-      OpenZeppelin: {
-        accountName: "OpenZeppelin",
-        modulePath: "starkware.starknet.wallets.open_zeppelin.OpenZeppelinAccount",
-        accountPath: "~/.starknet_accounts",
-      },
-    },
+    dockerizedVersion: "latest",
+    // cairo1BinDir: "~/.cairo/target/release/",
+    // venv: "active",
   },
   networks: {
+    devnet: {
+      url: "http://127.0.0.1:5050",
+    },
     hardhat: {
       forking: {
         url: `https://eth-mainnet.alchemyapi.io/v2/${providerApiKey}`,

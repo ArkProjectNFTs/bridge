@@ -7,6 +7,7 @@
   "scripts": {
     "build": "yarn run ethereum:compile",
     "lint": "eslint --config ./.eslintrc.json --ignore-path ./.eslintignore ./*.ts ./deploy/**/*.ts ./scripts/**/*.ts ./test/**/*.ts",
+    "lint-staged": "eslint --config ./.eslintrc.json --ignore-path ./.eslintignore",
     "lint:cairo": "find contracts/ -iname '*.cairo' -exec ~/cairo_venv/bin/cairo-fomat -c {} +",
     "chain": "hardhat node --network hardhat  --no-deploy",
     "ethereum:accounts": "hardhat run scripts/ethereum/listAccount.ts",
@@ -16,7 +17,8 @@
     "ethereum:fork": "MAINNET_FORKING_ENABLED=true hardhat node --network hardhat --no-deploy",
     "ethereum:generate": "hardhat run ./scripts/ethereum/generateAccount.ts",
     "starknet:compile": "hardhat starknet-compile",
-    "lint-staged": "eslint --config ./.eslintrc.json --ignore-path ./.eslintignore"
+    "starknet:devnet": "starknet-devnet",
+    "starknet:test": "hardhat test"
   },
   "devDependencies": {
     "@ethersproject/abi": "^5.7.0",
