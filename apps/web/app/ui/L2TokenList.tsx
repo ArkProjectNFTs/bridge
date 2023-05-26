@@ -1,25 +1,25 @@
-'use client';
+"use client";
 
-import { useAccount } from '@starknet-react/core';
-import { useEffect, useState } from 'react';
+import { useAccount } from "@starknet-react/core";
+import { useEffect, useState } from "react";
 
 export default function L2TokenList() {
   const [nfts, setNfts] = useState<any[]>([]);
   const { address } = useAccount();
 
-  useEffect(() => {
-    if (!address) {
-      return;
-    }
+  // useEffect(() => {
+  //   if (!address) {
+  //     return;
+  //   }
 
-    async function fetchNfts() {
-      const res = await fetch(`/api/l2-nfts/${address}`);
-      const { nfts } = await res.json();
-      setNfts(nfts);
-    }
+  //   async function fetchNfts() {
+  //     const res = await fetch(`/api/l2-nfts/${address}`);
+  //     const { nfts } = await res.json();
+  //     setNfts(nfts);
+  //   }
 
-    fetchNfts();
-  }, [address]);
+  //   fetchNfts();
+  // }, [address]);
 
   if (!nfts) {
     return null;
@@ -35,7 +35,7 @@ export default function L2TokenList() {
       {nfts.map((nft) => (
         <div key={`${nft.title}-${nft.tokenId}`} className="flex space-x-2">
           <img src={nft.image} className="h-6 w-6" alt={nft.title} />
-          <div className="">{nft.title}</div>
+          <div>{nft.title}</div>
         </div>
       ))}
     </div>

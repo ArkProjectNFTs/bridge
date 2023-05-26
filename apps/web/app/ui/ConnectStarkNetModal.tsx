@@ -1,11 +1,11 @@
-import { useAccount, useConnectors } from '@starknet-react/core';
-import { Fragment, useEffect } from 'react';
-import { Dialog, Transition } from '@headlessui/react';
-import { XMarkIcon } from '@heroicons/react/24/solid';
+import { useAccount, useConnectors } from "@starknet-react/core";
+import { Fragment, useEffect } from "react";
+import { Dialog, Transition } from "@headlessui/react";
+import { XMarkIcon } from "@heroicons/react/24/solid";
 
-import braavosLogo from '#/public/braavos.png';
-import argentXLogo from '#/public/argentx.png';
-import Image, { StaticImageData } from 'next/image';
+import Image, { StaticImageData } from "next/image";
+import braavosLogo from "~/public/braavos.png";
+import argentXLogo from "~/public/argentx.png";
 
 const LOGOS_BY_ID: Record<string, StaticImageData> = {
   braavos: braavosLogo,
@@ -13,8 +13,8 @@ const LOGOS_BY_ID: Record<string, StaticImageData> = {
 };
 
 const LABELS_BY_ID: Record<string, string> = {
-  braavos: 'Braavos',
-  argentX: 'Argent X',
+  braavos: "Braavos",
+  argentX: "Argent X",
 };
 
 type ConnectStarkNetModalProps = {
@@ -28,8 +28,8 @@ export default function ConnectStarkNetModal({
 }: ConnectStarkNetModalProps) {
   const { connect, connectors, refresh, disconnect } = useConnectors();
   const { account, address, status } = useAccount();
-  const isDisconnected = status === 'disconnected';
-  const shortAddress = address?.slice(0, 6) + '••••' + address?.slice(-4);
+  const isDisconnected = status === "disconnected";
+  const shortAddress = address?.slice(0, 6) + "••••" + address?.slice(-4);
 
   useEffect(() => {
     const interval = setInterval(refresh, 5000);
@@ -66,11 +66,11 @@ export default function ConnectStarkNetModal({
                 <Dialog.Panel className="w-[360px] transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
                   <div className="relative mb-8 text-center">
                     <div className="font-medium">
-                      {isDisconnected ? 'Connect Wallet' : 'Connected'}
+                      {isDisconnected ? "Connect Wallet" : "Connected"}
                     </div>
                     <button
                       onClick={closeModal}
-                      className="absolute top-0 right-0"
+                      className="absolute right-0 top-0"
                     >
                       <XMarkIcon className="h-6 w-6 text-gray-400" />
                     </button>
@@ -87,7 +87,7 @@ export default function ConnectStarkNetModal({
                             {LABELS_BY_ID[connector.id()]}
                           </div>
                           <Image
-                            src={LOGOS_BY_ID[connector.id()]}
+                            src={LOGOS_BY_ID[connector.id()] || ""}
                             alt={connector.id()}
                             className=""
                             width={32}

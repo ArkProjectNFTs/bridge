@@ -1,7 +1,7 @@
-'use clients';
+"use client";
 
-import { ConnectKitButton } from 'connectkit';
-import ConnectStarkNetButton from './ConnectStarkNetButton';
+import { ConnectKitButton } from "connectkit";
+import ConnectStarkNetButton from "./ConnectStarkNetButton";
 
 export default function Header() {
   return (
