@@ -5,10 +5,12 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
+    "test": "yarn run ethereum:test",
     "build": "yarn run ethereum:compile",
     "lint": "eslint --config ./.eslintrc.json --ignore-path ./.eslintignore ./*.ts ./deploy/**/*.ts ./scripts/**/*.ts ./test/**/*.ts",
+    "lint-staged": "eslint --config ./.eslintrc.json --ignore-path ./.eslintignore",
     "lint:cairo": "find contracts/ -iname '*.cairo' -exec ~/cairo_venv/bin/cairo-fomat -c {} +",
-    "chain": "hardhat node --network hardhat  --no-deploy",
+    "ethereum:chain": "hardhat node --network hardhat  --no-deploy",
     "ethereum:accounts": "hardhat run scripts/ethereum/listAccount.ts",
     "ethereum:compile": "hardhat compile",
     "ethereum:test": "hardhat test --network hardhat",
@@ -16,7 +18,8 @@
     "ethereum:fork": "MAINNET_FORKING_ENABLED=true hardhat node --network hardhat --no-deploy",
     "ethereum:generate": "hardhat run ./scripts/ethereum/generateAccount.ts",
     "starknet:compile": "hardhat starknet-compile",
-    "lint-staged": "eslint --config ./.eslintrc.json --ignore-path ./.eslintignore"
+    "starknet:devnet": "starknet-devnet",
+    "starknet:test": "hardhat test"
   },
   "devDependencies": {
     "@ethersproject/abi": "^5.7.0",
@@ -31,6 +34,7 @@
     "@typechain/hardhat": "^6.1.3",
     "@types/eslint": "^8",
     "@types/mocha": "^9.1.1",
+    "@types/node": "^20.2.3",
     "@types/prettier": "^2",
     "@types/qrcode": "^1",
     "@typescript-eslint/eslint-plugin": "latest",

@@ -1,0 +1,12 @@
+[package]
+name = "starklane_contracts"
+version = "1.0.0"
+
+[cairo]
+sierra-replace-ids = true
+
+[[target.starknet-contract]]
+sierra = true
+
+[scripts]
+test-docker = "sudo docker run --rm -v $(pwd):/work --entrypoint cairo-test starknet/cairo:1.0.0 --starknet /work/"
