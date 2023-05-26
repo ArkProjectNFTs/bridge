@@ -3,9 +3,9 @@ import { Fragment, useEffect } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/solid";
 
-import Image, { StaticImageData } from "next/image";
 import braavosLogo from "~/public/braavos.png";
 import argentXLogo from "~/public/argentx.png";
+import Image, { StaticImageData } from "next/image";
 
 const LOGOS_BY_ID: Record<string, StaticImageData> = {
   braavos: braavosLogo,
