@@ -1,4 +1,4 @@
-import { nftsRouter } from "~/server/api/routers/example";
+import { nftsRouter } from "~/server/api/routers/nfts";
 import { createTRPCRouter } from "~/server/api/trpc";
 
 /**

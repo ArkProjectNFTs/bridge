@@ -25,8 +25,6 @@ export const nftsRouter = createTRPCRouter({
         address.toLowerCase()
       );
 
-      console.log(ownedNfts);
-
       const nfts = ownedNfts
         .filter((nft) => nft.tokenType === "ERC721")
         .map((nft) => ({
