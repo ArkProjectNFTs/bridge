@@ -15,6 +15,7 @@ use traits::TryInto;
 #[abi]
 trait IBridgableToken {
     fn permissioned_mint(to: ContractAddress, token_id: u256);
+    fn owner_of(token_id: u256) -> ContractAddress;
 }
 
 #[contract]
@@ -52,9 +53,14 @@ mod Bridge {
         let felt_contract_address: felt252 = contract_address_to_felt252(l2_contract_address);
 
         if (felt_contract_address != 0) {
-            IBridgableTokenDispatcher {
-                contract_address: l2_contract_address
-            }.permissioned_mint(l2_recipient_address, token_id);
+            let dispatcher = IBridgableTokenDispatcher { contract_address: l2_contract_address };
+            let token_owner_address: ContractAddress = dispatcher.owner_of(token_id);
+
+            // TODO: safeguard against token burning?
+            if (contract_address_to_felt252(token_owner_address) == 0) {
+                dispatcher.permissioned_mint(l2_recipient_address, token_id);
+            } else { // TODO: Transfer from escrow contract
+            }
         } else {
             deploy_new_contract(l1_address, l2_recipient_address, name, symbol);
         }
@@ -92,10 +98,9 @@ mod Bridge {
     }
 }
 
-impl SpanSerde<T,
-impl TSerde: Serde<T>,
-impl TCopy: Copy<T>,
-impl TDrop: Drop<T>> of Serde<Span<T>> {
+impl SpanSerde<
+    T, impl TSerde: Serde<T>, impl TCopy: Copy<T>, impl TDrop: Drop<T>
+> of Serde<Span<T>> {
     fn serialize(self: @Span<T>, ref output: Array<felt252>) {
         (*self).len().serialize(ref output);
         serialize_array_helper(*self, ref output);
