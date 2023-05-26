@@ -45,6 +45,7 @@ describe("Bridge", function () {
 
     const bridgeContract = bridge.connect(owner);
     await bridgeContract.connect(admin).setSelector(0x01);
-    await bridgeContract.depositTokenFromL1ToL2(nftCollection.address, 0x0, tokenId);
+    const l2RecipientAddress = "0x07a096ecaa08a3a50dc2e1283c38586c497e0e684648ab2abe02427e2afe1e77";
+    await bridgeContract.depositTokenFromL1ToL2(nftCollection.address, l2RecipientAddress, tokenId);
   });
 });
