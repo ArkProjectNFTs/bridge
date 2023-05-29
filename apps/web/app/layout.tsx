@@ -7,8 +7,8 @@ import { goerli } from "wagmi/chains";
 import { ConnectKitProvider, getDefaultConfig } from "connectkit";
 import { InjectedConnector, StarknetConfig } from "@starknet-react/core";
 
-import Footer from "./ui/Footer";
-import Header from "./ui/Header";
+import Footer from "./components/Footer";
+import Header from "./components/Header";
 import { api } from "~/utils/api";
 
 const alchemyId = process.env.ALCHEMY_ID;
@@ -33,12 +33,12 @@ function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="[color-scheme:light]">
       <head />
-      <body className="min-h-screen">
+      <body className="min-h-screen bg-black text-white">
         <StarknetConfig connectors={connectors} autoConnect>
           <WagmiConfig config={wagmiConfig}>
             <ConnectKitProvider>
               <Header />
-              <div className="">{children}</div>
+              <div className="mx-auto w-full max-w-7xl px-4">{children}</div>
               <Footer />
             </ConnectKitProvider>
           </WagmiConfig>

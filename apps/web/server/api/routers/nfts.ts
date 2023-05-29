@@ -5,9 +5,16 @@ import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 
 const alchemy = new Alchemy({
   apiKey: process.env.ALCHEMY_API_KEY,
-  // network: Network.ETH_MAINNET,
-  network: Network.ETH_GOERLI,
+  network: Network.ETH_MAINNET,
+  // network: Network.ETH_GOERLI,
 });
+
+type Nft = {
+  title: string;
+  image: string | undefined;
+  tokenId: string;
+  collectionName: string;
+};
 
 const Address = z.object({
   address: z.custom<string>((address) => {
@@ -16,7 +23,7 @@ const Address = z.object({
 });
 
 export const nftsRouter = createTRPCRouter({
-  getL1NftsFromAddress: publicProcedure
+  getL1NftsByCollection: publicProcedure
     .input(Address)
     .query(async ({ input }) => {
       const { address } = input;
@@ -31,12 +38,21 @@ export const nftsRouter = createTRPCRouter({
           title: nft.title,
           image: nft.media[0]?.thumbnail ?? undefined,
           tokenId: nft.tokenId,
-          contract: nft.contract.address,
-        }));
+          collectionName:
+            nft.contract.openSea?.collectionName ||
+            nft.contract.name ||
+            "Unknown",
+        }))
+        .reduce<Record<string, Array<Nft>>>((acc, nft) => {
+          if (acc[nft.collectionName] === undefined) {
+            acc[nft.collectionName] = [];
+          }
 
-      return {
-        nfts,
-      };
+          acc[nft.collectionName]?.push(nft);
+          return acc;
+        }, {});
+
+      return nfts;
     }),
   // getAll: publicProcedure.query(({ ctx }) => {
   //   return ctx.prisma.example.findMany();

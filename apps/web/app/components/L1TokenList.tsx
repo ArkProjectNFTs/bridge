@@ -65,12 +65,6 @@ export default function L1TokenList() {
                   {selectedNft?.title || "Select a token"}
                 </span>
               </div>
-              <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                <ChevronUpDownIcon
-                  className="h-5 w-5 text-gray-400"
-                  aria-hidden="true"
-                />
-              </span>
             </Listbox.Button>
             <Transition
               as={Fragment}
