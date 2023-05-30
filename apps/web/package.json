@@ -13,6 +13,7 @@
     "@headlessui/react": "1.7.10",
     "@heroicons/react": "2.0.15",
     "@prisma/client": "^4.14.0",
+    "@radix-ui/react-switch": "^1.0.3",
     "@radix-ui/react-tabs": "^1.0.4",
     "@starknet-react/core": "^0.17.2",
     "@t3-oss/env-nextjs": "^0.3.1",

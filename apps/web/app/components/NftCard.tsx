@@ -4,6 +4,8 @@ import Image from "next/image";
 
 type NftCardProps = {
   image?: string;
+  isSelected: boolean;
+  onClick: () => void;
   title: string;
 } & (
   | {
@@ -16,32 +18,53 @@ type NftCardProps = {
 export default function NftCard({
   cardType,
   image,
+  isSelected,
   numberOfNfts,
+  onClick,
   title,
 }: NftCardProps) {
   return (
-    <button className="overflow-hidden rounded-lg border border-gray-300 bg-white text-black">
-      {/* TODO @YohanTz: Handle images with different sizes */}
-      <Image
-        // TODO @YohanTz: Handle no image case
-        src={image || ""}
-        alt={title}
-        width={300}
-        height={300}
-        className="w-full"
-      />
-      <div className="m-2 text-left">
-        <div className="flex items-center justify-between">
-          <span className="font-medium">{title}</span>
-          <div className="h-5 w-5 rounded-full bg-gray-300"></div>
+    <div className="relative w-full">
+      {cardType === "collection" && (
+        <>
+          <div className="absolute inset-0 z-[-1] translate-y-2 rounded-lg border border border-neutral-500 bg-neutral-800" />
+          <div className="absolute inset-0 z-[-2] translate-y-4 rounded-lg border border border-neutral-500 bg-neutral-800" />
+        </>
+      )}
+      <button
+        className={`h-full w-full overflow-hidden rounded-lg border border-neutral-300 bg-white text-black ${
+          isSelected ? "border-violet-600" : "border-neutral-300"
+        }`}
+        onClick={onClick}
+      >
+        {/* TODO @YohanTz: Handle images with different sizes */}
+        <Image
+          // TODO @YohanTz: Handle no image case
+          src={image || ""}
+          alt={title}
+          width={300}
+          height={300}
+          className="w-full"
+        />
+        <div className="m-2 text-left">
+          <div className="flex items-center justify-between">
+            <span className="font-medium">{title}</span>
+            <div
+              className={`h-5 w-5 rounded-full ${
+                isSelected
+                  ? "border-[6px] border-violet-500 bg-white "
+                  : "bg-neutral-300"
+              }`}
+            ></div>
+          </div>
+          {cardType === "collection" ? (
+            <span className="text-violet-500">
+              {numberOfNfts}
+              {numberOfNfts > 1 ? "Nfts" : "Nft"}
+            </span>
+          ) : null}
         </div>
-        {cardType === "collection" ? (
-          <span className="text-violet-500">
-            {numberOfNfts}
-            {numberOfNfts > 1 ? "Nfts" : "Nft"}
-          </span>
-        ) : null}
-      </div>
-    </button>
+      </button>
+    </div>
   );
 }

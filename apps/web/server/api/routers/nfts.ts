@@ -10,10 +10,10 @@ const alchemy = new Alchemy({
 });
 
 type Nft = {
-  title: string;
-  image: string | undefined;
-  tokenId: string;
   collectionName: string;
+  id: string;
+  image: string | undefined;
+  title: string;
 };
 
 const Address = z.object({
@@ -32,27 +32,31 @@ export const nftsRouter = createTRPCRouter({
         address.toLowerCase()
       );
 
-      const nfts = ownedNfts
+      const rawNfts = ownedNfts
         .filter((nft) => nft.tokenType === "ERC721")
         .map((nft) => ({
-          title: nft.title,
-          image: nft.media[0]?.thumbnail ?? undefined,
-          tokenId: nft.tokenId,
           collectionName:
             nft.contract.openSea?.collectionName ||
             nft.contract.name ||
             "Unknown",
-        }))
-        .reduce<Record<string, Array<Nft>>>((acc, nft) => {
+          id: `${nft.title}-${nft.tokenId}`,
+          image: nft.media[0]?.thumbnail ?? undefined,
+          title: nft.title,
+        }));
+
+      const nftsByCollection = rawNfts.reduce<Record<string, Array<Nft>>>(
+        (acc, nft) => {
           if (acc[nft.collectionName] === undefined) {
             acc[nft.collectionName] = [];
           }
 
           acc[nft.collectionName]?.push(nft);
           return acc;
-        }, {});
+        },
+        {}
+      );
 
-      return nfts;
+      return { raw: rawNfts, byCollection: nftsByCollection };
     }),
   // getAll: publicProcedure.query(({ ctx }) => {
   //   return ctx.prisma.example.findMany();
