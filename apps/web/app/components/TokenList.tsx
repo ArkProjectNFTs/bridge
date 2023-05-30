@@ -37,12 +37,34 @@ export default function TokenList({
     setSelectedNftIds([...selectedNftIds, nftId]);
   }
 
-  function handleCollectionClick(collectionName: string) {}
+  function handleCollectionClick(collectionName: string, isSelected: boolean) {
+    if (nfts === undefined) {
+      return;
+    }
+
+    let selectedNftIdsCopy = [...selectedNftIds];
+    let collectionNfts = nfts.byCollection[collectionName];
+
+    if (isSelected) {
+      selectedNftIdsCopy = selectedNftIds.filter((nftId) => {
+        return !collectionNfts?.some((nft) => nftId === nft.id);
+      });
+    } else {
+      collectionNfts?.forEach((nft) => {
+        if (!selectedNftIds.includes(nft.id)) {
+          selectedNftIdsCopy.push(nft.id);
+        }
+      });
+    }
+
+    setSelectedNftIds(selectedNftIdsCopy);
+  }
 
   function selectAll() {
-    if (nfts) {
-      setSelectedNftIds(nfts.raw.map((nft) => nft.id));
+    if (nfts === undefined) {
+      return;
     }
+    setSelectedNftIds(nfts.raw.map((nft) => nft.id));
   }
 
   return (
@@ -99,14 +121,20 @@ export default function TokenList({
         >
           {nfts &&
             Object.entries(nfts.byCollection).map(([collectionName, nfts]) => {
+              const isSelected = nfts.every((nft) =>
+                selectedNftIds.includes(nft.id)
+              );
+
               return (
                 <NftCard
-                  isSelected={false}
+                  isSelected={isSelected}
                   cardType="collection"
                   image={nfts[0]?.image}
                   key={collectionName}
                   numberOfNfts={nfts.length}
-                  onClick={() => handleCollectionClick(collectionName)}
+                  onClick={() =>
+                    handleCollectionClick(collectionName, isSelected)
+                  }
                   title={collectionName}
                 />
               );
