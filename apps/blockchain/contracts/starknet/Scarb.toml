@@ -5,6 +5,9 @@ version = "1.0.0"
 [cairo]
 sierra-replace-ids = true
 
+[dependencies]
+starknet = ">=1.0.0"
+
 [[target.starknet-contract]]
 sierra = true
 
