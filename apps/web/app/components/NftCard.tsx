@@ -27,13 +27,13 @@ export default function NftCard({
     <div className="relative w-full">
       {cardType === "collection" && (
         <>
-          <div className="absolute inset-0 z-[-1] translate-y-2 rounded-lg border border border-neutral-500 bg-neutral-800" />
-          <div className="absolute inset-0 z-[-2] translate-y-4 rounded-lg border border border-neutral-500 bg-neutral-800" />
+          <div className="absolute inset-0 z-[-1] translate-y-2 rounded-lg border border-neutral-200 bg-neutral-100" />
+          <div className="absolute inset-0 z-[-2] translate-y-4 rounded-lg border border-neutral-200 bg-neutral-100" />
         </>
       )}
       <button
         className={`h-full w-full overflow-hidden rounded-lg border border-neutral-300 bg-white text-black ${
-          isSelected ? "border-violet-600" : "border-neutral-300"
+          isSelected ? "border-emerald-400" : "border-neutral-300"
         }`}
         onClick={onClick}
       >
@@ -52,13 +52,13 @@ export default function NftCard({
             <div
               className={`h-5 w-5 rounded-full ${
                 isSelected
-                  ? "border-[6px] border-violet-500 bg-white "
+                  ? "border-[6px] border-emerald-400 bg-white "
                   : "bg-neutral-300"
               }`}
             ></div>
           </div>
           {cardType === "collection" ? (
-            <span className="text-violet-500">
+            <span className="text-emerald-400">
               {numberOfNfts}
               {numberOfNfts > 1 ? "Nfts" : "Nft"}
             </span>

@@ -19,13 +19,14 @@ export default function NftTransferDrawer({
     address: ethereumAddress || "",
   });
 
-  const selectedNfts = selectedNftIds
-    .map((selectedNftId) => nfts?.raw.find((nft) => nft.id === selectedNftId))
-    .filter((selectedNft) => selectedNft !== undefined);
+  const selectedNfts = selectedNftIds.map((selectedNftId) =>
+    nfts?.raw.find((nft) => nft.id === selectedNftId)
+  );
 
   return (
-    <div className="h-full w-80 shrink-0 bg-white text-black">
-      <div className="w-92 fixed top-[72px] h-full shrink-0 bg-white p-5">
+    <div className="mr-3 w-80 shrink-0">
+      {/* TODO @YohanTz: Try to extract magic values like this somewhere (top-[72px]) */}
+      <div className="fixed bottom-0 right-0 top-[72px] m-3 flex w-80 shrink-0 flex-col rounded-lg border border-neutral-100 bg-white p-5">
         <h2 className="text-xl font-bold">Your assets to transfer</h2>
         <p className="mt-4 text-sm">
           You need to confirm the transaction in your wallet to start the
@@ -35,7 +36,8 @@ export default function NftTransferDrawer({
           <div className="rounded-lg bg-neutral-100 p-8"></div>
           <div className="mt-1.5 rounded-lg bg-neutral-100 p-8"></div>
         </div>
-        <div className="mt-8 flex flex-col gap-4">
+        {/* TODO @YohanTz: Always show scroll bar to indicate that there is more content to view (with Radix ScrollArea ?) */}
+        <div className="mt-8 flex flex-col gap-4 overflow-y-auto">
           {selectedNfts.map((selectedNft) => {
             return (
               <div className="flex items-center gap-4">

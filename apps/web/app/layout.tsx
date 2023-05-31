@@ -33,7 +33,7 @@ function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="[color-scheme:light]">
       <head />
-      <body className="min-h-screen bg-black text-white">
+      <body className="min-h-screen bg-neutral-50 text-sky-950">
         <StarknetConfig connectors={connectors} autoConnect>
           <WagmiConfig config={wagmiConfig}>
             <ConnectKitProvider>

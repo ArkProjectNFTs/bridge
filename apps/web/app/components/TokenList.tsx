@@ -6,6 +6,7 @@ import { api } from "~/utils/api";
 
 import { useState } from "react";
 import NftCard from "./NftCard";
+import { Nft } from "~/server/api/routers/nfts";
 
 type TokenListProps = {
   selectedNftIds: Array<string>;
@@ -17,6 +18,7 @@ const tabs = [
   { label: "Collections", id: "collections" },
 ] as const;
 
+// TODO @YohanTz: Take time to optimize the lists with React.memo etc.
 export default function TokenList({
   selectedNftIds,
   setSelectedNftIds,
@@ -30,20 +32,23 @@ export default function TokenList({
 
   function handleNftClick(nftId: string) {
     if (selectedNftIds.includes(nftId)) {
-      return setSelectedNftIds(
+      setSelectedNftIds(
         selectedNftIds.filter((selectedNftId) => selectedNftId !== nftId)
       );
+      return;
     }
     setSelectedNftIds([...selectedNftIds, nftId]);
   }
 
-  function handleCollectionClick(collectionName: string, isSelected: boolean) {
+  function handleCollectionClick(
+    collectionNfts: Array<Nft>,
+    isSelected: boolean
+  ) {
     if (nfts === undefined) {
       return;
     }
 
     let selectedNftIdsCopy = [...selectedNftIds];
-    let collectionNfts = nfts.byCollection[collectionName];
 
     if (isSelected) {
       selectedNftIdsCopy = selectedNftIds.filter((nftId) => {
@@ -69,6 +74,7 @@ export default function TokenList({
 
   return (
     <>
+      {/* TODO @YohanTz: Export Tabs logic to design system package ? */}
       <Tabs.Root
         className="w-full"
         value={activeTab}
@@ -81,7 +87,7 @@ export default function TokenList({
                 <Tabs.Trigger
                   key={tab.id}
                   value={tab.id}
-                  className="rounded-full bg-neutral-400 px-3 py-1 font-medium text-black data-[state=active]:bg-violet-600 data-[state=active]:text-white"
+                  className="rounded-full bg-neutral-200 px-3 py-1 font-medium data-[state=active]:bg-sky-950 data-[state=active]:text-white "
                 >
                   {tab.label}
                 </Tabs.Trigger>
@@ -89,7 +95,7 @@ export default function TokenList({
             })}
           </div>
           <button
-            className="rounded-full bg-violet-600 px-3 py-1 font-medium"
+            className="rounded-full bg-sky-950 px-3 py-1 font-medium text-white"
             onClick={selectAll}
           >
             Select all
@@ -132,9 +138,7 @@ export default function TokenList({
                   image={nfts[0]?.image}
                   key={collectionName}
                   numberOfNfts={nfts.length}
-                  onClick={() =>
-                    handleCollectionClick(collectionName, isSelected)
-                  }
+                  onClick={() => handleCollectionClick(nfts, isSelected)}
                   title={collectionName}
                 />
               );

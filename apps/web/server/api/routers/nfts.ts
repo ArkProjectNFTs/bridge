@@ -9,7 +9,7 @@ const alchemy = new Alchemy({
   // network: Network.ETH_GOERLI,
 });
 
-type Nft = {
+export type Nft = {
   collectionName: string;
   id: string;
   image: string | undefined;
