@@ -32,7 +32,7 @@ export default function NftCard({
         </>
       )}
       <button
-        className={`h-full w-full overflow-hidden rounded-lg border border-neutral-300 bg-white text-black ${
+        className={`h-full w-full overflow-hidden rounded-lg border bg-white text-black ${
           isSelected ? "border-emerald-400" : "border-neutral-300"
         }`}
         onClick={onClick}
