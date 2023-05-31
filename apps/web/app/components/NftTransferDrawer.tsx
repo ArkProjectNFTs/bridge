@@ -40,7 +40,7 @@ export default function NftTransferDrawer({
         <div className="mt-8 flex flex-col gap-4 overflow-y-auto">
           {selectedNfts.map((selectedNft) => {
             return (
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4" key={selectedNft?.id}>
                 <Image
                   src={selectedNft?.image || ""}
                   height={52}

@@ -13,7 +13,11 @@ export default function Page() {
   return (
     <div className="flex">
       <main className="mx-auto mt-[112px] w-full max-w-7xl px-4 text-center">
-        <h2 className="text-5xl">Where do you want to move?</h2>
+        <h2 className="mb-8 text-5xl font-extralight">
+          Where do you want to move
+          <br />
+          <span className="font-semibold">your digital goods?</span>
+        </h2>
         <TargetChainSwitch
           targetChain={targetChain}
           setTargetChain={setTargetChain}
