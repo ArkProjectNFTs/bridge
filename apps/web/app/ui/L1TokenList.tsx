@@ -1,22 +1,26 @@
-'use client';
+"use client";
 
-import { Fragment, useEffect, useState } from 'react';
-import { useAccount } from 'wagmi';
-import { useAccount as useStarkNetAccount } from '@starknet-react/core';
-import { Dialog, Listbox, Transition } from '@headlessui/react';
-import { ChevronUpDownIcon } from '@heroicons/react/24/solid';
+import { Fragment, useEffect, useState } from "react";
+import { useAccount } from "wagmi";
+import { useAccount as useStarkNetAccount } from "@starknet-react/core";
+import { Dialog, Listbox, Transition } from "@headlessui/react";
+import { ChevronUpDownIcon } from "@heroicons/react/24/solid";
 
-import ContinueButton from '#/ui/ContinueButton';
-import Image from 'next/image';
+import Image from "next/image";
+import { api } from "~/utils/api";
+// import ContinueButton from "./ContinueButton";
 
 export default function L1TokenList() {
-  const [nfts, setNfts] = useState<any[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [transaction, setTransaction] = useState<any>(null);
   const { address } = useAccount();
-  const { address: l2Address } = useStarkNetAccount();
+
+  const { data } = api.nfts.getL1NftsFromAddress.useQuery({
+    address: address || "",
+  });
+
   const [selectedNft, setSelectedNft] = useState(
-    nfts && nfts.length > 0 ? nfts[0] : null,
+    data && data.nfts.length > 0 ? data.nfts[0] : null
   );
 
   function closeModal() {
@@ -27,30 +31,11 @@ export default function L1TokenList() {
     setIsOpen(true);
   }
 
-  function handleSuccess(t: `0x${string}` | undefined) {
-    setSelectedNft(null);
-    setTransaction(t);
-    openModal();
+  if (!data) {
+    return <div className="font-medium">Loading</div>;
   }
 
-  useEffect(() => {
-    if (!address) {
-      return;
-    }
-
-    async function fetchNfts() {
-      const res = await fetch(`/api/l1-nfts/${address}`);
-      const { nfts } = await res.json();
-
-      if (nfts && nfts.length) {
-        setNfts(nfts);
-      }
-    }
-
-    fetchNfts();
-  }, [address]);
-
-  if (!nfts.length) {
+  if (!data.nfts.length) {
     return <div className="font-medium">L1 wallet has no tokens</div>;
   }
 
@@ -77,7 +62,7 @@ export default function L1TokenList() {
                   />
                 )}
                 <span className="truncate">
-                  {selectedNft?.title || 'Select a token'}
+                  {selectedNft?.title || "Select a token"}
                 </span>
               </div>
               <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
@@ -94,13 +79,13 @@ export default function L1TokenList() {
               leaveTo="opacity-0"
             >
               <Listbox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                {nfts.map((nft) => (
+                {data.nfts.map((nft) => (
                   <Listbox.Option
                     key={`${nft.title}-${nft.tokenId}`}
                     value={nft}
                     className={({ active }) =>
-                      `relative flex cursor-default select-none items-center space-x-4 py-2 px-2 pr-4 ${
-                        active ? 'bg-gray-100 text-indigo-500' : 'text-gray-900'
+                      `relative flex cursor-default select-none items-center space-x-4 px-2 py-2 pr-4 ${
+                        active ? "bg-gray-100 text-indigo-500" : "text-gray-900"
                       }`
                     }
                   >
@@ -175,13 +160,13 @@ export default function L1TokenList() {
           </div>
         </Dialog>
       </Transition>
-      {l2Address && selectedNft && (
+      {/* {l2Address && selectedNft && (
         <ContinueButton
           nft={selectedNft}
           l2Address={l2Address}
           onSuccess={handleSuccess}
         />
-      )}
+      )} */}
     </div>
   );
 }
