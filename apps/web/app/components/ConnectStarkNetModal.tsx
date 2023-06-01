@@ -27,7 +27,7 @@ export default function ConnectStarkNetModal({
   closeModal,
 }: ConnectStarkNetModalProps) {
   const { connect, connectors, refresh, disconnect } = useConnectors();
-  const { account, address, status } = useAccount();
+  const { address, status } = useAccount();
   const isDisconnected = status === "disconnected";
   const shortAddress = address?.slice(0, 6) + "••••" + address?.slice(-4);
 

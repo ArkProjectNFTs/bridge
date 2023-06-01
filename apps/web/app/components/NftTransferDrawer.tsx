@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { useAccount as useEthereumAccount } from "wagmi";
-import { useAccount as useStarknetAccount } from "@starknet-react/core";
+// import { useAccount as useStarknetAccount } from "@starknet-react/core";
 
 import { api } from "~/utils/api";
 import {
