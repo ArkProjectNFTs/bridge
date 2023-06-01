@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 env:
-  SCARB_VERSION: v0.2.0-alpha.2
+  SCARB_VERSION: v0.3.0
 
 jobs:
   build-starknet-contracts:
