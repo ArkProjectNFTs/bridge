@@ -1,8 +1,5 @@
 import Image from "next/image";
 
-import ethereumLogo from "~/public/ethereum_logo.svg";
-import starknetLogo from "~/public/starknet_logo.svg";
-
 export type Chain = "Ethereum" | "Starknet";
 
 type TargetChainSwitch = {
@@ -10,10 +7,10 @@ type TargetChainSwitch = {
   setTargetChain: (chain: Chain) => void;
 };
 
-const chains = [
-  { name: "Ethereum", logoSrc: ethereumLogo },
-  { name: "Starknet", logoSrc: starknetLogo },
-] as const;
+const chains: Array<{ name: Chain; logoSrc: string }> = [
+  { name: "Ethereum", logoSrc: "/ethereum_logo.svg" },
+  { name: "Starknet", logoSrc: "/starknet_logo.svg" },
+];
 
 export default function TargetChainSwitch({
   targetChain,

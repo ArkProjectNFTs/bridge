@@ -13,7 +13,9 @@ export default function ConnectStarkNetButton({
   const { address, status } = useAccount();
   const [isOpen, setIsOpen] = useState(false);
 
-  const shortAddress = `${address?.slice(0, 6)}••••${address?.slice(-4)}}`;
+  const shortAddress = address
+    ? `${address.slice(0, 6)}••••${address.slice(-4)}}`
+    : "";
 
   function closeModal() {
     setIsOpen(false);

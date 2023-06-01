@@ -1,12 +1,10 @@
-"use client";
-
 import * as Tabs from "@radix-ui/react-tabs";
 import { useAccount } from "wagmi";
 import { api } from "~/utils/api";
 
 import { useState } from "react";
 import NftCard from "./NftCard";
-import { Nft } from "~/server/api/routers/nfts";
+import { type Nft } from "~/server/api/routers/nfts";
 
 type TokenListProps = {
   selectedNftIds: Array<string>;

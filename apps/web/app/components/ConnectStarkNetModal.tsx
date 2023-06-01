@@ -5,7 +5,7 @@ import { XMarkIcon } from "@heroicons/react/24/solid";
 
 import braavosLogo from "~/public/braavos.png";
 import argentXLogo from "~/public/argentx.png";
-import Image, { StaticImageData } from "next/image";
+import Image, { type StaticImageData } from "next/image";
 
 const LOGOS_BY_ID: Record<string, StaticImageData> = {
   braavos: braavosLogo,
@@ -29,7 +29,9 @@ export default function ConnectStarkNetModal({
   const { connect, connectors, refresh, disconnect } = useConnectors();
   const { address, status } = useAccount();
   const isDisconnected = status === "disconnected";
-  const shortAddress = address?.slice(0, 6) + "••••" + address?.slice(-4);
+  const shortAddress = address
+    ? `${address.slice(0, 6)}••••${address.slice(-4)}}`
+    : "";
 
   useEffect(() => {
     const interval = setInterval(refresh, 5000);
