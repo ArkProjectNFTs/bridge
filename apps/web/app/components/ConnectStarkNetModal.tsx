@@ -1,5 +1,5 @@
 import { useAccount, useConnectors } from "@starknet-react/core";
-import { Fragment, useEffect } from "react";
+import { Fragment, useEffect, useMemo } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/solid";
 
@@ -29,9 +29,11 @@ export default function ConnectStarkNetModal({
   const { connect, connectors, refresh, disconnect } = useConnectors();
   const { address, status } = useAccount();
   const isDisconnected = status === "disconnected";
-  const shortAddress = address
-    ? `${address.slice(0, 6)}••••${address.slice(-4)}}`
-    : "";
+
+  const shortAddress = useMemo(
+    () => (address ? `${address.slice(0, 6)}••••${address.slice(-4)}}` : ""),
+    [address]
+  );
 
   useEffect(() => {
     const interval = setInterval(refresh, 5000);

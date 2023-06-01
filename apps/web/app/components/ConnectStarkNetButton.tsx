@@ -1,5 +1,5 @@
 import { useAccount } from "@starknet-react/core";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import ConnectStarkNetModal from "./ConnectStarkNetModal";
 
 type ConnectStarkNetButtonProps = {
@@ -13,9 +13,10 @@ export default function ConnectStarkNetButton({
   const { address, status } = useAccount();
   const [isOpen, setIsOpen] = useState(false);
 
-  const shortAddress = address
-    ? `${address.slice(0, 6)}••••${address.slice(-4)}}`
-    : "";
+  const shortAddress = useMemo(
+    () => (address ? `${address.slice(0, 6)}••••${address.slice(-4)}}` : ""),
+    [address]
+  );
 
   function closeModal() {
     setIsOpen(false);
