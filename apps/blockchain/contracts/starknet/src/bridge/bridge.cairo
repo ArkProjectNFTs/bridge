@@ -20,9 +20,9 @@ trait IBridgableToken {
 
 #[contract]
 mod Bridge {
-    use super::IBridgableTokenDispatcherTrait;
     use super::IBridgableTokenDispatcher;
-    use super::SpanSerde;
+    use super::IBridgableTokenDispatcherTrait;
+    use starklane_contracts::utils::serde::SpanSerde;
     use starknet::class_hash::ClassHash;
     use array::SpanTrait;
     use array::ArrayTrait;
@@ -30,15 +30,31 @@ mod Bridge {
     use starknet::contract_address_const;
     use starknet::syscalls::deploy_syscall;
     use starknet::contract_address_to_felt252;
+    use starknet::get_caller_address;
+    use starklane_contracts::bridge::escrow_bridge::IBridgeEscrowDispatcherTrait;
+    use starklane_contracts::bridge::escrow_bridge::IBridgeEscrowDispatcher;
+
 
     struct Storage {
         _l1_to_l2_addresses: LegacyMap::<ContractAddress, ContractAddress>,
-        erc721_default_contract: ClassHash
+        erc721_default_contract: ClassHash,
+        escrow_contract: ContractAddress
+    }
+
+    #[constructor]
+    fn constructor(_escrow_contract: ContractAddress) {
+        escrow_contract::write(_escrow_contract);
     }
 
     #[view]
     fn read_l2_address(l1_address: ContractAddress) -> ContractAddress {
         _l1_to_l2_addresses::read(l1_address)
+    }
+
+    #[external]
+    fn deposit_nfts() {
+        let addr: ContractAddress = escrow_contract::read();
+        IBridgeEscrowDispatcher { contract_address: addr }.lock_tokens()
     }
 
     #[external]
@@ -95,19 +111,5 @@ mod Bridge {
         let (deployed_contract_address, _) = syscall_result.unwrap_syscall();
         _l1_to_l2_addresses::write(l1_address, deployed_contract_address);
         deployed_contract_address
-    }
-}
-
-impl SpanSerde<
-    T, impl TSerde: Serde<T>, impl TCopy: Copy<T>, impl TDrop: Drop<T>
-> of Serde<Span<T>> {
-    fn serialize(self: @Span<T>, ref output: Array<felt252>) {
-        (*self).len().serialize(ref output);
-        serialize_array_helper(*self, ref output);
-    }
-    fn deserialize(ref serialized: Span<felt252>) -> Option<Span<T>> {
-        let length = *serialized.pop_front()?;
-        let mut arr = ArrayTrait::new();
-        Option::Some(deserialize_array_helper(ref serialized, arr, length)?.span())
     }
 }
