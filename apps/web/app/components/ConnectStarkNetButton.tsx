@@ -1,19 +1,19 @@
-import { useAccount } from '@starknet-react/core';
-import { useState } from 'react';
-import ConnectStarkNetModal from './ConnectStarkNetModal';
+import { useAccount } from "@starknet-react/core";
+import { useState } from "react";
+import ConnectStarkNetModal from "./ConnectStarkNetModal";
 
 type ConnectStarkNetButtonProps = {
-  kind?: 'default' | 'error';
+  kind?: "default" | "error";
   label?: string | null;
 };
 
 export default function ConnectStarkNetButton({
-  label = 'Connect StarkNet Wallet',
+  label = "Connect StarkNet Wallet",
 }: ConnectStarkNetButtonProps) {
-  const { account, address, status } = useAccount();
+  const { address, status } = useAccount();
   const [isOpen, setIsOpen] = useState(false);
 
-  const shortAddress = address?.slice(0, 6) + '••••' + address?.slice(-4);
+  const shortAddress = `${address?.slice(0, 6)}••••${address?.slice(-4)}}`;
 
   function closeModal() {
     setIsOpen(false);
@@ -33,7 +33,7 @@ export default function ConnectStarkNetButton({
         className="rounded-xl bg-gray-100 px-3 text-sm"
         onClick={handleClick}
       >
-        {status === 'disconnected' ? <>{label}</> : <>{shortAddress}</>}
+        {status === "disconnected" ? <>{label}</> : <>{shortAddress}</>}
       </button>
       <ConnectStarkNetModal isOpen={isOpen} closeModal={closeModal} />
     </>

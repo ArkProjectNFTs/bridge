@@ -1,5 +1,3 @@
-import * as Switch from "@radix-ui/react-switch";
-import { useState } from "react";
 import Image from "next/image";
 
 import ethereumLogo from "~/public/ethereum_logo.svg";

@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { useAccount as useEthereumAccount } from "wagmi";
-import { useAccount as useStarknetAccount } from "@starknet-react/core";
+// import { useAccount as useStarknetAccount } from "@starknet-react/core";
 
 import { api } from "~/utils/api";
 
@@ -12,7 +12,7 @@ export default function NftTransferDrawer({
   selectedNftIds,
 }: NftTansferDrawerProps) {
   const { address: ethereumAddress } = useEthereumAccount();
-  const { address: starknetAddress } = useStarknetAccount();
+  // const { address: starknetAddress } = useStarknetAccount();
 
   // TODO @YohanTz: Support both sides
   const { data: nfts } = api.nfts.getL1NftsByCollection.useQuery({

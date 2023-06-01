@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import TargetChainSwitch, { Chain } from "./components/TargetChainSwitch";
+import TargetChainSwitch, { type Chain } from "./components/TargetChainSwitch";
 import TokenList from "./components/TokenList";
 import NftTransferDrawer from "./components/NftTransferDrawer";
 
