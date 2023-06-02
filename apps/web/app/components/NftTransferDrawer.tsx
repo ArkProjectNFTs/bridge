@@ -25,16 +25,16 @@ export default function NftTransferDrawer({
 
   return (
     <div className="mr-3 w-80 shrink-0">
-      {/* TODO @YohanTz: Try to extract magic values like this somewhere (top-[72px]) */}
-      <div className="fixed bottom-0 right-0 top-[72px] m-3 flex w-80 shrink-0 flex-col rounded-lg border border-neutral-100 bg-white p-5">
+      {/* TODO @YohanTz: Try to extract magic values like this somewhere (top-[5.75rem]) */}
+      <div className="fixed bottom-0 right-0 top-[5.75rem] m-3 flex w-80 shrink-0 flex-col rounded-2xl border border-neutral-100 bg-white p-5">
         <h2 className="text-xl font-bold">Your assets to transfer</h2>
         <p className="mt-4 text-sm">
           You need to confirm the transaction in your wallet to start the
           migration.
         </p>
         <div className="mt-8">
-          <div className="rounded-lg bg-neutral-100 p-8"></div>
-          <div className="mt-1.5 rounded-lg bg-neutral-100 p-8"></div>
+          <div className="rounded-xl bg-neutral-100 p-8"></div>
+          <div className="mt-1.5 rounded-xl bg-neutral-100 p-8"></div>
         </div>
         {/* TODO @YohanTz: Always show scroll bar to indicate that there is more content to view (with Radix ScrollArea ?) */}
         <div className="mt-8 flex flex-col gap-4 overflow-y-auto">
@@ -62,7 +62,7 @@ export default function NftTransferDrawer({
             {selectedNfts.length}/{selectedNfts.length}
           </span>
         </div>
-        <p className="mt-8 rounded-md bg-purple-100 p-3 text-sm">
+        <p className="mt-8 rounded-xl bg-purple-100 p-3 text-sm">
           You must approve the selection of your assets before confirming the
           migration. Each collection will require a signature via your wallet.
         </p>

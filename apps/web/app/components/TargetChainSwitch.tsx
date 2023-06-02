@@ -1,16 +1,12 @@
 import Image from "next/image";
-
-export type Chain = "Ethereum" | "Starknet";
+import { CHAIN_LOGOS_BY_NAME, type Chain } from "../helpers";
 
 type TargetChainSwitch = {
   targetChain: Chain;
   setTargetChain: (chain: Chain) => void;
 };
 
-const chains: Array<{ name: Chain; logoSrc: string }> = [
-  { name: "Ethereum", logoSrc: "/ethereum_logo.svg" },
-  { name: "Starknet", logoSrc: "/starknet_logo.svg" },
-];
+const chains: Array<Chain> = ["Ethereum", "Starknet"];
 
 export default function TargetChainSwitch({
   targetChain,
@@ -21,19 +17,19 @@ export default function TargetChainSwitch({
       {chains.map((chain) => {
         return (
           <button
-            key={chain.name}
-            onClick={() => setTargetChain(chain.name)}
+            key={chain}
+            onClick={() => setTargetChain(chain)}
             className={`flex items-center gap-2 rounded-full py-3 pl-3 pr-6 ${
-              targetChain === chain.name ? "bg-emerald-400 text-white" : ""
+              targetChain === chain ? "bg-emerald-400 text-white" : ""
             }`}
           >
             <Image
-              src={chain.logoSrc}
+              src={CHAIN_LOGOS_BY_NAME[chain]}
               height={32}
               width={32}
-              alt={`${chain.name} logo`}
+              alt={`${chain} logo`}
             />
-            {chain.name}
+            {chain}
           </button>
         );
       })}

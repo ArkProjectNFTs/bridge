@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import TargetChainSwitch, { type Chain } from "./components/TargetChainSwitch";
+import TargetChainSwitch from "./components/TargetChainSwitch";
 import TokenList from "./components/TokenList";
 import NftTransferDrawer from "./components/NftTransferDrawer";
+import { type Chain } from "./helpers";
 
 // TODO @YohanTz: Refactor when the UX is finalized
 export default function Page() {
@@ -12,7 +13,7 @@ export default function Page() {
 
   return (
     <div className="flex">
-      <main className="mx-auto mt-[112px] w-full max-w-7xl px-4 text-center">
+      <main className="mx-auto mt-[8.125rem] w-full max-w-7xl px-4 text-center">
         <h2 className="mb-8 text-5xl font-extralight">
           Where do you want to move
           <br />
