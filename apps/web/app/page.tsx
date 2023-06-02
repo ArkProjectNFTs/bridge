@@ -30,7 +30,7 @@ export default function Page() {
           setSelectedNftIds={setSelectedNftIds}
         />
       </main>
-      {selectedNftIds.length && (
+      {selectedNftIds.length > 0 && (
         <NftTransferDrawer selectedNftIds={selectedNftIds} />
       )}
     </div>

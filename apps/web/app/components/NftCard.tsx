@@ -25,14 +25,17 @@ export default function NftCard({
     <div className="relative w-full">
       {cardType === "collection" && (
         <>
-          <div className="absolute inset-0 z-[-1] translate-y-2 rounded-lg border border-neutral-200 bg-neutral-100" />
-          <div className="absolute inset-0 z-[-2] translate-y-4 rounded-lg border border-neutral-200 bg-neutral-100" />
+          <div className="absolute inset-0 z-[-1] -translate-x-1 translate-y-1 rounded-2xl border border-neutral-200 bg-white" />
+          <div className="absolute inset-0 z-[-2] -translate-x-2 translate-y-2 rounded-2xl border border-neutral-200 bg-white" />
         </>
       )}
+      {/* TODO @YohanTz: handle focus visible style properly */}
       <button
-        className={`h-full w-full overflow-hidden rounded-lg border bg-white text-black ${
-          isSelected ? "border-emerald-400" : "border-neutral-300"
-        }`}
+        className={`h-full w-full overflow-hidden rounded-2xl border bg-white p-3 ${
+          isSelected && cardType === "nft"
+            ? "border-emerald-400 outline outline-1 outline-emerald-400"
+            : "border-neutral-300"
+        } ${isSelected && cardType === "nft" ? "" : ""}`}
         onClick={onClick}
       >
         {/* TODO @YohanTz: Handle images with different sizes */}
@@ -42,11 +45,11 @@ export default function NftCard({
           alt={title}
           width={300}
           height={300}
-          className="w-full"
+          className="w-full rounded-lg"
         />
-        <div className="m-2 text-left">
+        <div className="mt-3 text-left">
           <div className="flex items-center justify-between">
-            <span className="font-medium">{title}</span>
+            <span className="font-semibold">{title}</span>
             <div
               className={`h-5 w-5 rounded-full ${
                 isSelected
@@ -58,7 +61,7 @@ export default function NftCard({
           {cardType === "collection" ? (
             <span className="text-emerald-400">
               {numberOfNfts}
-              {numberOfNfts > 1 ? "Nfts" : "Nft"}
+              {numberOfNfts > 1 ? " Nfts" : " Nft"}
             </span>
           ) : null}
         </div>

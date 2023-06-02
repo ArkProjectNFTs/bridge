@@ -46,6 +46,7 @@ export default function NftTransferDrawer({
                   height={52}
                   width={52}
                   alt={selectedNft?.title ?? ""}
+                  className="rounded"
                 />
                 <div className="flex flex-col">
                   <span className="text-sm">{selectedNft?.collectionName}</span>
@@ -65,8 +66,8 @@ export default function NftTransferDrawer({
           You must approve the selection of your assets before confirming the
           migration. Each collection will require a signature via your wallet.
         </p>
-        <button className="mt-8 w-full rounded-md bg-black p-3 text-sm text-white">
-          Approve the selected Nfts{" "}
+        <button className="mt-8 w-full rounded-full bg-sky-950 p-3 text-sm text-white">
+          Approve the selected Nfts
         </button>
       </div>
     </div>
