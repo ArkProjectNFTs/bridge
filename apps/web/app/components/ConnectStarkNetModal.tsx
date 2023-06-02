@@ -31,7 +31,7 @@ export default function ConnectStarkNetModal({
   const isDisconnected = status === "disconnected";
 
   const shortAddress = useMemo(
-    () => (address ? `${address.slice(0, 6)}••••${address.slice(-4)}}` : ""),
+    () => (address ? `${address.slice(0, 6)}••••${address.slice(-4)}` : ""),
     [address]
   );
 
@@ -43,11 +43,7 @@ export default function ConnectStarkNetModal({
   return (
     <>
       <Transition appear show={isOpen} as={Fragment}>
-        <Dialog
-          as="div"
-          className="relative z-10 text-black"
-          onClose={closeModal}
-        >
+        <Dialog as="div" className="relative z-10" onClose={closeModal}>
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"
