@@ -3,19 +3,8 @@ import { Fragment, useEffect, useMemo } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/solid";
 
-import braavosLogo from "~/public/braavos.png";
-import argentXLogo from "~/public/argentx.png";
-import Image, { type StaticImageData } from "next/image";
-
-const LOGOS_BY_ID: Record<string, StaticImageData> = {
-  braavos: braavosLogo,
-  argentX: argentXLogo,
-};
-
-const LABELS_BY_ID: Record<string, string> = {
-  braavos: "Braavos",
-  argentX: "Argent X",
-};
+import Image from "next/image";
+import { CONNECTOR_LABELS_BY_ID, WALLET_LOGOS_BY_ID } from "../helpers";
 
 type ConnectStarkNetModalProps = {
   isOpen: boolean;
@@ -67,7 +56,7 @@ export default function ConnectStarkNetModal({
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <Dialog.Panel className="w-[360px] transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                <Dialog.Panel className="w-[22.5rem] transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
                   <div className="relative mb-8 text-center">
                     <div className="font-medium">
                       {isDisconnected ? "Connect Wallet" : "Connected"}
@@ -84,14 +73,14 @@ export default function ConnectStarkNetModal({
                       {connectors.map((connector) => (
                         <button
                           key={connector.id()}
-                          className="flex h-[64px] w-full items-center justify-between rounded-xl bg-gray-100 px-4 py-2 text-left"
+                          className="flex h-16 w-full items-center justify-between rounded-xl bg-gray-100 px-4 py-2 text-left"
                           onClick={() => connect(connector)}
                         >
                           <div className="text-lg font-medium">
-                            {LABELS_BY_ID[connector.id()]}
+                            {CONNECTOR_LABELS_BY_ID[connector.id()]}
                           </div>
                           <Image
-                            src={LOGOS_BY_ID[connector.id()] || ""}
+                            src={WALLET_LOGOS_BY_ID[connector.id()] || ""}
                             alt={connector.id()}
                             className=""
                             width={32}
@@ -107,7 +96,7 @@ export default function ConnectStarkNetModal({
                         {shortAddress}
                       </div>
                       <button
-                        className="flex h-[48px] w-full items-center justify-center space-x-2 rounded-xl bg-gray-100"
+                        className="flex h-12 w-full items-center justify-center space-x-2 rounded-xl bg-gray-100"
                         onClick={() => disconnect()}
                       >
                         <svg
