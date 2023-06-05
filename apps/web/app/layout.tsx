@@ -17,7 +17,7 @@ const chains = [goerli];
 
 const wagmiConfig = createConfig(
   getDefaultConfig({
-    appName: "Your App Name",
+    appName: "Starklane",
     alchemyId,
     walletConnectProjectId,
     chains,

@@ -14,16 +14,8 @@ export default function ConnectStarknetButton() {
     [address]
   );
 
-  function closeModal() {
-    setIsOpen(false);
-  }
-
-  function openModal() {
-    setIsOpen(true);
-  }
-
   function handleClick() {
-    openModal();
+    setIsOpen(true);
   }
 
   return (
@@ -51,7 +43,7 @@ export default function ConnectStarknetButton() {
           )}
         </div>
       </button>
-      <ConnectStarkNetModal isOpen={isOpen} closeModal={closeModal} />
+      {isOpen && <ConnectStarkNetModal onOpenChange={setIsOpen} />}
     </>
   );
 }
