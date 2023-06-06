@@ -1,25 +1,80 @@
-import { useAccount, useConnectors } from "@starknet-react/core";
-import { Fragment, useEffect, useMemo } from "react";
+import {
+  useAccount as useStarknetAccount,
+  useConnectors,
+} from "@starknet-react/core";
+import {
+  useConnect,
+  useDisconnect,
+  useAccount as useEthereumAccount,
+} from "wagmi";
+import { useEffect } from "react";
 import { XMarkIcon } from "@heroicons/react/24/solid";
 import * as Dialog from "@radix-ui/react-dialog";
 
 import Image from "next/image";
-import { CONNECTOR_LABELS_BY_ID, WALLET_LOGOS_BY_ID } from "../helpers";
+import {
+  CONNECTOR_LABELS_BY_ID,
+  type Chain,
+  WALLET_LOGOS_BY_ID,
+} from "../helpers";
 
-interface ConnectStarkNetModalProps {
-  onOpenChange: (open: boolean) => void;
+interface ConnectorButtonProps {
+  id: string;
+  onClick: () => void;
 }
 
-export default function ConnectStarkNetModal({
-  onOpenChange,
-}: ConnectStarkNetModalProps) {
-  const { connect, connectors, refresh, disconnect } = useConnectors();
-  const { address, status } = useAccount();
-
-  const shortAddress = useMemo(
-    () => (address ? `${address.slice(0, 6)}••••${address.slice(-4)}` : ""),
-    [address]
+function ConnectorButton({ id, onClick }: ConnectorButtonProps) {
+  return (
+    <button
+      className="flex w-full items-center justify-between rounded-full bg-sky-950 py-2 pl-3.5 pr-2 text-white"
+      onClick={onClick}
+    >
+      <span className="text-sm font-medium">{CONNECTOR_LABELS_BY_ID[id]}</span>
+      <Image
+        src={WALLET_LOGOS_BY_ID[id] || ""}
+        alt={`${CONNECTOR_LABELS_BY_ID[id] || ""} logo`}
+        className=""
+        width={32}
+        height={32}
+        priority
+      />
+    </button>
   );
+}
+
+function EthereumConnectorList() {
+  const { isConnected } = useEthereumAccount();
+  const { connect, connectors } = useConnect();
+  const { disconnect } = useDisconnect();
+
+  return (
+    <>
+      {isConnected ? (
+        <button onClick={() => disconnect()}>Disconnect</button>
+      ) : (
+        <>
+          <Dialog.Description className="mb-6 mt-5 font-semibold">
+            Choose your Ethereum wallet
+          </Dialog.Description>
+          <div className="flex flex-col gap-4">
+            {connectors.map((connector) => {
+              return (
+                <ConnectorButton
+                  onClick={() => connect({ connector })}
+                  id={connector.id}
+                />
+              );
+            })}
+          </div>
+        </>
+      )}
+    </>
+  );
+}
+
+function StarknetConnectorList() {
+  const { isConnected } = useStarknetAccount();
+  const { connect, connectors, refresh, disconnect } = useConnectors();
 
   useEffect(() => {
     const interval = setInterval(refresh, 5000);
@@ -28,56 +83,66 @@ export default function ConnectStarkNetModal({
 
   return (
     <>
-      {/* <Dialog as="div" className="relative z-10" onClose={closeModal}>
-        <div className="fixed inset-0 bg-black bg-opacity-25" />
-
-        <div className="fixed inset-0 overflow-y-auto">
-          <div className="flex min-h-full items-center justify-center p-4 text-center">
-            <Dialog.Panel className="w-[22.5rem] transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-              <div className="relative mb-8 text-center">
-                <div className="font-medium">
-                  {isDisconnected ? "Connect Wallet" : "Connected"}
-                </div>
-                <button onClick={closeModal} className="absolute right-0 top-0">
-                  <XMarkIcon className="h-6 w-6 text-gray-400" />
-                </button>
-              </div>
-            </Dialog.Panel>
+      {isConnected ? (
+        <button onClick={disconnect}>Disconnect</button>
+      ) : (
+        <>
+          <Dialog.Description className="mb-6 mt-5 font-semibold">
+            Choose your Starknet wallet
+          </Dialog.Description>
+          <div className="flex flex-col gap-4">
+            {connectors.map((connector) => {
+              return (
+                <ConnectorButton
+                  onClick={() => connect(connector)}
+                  id={connector.id()}
+                />
+              );
+            })}
           </div>
-        </div>
-      </Dialog> */}
-      <Dialog.Root open={true} modal={false} onOpenChange={onOpenChange}>
+        </>
+      )}
+    </>
+  );
+}
+
+interface ConnectStarkNetModalProps {
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  chain: Chain;
+}
+
+const CHAIN_TO_CONNECTOR_LIST = {
+  Ethereum: EthereumConnectorList,
+  Starknet: StarknetConnectorList,
+};
+
+// TODO @YohanTz: Handle disconnect / loading states etc once the whole flow is ready
+export default function ConnectStarkNetModal({
+  isOpen,
+  onOpenChange,
+  chain,
+}: ConnectStarkNetModalProps) {
+  const ConnectorList = CHAIN_TO_CONNECTOR_LIST[chain];
+
+  return (
+    <>
+      <Dialog.Root open={isOpen} modal={false} onOpenChange={onOpenChange}>
         <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 bg-red-500" />
-          <Dialog.Content className="fixed left-1/2 top-1/2 w-80 -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white p-5">
-            <Dialog.Title />
-            <Dialog.Description />
-            {
-              <div className="flex flex-col gap-4">
-                {connectors.map((connector) => (
-                  <button
-                    key={connector.id()}
-                    className="flex h-16 w-full items-center justify-between rounded-xl bg-gray-100 px-4 py-2 text-left"
-                    onClick={() => connect(connector)}
-                  >
-                    <div className="text-lg font-medium">
-                      {CONNECTOR_LABELS_BY_ID[connector.id()]}
-                    </div>
-                    <Image
-                      src={WALLET_LOGOS_BY_ID[connector.id()] || ""}
-                      alt={connector.id()}
-                      className=""
-                      width={32}
-                      height={32}
-                      priority
-                    />
-                  </button>
-                ))}
-              </div>
-            }
-            <Dialog.Close asChild>
-              <button aria-label="Close">CLOSE</button>
-            </Dialog.Close>
+          <div className="fixed inset-0 bg-slate-800 opacity-60" />
+          {/* TODO @YohanTz: Extract magic values like this somewhere (top-[5.75rem]) */}
+          <Dialog.Content
+            className="fixed bottom-0 right-0 top-[5.75rem] m-3 w-80 rounded-lg bg-white p-5 text-center"
+            onInteractOutside={(event) => event.preventDefault()}
+          >
+            <div className="flex w-full justify-end">
+              <Dialog.Close asChild>
+                <button aria-label="Close">
+                  <XMarkIcon className="h-6 w-6" />
+                </button>
+              </Dialog.Close>
+            </div>
+            <ConnectorList />
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>
