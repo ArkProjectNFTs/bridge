@@ -22,11 +22,14 @@ export default function TokenList({
   setSelectedNftIds,
 }: TokenListProps) {
   const [activeTab, setActiveTab] = useState<string>(tabs[0].id);
-  const { address } = useAccount();
+  const { address: ethereumAddress } = useAccount();
 
-  const { data: nfts } = api.nfts.getL1NftsByCollection.useQuery({
-    address: address || "",
-  });
+  const { data: nfts } = api.nfts.getL1NftsByCollection.useQuery(
+    {
+      address: ethereumAddress ?? "",
+    },
+    { enabled: ethereumAddress !== undefined }
+  );
 
   function handleNftClick(nftId: string) {
     if (selectedNftIds.includes(nftId)) {

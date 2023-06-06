@@ -15,9 +15,12 @@ export default function NftTransferDrawer({
   // const { address: starknetAddress } = useStarknetAccount();
 
   // TODO @YohanTz: Support both sides
-  const { data: nfts } = api.nfts.getL1NftsByCollection.useQuery({
-    address: ethereumAddress || "",
-  });
+  const { data: nfts } = api.nfts.getL1NftsByCollection.useQuery(
+    {
+      address: ethereumAddress ?? "",
+    },
+    { enabled: ethereumAddress !== undefined }
+  );
 
   const selectedNfts = selectedNftIds.map((selectedNftId) =>
     nfts?.raw.find((nft) => nft.id === selectedNftId)
@@ -25,7 +28,7 @@ export default function NftTransferDrawer({
 
   return (
     <div className="mr-3 w-80 shrink-0">
-      {/* TODO @YohanTz: Try to extract magic values like this somewhere (top-[5.75rem]) */}
+      {/* TODO @YohanTz: Extract magic values like this somewhere (top-[5.75rem]) */}
       <div className="fixed bottom-0 right-0 top-[5.75rem] m-3 flex w-80 shrink-0 flex-col rounded-2xl border border-neutral-100 bg-white p-5">
         <h2 className="text-xl font-bold">Your assets to transfer</h2>
         <p className="mt-4 text-sm">

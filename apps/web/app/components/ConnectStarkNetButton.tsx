@@ -1,28 +1,31 @@
 import { useAccount } from "@starknet-react/core";
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
-import ConnectStarkNetModal from "./ConnectStarkNetModal";
+import ConnectStarkNetModal from "./ConnectStarknetModal";
 import { CHAIN_LOGOS_BY_NAME, WALLET_LOGOS_BY_ID } from "../helpers";
 
-export default function ConnectStarknetButton() {
+interface ConnectStarknetButtonProps {
+  isModalOpen: boolean;
+  onOpenModalChange: (open: boolean) => void;
+}
+
+export default function ConnectStarknetButton({
+  isModalOpen,
+  onOpenModalChange,
+}: ConnectStarknetButtonProps) {
   const { address, isConnected, connector } = useAccount();
-  const [isOpen, setIsOpen] = useState(false);
 
   const shortAddress = useMemo(
     () => (address ? `${address.slice(0, 6)}••••${address.slice(-4)}` : ""),
     [address]
   );
 
-  function handleClick() {
-    setIsOpen(true);
-  }
-
   return (
     <>
       <button
         className="flex items-center gap-2.5 rounded-full bg-sky-950 px-3 py-2 text-sm font-semibold text-white"
-        onClick={handleClick}
+        onClick={() => onOpenModalChange(!isModalOpen)}
       >
         {isConnected ? shortAddress : "Connect StarkNet Wallet"}
         <div className="flex">
@@ -43,7 +46,11 @@ export default function ConnectStarknetButton() {
           )}
         </div>
       </button>
-      {isOpen && <ConnectStarkNetModal onOpenChange={setIsOpen} />}
+      <ConnectStarkNetModal
+        chain="Starknet"
+        isOpen={isModalOpen}
+        onOpenChange={onOpenModalChange}
+      />
     </>
   );
 }

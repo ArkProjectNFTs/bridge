@@ -10,7 +10,7 @@ export type Chain = "Ethereum" | "Starknet";
 export const WALLET_LOGOS_BY_ID: Record<string, StaticImageData> = {
   braavos: braavosLogo,
   argentX: argentXLogo,
-  metaMask: metaMaskLogo,
+  injected: metaMaskLogo,
 };
 
 export const CHAIN_LOGOS_BY_NAME: Record<Chain, StaticImageData> = {
@@ -18,7 +18,9 @@ export const CHAIN_LOGOS_BY_NAME: Record<Chain, StaticImageData> = {
   Starknet: starknetLogo,
 };
 
+// TODO @YohanTz: An injected connector may not be Metamask
 export const CONNECTOR_LABELS_BY_ID: Record<string, string> = {
   braavos: "Braavos",
   argentX: "Argent X",
+  injected: "Metamask",
 };
