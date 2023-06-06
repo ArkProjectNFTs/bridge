@@ -2,10 +2,10 @@ import { useAccount } from "@starknet-react/core";
 import { useState } from "react";
 import ConnectStarkNetModal from "./ConnectStarkNetModal";
 
-type ConnectStarkNetButtonProps = {
+interface ConnectStarkNetButtonProps {
   kind?: "default" | "error";
   label?: string | null;
-};
+}
 
 export default function ConnectStarkNetButton({
   label = "Connect StarkNet Wallet",
@@ -14,7 +14,7 @@ export default function ConnectStarkNetButton({
   const [isOpen, setIsOpen] = useState(false);
 
   const shortAddress = address
-    ? `${address.slice(0, 6)}••••${address.slice(-4)}}`
+    ? `${address.slice(0, 6)}••••${address.slice(-4)}`
     : "";
 
   function closeModal() {

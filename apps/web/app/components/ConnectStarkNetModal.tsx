@@ -17,10 +17,10 @@ const LABELS_BY_ID: Record<string, string> = {
   argentX: "Argent X",
 };
 
-type ConnectStarkNetModalProps = {
+interface ConnectStarkNetModalProps {
   isOpen: boolean;
   closeModal: () => void;
-};
+}
 
 export default function ConnectStarkNetModal({
   isOpen = false,
@@ -30,7 +30,7 @@ export default function ConnectStarkNetModal({
   const { address, status } = useAccount();
   const isDisconnected = status === "disconnected";
   const shortAddress = address
-    ? `${address.slice(0, 6)}••••${address.slice(-4)}}`
+    ? `${address.slice(0, 6)}••••${address.slice(-4)}`
     : "";
 
   useEffect(() => {

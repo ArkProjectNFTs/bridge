@@ -4,9 +4,9 @@ import { useAccount as useEthereumAccount } from "wagmi";
 
 import { api } from "~/utils/api";
 
-type NftTansferDrawerProps = {
+interface NftTansferDrawerProps {
   selectedNftIds: Array<string>;
-};
+}
 
 export default function NftTransferDrawer({
   selectedNftIds,
