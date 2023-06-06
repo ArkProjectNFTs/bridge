@@ -41,7 +41,7 @@ export default function NftCard({
         {/* TODO @YohanTz: Handle images with different sizes */}
         <Image
           // TODO @YohanTz: Handle no image case
-          src={image || ""}
+          src={image ?? ""}
           alt={title}
           width={300}
           height={300}

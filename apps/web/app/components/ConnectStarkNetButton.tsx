@@ -2,8 +2,13 @@ import { useAccount } from "@starknet-react/core";
 import Image from "next/image";
 import { useMemo } from "react";
 
-import ConnectStarkNetModal from "./ConnectStarknetModal";
-import { CHAIN_LOGOS_BY_NAME, WALLET_LOGOS_BY_ID } from "../helpers";
+import ConnectStarkNetModal from "./ConnectModal";
+import {
+  CHAIN_LOGOS_BY_NAME,
+  DEFAULT_STARKNET_CONNECTOR_LOGO,
+  WALLET_LOGOS_BY_ID,
+} from "../helpers";
+import { useIsSSR } from "~/hooks/useIsSSR";
 
 interface ConnectStarknetButtonProps {
   isModalOpen: boolean;
@@ -14,12 +19,17 @@ export default function ConnectStarknetButton({
   isModalOpen,
   onOpenModalChange,
 }: ConnectStarknetButtonProps) {
+  const isSSR = useIsSSR();
   const { address, isConnected, connector } = useAccount();
 
   const shortAddress = useMemo(
-    () => (address ? `${address.slice(0, 6)}••••${address.slice(-4)}` : ""),
+    () => (address ? `${address.slice(0, 6)}...${address.slice(-4)}` : ""),
     [address]
   );
+
+  if (isSSR) {
+    return null;
+  }
 
   return (
     <>
@@ -37,7 +47,10 @@ export default function ConnectStarknetButton({
           />
           {connector !== undefined && (
             <Image
-              src={WALLET_LOGOS_BY_ID[connector.id()] || ""}
+              src={
+                WALLET_LOGOS_BY_ID[connector.id()] ??
+                DEFAULT_STARKNET_CONNECTOR_LOGO
+              }
               height={28}
               width={28}
               alt={`${connector.name()} logo`}

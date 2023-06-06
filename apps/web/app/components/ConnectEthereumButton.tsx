@@ -1,8 +1,13 @@
 import { useAccount, useEnsName } from "wagmi";
 import Image from "next/image";
-import { CHAIN_LOGOS_BY_NAME, WALLET_LOGOS_BY_ID } from "../helpers";
+import {
+  CHAIN_LOGOS_BY_NAME,
+  DEFAULT_ETHEREUM_CONNECTOR_LOGO,
+  WALLET_LOGOS_BY_ID,
+} from "../helpers";
 import { useMemo } from "react";
-import ConnectStarkNetModal from "./ConnectStarknetModal";
+import ConnectStarkNetModal from "./ConnectModal";
+import { useIsSSR } from "~/hooks/useIsSSR";
 
 interface ConnectEthereumButtonProps {
   isModalOpen: boolean;
@@ -13,15 +18,20 @@ export default function ConnectEthereumButton({
   isModalOpen,
   onOpenModalChange,
 }: ConnectEthereumButtonProps) {
+  const isSSR = useIsSSR();
   const { address, isConnected, connector } = useAccount();
   const { data: ensName } = useEnsName({
     address: address,
   });
 
   const shortAddress = useMemo(
-    () => (address ? `${address.slice(0, 6)}••••${address.slice(-4)}` : ""),
+    () => (address ? `${address.slice(0, 6)}...${address.slice(-4)}` : ""),
     [address]
   );
+
+  if (isSSR) {
+    return null;
+  }
 
   return (
     <>
@@ -40,7 +50,10 @@ export default function ConnectEthereumButton({
 
           {connector !== undefined && (
             <Image
-              src={WALLET_LOGOS_BY_ID[connector.id] || ""}
+              src={
+                WALLET_LOGOS_BY_ID[connector.id] ??
+                DEFAULT_ETHEREUM_CONNECTOR_LOGO
+              }
               height={28}
               width={28}
               alt={`${connector.name} logo`}

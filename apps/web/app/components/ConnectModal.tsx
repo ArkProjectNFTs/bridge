@@ -31,8 +31,8 @@ function ConnectorButton({ id, onClick }: ConnectorButtonProps) {
     >
       <span className="text-sm font-medium">{CONNECTOR_LABELS_BY_ID[id]}</span>
       <Image
-        src={WALLET_LOGOS_BY_ID[id] || ""}
-        alt={`${CONNECTOR_LABELS_BY_ID[id] || ""} logo`}
+        src={WALLET_LOGOS_BY_ID[id] ?? ""}
+        alt={`${CONNECTOR_LABELS_BY_ID[id] ?? ""} logo`}
         className=""
         width={32}
         height={32}
@@ -60,6 +60,7 @@ function EthereumConnectorList() {
             {connectors.map((connector) => {
               return (
                 <ConnectorButton
+                  key={connector.id}
                   onClick={() => connect({ connector })}
                   id={connector.id}
                 />
@@ -94,6 +95,7 @@ function StarknetConnectorList() {
             {connectors.map((connector) => {
               return (
                 <ConnectorButton
+                  key={connector.id()}
                   onClick={() => connect(connector)}
                   id={connector.id()}
                 />
@@ -132,7 +134,7 @@ export default function ConnectStarkNetModal({
           <div className="fixed inset-0 bg-slate-800 opacity-60" />
           {/* TODO @YohanTz: Extract magic values like this somewhere (top-[5.75rem]) */}
           <Dialog.Content
-            className="fixed bottom-0 right-0 top-[5.75rem] m-3 w-80 rounded-lg bg-white p-5 text-center"
+            className="fixed bottom-0 right-0 top-[5.75rem] m-3 w-[21.875rem] rounded-2xl bg-white p-5 text-center"
             onInteractOutside={(event) => event.preventDefault()}
           >
             <div className="flex w-full justify-end">

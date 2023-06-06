@@ -11,9 +11,9 @@ import Footer from "./components/Footer";
 import Header from "./components/Header";
 import { api } from "~/utils/api";
 
-// TODO @YohanTz: Handle other connectors
+// TODO @YohanTz: Handle wallet connect and coinbase wallet connectors
 // const alchemyId = process.env.ALCHEMY_ID;
-// const walletConnectProjectId = process.env.WALLETCONNECT_PROJECT_ID || "";
+// const walletConnectProjectId = process.env.WALLETCONNECT_PROJECT_ID ?? "";
 
 const { publicClient, webSocketPublicClient } = configureChains(
   [goerli],

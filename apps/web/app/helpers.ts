@@ -7,6 +7,9 @@ import { type StaticImageData } from "next/image";
 
 export type Chain = "Ethereum" | "Starknet";
 
+export const DEFAULT_ETHEREUM_CONNECTOR_LOGO = metaMaskLogo;
+export const DEFAULT_STARKNET_CONNECTOR_LOGO = argentXLogo;
+
 export const WALLET_LOGOS_BY_ID: Record<string, StaticImageData> = {
   braavos: braavosLogo,
   argentX: argentXLogo,

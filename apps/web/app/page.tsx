@@ -5,11 +5,15 @@ import TargetChainSwitch from "./components/TargetChainSwitch";
 import TokenList from "./components/TokenList";
 import NftTransferDrawer from "./components/NftTransferDrawer";
 import { type Chain } from "./helpers";
+import { useLocalStorage } from "usehooks-ts";
 
 // TODO @YohanTz: Refactor when the UX is finalized
 export default function Page() {
   const [selectedNftIds, setSelectedNftIds] = useState<Array<string>>([]);
-  const [targetChain, setTargetChain] = useState<Chain>("Ethereum");
+  const [targetChain, setTargetChain] = useLocalStorage<Chain>(
+    "chain",
+    "Ethereum"
+  );
 
   return (
     <div className="flex">
@@ -31,9 +35,10 @@ export default function Page() {
           setSelectedNftIds={setSelectedNftIds}
         />
       </main>
-      {selectedNftIds.length > 0 && (
-        <NftTransferDrawer selectedNftIds={selectedNftIds} />
-      )}
+      <NftTransferDrawer
+        selectedNftIds={selectedNftIds}
+        targetChain={targetChain}
+      />
     </div>
   );
 }
