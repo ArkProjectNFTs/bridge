@@ -5,7 +5,7 @@ import { XMarkIcon } from "@heroicons/react/24/solid";
 
 import braavosLogo from "~/public/braavos.png";
 import argentXLogo from "~/public/argentx.png";
-import Image, { StaticImageData } from "next/image";
+import Image, { type StaticImageData } from "next/image";
 
 const LOGOS_BY_ID: Record<string, StaticImageData> = {
   braavos: braavosLogo,
@@ -17,19 +17,21 @@ const LABELS_BY_ID: Record<string, string> = {
   argentX: "Argent X",
 };
 
-type ConnectStarkNetModalProps = {
+interface ConnectStarkNetModalProps {
   isOpen: boolean;
   closeModal: () => void;
-};
+}
 
 export default function ConnectStarkNetModal({
   isOpen = false,
   closeModal,
 }: ConnectStarkNetModalProps) {
   const { connect, connectors, refresh, disconnect } = useConnectors();
-  const { account, address, status } = useAccount();
+  const { address, status } = useAccount();
   const isDisconnected = status === "disconnected";
-  const shortAddress = address?.slice(0, 6) + "••••" + address?.slice(-4);
+  const shortAddress = address
+    ? `${address.slice(0, 6)}••••${address.slice(-4)}`
+    : "";
 
   useEffect(() => {
     const interval = setInterval(refresh, 5000);
@@ -39,7 +41,11 @@ export default function ConnectStarkNetModal({
   return (
     <>
       <Transition appear show={isOpen} as={Fragment}>
-        <Dialog as="div" className="relative z-10" onClose={closeModal}>
+        <Dialog
+          as="div"
+          className="relative z-10 text-black"
+          onClose={closeModal}
+        >
           <Transition.Child
             as={Fragment}
             enter="ease-out duration-300"

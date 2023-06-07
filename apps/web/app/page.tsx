@@ -1,18 +1,38 @@
 "use client";
 
-import { api } from "~/utils/api";
-import L1TokenList from "./ui/L1TokenList";
-import L2TokenList from "./ui/L2TokenList";
+import { useState } from "react";
+import TargetChainSwitch, { type Chain } from "./components/TargetChainSwitch";
+import TokenList from "./components/TokenList";
+import NftTransferDrawer from "./components/NftTransferDrawer";
 
+// TODO @YohanTz: Refactor when the UX is finalized
 export default function Page() {
+  const [selectedNftIds, setSelectedNftIds] = useState<Array<string>>([]);
+  const [targetChain, setTargetChain] = useState<Chain>("Ethereum");
+
   return (
-    <div className="flex justify-center space-x-4">
-      <div className="w-[360px] rounded-xl border border-gray-100 bg-white p-4">
-        <L1TokenList />
-      </div>
-      <div className="w-[360px] rounded-xl border border-gray-100 bg-white p-4">
-        <L2TokenList />
-      </div>
+    <div className="flex">
+      <main className="mx-auto mt-[112px] w-full max-w-7xl px-4 text-center">
+        <h2 className="mb-8 text-5xl font-extralight">
+          Where do you want to move
+          <br />
+          <span className="font-semibold">your digital goods?</span>
+        </h2>
+        <TargetChainSwitch
+          targetChain={targetChain}
+          setTargetChain={setTargetChain}
+        />
+        <p className="mb-10 text-xl">
+          Select the assets you want to transfer to {targetChain}
+        </p>
+        <TokenList
+          selectedNftIds={selectedNftIds}
+          setSelectedNftIds={setSelectedNftIds}
+        />
+      </main>
+      {selectedNftIds.length && (
+        <NftTransferDrawer selectedNftIds={selectedNftIds} />
+      )}
     </div>
   );
 }
