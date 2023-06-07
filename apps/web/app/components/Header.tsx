@@ -1,6 +1,6 @@
 "use client";
 
-import ConnectStarkNetButton from "./ConnectStarknetButton";
+import ConnectStarkNetButton from "./ConnectStarkNetButton";
 import ConnectEthereumButton from "./ConnectEthereumButton";
 import { useState } from "react";
 import { type Chain } from "../helpers";
