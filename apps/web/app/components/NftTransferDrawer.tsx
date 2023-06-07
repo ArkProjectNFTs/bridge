@@ -49,7 +49,7 @@ function ChainTransferSummary({
           <div className="text-sm font-semibold">{chain}</div>
         </div>
       </div>
-      {!isSSR && (
+      {!isSSR && connectorId !== undefined && (
         <div className="flex items-center gap-3">
           <Image
             src={WALLET_LOGOS_BY_ID[connectorId ?? ""] ?? ""}
