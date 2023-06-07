@@ -9,6 +9,13 @@ const alchemy = new Alchemy({
   network: Network.ETH_GOERLI,
 });
 
+export type Nft = {
+  collectionName: string;
+  id: string;
+  image: string | undefined;
+  title: string;
+};
+
 const Address = z.object({
   address: z.custom<string>((address) => {
     return isAddress(address as string);
@@ -16,7 +23,7 @@ const Address = z.object({
 });
 
 export const nftsRouter = createTRPCRouter({
-  getL1NftsFromAddress: publicProcedure
+  getL1NftsByCollection: publicProcedure
     .input(Address)
     .query(async ({ input }) => {
       const { address } = input;
@@ -25,18 +32,31 @@ export const nftsRouter = createTRPCRouter({
         address.toLowerCase()
       );
 
-      const nfts = ownedNfts
+      const rawNfts = ownedNfts
         .filter((nft) => nft.tokenType === "ERC721")
         .map((nft) => ({
-          title: nft.title,
+          collectionName:
+            nft.contract.openSea?.collectionName ||
+            nft.contract.name ||
+            "Unknown",
+          id: `${nft.title}-${nft.tokenId}`,
           image: nft.media[0]?.thumbnail ?? undefined,
-          tokenId: nft.tokenId,
-          contract: nft.contract.address,
+          title: nft.title,
         }));
 
-      return {
-        nfts,
-      };
+      const nftsByCollection = rawNfts.reduce<Record<string, Array<Nft>>>(
+        (acc, nft) => {
+          if (acc[nft.collectionName] === undefined) {
+            acc[nft.collectionName] = [];
+          }
+
+          acc[nft.collectionName]?.push(nft);
+          return acc;
+        },
+        {}
+      );
+
+      return { raw: rawNfts, byCollection: nftsByCollection };
     }),
   // getAll: publicProcedure.query(({ ctx }) => {
   //   return ctx.prisma.example.findMany();
