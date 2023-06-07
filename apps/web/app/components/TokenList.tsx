@@ -6,10 +6,10 @@ import { useState } from "react";
 import NftCard from "./NftCard";
 import { type Nft } from "~/server/api/routers/nfts";
 
-type TokenListProps = {
+interface TokenListProps {
   selectedNftIds: Array<string>;
   setSelectedNftIds: (nfts: Array<string>) => void;
-};
+}
 
 const tabs = [
   { label: "All nfts", id: "all" },
