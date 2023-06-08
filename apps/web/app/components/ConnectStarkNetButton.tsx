@@ -2,7 +2,7 @@ import { useAccount } from "@starknet-react/core";
 import Image from "next/image";
 import { useMemo } from "react";
 
-import ConnectStarkNetModal from "./ConnectModal";
+import ConnectModal from "./ConnectModal";
 import {
   CHAIN_LOGOS_BY_NAME,
   DEFAULT_STARKNET_CONNECTOR_LOGO,
@@ -59,7 +59,7 @@ export default function ConnectStarknetButton({
           )}
         </div>
       </button>
-      <ConnectStarkNetModal
+      <ConnectModal
         chain="Starknet"
         isOpen={isModalOpen}
         onOpenChange={onOpenModalChange}

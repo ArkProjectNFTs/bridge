@@ -108,7 +108,7 @@ function StarknetConnectorList() {
   );
 }
 
-interface ConnectStarkNetModalProps {
+interface ConnectModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   chain: Chain;
@@ -120,11 +120,11 @@ const CHAIN_TO_CONNECTOR_LIST = {
 };
 
 // TODO @YohanTz: Handle disconnect / loading states etc once the whole flow is ready
-export default function ConnectStarkNetModal({
+export default function ConnectModal({
   isOpen,
   onOpenChange,
   chain,
-}: ConnectStarkNetModalProps) {
+}: ConnectModalProps) {
   const ConnectorList = CHAIN_TO_CONNECTOR_LIST[chain];
 
   return (

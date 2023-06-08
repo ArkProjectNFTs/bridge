@@ -6,7 +6,7 @@ import {
   WALLET_LOGOS_BY_ID,
 } from "../helpers";
 import { useMemo } from "react";
-import ConnectStarkNetModal from "./ConnectModal";
+import ConnectModal from "./ConnectModal";
 import { useIsSSR } from "~/hooks/useIsSSR";
 
 interface ConnectEthereumButtonProps {
@@ -62,7 +62,7 @@ export default function ConnectEthereumButton({
           )}
         </div>
       </button>
-      <ConnectStarkNetModal
+      <ConnectModal
         chain="Ethereum"
         isOpen={isModalOpen}
         onOpenChange={onOpenModalChange}
