@@ -52,7 +52,6 @@ contract BridgeEscrow is AccessControl, ERC721Holder {
     escrowCount++;
     uint256 currentEscrowCount = escrowCount;
     EscrowEntry storage escrowEntry = allEscrowEntries[currentEscrowCount];
-
     escrowEntry.entryId = currentEscrowCount;
     escrowEntry.nftId = tokenId;
     escrowEntry.nftContractAddress = tokenAddress;
@@ -62,7 +61,6 @@ contract BridgeEscrow is AccessControl, ERC721Holder {
     escrowEntry.status = EscrowStatus.Locked;
 
     activeEscrowEntryIds[tokenAddress][tokenId] = currentEscrowCount;
-
     IERC721(tokenAddress).safeTransferFrom(depositorAddress, address(this), tokenId);
 
     emit TokenTransferred(
