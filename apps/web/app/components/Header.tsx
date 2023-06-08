@@ -17,7 +17,7 @@ export default function Header() {
   }
 
   return (
-    <div className="fixed z-20 flex w-full items-center justify-between border-b border-neutral-50 bg-white p-6">
+    <div className="fixed left-0 top-0 z-20 flex w-full items-center justify-between border-b border-neutral-50 bg-white p-6">
       <div className="text-xl font-medium">Starklane</div>
       <div className="flex space-x-4">
         <ConnectEthereumButton

@@ -35,13 +35,9 @@ function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="[color-scheme:light]">
       <head />
-      <body className="min-h-screen bg-neutral-50 text-sky-950">
+      <body className="flex min-h-screen w-screen items-center justify-center bg-neutral-50 text-sky-950">
         <StarknetConfig connectors={starknetConnectors} autoConnect>
-          <WagmiConfig config={wagmiConfig}>
-            <Header />
-            {children}
-            <Footer />
-          </WagmiConfig>
+          <WagmiConfig config={wagmiConfig}>{children}</WagmiConfig>
         </StarknetConfig>
       </body>
     </html>
