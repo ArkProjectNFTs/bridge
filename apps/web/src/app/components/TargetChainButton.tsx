@@ -20,7 +20,7 @@ export default function TargetChainButton({
   return (
     <div className="relative">
       <button
-        className={`absolute right-1/2 top-1/2 h-11 w-11 -translate-y-1/2 translate-x-1/2 rounded-full border-4 border-white bg-emerald-400 text-white ${
+        className={`absolute right-1/2 top-1/2 h-11 w-11 -translate-y-1/2 translate-x-1/2 rounded-full border-4 border-white bg-primary text-white ${
           orientation === "horizontal" ? "" : "rotate-90"
         }`}
         onClick={toggle}

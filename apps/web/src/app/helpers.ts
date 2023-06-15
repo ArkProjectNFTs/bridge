@@ -1,8 +1,8 @@
-import argentXLogo from "~/public/argentX_logo.png";
-import braavosLogo from "~/public/braavos_logo.png";
-import ethereumLogo from "~/public/ethereum_logo.png";
-import metaMaskLogo from "~/public/metamask_logo.png";
-import starknetLogo from "~/public/starknet_logo.png";
+import argentXLogo from "../../public/argentX_logo.png";
+import braavosLogo from "../../public/braavos_logo.png";
+import ethereumLogo from "../../public/ethereum_logo.png";
+import metaMaskLogo from "../../public/metamask_logo.png";
+import starknetLogo from "../../public/starknet_logo.png";
 import { type StaticImageData } from "next/image";
 
 export type Chain = "Ethereum" | "Starknet";

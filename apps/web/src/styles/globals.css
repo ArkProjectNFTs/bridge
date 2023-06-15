@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.Ethereum {
+  --color-primary: #60d2b3;
+}
+
+.Starknet {
+  --color-primary: #e295f7;
+}
