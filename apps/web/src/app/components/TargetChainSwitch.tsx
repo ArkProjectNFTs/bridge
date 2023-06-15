@@ -19,9 +19,7 @@ export default function TargetChainSwitch({
       <button
         onClick={() => setTargetChain("Ethereum")}
         className={`flex items-center gap-2 rounded-l-2xl py-3 pl-3 pr-6 ${
-          !isSSR && targetChain === "Ethereum"
-            ? "bg-emerald-200"
-            : "bg-neutral-200"
+          !isSSR && targetChain === "Ethereum" ? "bg-primary" : "bg-neutral-200"
         }`}
       >
         <Image
@@ -36,9 +34,7 @@ export default function TargetChainSwitch({
       <button
         onClick={() => setTargetChain("Starknet")}
         className={`flex items-center gap-2 rounded-r-2xl py-3 pl-6 pr-3 ${
-          !isSSR && targetChain === "Starknet"
-            ? "bg-emerald-200"
-            : "bg-neutral-200"
+          !isSSR && targetChain === "Starknet" ? "bg-primary" : "bg-neutral-200"
         }`}
       >
         Starknet

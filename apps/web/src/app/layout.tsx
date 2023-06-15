@@ -6,10 +6,13 @@ import { WagmiConfig, configureChains, createConfig } from "wagmi";
 import { goerli } from "wagmi/chains";
 import { InjectedConnector, StarknetConfig } from "@starknet-react/core";
 import { publicProvider } from "wagmi/providers/public";
+import { useLocalStorage } from "usehooks-ts";
 
 import Footer from "./components/Footer";
 import Header from "./components/Header";
 import { api } from "~/utils/api";
+import { type Chain } from "./helpers";
+import "design-system/styles.css";
 
 // TODO @YohanTz: Handle wallet connect and coinbase wallet connectors
 // const alchemyId = process.env.ALCHEMY_ID;
@@ -32,10 +35,16 @@ const starknetConnectors = [
 ];
 
 function RootLayout({ children }: { children: React.ReactNode }) {
+  const [targetChain, setTargetChain] = useLocalStorage<Chain>(
+    "chain",
+    "Ethereum"
+  );
+
   return (
     <html lang="en" className="[color-scheme:light]">
-      <head />
-      <body className="min-h-screen bg-neutral-50 text-sky-950">
+      <body
+        className={`min-h-screen bg-neutral-50 text-sky-950 ${targetChain}`}
+      >
         <StarknetConfig connectors={starknetConnectors} autoConnect>
           <WagmiConfig config={wagmiConfig}>
             <Header />

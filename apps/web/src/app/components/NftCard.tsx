@@ -33,7 +33,7 @@ export default function NftCard({
       <button
         className={`h-full w-full overflow-hidden rounded-2xl border bg-white p-3 ${
           isSelected && cardType === "nft"
-            ? "border-emerald-400 outline outline-1 outline-emerald-400"
+            ? "border-primary outline outline-1 outline-primary"
             : "border-neutral-300"
         } ${isSelected && cardType === "nft" ? "" : ""}`}
         onClick={onClick}
@@ -50,16 +50,18 @@ export default function NftCard({
         <div className="mt-3 text-left">
           <div className="flex items-center justify-between">
             <span className="font-semibold">{title}</span>
-            <div
-              className={`h-5 w-5 rounded-full ${
-                isSelected
-                  ? "border-[6px] border-emerald-400 bg-white "
-                  : "bg-neutral-300"
-              }`}
-            ></div>
+            {cardType === "nft" && (
+              <div
+                className={`h-5 w-5 rounded-full ${
+                  isSelected
+                    ? "border-[6px] border-primary bg-white "
+                    : "bg-neutral-300"
+                }`}
+              />
+            )}
           </div>
           {cardType === "collection" ? (
-            <span className="text-emerald-400">
+            <span className="text-primary">
               {numberOfNfts}
               {numberOfNfts > 1 ? " Nfts" : " Nft"}
             </span>
