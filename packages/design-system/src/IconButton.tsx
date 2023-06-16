@@ -2,8 +2,15 @@
 
 import * as React from "react";
 
-interface IconButtonProps {}
+interface IconButtonProps {
+  onClick: () => void;
+}
 
-export function IconButton({}: IconButtonProps) {
-  return <button className="ds-p-1 ds-bg-primary">TEST</button>;
+export function IconButton({ onClick }: IconButtonProps) {
+  return (
+    <button
+      className="bg-primary h-8 w-8 rounded-full p-7"
+      onClick={onClick}
+    ></button>
+  );
 }

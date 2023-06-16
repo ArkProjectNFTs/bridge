@@ -7,7 +7,7 @@ await import("./env.mjs");
 /** @type {import("next").NextConfig} */
 const config = {
   reactStrictMode: true,
-  transpilePackages: ["design-system"],
+  transpilePackages: ["design-system", "tailwind-config"],
 
   /**
    * If you have `experimental: { appDir: true }` set, then you must comment the below `i18n` config

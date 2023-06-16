@@ -12,6 +12,7 @@ import {
 import TargetChainButton from "./TargetChainButton";
 import { useMemo } from "react";
 import { useIsSSR } from "~/hooks/useIsSSR";
+import { IconButton } from "design-system";
 
 interface ChainTransferSummaryProps {
   chain: Chain;
@@ -145,18 +146,23 @@ export default function NftTransferDrawer({
         <div className="mt-8 flex flex-col gap-4 overflow-y-auto">
           {selectedNfts.map((selectedNft) => {
             return (
-              <div className="flex items-center gap-4" key={selectedNft?.id}>
-                <Image
-                  src={selectedNft?.image ?? ""}
-                  height={52}
-                  width={52}
-                  alt={selectedNft?.title ?? ""}
-                  className="rounded"
-                />
-                <div className="flex flex-col">
-                  <span className="text-sm">{selectedNft?.collectionName}</span>
-                  <span className="font-semibold">{selectedNft?.title}</span>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4" key={selectedNft?.id}>
+                  <Image
+                    src={selectedNft?.image ?? ""}
+                    height={52}
+                    width={52}
+                    alt={selectedNft?.title ?? ""}
+                    className="rounded"
+                  />
+                  <div className="flex flex-col">
+                    <span className="text-sm">
+                      {selectedNft?.collectionName}
+                    </span>
+                    <span className="font-semibold">{selectedNft?.title}</span>
+                  </div>
                 </div>
+                <IconButton onClick={console.log} />
               </div>
             );
           })}

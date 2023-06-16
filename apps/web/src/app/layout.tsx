@@ -12,7 +12,6 @@ import Footer from "./components/Footer";
 import Header from "./components/Header";
 import { api } from "~/utils/api";
 import { type Chain } from "./helpers";
-import "design-system/styles.css";
 
 // TODO @YohanTz: Handle wallet connect and coinbase wallet connectors
 // const alchemyId = process.env.ALCHEMY_ID;
@@ -35,10 +34,7 @@ const starknetConnectors = [
 ];
 
 function RootLayout({ children }: { children: React.ReactNode }) {
-  const [targetChain, setTargetChain] = useLocalStorage<Chain>(
-    "chain",
-    "Ethereum"
-  );
+  const [targetChain] = useLocalStorage<Chain>("chain", "Ethereum");
 
   return (
     <html lang="en" className="[color-scheme:light]">
