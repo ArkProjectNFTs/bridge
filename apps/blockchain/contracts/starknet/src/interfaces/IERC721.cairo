@@ -1,4 +1,4 @@
-use starklane_contracts::utils::serde::SpanSerde;
+use starklane::utils::serde::SpanSerde;
 use starknet::ContractAddress;
 use array::SpanTrait;
 

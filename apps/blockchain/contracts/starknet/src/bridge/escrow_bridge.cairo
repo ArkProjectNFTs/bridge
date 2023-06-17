@@ -7,9 +7,9 @@ trait IBridgeEscrow {
 #[contract]
 mod EscrowBridge {
     use starknet::ContractAddress;
-    use starklane_contracts::interfaces::IERC721::IERC721Dispatcher;
-    use starklane_contracts::interfaces::IERC721::IERC721DispatcherTrait;
-    use starklane_contracts::utils::serde;
+    use starklane::interfaces::IERC721::IERC721Dispatcher;
+    use starklane::interfaces::IERC721::IERC721DispatcherTrait;
+    use starklane::utils::serde;
     use array::SpanTrait;
     use array::ArrayTrait;
     use starknet::get_contract_address;

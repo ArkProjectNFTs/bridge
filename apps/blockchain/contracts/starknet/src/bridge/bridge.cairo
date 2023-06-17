@@ -22,7 +22,7 @@ trait IBridgableToken {
 mod Bridge {
     use super::IBridgableTokenDispatcher;
     use super::IBridgableTokenDispatcherTrait;
-    use starklane_contracts::utils::serde::SpanSerde;
+    use starklane::utils::serde::SpanSerde;
     use starknet::class_hash::ClassHash;
     use array::SpanTrait;
     use array::ArrayTrait;
@@ -31,8 +31,8 @@ mod Bridge {
     use starknet::syscalls::deploy_syscall;
     use starknet::contract_address_to_felt252;
     use starknet::get_caller_address;
-    use starklane_contracts::bridge::escrow_bridge::IBridgeEscrowDispatcherTrait;
-    use starklane_contracts::bridge::escrow_bridge::IBridgeEscrowDispatcher;
+    use starklane::bridge::escrow_bridge::IBridgeEscrowDispatcherTrait;
+    use starklane::bridge::escrow_bridge::IBridgeEscrowDispatcher;
 
 
     struct Storage {

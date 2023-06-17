@@ -1,5 +1,5 @@
 [package]
-name = "starklane_contracts"
+name = "starklane"
 version = "1.0.0"
 
 [cairo]
@@ -12,4 +12,4 @@ starknet = ">=1.0.0"
 sierra = true
 
 [scripts]
-test-docker = "sudo docker run --rm -v $(pwd):/work --entrypoint cairo-test starknet/cairo:1.0.0 --starknet /work/"
+test-caironet = "sudo docker run --rm -v $(pwd):/work -t --entrypoint cairo-test glihm/caironet:1.1.0-d --starknet /work/"
