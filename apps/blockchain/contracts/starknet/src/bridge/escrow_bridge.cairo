@@ -12,6 +12,8 @@ mod EscrowBridge {
     use starklane::utils::serde;
     use array::SpanTrait;
     use array::ArrayTrait;
+    use zeroable::Zeroable;
+    use starknet::contract_address::ContractAddressZeroable;
     use starknet::get_contract_address;
     use starknet::get_caller_address;
     use starknet::contract_address_const;
@@ -28,20 +30,49 @@ mod EscrowBridge {
         bridge_address::write(_bridge_address);
     }
 
+    // TODO: add a view to query if a token is loked for a given collection.
+    fn is_locked(collection_address: ContractAddress, token_id: u256) -> bool {
+        // Check if depositor is here for history, or to check if a token exists
+        // and to know who deposit it.
+        false
+    }
+
+    /// Locks tokens defining the escrow contract as tokens owner.
+    ///
+    /// * `from` - Address of the account that owns the tokens.
+    /// * `collection_address` - Address of the ERC721 contract managing the tokens.
+    /// * `tokens_ids` - List of tokens id to lock.
     #[external]
-    fn lock_tokens(token_contract_address: ContractAddress, token_ids: Span<u256>) {
-        let caller = starknet::get_caller_address();
-        assert(caller == bridge_address::read(), 'Only bridge can unlock tokens');
-        let erc721_dispatcher = IERC721Dispatcher { contract_address: token_contract_address };
+    fn lock_tokens(
+        from: ContractAddress,
+        collection_address: ContractAddress,
+        token_ids: Span<u256>,
+    ) {
+        assert(!from.is_zero(), 'Invalid from address');
+        assert(starknet::get_caller_address() == bridge_address::read(),
+               'Only bridge can lock tokens');
+
+        if token_ids.len() == 0 {
+            return ();
+        }
+
+        let erc721_dispatcher = IERC721Dispatcher { contract_address: collection_address };
         let length = token_ids.len();
+
+        let escrow_addr: ContractAddress = starknet::get_contract_address();
 
         let mut i = 0;
         loop {
             let mut data = ArrayTrait::new().span();
             let token_id = *token_ids.at(i);
-            let contract_addr: ContractAddress = starknet::get_contract_address();
-            erc721_dispatcher.safe_transfer_from(caller, contract_addr, token_id, data);
-            depositors::write((token_contract_address, token_id), caller);
+
+            erc721_dispatcher.safe_transfer_from(
+                from,
+                escrow_addr,
+                token_id,
+                data);
+
+            depositors::write((collection_address, token_id), from);
 
             if i == length {
                 break ();
@@ -51,12 +82,27 @@ mod EscrowBridge {
         }
     }
 
+    /// Unlock tokens.
+    ///
+    /// * `collection_address` - Address of the ERC721 contract managing the tokens.
+    /// * `tokens_ids` - List of tokens id to lock.
+    /// * `to` - Account to which the tokens must be transfered.
     #[external]
-    fn unlock_tokens(token_contract_address: ContractAddress, token_id: u256, to: ContractAddress) {
+    fn unlock_tokens(
+        collection_address: ContractAddress,
+        // TODO(glihm): change to array.
+        token_id: u256,
+        to: ContractAddress,
+    ) {
         let caller = get_caller_address();
         assert(caller == bridge_address::read(), 'Only bridge can unlock tokens');
-        let erc721_dispatcher = IERC721Dispatcher { contract_address: token_contract_address };
+        let erc721_dispatcher = IERC721Dispatcher { contract_address: collection_address };
         let mut data = ArrayTrait::new().span();
+
+        // TODO: verify into depositors/token on hold if the token of this collection
+        // is here....!
+
+        // Remove from depositors when it's gone??!
         erc721_dispatcher.safe_transfer_from(get_contract_address(), to, token_id, data);
     }
 
