@@ -25,11 +25,11 @@ use integer::Felt252TryIntoU32;
 // TODO(glihm): Remove this on new version of compiler.
 use starklane::utils::serde::SpanSerde;
 
-///! Token URI represented internally as a list of short string.
-///!
-///! It's not only a wrapper around Span because for the Dapp
-///! to easily decode the data, a struct is well documented in the
-///! ABI.
+/// Token URI represented internally as a list of short string.
+///
+/// It's not only a wrapper around Span because for the Dapp
+/// to easily decode the data, a struct is well documented in the
+/// ABI.
 #[derive(Drop)]
 struct TokenURI {
     // Number of felt252 (short string) used to represent the
@@ -41,9 +41,10 @@ struct TokenURI {
     content: Span<felt252>,
 }
 
-///! Serde implementation for ERC721TokenURI.
+/// Serde implementation for TokenURI.
 impl TokenURISerde of serde::Serde<TokenURI> {
 
+    ///
     fn serialize(self: @TokenURI, ref output: Array<felt252>) {
         // We don't need to add the length, as the Serde
         // for Span already add the length as the first
@@ -51,6 +52,7 @@ impl TokenURISerde of serde::Serde<TokenURI> {
         self.content.serialize(ref output);
     }
 
+    ///
     fn deserialize(ref serialized: Span<felt252>) -> Option<TokenURI> {
         // Same here, deserializing the Span gives us the len.
         let content = serde::Serde::<Span<felt252>>::deserialize(ref serialized)?;
@@ -64,7 +66,20 @@ impl TokenURISerde of serde::Serde<TokenURI> {
     }
 }
 
-///! Initializes a TokenURI from Array<felt252>.
+/// Initializes a TokenURI from a short string.
+impl Felt252IntoTokenURI of Into<felt252, TokenURI> {
+    fn into(self: felt252) -> TokenURI {
+        let mut content = ArrayTrait::<felt252>::new();
+        content.append(self);
+
+        TokenURI {
+            len: 1,
+            content: content.span()
+        }
+    }
+}
+
+/// Initializes a TokenURI from Array<felt252>.
 impl ArrayIntoTokenURI of Into<Array<felt252>, TokenURI> {
     fn into(self: Array<felt252>) -> TokenURI {
         TokenURI {
@@ -85,19 +100,31 @@ mod tests {
     use option::OptionTrait;
     use super::{TokenURI, TokenURISerde, ArrayIntoTokenURI};
 
+    /// Should init a TokenURI from felt252.
+    #[test]
+    #[available_gas(2000000000)]
+    fn from_felt252() {
+        let u1: TokenURI = 'https:...'.into();
+        assert(u1.len == 1, 'uri len');
+        assert(u1.content.len() == 1, 'content len');
+        assert(*u1.content[0] == 'https:...', 'content 0');
+    }
+
     /// Should init a TokenURI from Array<felt252>.
     #[test]
     #[available_gas(2000000000)]
     fn from_array_felt252() {
         let mut content = ArrayTrait::<felt252>::new();
-        content.append('hello');
-        content.append('world');
+        content.append('ipfs://bafybeigdyrzt5sfp7udm7h');
+        content.append('u76uh7y26nf3efuylqabf3oclgtqy5');
+        content.append('5fbzdi');
 
         let u1: TokenURI = content.into();
-        assert(u1.len == 2, 'uri len');
-        assert(u1.content.len() == 2, 'content len');
-        assert(*u1.content[0] == 'hello', 'content 0');
-        assert(*u1.content[1] == 'world', 'content 1');
+        assert(u1.len == 3, 'uri len');
+        assert(u1.content.len() == 3, 'content len');
+        assert(*u1.content[0] == 'ipfs://bafybeigdyrzt5sfp7udm7h', 'content 0');
+        assert(*u1.content[1] == 'u76uh7y26nf3efuylqabf3oclgtqy5', 'content 1');
+        assert(*u1.content[2] == '5fbzdi', 'content 2');
 
         let mut content_empty = ArrayTrait::<felt252>::new();
 
@@ -130,6 +157,5 @@ mod tests {
         // Will make the test fail if deserialization fails.
         let u2 = serde::Serde::<TokenURI>::deserialize(ref sp).unwrap();
     }
-
 
 }
