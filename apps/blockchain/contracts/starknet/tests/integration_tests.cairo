@@ -13,7 +13,7 @@ const SYMBOL: felt252 = 222;
 // use starklane::erc20::IERC20DispatcherTrait;
 
 use traits::Into;
-use starklane::token::{TokenURI, ArrayIntoTokenURI};
+use starklane::token::erc721::{TokenURI, ArrayIntoTokenURI};
 
 #[test]
 #[available_gas(2000000)]

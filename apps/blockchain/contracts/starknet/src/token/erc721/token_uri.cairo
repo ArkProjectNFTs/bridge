@@ -55,7 +55,7 @@ impl TokenURISerde of serde::Serde<TokenURI> {
     ///
     fn deserialize(ref serialized: Span<felt252>) -> Option<TokenURI> {
         // Same here, deserializing the Span gives us the len.
-        let content = serde::Serde::<Span<felt252>>::deserialize(ref serialized)?;
+        let content = Serde::<Span<felt252>>::deserialize(ref serialized)?;
 
         Option::Some(
             TokenURI {
@@ -94,8 +94,7 @@ mod tests {
 
     use debug::PrintTrait;
     use serde::Serde;
-    use array::SpanTrait;
-    use array::ArrayTrait;
+    use array::{ArrayTrait, SpanTrait};
     use traits::Into;
     use option::OptionTrait;
     use super::{TokenURI, TokenURISerde, ArrayIntoTokenURI};
@@ -155,7 +154,7 @@ mod tests {
         let mut sp = buf.span();
 
         // Will make the test fail if deserialization fails.
-        let u2 = serde::Serde::<TokenURI>::deserialize(ref sp).unwrap();
+        let u2 = Serde::<TokenURI>::deserialize(ref sp).unwrap();
     }
 
 }
