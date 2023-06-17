@@ -13,3 +13,5 @@ sierra = true
 
 [scripts]
 test-caironet = "sudo docker run --rm -v $(pwd):/work -t --entrypoint cairo-test glihm/caironet:1.1.0-d --starknet /work/"
+
+[lib]

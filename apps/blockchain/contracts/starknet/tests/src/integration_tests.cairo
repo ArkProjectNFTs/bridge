@@ -19,6 +19,7 @@ use starklane::token::erc721::{TokenURI, ArrayIntoTokenURI};
 #[available_gas(2000000)]
 fn test_deploy_contract() {
 
+    let u: TokenURI = 'http://...'.into();
 
 //     let addr: ContractAddress =
 //         contract_address_const::<0x47a707C5D559CE163D1919b66AAdC2D00686f563>();
