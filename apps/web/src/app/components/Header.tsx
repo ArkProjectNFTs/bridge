@@ -4,6 +4,7 @@ import ConnectStarkNetButton from "./ConnectStarkNetButton";
 import ConnectEthereumButton from "./ConnectEthereumButton";
 import { useState } from "react";
 import { type Chain } from "../helpers";
+import { Typography } from "design-system";
 
 export default function Header() {
   const [openedModal, setOpenedModal] = useState<Chain | undefined>(undefined);
@@ -18,7 +19,7 @@ export default function Header() {
 
   return (
     <div className="fixed z-20 flex w-full items-center justify-between border-b border-neutral-50 bg-white p-6">
-      <div className="text-xl font-medium">Starklane</div>
+      <Typography variant="logo">starklane</Typography>
       <div className="flex space-x-4">
         <ConnectEthereumButton
           isModalOpen={openedModal === "Ethereum"}

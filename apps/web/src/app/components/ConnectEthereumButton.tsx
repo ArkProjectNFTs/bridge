@@ -8,6 +8,7 @@ import {
 import { useMemo } from "react";
 import ConnectModal from "./ConnectModal";
 import { useIsSSR } from "~/hooks/useIsSSR";
+import { Typography } from "design-system";
 
 interface ConnectEthereumButtonProps {
   isModalOpen: boolean;
@@ -39,7 +40,9 @@ export default function ConnectEthereumButton({
         className="flex items-center gap-2.5 rounded-full bg-sky-950 px-3 py-2 text-sm font-semibold text-white"
         onClick={() => onOpenModalChange(!isModalOpen)}
       >
-        {isConnected ? ensName ?? shortAddress : "Connect Ethereum Wallet"}
+        <Typography variant="body_text_bold_14">
+          {isConnected ? ensName ?? shortAddress : "Connect Ethereum Wallet"}
+        </Typography>
         <div className="flex">
           <Image
             src={CHAIN_LOGOS_BY_NAME.Ethereum}

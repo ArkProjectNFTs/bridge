@@ -3,9 +3,13 @@
 @tailwind utilities;
 
 .Ethereum {
-  --color-primary: #60d2b3;
+  --color-primary-50: #f2fbf8;
+  --color-primary-100: #d2f5e9;
+  --color-primary-300: #60d2b3;
 }
 
 .Starknet {
-  --color-primary: #e295f7;
+  --color-primary-50: #e295f7;
+  --color-primary-100: #e295f7;
+  --color-primary-300: #e295f7;
 }
