@@ -22,10 +22,14 @@ mod ERC721Bridgeable {
         _symbol: felt252,
         _owners: LegacyMap<u256, ContractAddress>,
         _operator_approvals: LegacyMap<(ContractAddress, ContractAddress), bool>,
+        _token_approvals: LegacyMap<u256, ContractAddress>,
     }
 
     #[event]
     fn Transfer(from: ContractAddress, to: ContractAddress, token_id: u256) {}
+
+    #[event]
+    fn Approval(owner: ContractAddress, approved: ContractAddress, token_id: u256) {}
 
     #[event]
     fn ApprovalForAll(owner: ContractAddress, operator: ContractAddress, approved: bool) {}
@@ -80,9 +84,21 @@ mod ERC721Bridgeable {
 
     #[external]
     fn permissioned_mint(to: ContractAddress, token_id: u256) {
-        assert(starknet::get_caller_address() == _bridge_addr::read()
-               , 'ERC721: only bridge can pmin');
-        mint(to, token_id)
+        assert(starknet::get_caller_address() == _bridge_addr::read(),
+               'ERC721: only bridge can pmint');
+
+        _mint(to, token_id);
+    }
+
+    #[external]
+    fn approve(to: ContractAddress, token_id: u256) {
+        let owner = owner_of(token_id);
+        let caller = starknet::get_caller_address();
+        assert(owner == caller | is_approved_for_all(owner, caller), 'ERC721: unauthorized caller');
+        assert(owner != to, 'ERC721: self approval');
+
+        _token_approvals::write(token_id, to);
+        Approval(owner, to, token_id);
     }
 
     #[external]
@@ -96,10 +112,12 @@ mod ERC721Bridgeable {
     #[external]
     fn transfer_from(from: ContractAddress, to: ContractAddress, token_id: u256) {
         assert(!to.is_zero(), 'ERC721: invalid receiver');
-        assert(is_approved_or_owner_of(starknet::get_caller_address(), token_id),
+        assert(_is_approved_or_owner_of(starknet::get_caller_address(), token_id),
                'ERC721: unauthorized caller');
 
         assert(from == owner_of(token_id), 'ERC721: wrong sender');
+
+        _token_approvals::write(token_id, Zeroable::zero());
 
         _owners::write(token_id, to);
 
@@ -122,20 +140,20 @@ mod ERC721Bridgeable {
     //
 
     #[internal]
-    fn exists(token_id: u256) -> bool {
+    fn _exists(token_id: u256) -> bool {
         !_owners::read(token_id).is_zero()
     }
 
     #[internal]
-    fn is_approved_or_owner_of(spender: ContractAddress, token_id: u256) -> bool {
+    fn _is_approved_or_owner_of(spender: ContractAddress, token_id: u256) -> bool {
         let owner = owner_of(token_id);
         owner == spender | is_approved_for_all(owner, spender)
     }
 
     #[internal]
-    fn mint(to: ContractAddress, token_id: u256) {
+    fn _mint(to: ContractAddress, token_id: u256) {
         assert(!to.is_zero(), 'ERC721: invalid receiver');
-        assert(!exists(token_id), 'ERC721: token already minted');
+        assert(!_exists(token_id), 'ERC721: token already minted');
 
         // Update token_id owner
         _owners::write(token_id, to);
@@ -145,7 +163,7 @@ mod ERC721Bridgeable {
     }
 
     #[internal]
-    fn burn(token_id: u256) {
+    fn _burn(token_id: u256) {
         let owner = owner_of(token_id);
         _owners::write(token_id, Zeroable::zero());
         Transfer(owner, Zeroable::zero(), token_id);
@@ -169,6 +187,8 @@ mod tests {
     use starknet::class_hash::Felt252TryIntoClassHash;
     use starknet::{ContractAddress,ClassHash};
 
+    use starknet::testing;
+
     /// Deploy a ERC721Bridgeable instance, reusable in tests.
     fn deploy(
         name: felt252,
@@ -187,7 +207,7 @@ mod tests {
             ERC721Bridgeable::TEST_CLASS_HASH.try_into().unwrap(),
             0,
             calldata.span(),
-            false).unwrap();
+            false).expect('deploy_syscall failed');
 
         addr
     }
@@ -196,10 +216,10 @@ mod tests {
     #[test]
     #[available_gas(2000000000)]
     fn deploy_new() {
-        let bridge = starknet::contract_address_const::<77>();
-        let collection_owner = starknet::contract_address_const::<88>();
+        let BRIDGE = starknet::contract_address_const::<77>();
+        let COLLECTION_OWNER = starknet::contract_address_const::<88>();
 
-        let collection_addr = deploy('everai duo', 'DUO', bridge, collection_owner);
+        let collection_addr = deploy('everai duo', 'DUO', BRIDGE, COLLECTION_OWNER);
 
         let collection = IERC721BridgeableDispatcher { contract_address: collection_addr };
 
@@ -207,5 +227,58 @@ mod tests {
         assert(collection.symbol() == 'DUO', 'Bad symbol');
     }
 
+    /// Should mint token from bridge call.
+    #[test]
+    #[available_gas(2000000000)]
+    fn permissioned_mint() {
+        let BRIDGE = starknet::contract_address_const::<77>();
+        let COLLECTION_OWNER = starknet::contract_address_const::<88>();
+        let NEW_DUO_OWNER = starknet::contract_address_const::<128>();
+
+        let collection_addr = deploy('everai duo', 'DUO', BRIDGE, COLLECTION_OWNER);
+        let collection = IERC721BridgeableDispatcher { contract_address: collection_addr };
+
+        testing::set_contract_address(BRIDGE);
+        collection.permissioned_mint(NEW_DUO_OWNER, 0);
+        assert(collection.owner_of(0) == NEW_DUO_OWNER, 'permission mint failed');
+    }
+
+    /// Should not mint token if not bridge.
+    #[test]
+    #[should_panic()]
+    #[available_gas(2000000000)]
+    fn permissioned_mint_fail() {
+        let BRIDGE = starknet::contract_address_const::<77>();
+        let COLLECTION_OWNER = starknet::contract_address_const::<88>();
+        let NEW_DUO_OWNER = starknet::contract_address_const::<128>();
+
+        let collection_addr = deploy('everai duo', 'DUO', BRIDGE, COLLECTION_OWNER);
+        let collection = IERC721BridgeableDispatcher { contract_address: collection_addr };
+
+        collection.permissioned_mint(NEW_DUO_OWNER, 0);
+        assert(collection.owner_of(0) == NEW_DUO_OWNER, 'permission mint failed');
+    }
+
+    /// Should transfer tokens.
+    #[test]
+    #[available_gas(2000000000)]
+    fn transfer_tokens() {
+        let BRIDGE = starknet::contract_address_const::<77>();
+        let COLLECTION_OWNER = starknet::contract_address_const::<88>();
+        let FROM_DUO_OWNER = starknet::contract_address_const::<128>();
+        let TO_DUO_OWNER = starknet::contract_address_const::<128>();
+        let TOKEN_ID = 0_u256;
+
+        let collection_addr = deploy('everai duo', 'DUO', BRIDGE, COLLECTION_OWNER);
+        let collection = IERC721BridgeableDispatcher { contract_address: collection_addr };
+
+        testing::set_contract_address(BRIDGE);
+        collection.permissioned_mint(FROM_DUO_OWNER, TOKEN_ID);
+        assert(collection.owner_of(TOKEN_ID) == FROM_DUO_OWNER, 'permission mint failed');
+
+        testing::set_contract_address(FROM_DUO_OWNER);
+        collection.transfer_from(FROM_DUO_OWNER, TO_DUO_OWNER, TOKEN_ID);
+        assert(collection.owner_of(TOKEN_ID) == TO_DUO_OWNER, 'transfer failed');
+    }
 
 }
