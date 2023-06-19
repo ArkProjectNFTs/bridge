@@ -45,7 +45,7 @@ mod tests {
 
     use starknet::contract_address_const;
 
-    use starklane::token::{TokenURI, Felt252IntoTokenURI};
+    use starklane::token::erc721::{TokenURI, Felt252IntoTokenURI};
 
     /// Should serialize and deserialize a RequestTokenBridge.
     #[test]

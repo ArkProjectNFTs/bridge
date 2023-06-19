@@ -7,7 +7,10 @@ const SYMBOL: felt252 = 222;
 // use starklane::erc20::IERC20Dispatcher;
 // use starklane::erc20::IERC20DispatcherTrait;
 
-use starklane::token::erc721::{ERC721Bridgeable, TokenURI, ArrayIntoTokenURI};
+use starklane::token::erc721::{ERC721Bridgeable, IERC721BridgeableDispatcher, IERC721BridgeableDispatcherTrait, TokenURI, ArrayIntoTokenURI,
+deploy as deploy_erc721bridgeable};
+
+// use starklane::token::erc721::erc721_bridgeable::tests::{deploy as deploy_erc721bridgeable};
 
 use serde::Serde;
 use array::{ArrayTrait, SpanTrait};
@@ -20,30 +23,6 @@ use starknet::class_hash::Felt252TryIntoClassHash;
 use starknet::{ContractAddress,ClassHash};
 
 
-/// Deploy a ERC721Bridgeable instance, reusable in tests.
-fn deploy(
-    name: felt252,
-    symbol: felt252,
-    bridge_addr: ContractAddress,
-    collection_owner: ContractAddress,
-) -> ContractAddress {
-
-    let mut calldata: Array<felt252> = array::ArrayTrait::new();
-    calldata.append(name);
-    calldata.append(symbol);
-    calldata.append(bridge_addr.into());
-    calldata.append(collection_owner.into());
-
-    let (addr, _) = starknet::deploy_syscall(
-        ERC721Bridgeable::TEST_CLASS_HASH.try_into().unwrap(),
-        0,
-        calldata.span(),
-        false).unwrap();
-
-    addr
-}
-
-
 #[test]
 #[available_gas(2000000)]
 fn test_deploy_contract() {
@@ -53,7 +32,12 @@ fn test_deploy_contract() {
     let bridge = starknet::contract_address_const::<77>();
     let collection_owner = starknet::contract_address_const::<88>();
 
-    let collection_addr = deploy('everai duo', 'DUO', bridge, collection_owner);
+    let collection_addr = deploy_erc721bridgeable('everai duo', 'DUO', bridge, collection_owner);
+
+    let collection = IERC721BridgeableDispatcher { contract_address: collection_addr };
+
+
+    assert(collection.name() == 'everai duo', 'bad name');
 
 //     let addr: ContractAddress =
 //         contract_address_const::<0x47a707C5D559CE163D1919b66AAdC2D00686f563>();
