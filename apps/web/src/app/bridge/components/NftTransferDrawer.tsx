@@ -33,7 +33,7 @@ function ChainTransferSummary({
 
   return (
     <div
-      className={`flex justify-between gap-3 rounded-xl bg-neutral-50 px-3.5 ${
+      className={`flex justify-between gap-3 rounded-2xl bg-neutral-50 px-3.5 ${
         isTargetChain ? "pb-3 pt-7" : "pb-7 pt-3"
       }`}
     >

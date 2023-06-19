@@ -16,7 +16,7 @@ export default function TargetChainSwitch({
   const isSSR = useIsSSR();
 
   return (
-    <div className=" my-4 inline-flex gap-0.5">
+    <div className=" my-8 inline-flex gap-0.5">
       <button
         onClick={() => setTargetChain("Ethereum")}
         className={`flex items-center gap-2 rounded-l-2xl py-3 pl-3 pr-6 ${

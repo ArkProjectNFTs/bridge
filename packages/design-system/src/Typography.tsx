@@ -83,6 +83,7 @@ export function Typography({
   const Component = component ?? "span";
 
   return (
+    // TODO @YohanTz: Use tailwind-merge
     <Component className={`${variants[variant]} ${className}`}>
       {children}
     </Component>
