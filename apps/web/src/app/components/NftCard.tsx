@@ -1,3 +1,4 @@
+import { Typography } from "design-system";
 import Image from "next/image";
 
 type NftCardProps = {
@@ -33,7 +34,7 @@ export default function NftCard({
       <button
         className={`h-full w-full overflow-hidden rounded-2xl border bg-white p-3 ${
           isSelected && cardType === "nft"
-            ? "border-primary outline outline-1 outline-primary"
+            ? "border-primary-300 outline outline-1 outline-primary-300"
             : "border-neutral-300"
         } ${isSelected && cardType === "nft" ? "" : ""}`}
         onClick={onClick}
@@ -49,22 +50,28 @@ export default function NftCard({
         />
         <div className="mt-3 text-left">
           <div className="flex items-center justify-between">
-            <span className="font-semibold">{title}</span>
+            <Typography
+              variant={
+                cardType === "nft" ? "body_text_bold_14" : "body_text_bold_16"
+              }
+            >
+              {title}
+            </Typography>
             {cardType === "nft" && (
               <div
                 className={`h-5 w-5 rounded-full ${
                   isSelected
-                    ? "border-[6px] border-primary bg-white "
+                    ? "border-[6px] border-primary-300 bg-white "
                     : "bg-neutral-300"
                 }`}
               />
             )}
           </div>
           {cardType === "collection" ? (
-            <span className="text-primary">
+            <Typography variant="body_text_14">
               {numberOfNfts}
               {numberOfNfts > 1 ? " Nfts" : " Nft"}
-            </span>
+            </Typography>
           ) : null}
         </div>
       </button>

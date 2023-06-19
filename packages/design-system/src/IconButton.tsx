@@ -1,16 +1,17 @@
 "use client";
 
-import * as React from "react";
-
 interface IconButtonProps {
+  icon: React.ReactElement;
   onClick: () => void;
 }
 
-export function IconButton({ onClick }: IconButtonProps) {
+export function IconButton({ icon, onClick }: IconButtonProps) {
   return (
     <button
-      className="bg-primary h-8 w-8 rounded-full p-7"
+      className="bg-primary-50 flex h-8 w-8 items-center justify-center rounded-full text-white"
       onClick={onClick}
-    ></button>
+    >
+      {icon}
+    </button>
   );
 }

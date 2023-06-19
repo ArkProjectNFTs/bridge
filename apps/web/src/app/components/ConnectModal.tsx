@@ -17,6 +17,7 @@ import {
   type Chain,
   WALLET_LOGOS_BY_ID,
 } from "../helpers";
+import { Typography } from "design-system";
 
 interface ConnectorButtonProps {
   id: string;
@@ -29,7 +30,9 @@ function ConnectorButton({ id, onClick }: ConnectorButtonProps) {
       className="flex w-full items-center justify-between rounded-full bg-sky-950 py-2 pl-3.5 pr-2 text-white"
       onClick={onClick}
     >
-      <span className="text-sm font-medium">{CONNECTOR_LABELS_BY_ID[id]}</span>
+      <Typography variant="body_text_bold_14">
+        {CONNECTOR_LABELS_BY_ID[id]}
+      </Typography>
       <Image
         src={WALLET_LOGOS_BY_ID[id] ?? ""}
         alt={`${CONNECTOR_LABELS_BY_ID[id] ?? ""} logo`}
@@ -53,9 +56,13 @@ function EthereumConnectorList() {
         <button onClick={() => disconnect()}>Disconnect</button>
       ) : (
         <>
-          <Dialog.Description className="mb-6 mt-5 font-semibold">
+          <Typography
+            variant="heading_light_xxs"
+            component={Dialog.Description}
+            className="mb-6 mt-5"
+          >
             Choose your Ethereum wallet
-          </Dialog.Description>
+          </Typography>
           <div className="flex flex-col gap-4">
             {connectors.map((connector) => {
               return (

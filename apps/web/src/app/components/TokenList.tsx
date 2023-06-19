@@ -3,7 +3,7 @@ import { api } from "~/utils/api";
 
 import { useState } from "react";
 import NftCard from "./NftCard";
-import { IconButton } from "design-system";
+import { IconButton, Typography } from "design-system";
 
 interface TokenListProps {
   selectedNftIds: Array<string>;
@@ -64,22 +64,27 @@ export default function TokenList({
       <div className="w-full">
         <div className="mb-10 flex w-full justify-between">
           <div className="flex items-center gap-3.5">
-            <span className="text-2xl font-bold">
-              {selectedCollectionName ?? "Your collections"}
-            </span>
+            <Typography variant="heading_light_s">
+              {selectedCollectionName
+                ? `${selectedCollectionName} Collection`
+                : "Collections"}
+            </Typography>
             {selectedCollectionName !== null && (
-              <span className="rounded-full bg-primary px-1.5 text-sm text-white">
+              <Typography
+                className="rounded-full bg-primary-300 px-2 py-1.5 text-white"
+                variant="body_text_bold_12"
+              >
                 {selectedCollection.length}
                 {selectedCollection.length > 1 ? " Nfts" : " Nft"}
-              </span>
+              </Typography>
             )}
           </div>
           {selectedCollectionName !== null && (
             <button
-              className="rounded-md bg-sky-950 px-3 py-1 font-medium text-white"
+              className="rounded-md bg-sky-950 p-2 font-medium text-white"
               onClick={selectAll}
             >
-              Select all
+              <Typography variant="body_text_bold_14">Select all</Typography>
             </button>
           )}
         </div>
