@@ -95,9 +95,13 @@ function StarknetConnectorList() {
         <button onClick={disconnect}>Disconnect</button>
       ) : (
         <>
-          <Dialog.Description className="mb-6 mt-5 font-semibold">
+          <Typography
+            variant="heading_light_xxs"
+            component={Dialog.Description}
+            className="mb-6 mt-5"
+          >
             Choose your Starknet wallet
-          </Dialog.Description>
+          </Typography>
           <div className="flex flex-col gap-4">
             {connectors.map((connector) => {
               return (

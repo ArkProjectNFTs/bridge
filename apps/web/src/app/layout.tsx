@@ -9,10 +9,10 @@ import { publicProvider } from "wagmi/providers/public";
 import { useLocalStorage } from "usehooks-ts";
 import localFont from "next/font/local";
 
-import Footer from "./components/Footer";
-import Header from "./components/Header";
+import Footer from "./bridge/components/Footer";
+import Header from "./bridge/components/Header";
 import { api } from "~/utils/api";
-import { type Chain } from "./helpers";
+import { type Chain } from "./bridge/helpers";
 
 // TODO @YohanTz: Handle wallet connect and coinbase wallet connectors
 // const alchemyId = process.env.ALCHEMY_ID;
