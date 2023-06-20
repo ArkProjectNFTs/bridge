@@ -16,7 +16,7 @@ mod Bridge {
     use starknet::contract_address::ContractAddressZeroable;
 
     use starklane::utils::serde::SpanSerde;
-    use starklane::protocol::RequestBridge;
+    use starklane::protocol::BridgeRequest;
     use starklane::protocol::deploy;
     use starklane::token::erc721::{
         TokenInfo,
@@ -27,15 +27,13 @@ mod Bridge {
     struct Storage {
         // Bridge administrator.
         _bridge_admin: ContractAddress,
-        // Mapping between L1<->L2 collections addresses.
-        // <collection_l1_address, collection_l2_address>
-        _l1_to_l2_addresses: LegacyMap::<felt252, ContractAddress>,
-        // All the collections that were originally created on L2.
-        _l2_originals: LegacyMap::<ContractAddress, bool>,
         // The class to deploy for ERC721 tokens.
         _erc721_bridgeable_class: ClassHash,
+        // Mapping between L2<->L1 collections addresses.
+        // <collection_l2_address, collection_l1_address>
+        _l2_to_l1_addresses: LegacyMap::<ContractAddress, felt252>,
         // Registry of escrowed token for collections.
-        // <(collection_l2_address, token_id), original_depositor_address>
+        // <(collection_l2_address, token_id), original_depositor_l2_address>
         _escrow: LegacyMap::<(ContractAddress, u256), ContractAddress>,
     }
 
@@ -72,17 +70,10 @@ mod Bridge {
     /// TODO: replace by the l1_handler. For that
     /// we must know exactly how deserialization works from l1_handler.
     #[external]
-    fn on_l1_message(from: ContractAddress, req: RequestBridge) {
-        // TODO: weird, if I put the req.collection_l2_address inside the match
-        // there is a move error. I have to extract it first here.
-        let req_l2_addr = req.collection_l2_address;
-        
-        let collection_address = match ensure_collection_deployment(@req) {
-            Option::Some(addr) => addr,
-            Option::None(()) => req_l2_addr,
-        };
+    fn on_l1_message(from: ContractAddress, req: BridgeRequest) {
 
-        let collection = IERC721BridgeableDispatcher { contract_address: collection_address };
+        let collection_l2_address = ensure_collection_deployment(@req);
+        let collection = IERC721BridgeableDispatcher { contract_address: collection_l2_address };
 
         let mut i = 0;
         loop {
@@ -94,7 +85,7 @@ mod Bridge {
             let to = req.owner_l2_address;
             let from = starknet::get_contract_address();
 
-            if is_token_escrowed(collection_address, token_id) {
+            if is_token_escrowed(collection_l2_address, token_id) {
                 collection.permissioned_mint(to, token_id);
                 // TODO: emit event.
             } else {
@@ -107,52 +98,65 @@ mod Bridge {
     }
 
     /// Deploys the collection contract, if necessary.
-    /// Returns the deployed address if the deploy was made during this call,
-    /// None otherwise.
+    /// Returns the address of the collection on l2.
     ///
     /// * `req` - Request for bridging assets.
-    fn ensure_collection_deployment(req: @RequestBridge) -> Option<ContractAddress> {
-        let l2_from_mapping = _l1_to_l2_addresses::read(*req.collection_l1_address);
-        let is_l2_original = _l2_originals::read(*req.collection_l2_address);
+    fn ensure_collection_deployment(req: @BridgeRequest) -> ContractAddress {
+        let l1_addr_from_mapping = _l2_to_l1_addresses::read(*req.collection_l2_address);
 
-        // TODO: how can we do a logical OR in cairo? `||` seems not possible.
-        if is_l2_original {
-            // Already deployed as created on L2.
-            return Option::None(());
-        }
-
-        if !l2_from_mapping.is_zero() {
-            // Already deployed L1 collection.
-            return Option::None(());
+        if !l1_addr_from_mapping.is_zero() {
+            // Collection already deployed, we only verify that the l1 addresses match.
+            assert(l1_addr_from_mapping == *req.collection_l1_address, 'l1 addr mismatch');
+            return *req.collection_l2_address;
         }
 
         // TODO: check if pedersen if strong enough here, or do we need poseidon?
         let salt = pedersen(*req.collection_l1_address, *req.owner_l1_address);
 
-        let addr = deploy::deploy_erc721_bridgeable(
+        let l2_addr_from_deploy = deploy::deploy_erc721_bridgeable(
             _erc721_bridgeable_class::read(),
             salt,
             *req.collection_name,
             *req.collection_symbol
         );
 
-        _l1_to_l2_addresses::write(*req.collection_l1_address, addr);
+        _l2_to_l1_addresses::write(l2_addr_from_deploy, *req.collection_l1_address);
 
         CollectionDeloyedFromL1(
             *req.collection_l1_address,
-            *req.collection_l2_address,
+            l2_addr_from_deploy,
             *req.collection_name,
             *req.collection_symbol);
 
-        Option::Some(addr)
+        l2_addr_from_deploy
     }
 
-    // TODO: deposit NFT to go the other way.
-    // #[external]
-    // fn deposit_nfts() {
-    //     let addr: ContractAddress = _escrow_contract::read();
-    //     IBridgeEscrowDispatcher { contract_address: addr }.lock_tokens()
-    // }
+
+    #[external]
+    fn deposit_tokens(collection_l2_address: ContractAddress, tokens_ids: Span<u256>) {
+        let from = starknet::get_caller_address();
+        let to = starknet::get_contract_address();
+        let collection = IERC721BridgeableDispatcher { contract_address: collection_l2_address };
+
+        let mut i = 0;
+        loop {
+            if i > tokens_ids.len() {
+                break ();
+            }
+
+            // TODO: Will revert on approval missing? Do we need to check
+            // the approval explicitely?
+            let token_id = *tokens_ids[i];
+            collection.transfer_from(from, to, token_id);
+            _escrow::write((collection_l2_address, token_id), from);
+
+            i += 1;
+        };
+
+        let collection_l1_address = _l2_to_l1_addresses::read(collection_l2_address);
+
+        // TODO: Send BridgeRequest to L1.
+    }
 
     /// Sets the default class hash to be deployed when the
     /// first token of a collection is bridged.
@@ -184,6 +188,8 @@ mod Bridge {
                'Unauthorized replace class');        
     }
 
+    /// Returns true if the given token_id for the collection is present inside
+    /// escrow storage, false otherwise.
     #[internal]
     fn is_token_escrowed(collection_address: ContractAddress, token_id: u256) -> bool {
         !_escrow::read((collection_address, token_id)).is_zero()

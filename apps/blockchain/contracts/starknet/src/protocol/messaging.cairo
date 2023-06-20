@@ -35,18 +35,17 @@ use starklane::token::erc721::{TokenInfo, TokenInfoSerde, SpanTokenInfoSerde};
 /// TODO(glihm): Check if we do need u256, or if felt252 is ok for all the fields.
 ///              Verify how front-end libs like starknet.js behaves and solidity!
 #[derive(Serde, Drop)]
-struct RequestBridge {
+struct BridgeRequest {
     header: felt252,
     // Collection information.
     collection_l1_address: felt252,
     collection_l2_address: ContractAddress,
     collection_name: felt252,
     collection_symbol: felt252,
+    collection_contract_type: felt252,
     // Owner information.
     owner_l1_address: felt252,
     owner_l2_address: ContractAddress,
-    // If the contract is ERC721 or ERC1155.
-    contract_type: felt252,
     // List of tokens to be bridged for this collection.
     tokens: Span<TokenInfo>,
 }
@@ -58,13 +57,13 @@ mod tests {
     use array::{ArrayTrait, SpanTrait};
     use traits::Into;
     use option::OptionTrait;
-    use super::{RequestBridge, RequestBridgeSerde};
+    use super::{BridgeRequest, BridgeRequestSerde};
 
     use starknet::contract_address_const;
 
     use starklane::token::erc721::TokenInfo;
 
-    /// Should serialize and deserialize a RequestBridge.
+    /// Should serialize and deserialize a BridgeRequest.
     #[test]
     #[available_gas(2000000000)]
     fn serialize_deserialize() {
@@ -76,15 +75,15 @@ mod tests {
 
         let mut tokens_span = tokens.span();
 
-        let req = RequestBridge {
+        let req = BridgeRequest {
             header: 1,
             collection_l1_address: 0x1c,
             collection_l2_address: starknet::contract_address_const::<0x2c>(),
             collection_name: 'everai duo',
             collection_symbol: 'DUO',
+            collection_contract_type: 'ERC721',
             owner_l1_address: 0xe1,
             owner_l2_address: contract_address_const::<888>(),
-            contract_type: 'ERC721',
             tokens: tokens_span,
         };
 
@@ -98,15 +97,15 @@ mod tests {
         assert(*buf[2] == 0x2c, 'c_l2_addr');
         assert(*buf[3] == 'everai duo', 'c_name');
         assert(*buf[4] == 'DUO', 'c_symbol');
-        assert(*buf[5] == 0xe1, 'o_l1_addr');
-        assert(*buf[6] == 888, 'o_l2_addr');
-        assert(*buf[7] == 'ERC721', 'contract_type');
+        assert(*buf[5] == 'ERC721', 'contract_type');
+        assert(*buf[6] == 0xe1, 'o_l1_addr');
+        assert(*buf[7] == 888, 'o_l2_addr');
         assert(*buf[8] == 1, 'tokens len');
         assert(*buf[11] == 1, 'token uri len');
         assert(*buf[12] == 'https:...', 'token uri content');
 
         let mut sp = buf.span();
-        let req2 = Serde::<RequestBridge>::deserialize(ref sp).unwrap();
+        let req2 = Serde::<BridgeRequest>::deserialize(ref sp).unwrap();
     }
 
 }

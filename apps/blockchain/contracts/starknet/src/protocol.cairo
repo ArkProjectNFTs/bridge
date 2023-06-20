@@ -1,4 +1,4 @@
 mod messaging;
-use messaging::RequestBridge;
+use messaging::BridgeRequest;
 
 mod deploy;
