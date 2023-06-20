@@ -1,5 +1,3 @@
-
-
 ///! Token info.
 ///!
 ///! A struct to wrap ERC721 token information
@@ -21,20 +19,6 @@ use super::interfaces::IERC721BridgeableDispatcher;
 struct TokenInfo {
     token_id: u256,
     token_uri: TokenURI,
-}
-
-/// Returns a new TokenInfo if the URI could be
-/// retrieved from the collection contract.
-/// None otherwise.
-///
-/// * `collection` - Collection contract dispatcher.
-/// * `token_id` - Token id.
-fn token_info_from_id(
-    collection: IERC721BridgeableDispatcher,
-    token_id: u256,
-) -> Option<TokenInfo> {
-    // collection.transfer_from(from, to, token_id);
-    Option::None(())
 }
 
 /// We need this implementation as TokenInfo does not

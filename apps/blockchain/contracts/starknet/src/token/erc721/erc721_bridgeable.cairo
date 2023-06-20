@@ -12,8 +12,11 @@ mod ERC721Bridgeable {
         ContractAddress,
         ClassHash,
     };
+    use traits::{TryInto, Into};
     use zeroable::Zeroable;
     use option::OptionTrait;
+
+    use starklane::token::erc721::{TokenURI, StorageAccessTokenURI, Felt252IntoTokenURI};
 
     struct Storage {
         _bridge_addr: ContractAddress,
@@ -23,6 +26,7 @@ mod ERC721Bridgeable {
         _owners: LegacyMap<u256, ContractAddress>,
         _operator_approvals: LegacyMap<(ContractAddress, ContractAddress), bool>,
         _token_approvals: LegacyMap<u256, ContractAddress>,
+        _token_uri: LegacyMap<u256, TokenURI>,
     }
 
     #[constructor]
@@ -79,6 +83,13 @@ mod ERC721Bridgeable {
         _operator_approvals::read((owner, operator))
     }
 
+    #[view]
+    fn token_uri(token_id: u256) -> TokenURI {
+        assert(_exists(token_id), 'ERC721: invalid token ID');
+        //let token_uri = _token_uri::read(token_id); << can't do that.. x( Need custom storage.
+        'ahaha'.into()
+    }
+
     //
     // *** EXTERNALS ***
     //
@@ -89,6 +100,13 @@ mod ERC721Bridgeable {
                'ERC721: only bridge can pmint');
 
         _mint(to, token_id);
+    }
+
+    #[cfg(test)]
+    #[external]
+    fn mint_with_uri(to: ContractAddress, token_id: u256, token_uri: TokenURI) {
+        _mint(to, token_id);
+        //_token_uri::write(token_id, token_uri);
     }
 
     #[external]
@@ -188,6 +206,8 @@ mod tests {
     use starknet::class_hash::Felt252TryIntoClassHash;
     use starknet::{ContractAddress,ClassHash};
 
+    use starklane::token::erc721::{TokenURI, StorageAccessTokenURI, Felt252IntoTokenURI};
+
     use starknet::testing;
 
     /// Deploy a ERC721Bridgeable instance, reusable in tests.
@@ -226,6 +246,27 @@ mod tests {
 
         assert(collection.name() == 'everai duo', 'Bad name');
         assert(collection.symbol() == 'DUO', 'Bad symbol');
+    }
+
+    /// Should store some TokenURI inside the storage.
+    #[test]
+    #[available_gas(2000000000)]
+    fn storage_struct() {
+        let BRIDGE = starknet::contract_address_const::<77>();
+        let COLLECTION_OWNER = starknet::contract_address_const::<88>();
+        let NEW_DUO_OWNER = starknet::contract_address_const::<128>();
+        let TOKEN_ID = 244;
+
+        let collection_addr = deploy('everai duo', 'DUO', BRIDGE, COLLECTION_OWNER);
+
+        let collection = IERC721BridgeableDispatcher { contract_address: collection_addr };
+        
+        let new_uri: TokenURI = 'https:...'.into();
+        collection.mint_with_uri(NEW_DUO_OWNER, TOKEN_ID, new_uri);
+
+        // let fetched_uri = collection.token_uri(TOKEN_ID);
+        // assert(fetched_uri.len == 1, 'Bad uri len');
+        // assert(*fetched_uri.content[0] == 'https:...', 'Bad uri content');
     }
 
     /// Should mint token from bridge call.

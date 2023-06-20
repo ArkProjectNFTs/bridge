@@ -1,5 +1,5 @@
 mod token_uri;
-use token_uri::{TokenURI, ArrayIntoTokenURI, Felt252IntoTokenURI};
+use token_uri::{TokenURI, ArrayIntoTokenURI, Felt252IntoTokenURI, StorageAccessTokenURI};
 
 mod token_info;
 use token_info::{TokenInfo, TokenInfoSerde, SpanTokenInfoSerde};

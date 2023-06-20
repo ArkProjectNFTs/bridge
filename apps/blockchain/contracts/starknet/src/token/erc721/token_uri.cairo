@@ -17,10 +17,19 @@
 ///! URI are composed of a pre-determined set of characters,
 ///! which are all supported by cairo short string.
 
-use traits::Into;
 use serde::Serde;
 use array::{ArrayTrait, SpanTrait};
-use integer::Felt252TryIntoU32;
+use integer::{U8IntoFelt252, U32IntoFelt252};
+
+use traits::{Into, TryInto};
+use option::OptionTrait;
+use starknet::{ContractAddress, SyscallResult, StorageAccess, StorageBaseAddress};
+
+// #[derive(Copy, Drop)]
+// extern type StorageAddress;
+
+// #[derive(Copy, Drop)]
+// extern type StorageBaseAddress;
 
 // TODO(glihm): Remove this on new version of compiler.
 use starklane::utils::serde::SpanSerde;
@@ -41,9 +50,31 @@ struct TokenURI {
     content: Span<felt252>,
 }
 
+
+/// Returns a new URI after a call to
+/// the collection contract.
+/// TODO:
+/// None if it fails? Or do we want to Revert?!
+///
+/// * `collection_address` - Collection address of the collection.
+/// * `token_id` - Token id.
+fn uri_from_collection_call(
+    collection_address: ContractAddress,
+    token_id: u256,
+) -> Option<TokenURI> {
+    // collection.transfer_from(from, to, token_id);
+
+    // Here, we will use the call contract syscall to
+    // deserialize the token uri as needed depending on the
+    // implementation of the targetted collection.
+    // With the call contract syscall we can control better the deserialization.
+
+
+    Option::None(())
+}
+
 /// Serde implementation for TokenURI.
 impl TokenURISerde of serde::Serde<TokenURI> {
-
     ///
     fn serialize(self: @TokenURI, ref output: Array<felt252>) {
         // We don't need to add the length, as the Serde
@@ -68,6 +99,7 @@ impl TokenURISerde of serde::Serde<TokenURI> {
 
 /// Initializes a TokenURI from a short string.
 impl Felt252IntoTokenURI of Into<felt252, TokenURI> {
+    ///
     fn into(self: felt252) -> TokenURI {
         let mut content = ArrayTrait::<felt252>::new();
         content.append(self);
@@ -81,11 +113,65 @@ impl Felt252IntoTokenURI of Into<felt252, TokenURI> {
 
 /// Initializes a TokenURI from Array<felt252>.
 impl ArrayIntoTokenURI of Into<Array<felt252>, TokenURI> {
+    ///
     fn into(self: Array<felt252>) -> TokenURI {
         TokenURI {
             len: self.len(),
             content: self.span()
         }
+    }
+}
+
+/// Implement the StorageAccess to enable TokenURI being stored in Storage struct.
+impl StorageAccessTokenURI of StorageAccess<TokenURI> {
+    ///
+    fn write(address_domain: u32, base: StorageBaseAddress, value: TokenURI) -> SyscallResult<()> {
+        StorageAccess::<u32>::write(address_domain, base, value.len)?;
+
+        let mut offset: u8 = 1;
+        loop {
+            if offset.into() == value.len {
+                break ();
+            }
+
+            let index = offset - 1;
+            let uri_chunk = value.content[index.into()];
+
+            starknet::storage_write_syscall(
+                address_domain,
+                starknet::storage_address_from_base_and_offset(base, offset),
+                *uri_chunk
+            )?;
+
+            offset += 1;
+        };
+
+        SyscallResult::Ok(())
+    }
+
+    ///
+    fn read(address_domain: u32, base: StorageBaseAddress) -> SyscallResult<TokenURI> {
+        let len = StorageAccess::<u32>::read(address_domain, base)?;
+
+        let mut content: Array<felt252> = ArrayTrait::new();
+        let mut offset: u8 = 1;
+        loop {
+            if offset.into() == len {
+                break ();
+            }
+
+            starknet::storage_read_syscall(
+                address_domain,
+                starknet::storage_address_from_base_and_offset(base, offset)
+            )?;
+
+            offset += 1;
+        };
+
+        SyscallResult::Ok(TokenURI {
+            len,
+            content: content.span(),
+        })
     }
 }
 
