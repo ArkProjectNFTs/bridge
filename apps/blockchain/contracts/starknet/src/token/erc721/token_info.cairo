@@ -1,3 +1,5 @@
+
+
 ///! Token info.
 ///!
 ///! A struct to wrap ERC721 token information

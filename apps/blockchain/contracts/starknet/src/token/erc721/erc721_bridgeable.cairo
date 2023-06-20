@@ -25,18 +25,6 @@ mod ERC721Bridgeable {
         _token_approvals: LegacyMap<u256, ContractAddress>,
     }
 
-    #[event]
-    fn Transfer(from: ContractAddress, to: ContractAddress, token_id: u256) {}
-
-    #[event]
-    fn Approval(owner: ContractAddress, approved: ContractAddress, token_id: u256) {}
-
-    #[event]
-    fn ApprovalForAll(owner: ContractAddress, operator: ContractAddress, approved: bool) {}
-
-    #[event]
-    fn ReplacedClassHash(contract: ContractAddress, class: ClassHash) {}
-
     #[constructor]
     fn constructor(
         name: felt252,
@@ -52,6 +40,19 @@ mod ERC721Bridgeable {
         _bridge_addr::write(bridge_addr);
         _collection_owner::write(collection_owner);
     }
+
+    // *** EVENTS ***
+    #[event]
+    fn Transfer(from: ContractAddress, to: ContractAddress, token_id: u256) {}
+
+    #[event]
+    fn Approval(owner: ContractAddress, approved: ContractAddress, token_id: u256) {}
+
+    #[event]
+    fn ApprovalForAll(owner: ContractAddress, operator: ContractAddress, approved: bool) {}
+
+    #[event]
+    fn ReplacedClassHash(contract: ContractAddress, class: ClassHash) {}
 
     //
     // *** VIEWS ***

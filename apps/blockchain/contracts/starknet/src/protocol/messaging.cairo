@@ -38,11 +38,12 @@ use starklane::token::erc721::{TokenInfo, TokenInfoSerde, SpanTokenInfoSerde};
 struct RequestBridge {
     header: felt252,
     // Collection information.
-    collection_address: felt252,
+    collection_l1_address: felt252,
+    collection_l2_address: ContractAddress,
     collection_name: felt252,
     collection_symbol: felt252,
     // Owner information.
-    owner_l1_address: u256,
+    owner_l1_address: felt252,
     owner_l2_address: ContractAddress,
     // If the contract is ERC721 or ERC1155.
     contract_type: felt252,
@@ -77,10 +78,11 @@ mod tests {
 
         let req = RequestBridge {
             header: 1,
-            collection_address: 0xec,
+            collection_l1_address: 0x1c,
+            collection_l2_address: starknet::contract_address_const::<0x2c>(),
             collection_name: 'everai duo',
             collection_symbol: 'DUO',
-            owner_l1_address: 0xe1_u256,
+            owner_l1_address: 0xe1,
             owner_l2_address: contract_address_const::<888>(),
             contract_type: 'ERC721',
             tokens: tokens_span,
@@ -92,9 +94,11 @@ mod tests {
         assert(buf.len() == 13, 'serialized buf len');
 
         assert(*buf[0] == 1, 'header');
-        assert(*buf[1] == 0xec, 'c_addr');
-        assert(*buf[2] == 'everai duo', 'c_name');
-        assert(*buf[3] == 'DUO', 'c_symbol');
+        assert(*buf[1] == 0x1c, 'c_l1_addr');
+        assert(*buf[2] == 0x2c, 'c_l2_addr');
+        assert(*buf[3] == 'everai duo', 'c_name');
+        assert(*buf[4] == 'DUO', 'c_symbol');
+        assert(*buf[5] == 0xe1, 'o_l1_addr');
         assert(*buf[6] == 888, 'o_l2_addr');
         assert(*buf[7] == 'ERC721', 'contract_type');
         assert(*buf[8] == 1, 'tokens len');
