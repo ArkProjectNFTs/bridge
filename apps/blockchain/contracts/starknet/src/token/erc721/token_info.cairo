@@ -13,13 +13,28 @@ use integer::U256TryIntoFelt252;
 use array::{ArrayTrait, SpanTrait};
 use option::OptionTrait;
 
-use super::token_uri::{TokenURI};
+use super::token_uri::TokenURI;
+use super::interfaces::IERC721BridgeableDispatcher;
 
 /// ERC721 token info.
 #[derive(Serde, Drop)]
 struct TokenInfo {
     token_id: u256,
     token_uri: TokenURI,
+}
+
+/// Returns a new TokenInfo if the URI could be
+/// retrieved from the collection contract.
+/// None otherwise.
+///
+/// * `collection` - Collection contract dispatcher.
+/// * `token_id` - Token id.
+fn token_info_from_id(
+    collection: IERC721BridgeableDispatcher,
+    token_id: u256,
+) -> Option<TokenInfo> {
+    // collection.transfer_from(from, to, token_id);
+    Option::None(())
 }
 
 /// We need this implementation as TokenInfo does not

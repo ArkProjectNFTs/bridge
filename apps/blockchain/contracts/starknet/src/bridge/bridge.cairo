@@ -131,13 +131,22 @@ mod Bridge {
         l2_addr_from_deploy
     }
 
-
+    /// Deposits tokens to be bridged on the L1.
+    ///
+    /// * `collection_l2_address` - Address of the collection on L2.
+    /// * `owner_l1_address` - Address of the owner on L1.
+    /// * `tokens_ids` - Tokens to be bridged on L1.
     #[external]
-    fn deposit_tokens(collection_l2_address: ContractAddress, tokens_ids: Span<u256>) {
+    fn deposit_tokens(
+        collection_l2_address: ContractAddress,
+        owner_l1_address: felt252,
+        tokens_ids: Span<u256>
+    ) {
         let from = starknet::get_caller_address();
         let to = starknet::get_contract_address();
         let collection = IERC721BridgeableDispatcher { contract_address: collection_l2_address };
 
+        let mut info_tokens = ArrayTrait::<TokenInfo>::new();
         let mut i = 0;
         loop {
             if i > tokens_ids.len() {
@@ -149,6 +158,10 @@ mod Bridge {
             let token_id = *tokens_ids[i];
             collection.transfer_from(from, to, token_id);
             _escrow::write((collection_l2_address, token_id), from);
+
+            // TODO: call the collection to get the URI of the token.
+            // Must support both short and long URI...!
+            // Use TokenInfo builder.
 
             i += 1;
         };
