@@ -169,4 +169,5 @@ fn deposit_token_from_l2() {
     bridge.deposit_tokens(collection_l2_addr, DUO_OWNER_L1, tokens.span());
 
     assert(bridge.is_token_escrowed(collection_l2_addr, TOKEN_ID), 'escrowed expected');
+    assert(collection.owner_of(TOKEN_ID) == bridge_addr, 'bridge ownership expected');
 }
