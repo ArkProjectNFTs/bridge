@@ -1,4 +1,3 @@
-mod interfaces;
 mod bridge;
 mod utils;
 mod token;
