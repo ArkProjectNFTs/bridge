@@ -1,17 +1,12 @@
+///! Integration tests.
+
+use starklane::bridge::{IBridgeDispatcher, IBridgeDispatcherTrait};
 use starklane::bridge;
+use starklane::token::erc721::{ERC721Bridgeable, IERC721BridgeableDispatcher, IERC721BridgeableDispatcherTrait, TokenURI, TokenInfo, ArrayIntoTokenURI};
+use starklane::token::erc721;
+use starklane::protocol::BridgeRequest;
 
-const NAME: felt252 = 111;
-const SYMBOL: felt252 = 222;
-
-// use starklane::erc20::ERC20;
-// use starklane::erc20::IERC20Dispatcher;
-// use starklane::erc20::IERC20DispatcherTrait;
-
-use starklane::token::erc721::{ERC721Bridgeable, IERC721BridgeableDispatcher, IERC721BridgeableDispatcherTrait, TokenURI, ArrayIntoTokenURI,
-deploy as deploy_erc721bridgeable};
-
-// use starklane::token::erc721::erc721_bridgeable::tests::{deploy as deploy_erc721bridgeable};
-
+use debug::PrintTrait;
 use serde::Serde;
 use array::{ArrayTrait, SpanTrait};
 use zeroable::Zeroable;
@@ -21,19 +16,90 @@ use traits::{TryInto, Into};
 use starknet::contract_address::Felt252TryIntoContractAddress;
 use starknet::class_hash::Felt252TryIntoClassHash;
 use starknet::{ContractAddress,ClassHash};
+use starknet::testing;
 
-
+// WARNING::::: OUT OF GAS WITH 2000000???? Need to optimize...
 #[test]
-#[available_gas(2000000)]
-fn test_deploy_contract() {
+#[available_gas(20000000)]
+fn bridge_request_from_l1() {
+    let bridge_admin_addr = starknet::contract_address_const::<0x7>();
+    let bridge_addr = bridge::tests::deploy(bridge_admin_addr);
+    let bridge = IBridgeDispatcher { contract_address: bridge_addr };
 
-    let u: TokenURI = 'http://...'.into();
+    // To set the erc721 default class we must be admin.
+    testing::set_contract_address(bridge_admin_addr);
+    bridge.set_erc721_default_contract(ERC721Bridgeable::TEST_CLASS_HASH.try_into().unwrap());
 
-    let bridge = starknet::contract_address_const::<77>();
-    let collection_owner = starknet::contract_address_const::<88>();
+    let TOKEN_ID = 77;
+    let TOKEN_URI = 'http://everai.xyz/77';
+    let TOKEN_L2_OWNER = starknet::contract_address_const::<0x8899>();
 
-    let collection_addr = deploy_erc721bridgeable('everai duo', 'DUO', bridge, collection_owner);
+    let mut tokens_to_bridge: Array<TokenInfo> = ArrayTrait::new();
+    tokens_to_bridge.append(TokenInfo {
+        token_id: TOKEN_ID,
+        token_uri: TOKEN_URI.into(),
+    });
 
-    let collection = IERC721BridgeableDispatcher { contract_address: collection_addr };
+    let req = BridgeRequest {
+        header: 1,
+        collection_l1_address: 0x11cc,
+        // 0 as the first token of this collection is being bridged.
+        collection_l2_address: starknet::contract_address_const::<0>(),
+        collection_name: 'everai duo',
+        collection_symbol: 'DUO',
+        collection_contract_type: 'ERC721',
+        owner_l1_address: 0x9988,
+        owner_l2_address: TOKEN_L2_OWNER,
+        tokens: tokens_to_bridge.span()
+    };
 
+    let collection_l2_address = bridge.on_l1_message(req);
+    assert(!collection_l2_address.is_zero(), 'collection not deployed');
+
+    let collection = IERC721BridgeableDispatcher { contract_address: collection_l2_address };
+    // Ensure the token was permissioned_mint.
+
+    let token_owner = collection.owner_of(TOKEN_ID);
+    assert(token_owner == TOKEN_L2_OWNER, 'Bad owner after mint');
+
+    let token_uri = collection.token_uri(TOKEN_ID);
+    assert(token_uri.len == 1, 'Bad token uri len');
+    assert(*token_uri.content[0] == TOKEN_URI, 'Bad token uri content');
+
+    
+    // Now the collection is already deployed, new request for the same collection, new token to be
+    // mint.
+    let NEW_TOKEN_ID = 88;
+    let NEW_TOKEN_URI = 'http://everai.xyz/88';
+
+    let mut tokens_to_bridge_new: Array<TokenInfo> = ArrayTrait::new();
+    tokens_to_bridge_new.append(TokenInfo {
+        token_id: NEW_TOKEN_ID,
+        token_uri: NEW_TOKEN_URI.into(),
+    });
+
+    let req_new = BridgeRequest {
+        header: 1,
+        collection_l1_address: 0x11cc,
+        collection_l2_address: collection_l2_address,
+        collection_name: 'everai duo',
+        collection_symbol: 'DUO',
+        collection_contract_type: 'ERC721',
+        owner_l1_address: 0x9988,
+        owner_l2_address: TOKEN_L2_OWNER,
+        tokens: tokens_to_bridge_new.span()
+    };
+
+    let collection_l2_address_new = bridge.on_l1_message(req_new);
+    assert(collection_l2_address_new == collection_l2_address, 'collection bad address');
+
+    assert(collection.owner_of(TOKEN_ID) == TOKEN_L2_OWNER, 'Bad owner after mint');
+    assert(collection.owner_of(NEW_TOKEN_ID) == TOKEN_L2_OWNER, 'Bad owner after mint');
+
+    let token_uri_new = collection.token_uri(NEW_TOKEN_ID);
+    assert(token_uri_new.len == 1, 'Bad token uri len');
+    assert(*token_uri_new.content[0] == NEW_TOKEN_URI, 'Bad token uri content');
+
+
+    // Now, we need to do a setup to test escrow scenario, which comes after sending request to L1.
 }

@@ -43,7 +43,7 @@ use starklane::utils::{
 /// It's not only a wrapper around Span because for the Dapp
 /// to easily decode the data, a struct is well documented in the
 /// ABI.
-#[derive(Drop)]
+#[derive(Copy, Drop)]
 struct TokenURI {
     // Number of felt252 (short string) used to represent the
     // entire URI.

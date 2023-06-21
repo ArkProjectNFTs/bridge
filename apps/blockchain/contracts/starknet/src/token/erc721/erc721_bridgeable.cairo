@@ -96,16 +96,12 @@ mod ERC721Bridgeable {
     //
 
     #[external]
-    fn permissioned_mint(to: ContractAddress, token_id: u256) {
+    fn permissioned_mint(to: ContractAddress, token_id: u256, token_uri: TokenURI) {
         assert(starknet::get_caller_address() == _bridge_addr::read(),
                'ERC721: only bridge can pmint');
 
         _mint(to, token_id);
-    }
 
-    #[external]
-    fn mint_with_uri(to: ContractAddress, token_id: u256, token_uri: TokenURI) {
-        _mint(to, token_id);
         erc721::token_uri_to_storage(TOKEN_URI_STORAGE_KEY, token_id, @token_uri);
     }
 
@@ -263,7 +259,8 @@ mod tests {
         let collection = IERC721BridgeableDispatcher { contract_address: collection_addr };
         
         let new_uri: TokenURI = 'https:...'.into();
-        collection.mint_with_uri(NEW_DUO_OWNER, TOKEN_ID, new_uri);
+        testing::set_contract_address(BRIDGE);
+        collection.permissioned_mint(NEW_DUO_OWNER, TOKEN_ID, new_uri);
 
         let fetched_uri = collection.token_uri(TOKEN_ID);
         assert(fetched_uri.len == 1_usize, 'Bad uri len');
@@ -289,7 +286,7 @@ mod tests {
         let collection = IERC721BridgeableDispatcher { contract_address: collection_addr };
 
         testing::set_contract_address(BRIDGE);
-        collection.permissioned_mint(NEW_DUO_OWNER, 0);
+        collection.permissioned_mint(NEW_DUO_OWNER, 0, 'myuri'.into());
         assert(collection.owner_of(0) == NEW_DUO_OWNER, 'permission mint failed');
     }
 
@@ -305,7 +302,7 @@ mod tests {
         let collection_addr = deploy('everai duo', 'DUO', BRIDGE, COLLECTION_OWNER);
         let collection = IERC721BridgeableDispatcher { contract_address: collection_addr };
 
-        collection.permissioned_mint(NEW_DUO_OWNER, 0);
+        collection.permissioned_mint(NEW_DUO_OWNER, 0, 'myuri'.into());
         assert(collection.owner_of(0) == NEW_DUO_OWNER, 'permission mint failed');
     }
 
@@ -323,7 +320,7 @@ mod tests {
         let collection = IERC721BridgeableDispatcher { contract_address: collection_addr };
 
         testing::set_contract_address(BRIDGE);
-        collection.permissioned_mint(FROM_DUO_OWNER, TOKEN_ID);
+        collection.permissioned_mint(FROM_DUO_OWNER, TOKEN_ID, 'myuri'.into());
         assert(collection.owner_of(TOKEN_ID) == FROM_DUO_OWNER, 'permission mint failed');
 
         testing::set_contract_address(FROM_DUO_OWNER);
@@ -345,7 +342,8 @@ mod tests {
         let collection = IERC721BridgeableDispatcher { contract_address: collection_addr };
         
         let new_uri: TokenURI = 'https:...'.into();
-        collection.mint_with_uri(NEW_DUO_OWNER, TOKEN_ID, new_uri);
+        testing::set_contract_address(BRIDGE);
+        collection.permissioned_mint(NEW_DUO_OWNER, TOKEN_ID, new_uri);
 
         // Unwrap as we should have something as we just minted it.
         let fetched_uri = erc721::token_uri_from_contract_call(collection_addr, TOKEN_ID).unwrap();
