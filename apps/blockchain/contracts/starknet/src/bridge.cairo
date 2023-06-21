@@ -24,6 +24,9 @@ mod Bridge {
         IERC721BridgeableDispatcher,
         IERC721BridgeableDispatcherTrait};
 
+    // TODO(glihm): refacto when `Self` is supported inside imports.
+    use starklane::token::erc721;
+
     struct Storage {
         // Bridge administrator.
         _bridge_admin: ContractAddress,
@@ -86,10 +89,10 @@ mod Bridge {
             let from = starknet::get_contract_address();
 
             if is_token_escrowed(collection_l2_address, token_id) {
-                collection.permissioned_mint(to, token_id);
+                collection.transfer_from(from, to, token_id);
                 // TODO: emit event.
             } else {
-                collection.transfer_from(from, to, token_id);
+                collection.permissioned_mint(to, token_id);
                 // TODO: emit event.
             }
 
@@ -142,11 +145,15 @@ mod Bridge {
         owner_l1_address: felt252,
         tokens_ids: Span<u256>
     ) {
+        // TODO: is that correct? The deposit_tokens is called from user's account contract?
         let from = starknet::get_caller_address();
         let to = starknet::get_contract_address();
         let collection = IERC721BridgeableDispatcher { contract_address: collection_l2_address };
 
-        let mut info_tokens = ArrayTrait::<TokenInfo>::new();
+        let collection_name = collection.name();
+        let collection_symbol = collection.symbol();
+
+        let mut tokens = ArrayTrait::<TokenInfo>::new();
         let mut i = 0;
         loop {
             if i > tokens_ids.len() {
@@ -159,9 +166,20 @@ mod Bridge {
             collection.transfer_from(from, to, token_id);
             _escrow::write((collection_l2_address, token_id), from);
 
-            // TODO: call the collection to get the URI of the token.
-            // Must support both short and long URI...!
-            // Use TokenInfo builder.
+            let token_uri = match erc721::token_uri_from_contract_call(
+                collection_l2_address,
+                token_id) {
+                Option::Some(uri) => uri,
+                Option::None(_) => {
+                    // Token URI missing for the token...? Revert? Skip?
+                    'NO_URI'.into()
+                }
+            };
+
+            tokens.append(TokenInfo {
+                token_id,
+                token_uri,
+            });
 
             i += 1;
         };
