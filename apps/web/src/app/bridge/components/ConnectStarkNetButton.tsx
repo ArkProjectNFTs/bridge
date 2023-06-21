@@ -21,6 +21,7 @@ export default function ConnectStarknetButton({
   onOpenModalChange,
 }: ConnectStarknetButtonProps) {
   const isSSR = useIsSSR();
+  // Implement onConnect in starknet-react to close the modal on wallet connexion
   const { address, isConnected, connector } = useAccount();
 
   const shortAddress = useMemo(
@@ -39,7 +40,7 @@ export default function ConnectStarknetButton({
         onClick={() => onOpenModalChange(!isModalOpen)}
       >
         <Typography variant="body_text_bold_14">
-          {isConnected ? shortAddress : "Connect StarkNet Wallet"}
+          {isConnected ? shortAddress : "Connect Starknet Wallet"}
         </Typography>
         <div className="flex">
           <Image
@@ -63,7 +64,7 @@ export default function ConnectStarknetButton({
         </div>
       </button>
       <ConnectModal
-        chain="Starknet"
+        initialChain="Starknet"
         isOpen={isModalOpen}
         onOpenChange={onOpenModalChange}
       />
