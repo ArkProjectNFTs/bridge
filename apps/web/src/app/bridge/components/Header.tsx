@@ -10,6 +10,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useAccount as useStarknetAccount } from "@starknet-react/core";
 import { useAccount as useEthereumAccount } from "wagmi";
 import Image from "next/image";
+import DarkModeButton from "~/app/components/DarkmodeButton";
 
 const connectedPages = [
   { name: "Portfolio", path: "/portfolio" },
@@ -58,7 +59,7 @@ export default function Header() {
   }
 
   return (
-    <div className="fixed z-20 flex w-full items-center justify-between border-b border-neutral-50 bg-white p-6">
+    <header className="fixed z-20 flex h-23 w-full items-center justify-between border-b border-neutral-50 bg-white p-6 dark:bg-black">
       <Link href="/">
         <Typography variant="logo">starklane</Typography>
       </Link>
@@ -94,14 +95,7 @@ export default function Header() {
               open ? openModal("Starknet") : closeModal();
             }}
           />
-          <button>
-            <Image
-              src="/icons/light_mode.svg"
-              alt="light mode icon"
-              height={32}
-              width={32}
-            />
-          </button>
+          <DarkModeButton />
           <Image
             src="/icons/bridge.svg"
             alt="bridge icon"
@@ -110,6 +104,6 @@ export default function Header() {
           />
         </div>
       </div>
-    </div>
+    </header>
   );
 }
