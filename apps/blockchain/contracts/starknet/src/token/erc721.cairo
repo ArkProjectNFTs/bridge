@@ -5,6 +5,7 @@ use token_uri::{
     Felt252IntoTokenURI,
     token_uri_from_storage,
     token_uri_to_storage,
+    token_uri_from_contract_call,
 };
 
 mod token_info;

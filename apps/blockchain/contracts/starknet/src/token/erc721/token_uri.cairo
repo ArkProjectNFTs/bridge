@@ -54,7 +54,6 @@ struct TokenURI {
     content: Span<felt252>,
 }
 
-
 /// Returns a new URI after a call to
 /// the collection contract.
 /// TODO:
@@ -62,22 +61,84 @@ struct TokenURI {
 ///
 /// * `collection_address` - Collection address of the collection.
 /// * `token_id` - Token id.
-fn uri_from_collection_call(
+fn token_uri_from_contract_call(
     collection_address: ContractAddress,
     token_id: u256,
 ) -> Option<TokenURI> {
-    // collection.transfer_from(from, to, token_id);
 
-    // Here, we will use the call contract syscall to
-    // deserialize the token uri as needed depending on the
-    // implementation of the targetted collection.
-    // With the call contract syscall we can control better the deserialization.
+    // TODO: add the interface detection when the standard is out.
 
+    let token_uri_selector = 0x0226ad7e84c1fe08eb4c525ed93cccadf9517670341304571e66f7c4f95cbe54;
+    let tokenUri_selector = 0x0362dec5b8b67ab667ad08e83a2c3ba1db7fdb4ab8dc3a33c057c4fddec8d3de;
 
-    Option::None(())
+    let mut _calldata: Array<felt252> = ArrayTrait::new();
+    token_id.serialize(ref _calldata);
+
+    let calldata = _calldata.span();
+    
+    match starknet::call_contract_syscall(
+        collection_address,
+        token_uri_selector,
+        calldata,
+    ) {
+        Result::Ok(span) => token_uri_from_span(span),
+        Result::Err(e) => {
+            e.print();
+            match starknet::call_contract_syscall(
+                collection_address,
+                tokenUri_selector,
+                calldata,
+            ) {
+                Result::Ok(span) => token_uri_from_span(span),
+                Result::Err(e) => {
+                    e.print();
+                    Option::None(())
+                }
+            }
+        }
+    }
+}
+
+/// Token URI may be a single felt or an already
+/// serialized TokenURI for contract that supports it.
+///
+/// * `data` - Data that may contain a single felt URI or a TokenURI.
+fn token_uri_from_span(data: Span<felt252>) -> Option<TokenURI> {
+
+    if data.len() == 0_usize {
+        Option::None(())
+    } else if data.len() == 1_usize {
+        let uri: felt252 = *data[0];
+        Option::Some(uri.into())
+    } else {
+        // We need to remove the first felt252 which is the length.
+        let len = (*data[0]).try_into().expect('Bad URI len from span');
+
+        let mut content: Array<felt252> = ArrayTrait::new();
+
+        let mut i = 1_usize;
+        loop {
+            if i == len + 1 {
+                break();
+            }
+
+            content.append(*data[i]);
+
+            i += 1;
+        };
+
+        Option::Some(TokenURI {
+            len,
+            content: content.span()
+        })
+    }
 }
 
 /// Stores a TokenURI into a storage for the given token id.
+///
+/// * `storage_key` - Storage key used to scope the storage.
+/// * `token_id` - The token ID which is combined to the storage_key for a unique key.
+/// * `token_uri` - The TokenURI to be stored.
 fn token_uri_to_storage(storage_key: felt252, token_id: u256, token_uri: @TokenURI) {
     let mut _keys: Array<felt252> = ArrayTrait::new();
     _keys.append(storage_key);
@@ -91,10 +152,13 @@ fn token_uri_to_storage(storage_key: felt252, token_id: u256, token_uri: @TokenU
 
     serde_storage::set(keys, offset, len);
     offset += 1;
-    serde_storage::set_many(keys, offset, *token_uri.content);
+    serde_storage::set_span(keys, offset, *token_uri.content);
 }
 
 /// Retrieves a TokenURI from storage for the given token id.
+///
+/// * `storage_key` - Storage key used to scope the storage.
+/// * `token_id` - The token ID which is combined to the storage_key for a unique key.
 fn token_uri_from_storage(storage_key: felt252, token_id: u256) -> TokenURI{
     let mut _keys: Array<felt252> = ArrayTrait::new();
     _keys.append(storage_key);
@@ -110,8 +174,10 @@ fn token_uri_from_storage(storage_key: felt252, token_id: u256) -> TokenURI{
     // Always comes from TokenURI, the unwrap should be safe.
         .unwrap();
 
+    // TODO: should we return Option::None if length is 0 or more than 255?
+
     offset += 1;
-    let content = serde_storage::get_many(keys, offset, len);
+    let content = serde_storage::get_span(keys, offset, len);
 
     TokenURI {
         len,
@@ -169,6 +235,8 @@ impl ArrayIntoTokenURI of Into<Array<felt252>, TokenURI> {
 }
 
 /// Implement the StorageAccess to enable TokenURI being stored in Storage struct.
+///
+/// TODO: check with cairo v2.0.0 if it works?
 impl StorageAccessTokenURI of StorageAccess<TokenURI> {
     ///
     fn write(address_domain: u32, base: StorageBaseAddress, value: TokenURI) -> SyscallResult<()> {

@@ -207,6 +207,7 @@ mod tests {
     use starknet::{ContractAddress,ClassHash};
 
     use starklane::token::erc721::{TokenURI, Felt252IntoTokenURI};
+    use starklane::token::erc721;
 
     use starknet::testing;
 
@@ -329,5 +330,28 @@ mod tests {
         collection.transfer_from(FROM_DUO_OWNER, TO_DUO_OWNER, TOKEN_ID);
         assert(collection.owner_of(TOKEN_ID) == TO_DUO_OWNER, 'transfer failed');
     }
+
+    /// Should get a token uri from contract call. This will try tokenURI and token_uri selectors.
+    #[test]
+    #[available_gas(2000000000)]
+    fn token_uri_from_contract_call() {
+        let BRIDGE = starknet::contract_address_const::<77>();
+        let COLLECTION_OWNER = starknet::contract_address_const::<88>();
+        let NEW_DUO_OWNER = starknet::contract_address_const::<128>();
+        let TOKEN_ID = 244;
+
+        let collection_addr = deploy('everai duo', 'DUO', BRIDGE, COLLECTION_OWNER);
+
+        let collection = IERC721BridgeableDispatcher { contract_address: collection_addr };
+        
+        let new_uri: TokenURI = 'https:...'.into();
+        collection.mint_with_uri(NEW_DUO_OWNER, TOKEN_ID, new_uri);
+
+        // Unwrap as we should have something as we just minted it.
+        let fetched_uri = erc721::token_uri_from_contract_call(collection_addr, TOKEN_ID).unwrap();
+        assert(fetched_uri.len == 1_usize, 'Bad uri len');
+        assert(*fetched_uri.content[0] == 'https:...', 'Bad uri content');        
+    }
+
 
 }

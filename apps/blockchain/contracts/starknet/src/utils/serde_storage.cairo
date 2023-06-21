@@ -39,7 +39,10 @@ use debug::PrintTrait;
 
 const ADDRESS_DOMAIN: u32 = 0;
 
-/// Get a single value from storage from the given key.
+/// Gets a single value from storage from the given keys.
+///
+/// * `keys` - Keys hashed to compute a single felt252 key.
+/// * `offset` - Offset of the key storage, limited to 256 values.
 fn get(keys: Span<felt252>, offset: u8) -> Option<felt252> {
     let keys_hash = poseidon_hash_span(keys);
 
@@ -54,7 +57,19 @@ fn get(keys: Span<felt252>, offset: u8) -> Option<felt252> {
     }
 }
 
-fn get_many(keys: Span<felt252>, offset: u8, length: usize) -> Span<felt252> {
+/// Gets a span of felts from the storage.
+///
+/// * `keys` - Keys hashed to compute a single felt252 key.
+/// * `offset` - Offset of the key storage, limited to 256 values (offset taken in account).
+/// * `length` - Expected length of the span.
+fn get_span(keys: Span<felt252>, offset: u8, length: usize) -> Span<felt252> {
+    if length + offset.into() > 256 {
+        let mut panic_data: Array<felt252> = ArrayTrait::new();
+        panic_data.append('Storage of a span must');
+        panic_data.append('be less than 256 felts.');
+        panic(panic_data);
+    }
+
     let keys_hash = poseidon_hash_span(keys);
 
     let base = starknet::storage_base_address_from_felt252(keys_hash);
@@ -82,6 +97,11 @@ fn get_many(keys: Span<felt252>, offset: u8, length: usize) -> Span<felt252> {
     value.span()
 }
 
+/// Sets a single value to storage from the given keys.
+///
+/// * `keys` - Keys hashed to compute a single felt252 key.
+/// * `offset` - Offset of the key storage, limited to 256 values.
+/// * `value` - Value to store.
 fn set(keys: Span<felt252>, offset: u8, value: felt252) {
     let keys_hash = poseidon_hash_span(keys);
 
@@ -95,7 +115,19 @@ fn set(keys: Span<felt252>, offset: u8, value: felt252) {
 
 }
 
-fn set_many(keys: Span<felt252>, offset: u8, mut value: Span<felt252>) {
+/// Sets a span of felts into the storage.
+///
+/// * `keys` - Keys hashed to compute a single felt252 key.
+/// * `offset` - Offset of the key storage, limited to 256 values.
+/// * `value` - Span to be stored, must be less that 256 felts (taking offset in account).
+fn set_span(keys: Span<felt252>, offset: u8, mut value: Span<felt252>) {
+    if value.len() + offset.into() > 256 {
+        let mut panic_data: Array<felt252> = ArrayTrait::new();
+        panic_data.append('Storage of a span must');
+        panic_data.append('be less than 256 felts.');
+        panic(panic_data);
+    }
+
     let keys_hash = poseidon_hash_span(keys);
 
     let base = starknet::storage_base_address_from_felt252(keys_hash);
