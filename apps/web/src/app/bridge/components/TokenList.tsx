@@ -88,7 +88,7 @@ export default function TokenList({
             </button>
           )}
         </div>
-        <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+        <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {selectedCollectionName === null
             ? Object.entries(nfts.byCollection).map(
                 ([collectionName, nfts]) => {
