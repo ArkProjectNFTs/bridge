@@ -9,6 +9,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAccount as useStarknetAccount } from "@starknet-react/core";
 import { useAccount as useEthereumAccount } from "wagmi";
+import Image from "next/image";
 
 const connectedPages = [
   { name: "Portfolio", path: "/portfolio" },
@@ -92,6 +93,20 @@ export default function Header() {
             onOpenModalChange={(open) => {
               open ? openModal("Starknet") : closeModal();
             }}
+          />
+          <button>
+            <Image
+              src="/icons/light_mode.svg"
+              alt="light mode icon"
+              height={32}
+              width={32}
+            />
+          </button>
+          <Image
+            src="/icons/bridge.svg"
+            alt="bridge icon"
+            height={32}
+            width={32}
           />
         </div>
       </div>

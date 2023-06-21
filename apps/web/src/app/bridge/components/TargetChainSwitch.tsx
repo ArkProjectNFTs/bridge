@@ -19,7 +19,7 @@ export default function TargetChainSwitch({
     <div className=" my-8 inline-flex gap-0.5">
       <button
         onClick={() => setTargetChain("Ethereum")}
-        className={`flex items-center gap-2 rounded-l-2xl py-3 pl-3 pr-6 ${
+        className={`flex items-center gap-2 rounded-l-2xl py-4 pl-3 pr-6 ${
           !isSSR && targetChain === "Ethereum"
             ? "bg-primary-100"
             : "bg-neutral-200"
@@ -36,7 +36,7 @@ export default function TargetChainSwitch({
       <TargetChainButton orientation="horizontal" />
       <button
         onClick={() => setTargetChain("Starknet")}
-        className={`flex items-center gap-2 rounded-r-2xl py-3 pl-6 pr-3 ${
+        className={`flex items-center gap-2 rounded-r-2xl py-4 pl-6 pr-3 ${
           !isSSR && targetChain === "Starknet"
             ? "bg-primary-100"
             : "bg-neutral-200"
