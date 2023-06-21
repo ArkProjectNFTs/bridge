@@ -348,20 +348,12 @@ mod tests {
 
     use super::Bridge;
 
-    use starklane::token::erc721::interfaces::{IERC721BridgeableDispatcher, IERC721BridgeableDispatcherTrait};
-
-    use serde::Serde;
     use array::{ArrayTrait, SpanTrait};
-    use zeroable::Zeroable;
     use option::OptionTrait;
     use core::result::ResultTrait;
     use traits::{TryInto, Into};
-    use starknet::contract_address::Felt252TryIntoContractAddress;
     use starknet::class_hash::Felt252TryIntoClassHash;
     use starknet::{ContractAddress,ClassHash};
-
-    use starklane::token::erc721::{TokenURI, Felt252IntoTokenURI};
-    use starklane::token::erc721;
 
     use starknet::testing;
 
