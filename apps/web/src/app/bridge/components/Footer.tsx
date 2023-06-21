@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import Image from "next/image";
 
 export default function Header() {
   return (
@@ -9,9 +9,9 @@ export default function Header() {
         rel="noopener noreferrer"
         className="flex items-center text-sm"
       >
-        Built by{' '}
+        Built by{" "}
         <Image
-          src="/screenshot.svg"
+          src="/logos/screenshot.svg"
           alt="Screenshot Logo"
           className="ml-1"
           width={20}
