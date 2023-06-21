@@ -13,7 +13,7 @@ export default function Page() {
         </Typography>
 
         <Link
-          className="mx-auto mb-23 mt-12 inline-flex items-center gap-2.5 rounded-full bg-sky-950 px-6 py-5"
+          className="mx-auto mb-23 mt-12 inline-flex items-center gap-2.5 rounded-full bg-dark-blue-950 px-6 py-5"
           href="/bridge"
         >
           <Image

@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { CHAIN_LOGOS_BY_NAME, type Chain } from "../helpers";
-import { useIsSSR } from "~/hooks/useIsSSR";
+import { useIsSSR } from "~/app/hooks/useIsSSR";
 import TargetChainButton from "./TargetChainButton";
 import { Typography } from "design-system";
 
@@ -16,7 +16,7 @@ export default function TargetChainSwitch({
   const isSSR = useIsSSR();
 
   return (
-    <div className=" my-8 inline-flex gap-0.5">
+    <div className=" my-8 inline-flex gap-0.5 dark:text-dark-blue-900">
       <button
         onClick={() => setTargetChain("Ethereum")}
         className={`flex items-center gap-2 rounded-l-2xl py-4 pl-3 pr-6 ${

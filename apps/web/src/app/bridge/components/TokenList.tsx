@@ -81,7 +81,7 @@ export default function TokenList({
           </div>
           {selectedCollectionName !== null && (
             <button
-              className="rounded-md bg-sky-950 p-1.5 font-medium text-white"
+              className="rounded-md bg-dark-blue-950 p-1.5 font-medium text-white"
               onClick={selectAll}
             >
               <Typography variant="body_text_bold_14">Select all</Typography>
