@@ -3,6 +3,12 @@
 ///! The bridge contract is in charge to handle
 ///! the logic associated with bridge request from
 ///! a L1 message, or a deposit token from L2 transaction.
+///!
+///! Bridge needs to keep L1<->L2 reverse mapping up to date
+///! to ensure all scenarios can be hanlded without deploying
+///! the same collection twice.
+///! This takes in account unexpected minting after collection
+///! being bridged.
 
 use starknet::{ContractAddress, ClassHash};
 use starklane::protocol::BridgeRequest;
@@ -18,6 +24,8 @@ trait IBridge {
     );
 
     fn set_erc721_default_contract(class_hash: ClassHash);
+
+    fn is_token_escrowed(collection_address: ContractAddress, token_id: u256) -> bool;
 }
 
 #[contract]
@@ -53,6 +61,9 @@ mod Bridge {
         // Mapping between L2<->L1 collections addresses.
         // <collection_l2_address, collection_l1_address>
         _l2_to_l1_addresses: LegacyMap::<ContractAddress, felt252>,
+        // Mapping between L1<->L2 collections addresses.
+        // <collection_l1_address, collection_l2_address>
+        _l1_to_l2_addresses: LegacyMap::<felt252, ContractAddress>,
         // Registry of escrowed token for collections.
         // <(collection_l2_address, token_id), original_depositor_l2_address>
         _escrow: LegacyMap::<(ContractAddress, u256), ContractAddress>,
@@ -84,6 +95,11 @@ mod Bridge {
     //
     // For that -> maybe having a hash map l1<->l2 and l2<->l1 may be interesting?
 
+    #[view]
+    fn is_token_escrowed(collection_address: ContractAddress, token_id: u256) -> bool {
+        !_escrow::read((collection_address, token_id)).is_zero()
+    }
+
     // *** EXTERNALS ***
 
     /// Simulates a message received from the L1.
@@ -98,7 +114,7 @@ mod Bridge {
         // Length in header may be useless, only a version to start
         // to ensure we can upgrade both side without conflict.
 
-        let collection_l2_address = ensure_collection_deployment(@req);
+        let collection_l2_address = _ensure_collection_deployment(@req);
         let collection = IERC721BridgeableDispatcher { contract_address: collection_l2_address };
 
         let mut i = 0;
@@ -112,7 +128,7 @@ mod Bridge {
             let to = req.owner_l2_address;
             let from = starknet::get_contract_address();
 
-            if is_token_escrowed(collection_l2_address, token_id) {
+            if _is_token_escrowed(collection_l2_address, token_id) {
                 collection.transfer_from(from, to, token_id);
                 // TODO: emit event.
             } else {
@@ -148,7 +164,7 @@ mod Bridge {
         let mut tokens = ArrayTrait::<TokenInfo>::new();
         let mut i = 0;
         loop {
-            if i > tokens_ids.len() {
+            if i == tokens_ids.len() {
                 break ();
             }
 
@@ -187,14 +203,14 @@ mod Bridge {
     /// * `class_hash` - Class hash of the ERC721 to set as default.
     #[external]
     fn set_erc721_default_contract(class_hash: ClassHash) {
-        ensure_is_admin();
+        _ensure_is_admin();
 
         _erc721_bridgeable_class::write(class_hash);
     }
 
     #[external]
     fn replace_class(class_hash: ClassHash) {
-        ensure_is_admin();
+        _ensure_is_admin();
 
         match starknet::replace_class_syscall(class_hash) {
             Result::Ok(_) => ReplacedClassHash(starknet::get_contract_address(), class_hash),
@@ -206,7 +222,7 @@ mod Bridge {
 
     /// Ensures the caller is the bridge admin. Revert if it's not.
     #[internal]
-    fn ensure_is_admin() {
+    fn _ensure_is_admin() {
         assert(starknet::get_caller_address() == _bridge_admin::read(),
                'Unauthorized action');        
     }
@@ -214,8 +230,59 @@ mod Bridge {
     /// Returns true if the given token_id for the collection is present inside
     /// escrow storage, false otherwise.
     #[internal]
-    fn is_token_escrowed(collection_address: ContractAddress, token_id: u256) -> bool {
+    fn _is_token_escrowed(collection_address: ContractAddress, token_id: u256) -> bool {
         !_escrow::read((collection_address, token_id)).is_zero()
+    }
+
+    /// Verifies the collection addresses in the request and the local mapping
+    /// to determines the correctness of the request and if the collection
+    /// must be deployed or not.
+    ///
+    /// Returns collection L2 address if deploy is required, else 0.
+    #[internal]
+    fn _verify_request_mapping_addresses(req: @BridgeRequest) -> ContractAddress {
+        let l1_addr_req: felt252 = *req.collection_l1_address;
+        let l2_addr_req: ContractAddress = *req.collection_l2_address;
+        let l1_addr_mapping = _l2_to_l1_addresses::read(l2_addr_req);
+        let l2_addr_mapping = _l1_to_l2_addresses::read(l1_addr_mapping);
+
+        let mut panic_data: Array<felt252> = ArrayTrait::new();
+
+        // L1 address must always be set as we receive the request from L1.
+        if l1_addr_req.is_zero()
+        {
+            panic_data.append('L1 address cannot be 0');
+            panic(panic_data);
+        }
+
+        // L1 address is present in the request and L2 address is not.
+        if !l1_addr_req.is_zero() & l2_addr_req.is_zero() {
+            if l2_addr_mapping.is_zero() {
+                // It's the first token of the collection to be bridged.
+                return ContractAddressZeroable::zero();
+            } else {
+                // It's not the first token of the collection to be bridged,
+                // and the collection tokens were always bridged L1 -> L2.
+                return l2_addr_mapping;
+            }
+        }
+
+        // L1 address is present, and L2 address too.
+        if !l1_addr_req.is_zero() & !l2_addr_req.is_zero() {
+            if l2_addr_mapping != l2_addr_req {
+                panic_data.append('Invalid collection L2 address');
+                panic(panic_data);
+            } else if l1_addr_mapping != l1_addr_req {
+                panic_data.append('Invalid collection L1 address');
+                panic(panic_data);
+            } else {
+                // All addresses match, we don't need to deploy anything.
+                return l2_addr_mapping;
+            }
+        }
+
+        panic_data.append('UNREACHABLE');
+        panic(panic_data)
     }
 
     /// Deploys the collection contract, if necessary.
@@ -223,13 +290,11 @@ mod Bridge {
     ///
     /// * `req` - Request for bridging assets.
     #[internal]
-    fn ensure_collection_deployment(req: @BridgeRequest) -> ContractAddress {
-        let l1_addr_from_mapping = _l2_to_l1_addresses::read(*req.collection_l2_address);
+    fn _ensure_collection_deployment(req: @BridgeRequest) -> ContractAddress {
+        let collection_l2_addr = _verify_request_mapping_addresses(req);
 
-        if !l1_addr_from_mapping.is_zero() {
-            // Collection already deployed, we only verify that the l1 addresses match.
-            assert(l1_addr_from_mapping == *req.collection_l1_address, 'l1 addr mismatch');
-            return *req.collection_l2_address;
+        if !collection_l2_addr.is_zero() {
+            return collection_l2_addr;
         }
 
         // TODO: check if pedersen if strong enough here, or do we need poseidon?
@@ -243,6 +308,7 @@ mod Bridge {
             starknet::get_contract_address(),
         );
 
+        _l1_to_l2_addresses::write(*req.collection_l1_address, l2_addr_from_deploy);
         _l2_to_l1_addresses::write(l2_addr_from_deploy, *req.collection_l1_address);
 
         CollectionDeloyedFromL1(

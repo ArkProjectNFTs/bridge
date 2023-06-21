@@ -106,6 +106,12 @@ mod ERC721Bridgeable {
     }
 
     #[external]
+    fn simple_mint(to: ContractAddress, token_id: u256, token_uri: TokenURI) {
+        _mint(to, token_id);
+        erc721::token_uri_to_storage(TOKEN_URI_STORAGE_KEY, token_id, @token_uri);
+    }
+
+    #[external]
     fn approve(to: ContractAddress, token_id: u256) {
         let owner = owner_of(token_id);
         let caller = starknet::get_caller_address();
@@ -259,8 +265,7 @@ mod tests {
         let collection = IERC721BridgeableDispatcher { contract_address: collection_addr };
         
         let new_uri: TokenURI = 'https:...'.into();
-        testing::set_contract_address(BRIDGE);
-        collection.permissioned_mint(NEW_DUO_OWNER, TOKEN_ID, new_uri);
+        collection.simple_mint(NEW_DUO_OWNER, TOKEN_ID, new_uri);
 
         let fetched_uri = collection.token_uri(TOKEN_ID);
         assert(fetched_uri.len == 1_usize, 'Bad uri len');
@@ -342,8 +347,7 @@ mod tests {
         let collection = IERC721BridgeableDispatcher { contract_address: collection_addr };
         
         let new_uri: TokenURI = 'https:...'.into();
-        testing::set_contract_address(BRIDGE);
-        collection.permissioned_mint(NEW_DUO_OWNER, TOKEN_ID, new_uri);
+        collection.simple_mint(NEW_DUO_OWNER, TOKEN_ID, new_uri);
 
         // Unwrap as we should have something as we just minted it.
         let fetched_uri = erc721::token_uri_from_contract_call(collection_addr, TOKEN_ID).unwrap();
