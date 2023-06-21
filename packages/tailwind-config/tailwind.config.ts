@@ -4,6 +4,7 @@ export default {
   content: ["./**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
+      // TODO @YohanTz: Move the colors object away from the extend property once all colors are defined
       colors: {
         "primary-50": "var(--color-primary-50)",
         "primary-100": "var(--color-primary-100)",
