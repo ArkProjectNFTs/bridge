@@ -48,7 +48,9 @@ function ChainTransferSummary({
           <span className="rounded-md bg-neutral-200 p-1 text-xs font-semibold">
             {isTargetChain ? "To" : "From"}
           </span>
-          <div className="text-sm font-semibold">{chain}</div>
+          <Typography variant="body_text_14" component="div">
+            {chain}
+          </Typography>
         </div>
       </div>
       {!isSSR && connectorId !== undefined && (
@@ -63,7 +65,9 @@ function ChainTransferSummary({
             <span className="rounded-md bg-neutral-200 p-1 text-xs font-semibold">
               Wallet
             </span>
-            <div className="text-sm font-semibold">{shortAddress}</div>
+            <Typography variant="body_text_14" component="div">
+              {shortAddress}
+            </Typography>
           </div>
         </div>
       )}
