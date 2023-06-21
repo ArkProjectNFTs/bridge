@@ -36,6 +36,7 @@ fn test_bad_request_addresses() {
 
     let req = BridgeRequest {
         header: 1,
+        req_hash: 123,
         collection_l1_address: 0,
         collection_l2_address: starknet::contract_address_const::<1234>(),
         collection_name: 'everai duo',
@@ -73,6 +74,7 @@ fn bridge_request_from_l1() {
 
     let req = BridgeRequest {
         header: 1,
+        req_hash: 123,
         collection_l1_address: 0x11cc,
         // 0 as the first token of this collection is being bridged.
         collection_l2_address: starknet::contract_address_const::<0>(),
@@ -111,6 +113,7 @@ fn bridge_request_from_l1() {
 
     let req_new = BridgeRequest {
         header: 1,
+        req_hash: 123,
         collection_l1_address: 0x11cc,
         collection_l2_address: collection_l2_address,
         collection_name: 'everai duo',

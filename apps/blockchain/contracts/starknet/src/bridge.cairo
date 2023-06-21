@@ -114,6 +114,8 @@ mod Bridge {
         // Length in header may be useless, only a version to start
         // to ensure we can upgrade both side without conflict.
 
+        // TODO: add a global request verificator! (no owner addr to 0, at least 1 token, etc...)
+
         let collection_l2_address = _ensure_collection_deployment(@req);
         let collection = IERC721BridgeableDispatcher { contract_address: collection_l2_address };
 
@@ -168,8 +170,8 @@ mod Bridge {
                 break ();
             }
 
-            // TODO: Will revert on approval missing? Do we need to check
-            // the approval explicitely?
+            // TODO: Will revert if the approval missing. Do we need to check
+            // the approval explicitely? Or it's fine like this?
             let token_id = *tokens_ids[i];
             collection.transfer_from(from, to, token_id);
             _escrow::write((collection_l2_address, token_id), from);
@@ -179,7 +181,7 @@ mod Bridge {
                 token_id) {
                 Option::Some(uri) => uri,
                 Option::None(_) => {
-                    // Token URI missing for the token...? Revert? Skip?
+                    // TODO: Token URI missing for the token...? Revert? Skip?
                     'NO_URI'.into()
                 }
             };

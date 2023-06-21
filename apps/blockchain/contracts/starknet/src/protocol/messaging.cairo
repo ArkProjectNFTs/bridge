@@ -37,6 +37,7 @@ use starklane::token::erc721::{TokenInfo, TokenInfoSerde, SpanTokenInfoSerde};
 #[derive(Serde, Drop)]
 struct BridgeRequest {
     header: felt252,
+    req_hash: felt252,
     // Collection information.
     collection_l1_address: felt252,
     collection_l2_address: ContractAddress,
@@ -77,6 +78,7 @@ mod tests {
 
         let req = BridgeRequest {
             header: 1,
+            req_hash: 123,
             collection_l1_address: 0x1c,
             collection_l2_address: starknet::contract_address_const::<0x2c>(),
             collection_name: 'everai duo',
@@ -90,19 +92,20 @@ mod tests {
         let mut buf = ArrayTrait::<felt252>::new();
         req.serialize(ref buf);
 
-        assert(buf.len() == 13, 'serialized buf len');
+        assert(buf.len() == 14, 'serialized buf len');
 
         assert(*buf[0] == 1, 'header');
-        assert(*buf[1] == 0x1c, 'c_l1_addr');
-        assert(*buf[2] == 0x2c, 'c_l2_addr');
-        assert(*buf[3] == 'everai duo', 'c_name');
-        assert(*buf[4] == 'DUO', 'c_symbol');
-        assert(*buf[5] == 'ERC721', 'contract_type');
-        assert(*buf[6] == 0xe1, 'o_l1_addr');
-        assert(*buf[7] == 888, 'o_l2_addr');
-        assert(*buf[8] == 1, 'tokens len');
-        assert(*buf[11] == 1, 'token uri len');
-        assert(*buf[12] == 'https:...', 'token uri content');
+        assert(*buf[1] == 123, 'req hash');
+        assert(*buf[2] == 0x1c, 'c_l1_addr');
+        assert(*buf[3] == 0x2c, 'c_l2_addr');
+        assert(*buf[4] == 'everai duo', 'c_name');
+        assert(*buf[5] == 'DUO', 'c_symbol');
+        assert(*buf[6] == 'ERC721', 'contract_type');
+        assert(*buf[7] == 0xe1, 'o_l1_addr');
+        assert(*buf[8] == 888, 'o_l2_addr');
+        assert(*buf[9] == 1, 'tokens len');
+        assert(*buf[12] == 1, 'token uri len');
+        assert(*buf[13] == 'https:...', 'token uri content');
 
         let mut sp = buf.span();
         let req2 = Serde::<BridgeRequest>::deserialize(ref sp).unwrap();
