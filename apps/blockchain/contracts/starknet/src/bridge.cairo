@@ -18,10 +18,11 @@ trait IBridge {
     fn on_l1_message(req: BridgeRequest) -> ContractAddress;
 
     fn deposit_tokens(
+        req_hash: felt252,
         collection_l2_address: ContractAddress,
         owner_l1_address: felt252,
         tokens_ids: Span<u256>
-    );
+    ) -> BridgeRequest;
 
     fn set_erc721_default_contract(class_hash: ClassHash);
 
@@ -146,15 +147,19 @@ mod Bridge {
 
     /// Deposits tokens to be bridged on the L1.
     ///
+    /// * `req_hash` - Request hash, unique identifier of the request.
     /// * `collection_l2_address` - Address of the collection on L2.
     /// * `owner_l1_address` - Address of the owner on L1.
     /// * `tokens_ids` - Tokens to be bridged on L1.
+    ///
+    /// TODO: The return type may be omitted, it's for debug for now.
     #[external]
     fn deposit_tokens(
+        req_hash: felt252,
         collection_l2_address: ContractAddress,
         owner_l1_address: felt252,
         tokens_ids: Span<u256>
-    ) {
+    ) -> BridgeRequest {
         // TODO: is that correct? The deposit_tokens is called from user's account contract?
         let from = starknet::get_caller_address();
         let to = starknet::get_contract_address();
@@ -196,7 +201,20 @@ mod Bridge {
 
         let collection_l1_address = _l2_to_l1_addresses::read(collection_l2_address);
 
-        // TODO: Send BridgeRequest to L1.
+        BridgeRequest {
+            // TODO: define the header content.
+            header: 1,
+            req_hash,
+            collection_l1_address,
+            collection_l2_address,
+            collection_name,
+            collection_symbol,
+            // TODO: to be defined with interfaces detection.
+            collection_contract_type: 'ERC721',
+            owner_l1_address,
+            owner_l2_address: from,
+            tokens: tokens.span(),
+        }
     }
 
     /// Sets the default class hash to be deployed when the

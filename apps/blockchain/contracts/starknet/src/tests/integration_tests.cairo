@@ -169,8 +169,18 @@ fn deposit_token_from_l2() {
     collection.set_approval_for_all(bridge_addr, true);
 
     // Now we can deposit.
-    bridge.deposit_tokens(collection_l2_addr, DUO_OWNER_L1, tokens.span());
+    let req = bridge.deposit_tokens(0x123, collection_l2_addr, DUO_OWNER_L1, tokens.span());
 
     assert(bridge.is_token_escrowed(collection_l2_addr, TOKEN_ID), 'escrowed expected');
     assert(collection.owner_of(TOKEN_ID) == bridge_addr, 'bridge ownership expected');
+
+    assert(req.header == 1, 'req header');
+    assert(req.req_hash == 0x123, 'req hash');
+    // The collection wasn't mapped from L1, so it must be 0.
+    assert(req.collection_l1_address == 0, 'req c_l1_addr');
+    assert(req.collection_l2_address == collection_l2_addr, 'req c_l2_addr');
+    assert(req.collection_contract_type == 'ERC721', 'req contract type');
+    assert(req.owner_l1_address == DUO_OWNER_L1, 'req o_l1_addr');
+    assert(req.owner_l2_address == DUO_OWNER_L2, 'req o_l2_addr');
+    assert(req.tokens.len() == 1, 'req tokens len');
 }
