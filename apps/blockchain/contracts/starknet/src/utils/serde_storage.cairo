@@ -2,11 +2,8 @@
 ///! as currently Cairo compiler is blocking the Storage read
 ///! if it's a user define struct.
 ///!
-///! Work inspired from https://github.com/dojoengine/dojo
-///!
-///! Here is the related compiler code that must be understood
-///! to ensure we don't conflict with storage variables.
-///! https://github.com/starkware-libs/cairo/blob/05d4a9ec46885ac199025f829c9458989c1ddbba/crates/cairo-lang-starknet/src/plugin/storage.rs#L13
+///! Work inspired from https://github.com/dojoengine/dojo and the compiler
+///! storage handling: https://github.com/starkware-libs/cairo/blob/05d4a9ec46885ac199025f829c9458989c1ddbba/crates/cairo-lang-starknet/src/plugin/storage.rs#L13
 ///!
 ///! When we use a Storage struct, the compiler is generating
 ///! the key by computed the starknet_keccak of the name of the field.
