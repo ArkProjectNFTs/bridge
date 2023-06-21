@@ -2,6 +2,7 @@ import { type Config } from "tailwindcss";
 
 export default {
   content: ["./**/*.{js,ts,jsx,tsx}"],
+  darkMode: "class",
   theme: {
     extend: {
       // TODO @YohanTz: Move the colors object away from the extend property once all colors are defined
