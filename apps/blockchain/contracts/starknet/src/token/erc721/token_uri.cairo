@@ -17,6 +17,7 @@
 ///! URI are composed of a pre-determined set of characters,
 ///! which are all supported by cairo short string.
 
+use debug::PrintTrait;
 use serde::Serde;
 use array::{ArrayTrait, SpanTrait};
 use integer::{U8IntoFelt252, U32IntoFelt252, Felt252TryIntoU32};
@@ -86,7 +87,9 @@ fn token_uri_to_storage(storage_key: felt252, token_id: u256, token_uri: @TokenU
 
     let mut offset = 0_u8;
 
-    serde_storage::set(keys, offset, (*token_uri.len).into());
+    let len = (*token_uri.len).into();
+
+    serde_storage::set(keys, offset, len);
     offset += 1;
     serde_storage::set_many(keys, offset, *token_uri.content);
 }

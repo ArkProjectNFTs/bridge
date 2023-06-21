@@ -42,13 +42,9 @@ const ADDRESS_DOMAIN: u32 = 0;
 /// Get a single value from storage from the given key.
 fn get(keys: Span<felt252>, offset: u8) -> Option<felt252> {
     let keys_hash = poseidon_hash_span(keys);
-    //keys_hash.print();
 
     let base = starknet::storage_base_address_from_felt252(keys_hash);
 
-    offset.print();
-
-    // TODO: change for Result?
     match starknet::storage_read_syscall(
         ADDRESS_DOMAIN,
         starknet::storage_address_from_base_and_offset(base, offset)
@@ -60,19 +56,17 @@ fn get(keys: Span<felt252>, offset: u8) -> Option<felt252> {
 
 fn get_many(keys: Span<felt252>, offset: u8, length: usize) -> Span<felt252> {
     let keys_hash = poseidon_hash_span(keys);
-    //keys_hash.print();
 
     let base = starknet::storage_base_address_from_felt252(keys_hash);
+
+    let target_offset = length + offset.into();
 
     let mut value = ArrayTrait::new();
     let mut offset = offset;
     loop {
-        if length == offset.into() {
+        if offset.into() == target_offset {
             break ();
         }
-
-        'fff'.print();
-        offset.print();
 
         // TODO: check here how to abort the loop if the key is not found?
         value.append(
@@ -90,7 +84,6 @@ fn get_many(keys: Span<felt252>, offset: u8, length: usize) -> Span<felt252> {
 
 fn set(keys: Span<felt252>, offset: u8, value: felt252) {
     let keys_hash = poseidon_hash_span(keys);
-    //keys_hash.print();
 
     let base = starknet::storage_base_address_from_felt252(keys_hash);
 
@@ -99,11 +92,11 @@ fn set(keys: Span<felt252>, offset: u8, value: felt252) {
         starknet::storage_address_from_base_and_offset(base, offset),
         value
     );
+
 }
 
 fn set_many(keys: Span<felt252>, offset: u8, mut value: Span<felt252>) {
     let keys_hash = poseidon_hash_span(keys);
-    //keys_hash.print();
 
     let base = starknet::storage_base_address_from_felt252(keys_hash);
 

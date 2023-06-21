@@ -265,8 +265,15 @@ mod tests {
         collection.mint_with_uri(NEW_DUO_OWNER, TOKEN_ID, new_uri);
 
         let fetched_uri = collection.token_uri(TOKEN_ID);
-        assert(fetched_uri.len == 1, 'Bad uri len');
+        assert(fetched_uri.len == 1_usize, 'Bad uri len');
         assert(*fetched_uri.content[0] == 'https:...', 'Bad uri content');
+
+        // Test that the storage is well separated by contract address.
+        // Calling collection2 token uri will revert saying Invalid Token ID,
+        // this is what we are expecting.
+        // let collection2_addr = deploy('everai duo 2', 'DUO2', BRIDGE, COLLECTION_OWNER);
+        // let collection2 = IERC721BridgeableDispatcher { contract_address: collection2_addr };
+        // collection2.token_uri(TOKEN_ID);
     }
 
     /// Should mint token from bridge call.
