@@ -72,7 +72,7 @@ function RootLayout({ children }: { children: React.ReactNode }) {
       className={`${arkProjectFont.variable} ${styreneAFont.variable}`}
     >
       <body
-        className={`min-h-screen bg-neutral-50 text-sky-950 dark:bg-black dark:text-white ${targetChain}`}
+        className={`min-h-screen bg-neutral-50 text-dark-blue-950 dark:bg-[#0e2230] dark:text-white ${targetChain}`}
       >
         <Providers>
           <Header />

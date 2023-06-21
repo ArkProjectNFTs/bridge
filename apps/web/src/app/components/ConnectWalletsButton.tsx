@@ -15,7 +15,7 @@ export default function ConnectWalletsButton() {
   return (
     <>
       <button
-        className="mx-auto mb-23 mt-12 flex items-center gap-2.5 rounded-full bg-sky-950 px-6 py-5"
+        className="mx-auto mb-23 mt-12 flex items-center gap-2.5 rounded-full bg-dark-blue-950 px-6 py-5"
         onClick={openModal}
       >
         <Image

@@ -26,16 +26,16 @@ export default function NftCard({
     <div className="relative w-full">
       {cardType === "collection" && (
         <>
-          <div className="absolute inset-0 z-[-1] -translate-x-1 translate-y-1 rounded-2xl border border-neutral-200 bg-white" />
-          <div className="absolute inset-0 z-[-2] -translate-x-2 translate-y-2 rounded-2xl border border-neutral-200 bg-white" />
+          <div className="absolute inset-0 z-[-1] -translate-x-1 translate-y-1 rounded-2xl border border-neutral-200 bg-white dark:bg-dark-blue-900" />
+          <div className="absolute inset-0 z-[-2] -translate-x-2 translate-y-2 rounded-2xl border border-neutral-200 bg-white dark:bg-dark-blue-900" />
         </>
       )}
       {/* TODO @YohanTz: handle focus visible style properly */}
       <button
-        className={`h-full w-full overflow-hidden rounded-2xl border bg-white p-3 ${
+        className={`h-full w-full overflow-hidden rounded-2xl border bg-white p-3 dark:bg-dark-blue-900 ${
           isSelected && cardType === "nft"
             ? "border-primary-300 outline outline-1 outline-primary-300"
-            : "border-neutral-300"
+            : "border-neutral-300 dark:border-dark-blue-800"
         } ${isSelected && cardType === "nft" ? "" : ""}`}
         onClick={onClick}
       >

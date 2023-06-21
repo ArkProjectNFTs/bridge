@@ -7,7 +7,7 @@ import {
 } from "../helpers";
 import { useMemo } from "react";
 import ConnectModal from "./ConnectModal";
-import { useIsSSR } from "~/hooks/useIsSSR";
+import { useIsSSR } from "~/app/hooks/useIsSSR";
 import { Typography } from "design-system";
 
 interface ConnectEthereumButtonProps {
@@ -37,7 +37,7 @@ export default function ConnectEthereumButton({
   return (
     <>
       <button
-        className="flex items-center gap-2.5 rounded-full bg-sky-950 px-3 py-2 text-sm font-semibold text-white"
+        className="flex items-center gap-2.5 rounded-full bg-dark-blue-950 px-3 py-2 text-sm font-semibold text-white"
         onClick={() => onOpenModalChange(!isModalOpen)}
       >
         <Typography variant="body_text_bold_14">
@@ -60,7 +60,7 @@ export default function ConnectEthereumButton({
               height={28}
               width={28}
               alt={`${connector.name} logo`}
-              className="-ml-2 rounded-full outline outline-2 outline-sky-950"
+              className="-ml-2 rounded-full outline outline-2 outline-dark-blue-950"
             />
           )}
         </div>

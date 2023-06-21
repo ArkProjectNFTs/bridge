@@ -11,7 +11,7 @@ import {
 } from "../helpers";
 import TargetChainButton from "./TargetChainButton";
 import { useMemo } from "react";
-import { useIsSSR } from "~/hooks/useIsSSR";
+import { useIsSSR } from "~/app/hooks/useIsSSR";
 import { IconButton, Typography } from "design-system";
 import { XMarkIcon } from "@heroicons/react/24/solid";
 
@@ -129,7 +129,7 @@ export default function NftTransferDrawer({
   return (
     <div className="mr-3 w-[21.875rem] shrink-0">
       {/* TODO @YohanTz: Extract magic values like this somewhere (top-[5.75rem]) */}
-      <div className="fixed bottom-0 right-0 top-[5.75rem] m-3 flex w-[21.875rem] shrink-0 flex-col rounded-2xl border border-neutral-100 bg-white px-5 pb-5 pt-8 dark:bg-black">
+      <div className="fixed bottom-0 right-0 top-[5.75rem] m-3 flex w-[21.875rem] shrink-0 flex-col rounded-2xl border border-neutral-100 bg-white px-5 pb-5 pt-8 dark:border-none dark:bg-dark-blue-900">
         <Typography variant="heading_light_xxs" component="h2">
           Your assets to transfer
         </Typography>
@@ -200,7 +200,7 @@ export default function NftTransferDrawer({
           You must approve the selection of your assets before confirming the
           migration. Each collection will require a signature via your wallet.
         </Typography>
-        <button className="mt-8 w-full rounded-full bg-sky-950 p-3 text-sm text-white">
+        <button className="mt-8 w-full rounded-full bg-dark-blue-950 p-3 text-sm text-white">
           <Typography variant="body_text_bold_14">
             Approve the selected Nfts
           </Typography>

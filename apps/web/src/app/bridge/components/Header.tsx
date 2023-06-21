@@ -10,7 +10,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useAccount as useStarknetAccount } from "@starknet-react/core";
 import { useAccount as useEthereumAccount } from "wagmi";
 import Image from "next/image";
-import DarkModeButton from "~/app/components/DarkmodeButton";
+import DarkModeButton from "~/app/components/DarkModeButton";
 
 const connectedPages = [
   { name: "Portfolio", path: "/portfolio" },
@@ -59,7 +59,7 @@ export default function Header() {
   }
 
   return (
-    <header className="fixed z-20 flex h-23 w-full items-center justify-between border-b border-neutral-50 bg-white p-6 dark:bg-black">
+    <header className="fixed z-20 flex h-23 w-full items-center  justify-between bg-white p-6 dark:bg-[#0e2230]">
       <Link href="/">
         <Typography variant="logo">starklane</Typography>
       </Link>
