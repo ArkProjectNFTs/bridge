@@ -19,7 +19,7 @@
 
 use serde::Serde;
 use array::{ArrayTrait, SpanTrait};
-use integer::{U8IntoFelt252, U32IntoFelt252};
+use integer::{U8IntoFelt252, U32IntoFelt252, Felt252TryIntoU32};
 
 use traits::{Into, TryInto};
 use option::OptionTrait;
@@ -32,7 +32,10 @@ use starknet::{ContractAddress, SyscallResult, StorageAccess, StorageBaseAddress
 // extern type StorageBaseAddress;
 
 // TODO(glihm): Remove this on new version of compiler.
-use starklane::utils::serde::SpanSerde;
+use starklane::utils::{
+    serde::SpanSerde,
+    serde_storage
+};
 
 /// Token URI represented internally as a list of short string.
 ///
@@ -71,6 +74,46 @@ fn uri_from_collection_call(
 
 
     Option::None(())
+}
+
+/// Stores a TokenURI into a storage for the given token id.
+fn token_uri_to_storage(storage_key: felt252, token_id: u256, token_uri: @TokenURI) {
+    let mut _keys: Array<felt252> = ArrayTrait::new();
+    _keys.append(storage_key);
+    _keys.append(token_id.try_into().expect('Token id out of range'));
+
+    let keys = _keys.span();
+
+    let mut offset = 0_u8;
+
+    serde_storage::set(keys, offset, (*token_uri.len).into());
+    offset += 1;
+    serde_storage::set_many(keys, offset, *token_uri.content);
+}
+
+/// Retrieves a TokenURI from storage for the given token id.
+fn token_uri_from_storage(storage_key: felt252, token_id: u256) -> TokenURI{
+    let mut _keys: Array<felt252> = ArrayTrait::new();
+    _keys.append(storage_key);
+    _keys.append(token_id.try_into().expect('Token id out of range'));
+
+    let keys = _keys.span();
+
+    let mut offset = 0_u8;
+
+    let len: usize = serde_storage::get(keys, offset)
+        .expect('Token ID invalid')
+        .try_into()
+    // Always comes from TokenURI, the unwrap should be safe.
+        .unwrap();
+
+    offset += 1;
+    let content = serde_storage::get_many(keys, offset, len);
+
+    TokenURI {
+        len,
+        content
+    }
 }
 
 /// Serde implementation for TokenURI.

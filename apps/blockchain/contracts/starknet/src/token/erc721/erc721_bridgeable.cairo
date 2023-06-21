@@ -16,7 +16,10 @@ mod ERC721Bridgeable {
     use zeroable::Zeroable;
     use option::OptionTrait;
 
-    use starklane::token::erc721::{TokenURI, StorageAccessTokenURI, Felt252IntoTokenURI};
+    use starklane::token::erc721::{TokenURI, Felt252IntoTokenURI};
+    use starklane::token::erc721;
+
+    const TOKEN_URI_STORAGE_KEY: felt252 = 0x02d07e6382159ff0f968cba39fe4bab5a235b914d9e4d8730955c0f54f24f433;
 
     struct Storage {
         _bridge_addr: ContractAddress,
@@ -26,7 +29,6 @@ mod ERC721Bridgeable {
         _owners: LegacyMap<u256, ContractAddress>,
         _operator_approvals: LegacyMap<(ContractAddress, ContractAddress), bool>,
         _token_approvals: LegacyMap<u256, ContractAddress>,
-        _token_uri: LegacyMap<u256, TokenURI>,
     }
 
     #[constructor]
@@ -86,8 +88,7 @@ mod ERC721Bridgeable {
     #[view]
     fn token_uri(token_id: u256) -> TokenURI {
         assert(_exists(token_id), 'ERC721: invalid token ID');
-        //let token_uri = _token_uri::read(token_id); << can't do that.. x( Need custom storage.
-        'ahaha'.into()
+        erc721::token_uri_from_storage(TOKEN_URI_STORAGE_KEY, token_id)
     }
 
     //
@@ -102,11 +103,10 @@ mod ERC721Bridgeable {
         _mint(to, token_id);
     }
 
-    #[cfg(test)]
     #[external]
     fn mint_with_uri(to: ContractAddress, token_id: u256, token_uri: TokenURI) {
         _mint(to, token_id);
-        //_token_uri::write(token_id, token_uri);
+        erc721::token_uri_to_storage(TOKEN_URI_STORAGE_KEY, token_id, @token_uri);
     }
 
     #[external]
@@ -206,7 +206,7 @@ mod tests {
     use starknet::class_hash::Felt252TryIntoClassHash;
     use starknet::{ContractAddress,ClassHash};
 
-    use starklane::token::erc721::{TokenURI, StorageAccessTokenURI, Felt252IntoTokenURI};
+    use starklane::token::erc721::{TokenURI, Felt252IntoTokenURI};
 
     use starknet::testing;
 
@@ -264,9 +264,9 @@ mod tests {
         let new_uri: TokenURI = 'https:...'.into();
         collection.mint_with_uri(NEW_DUO_OWNER, TOKEN_ID, new_uri);
 
-        // let fetched_uri = collection.token_uri(TOKEN_ID);
-        // assert(fetched_uri.len == 1, 'Bad uri len');
-        // assert(*fetched_uri.content[0] == 'https:...', 'Bad uri content');
+        let fetched_uri = collection.token_uri(TOKEN_ID);
+        assert(fetched_uri.len == 1, 'Bad uri len');
+        assert(*fetched_uri.content[0] == 'https:...', 'Bad uri content');
     }
 
     /// Should mint token from bridge call.
