@@ -21,6 +21,11 @@ export default {
         "styrene-a": ["var(--font-styrene-a)"],
         "ark-project": ["var(--font-ark-project)"],
       },
+      spacing: {
+        "13": "3.25rem",
+        "15.5": "3.875rem",
+        "23": "5.75rem",
+      },
     },
   },
   plugins: [],

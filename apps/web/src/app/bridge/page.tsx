@@ -19,8 +19,8 @@ export default function Page() {
 
   return (
     <div className="flex">
-      <main className="mx-auto mt-[8.125rem] w-full max-w-7xl px-4 text-center">
-        <Typography component="h1" variant="heading_light_l">
+      <main className="mx-auto mt-[5.875rem] w-full max-w-7xl px-4 text-center">
+        <Typography component="h1" variant="heading_light_l" className="mt-13">
           Where do you want to move
           <br />
           your digital goods?

@@ -125,7 +125,7 @@ export default function NftTransferDrawer({
   return (
     <div className="mr-3 w-[21.875rem] shrink-0">
       {/* TODO @YohanTz: Extract magic values like this somewhere (top-[5.75rem]) */}
-      <div className="fixed bottom-0 right-0 top-[5.75rem] m-3 flex w-[21.875rem] shrink-0 flex-col rounded-2xl border border-neutral-100 bg-white p-5">
+      <div className="fixed bottom-0 right-0 top-[5.75rem] m-3 flex w-[21.875rem] shrink-0 flex-col rounded-2xl border border-neutral-100 bg-white px-5 pb-5 pt-8">
         <Typography variant="heading_light_xxs" component="h2">
           Your assets to transfer
         </Typography>

@@ -66,7 +66,7 @@ export default function ConnectEthereumButton({
         </div>
       </button>
       <ConnectModal
-        chain="Ethereum"
+        initialChain="Ethereum"
         isOpen={isModalOpen}
         onOpenChange={onOpenModalChange}
       />

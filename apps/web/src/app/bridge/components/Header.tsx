@@ -83,13 +83,13 @@ export default function Header() {
         <div className="flex gap-4">
           <ConnectEthereumButton
             isModalOpen={openedModal === "Ethereum"}
-            onOpenModalChange={(open: boolean) => {
+            onOpenModalChange={(open) => {
               open ? openModal("Ethereum") : closeModal();
             }}
           />
           <ConnectStarkNetButton
             isModalOpen={openedModal === "Starknet"}
-            onOpenModalChange={(open: boolean) => {
+            onOpenModalChange={(open) => {
               open ? openModal("Starknet") : closeModal();
             }}
           />
