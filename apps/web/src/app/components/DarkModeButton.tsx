@@ -8,7 +8,6 @@ export default function DarkModeButton() {
   const { theme, setTheme } = useTheme();
 
   function toggleTheme() {
-    console.log(theme);
     if (theme === "light") {
       setTheme("dark");
       return;
