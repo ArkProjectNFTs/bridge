@@ -1,7 +1,8 @@
-import { useConnect as useEthereumConnect } from "wagmi";
 import { useConnectors as useStarknetConnect } from "@starknet-react/core";
-import { type Chain } from "../bridge/helpers";
 import { useEffect } from "react";
+import { useConnect as useEthereumConnect } from "wagmi";
+
+import { type Chain } from "../bridge/helpers";
 
 export default function useConnectFromChain(chain: Chain) {
   const { connect: ethereumConnect, connectors: ethereumConnectors } =
@@ -27,10 +28,10 @@ export default function useConnectFromChain(chain: Chain) {
       connectors: ethereumConnectors.map((connector) => {
         {
           return {
-            id: connector.id,
             connect() {
               ethereumConnect({ connector });
             },
+            id: connector.id,
           };
         }
       }),
@@ -39,10 +40,10 @@ export default function useConnectFromChain(chain: Chain) {
       connectors: starknetConnectors.map((connector) => {
         {
           return {
-            id: connector.id(),
             connect() {
               starknetConnect(connector);
             },
+            id: connector.id(),
           };
         }
       }),

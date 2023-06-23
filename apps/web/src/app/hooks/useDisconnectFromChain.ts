@@ -1,5 +1,6 @@
-import { useDisconnect as useEthereumDisconnect } from "wagmi";
 import { useConnectors as useStarknetConnectors } from "@starknet-react/core";
+import { useDisconnect as useEthereumDisconnect } from "wagmi";
+
 import { type Chain } from "../bridge/helpers";
 
 export default function useDisconnectFromChain(chain: Chain) {

@@ -1,6 +1,7 @@
-import { useLocalStorage } from "usehooks-ts";
-import { type Chain } from "../helpers";
 import Image from "next/image";
+import { useLocalStorage } from "usehooks-ts";
+
+import { type Chain } from "../helpers";
 
 interface TargetChainButtonProps {
   orientation: "horizontal" | "vertical";
@@ -27,10 +28,10 @@ export default function TargetChainButton({
         onClick={toggle}
       >
         <Image
-          src="/icons/arrows.svg"
-          height={26}
-          width={26}
           alt="Change bridge target icon"
+          height={26}
+          src="/icons/arrows.svg"
+          width={26}
         />
       </button>
     </div>

@@ -1,14 +1,16 @@
-import { useAccount, useEnsName } from "wagmi";
+import { Typography } from "design-system";
 import Image from "next/image";
+import { useMemo } from "react";
+import { useAccount, useEnsName } from "wagmi";
+
+import { useIsSSR } from "~/app/hooks/useIsSSR";
+
 import {
   CHAIN_LOGOS_BY_NAME,
   DEFAULT_ETHEREUM_CONNECTOR_LOGO,
   WALLET_LOGOS_BY_ID,
 } from "../helpers";
-import { useMemo } from "react";
 import ConnectModal from "./ConnectModal";
-import { useIsSSR } from "~/app/hooks/useIsSSR";
-import { Typography } from "design-system";
 
 interface ConnectEthereumButtonProps {
   isModalOpen: boolean;
@@ -20,7 +22,7 @@ export default function ConnectEthereumButton({
   onOpenModalChange,
 }: ConnectEthereumButtonProps) {
   const isSSR = useIsSSR();
-  const { address, isConnected, connector } = useAccount();
+  const { address, connector, isConnected } = useAccount();
   const { data: ensName } = useEnsName({
     address: address,
   });
@@ -45,10 +47,10 @@ export default function ConnectEthereumButton({
         </Typography>
         <div className="flex">
           <Image
-            src={CHAIN_LOGOS_BY_NAME.Ethereum}
-            height={28}
-            width={28}
             alt="Ethereum logo"
+            height={28}
+            src={CHAIN_LOGOS_BY_NAME.Ethereum}
+            width={28}
           />
 
           {connector !== undefined && (
@@ -57,10 +59,10 @@ export default function ConnectEthereumButton({
                 WALLET_LOGOS_BY_ID[connector.id] ??
                 DEFAULT_ETHEREUM_CONNECTOR_LOGO
               }
-              height={28}
-              width={28}
               alt={`${connector.name} logo`}
               className="-ml-2 rounded-full outline outline-2 outline-dark-blue-950"
+              height={28}
+              width={28}
             />
           )}
         </div>

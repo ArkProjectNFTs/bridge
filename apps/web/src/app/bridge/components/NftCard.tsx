@@ -41,12 +41,12 @@ export default function NftCard({
       >
         {/* TODO @YohanTz: Handle images with different sizes */}
         <Image
+          alt={title}
+          className="w-full rounded-lg"
+          height={300}
           // TODO @YohanTz: Handle no image case
           src={image ?? ""}
-          alt={title}
           width={300}
-          height={300}
-          className="w-full rounded-lg"
         />
         <div className="mt-3 text-left">
           <div className="flex items-center justify-between">

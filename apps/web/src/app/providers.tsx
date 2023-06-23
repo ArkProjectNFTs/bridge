@@ -1,13 +1,11 @@
 "use client";
 
+import { StarknetConfig } from "@starknet-react/core";
+import { ThemeProvider } from "next-themes";
 import { WagmiConfig, configureChains, createConfig } from "wagmi";
 import { goerli } from "wagmi/chains";
-import {
-  InjectedConnector as InjectedStarknetConnector,
-  StarknetConfig,
-} from "@starknet-react/core";
 import { publicProvider } from "wagmi/providers/public";
-import { ThemeProvider } from "next-themes";
+
 import { ethereumConnectors, starknetConnectors } from "./connectors";
 
 const { publicClient, webSocketPublicClient } = configureChains(
@@ -17,9 +15,9 @@ const { publicClient, webSocketPublicClient } = configureChains(
 
 const wagmiConfig = createConfig({
   autoConnect: true,
+  connectors: ethereumConnectors,
   publicClient,
   webSocketPublicClient,
-  connectors: ethereumConnectors,
 });
 
 interface ProvidersProps {
@@ -28,7 +26,7 @@ interface ProvidersProps {
 
 export default function Providers({ children }: ProvidersProps) {
   return (
-    <StarknetConfig connectors={starknetConnectors} autoConnect>
+    <StarknetConfig autoConnect connectors={starknetConnectors}>
       <WagmiConfig config={wagmiConfig}>
         <ThemeProvider attribute="class">{children}</ThemeProvider>
       </WagmiConfig>

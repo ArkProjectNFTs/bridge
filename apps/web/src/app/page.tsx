@@ -1,19 +1,19 @@
 import { Typography } from "design-system";
 import Image from "next/image";
-import ConnectWalletsButton from "./components/ConnectWalletsButton";
 
 import emptyCard1 from "../../public/medias/empty_card_1.png";
 import emptyCard2 from "../../public/medias/empty_card_2.png";
 import emptyCard3 from "../../public/medias/empty_card_3.png";
 import emptyCard4 from "../../public/medias/empty_card_4.png";
 import emptyCard5 from "../../public/medias/empty_card_5.png";
+import ConnectWalletsButton from "./components/ConnectWalletsButton";
 
 const empty_cards = [
-  { src: emptyCard1, alt: "empty Nft card 1" },
-  { src: emptyCard2, alt: "empty Nft card 2" },
-  { src: emptyCard3, alt: "empty Nft card 3" },
-  { src: emptyCard4, alt: "empty Nft card 4" },
-  { src: emptyCard5, alt: "empty Nft card 5" },
+  { alt: "empty Nft card 1", src: emptyCard1 },
+  { alt: "empty Nft card 2", src: emptyCard2 },
+  { alt: "empty Nft card 3", src: emptyCard3 },
+  { alt: "empty Nft card 4", src: emptyCard4 },
+  { alt: "empty Nft card 5", src: emptyCard5 },
 ];
 
 export default function Page() {
@@ -22,9 +22,9 @@ export default function Page() {
       {/* TODO @YohanTz: Extract magic values like this somewhere (top-[5.75rem]) */}
       <main className="mx-auto mt-[5.875rem] w-full max-w-7xl px-4 text-center">
         <Typography
+          className="mt-15.5"
           component="h1"
           variant="heading_light_l"
-          className="mt-15.5"
         >
           Connect your wallets
           <br />
@@ -38,17 +38,17 @@ export default function Page() {
             {empty_cards.map((card) => {
               return (
                 <Image
-                  key={card.alt}
-                  height={208}
-                  width={182}
                   alt={card.alt}
-                  src={card.src}
                   className="display-none h-auto w-full"
+                  height={208}
+                  key={card.alt}
+                  src={card.src}
+                  width={182}
                 />
               );
             })}
           </div>
-          <Typography component="p" variant="body_text_20" className="mt-16">
+          <Typography className="mt-16" component="p" variant="body_text_20">
             In this space, you can explore and enjoy your digital treasures from
             any blockchain.
           </Typography>

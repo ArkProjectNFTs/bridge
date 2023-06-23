@@ -1,9 +1,10 @@
+import { Typography } from "design-system";
+import { useState } from "react";
 import { useAccount } from "wagmi";
+
 import { api } from "~/utils/api";
 
-import { useState } from "react";
 import NftCard from "./NftCard";
-import { Typography } from "design-system";
 
 interface TokenListProps {
   selectedNftIds: Array<string>;
@@ -102,9 +103,9 @@ export default function TokenList({
 
                   return (
                     <NftCard
-                      isSelected={isSelected}
                       cardType="collection"
                       image={nfts[0]?.image}
+                      isSelected={isSelected}
                       key={collectionName}
                       numberOfNfts={nfts.length}
                       onClick={() => handleCollectionClick(collectionName)}

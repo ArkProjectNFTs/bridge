@@ -4,19 +4,19 @@ export default function Header() {
   return (
     <div className="sticky top-[100vh] w-full px-8 py-8">
       <a
-        href="https://www.screenshot.co"
-        target="_blank"
-        rel="noopener noreferrer"
         className="flex items-center text-sm"
+        href="https://www.screenshot.co"
+        rel="noopener noreferrer"
+        target="_blank"
       >
         Built by{" "}
         <Image
-          src="/logos/screenshot.svg"
           alt="Screenshot Logo"
           className="ml-1"
-          width={20}
           height={20}
           priority
+          src="/logos/screenshot.svg"
+          width={20}
         />
       </a>
     </div>

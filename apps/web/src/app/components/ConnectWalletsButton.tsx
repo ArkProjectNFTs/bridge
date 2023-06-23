@@ -1,8 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import { Typography } from "design-system";
+import Image from "next/image";
 import { useState } from "react";
+
 import ConnectModal from "../bridge/components/ConnectModal";
 
 export default function ConnectWalletsButton() {
@@ -19,19 +20,19 @@ export default function ConnectWalletsButton() {
         onClick={openModal}
       >
         <Image
-          src="/icons/wallet_small.svg"
-          height={32}
-          width={32}
           alt="wallet icon"
+          height={32}
+          src="/icons/wallet_small.svg"
+          width={32}
         />
-        <Typography variant="body_text_bold_16" className="text-white">
+        <Typography className="text-white" variant="body_text_bold_16">
           Connect wallets
         </Typography>
       </button>
       <ConnectModal
+        isOpen={isModalOpen}
         // key used to reset the internal states of ConnectModal when isModalOpen changes
         key={isModalOpen ? "open" : "closed"}
-        isOpen={isModalOpen}
         onOpenChange={(open) => setIsModalOpen(open)}
       />
     </>
