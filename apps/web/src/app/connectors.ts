@@ -1,8 +1,7 @@
-import { InjectedConnector as InjectedEthereumConnector } from "wagmi/connectors/injected";
+import { InjectedConnector as InjectedStarknetConnector } from "@starknet-react/core";
 // import { WalletConnectConnector } from "wagmi/connectors/walletConnect";
 import { CoinbaseWalletConnector } from "wagmi/connectors/coinbaseWallet";
-
-import { InjectedConnector as InjectedStarknetConnector } from "@starknet-react/core";
+import { InjectedConnector as InjectedEthereumConnector } from "wagmi/connectors/injected";
 
 /*
  * TODO @YohanTz: Handle Wallet Connect

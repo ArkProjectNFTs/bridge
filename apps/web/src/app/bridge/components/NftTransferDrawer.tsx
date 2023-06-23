@@ -1,19 +1,20 @@
-import Image from "next/image";
-import { useAccount as useEthereumAccount } from "wagmi";
+import { XMarkIcon } from "@heroicons/react/24/solid";
 import { useAccount as useStarknetAccount } from "@starknet-react/core";
+import { IconButton, Typography } from "design-system";
+import Image from "next/image";
+import { useMemo } from "react";
+import { useAccount as useEthereumAccount } from "wagmi";
 
+import { useIsSSR } from "~/app/hooks/useIsSSR";
 import { api } from "~/utils/api";
+
 import {
   CHAIN_LOGOS_BY_NAME,
-  WALLET_LOGOS_BY_ID,
-  type Chain,
   CONNECTOR_LABELS_BY_ID,
+  type Chain,
+  WALLET_LOGOS_BY_ID,
 } from "../helpers";
 import TargetChainButton from "./TargetChainButton";
-import { useMemo } from "react";
-import { useIsSSR } from "~/app/hooks/useIsSSR";
-import { IconButton, Typography } from "design-system";
-import { XMarkIcon } from "@heroicons/react/24/solid";
 
 interface ChainTransferSummaryProps {
   chain: Chain;
@@ -39,16 +40,16 @@ function ChainTransferSummary({
     >
       <div className="flex items-center gap-3">
         <Image
-          src={CHAIN_LOGOS_BY_NAME[chain]}
-          height={42}
-          width={42}
           alt={`${chain} logo`}
+          height={42}
+          src={CHAIN_LOGOS_BY_NAME[chain]}
+          width={42}
         />
         <div>
           <span className="rounded-md bg-neutral-200 p-1 text-xs font-semibold">
             {isTargetChain ? "To" : "From"}
           </span>
-          <Typography variant="body_text_14" component="div">
+          <Typography component="div" variant="body_text_14">
             {chain}
           </Typography>
         </div>
@@ -56,16 +57,16 @@ function ChainTransferSummary({
       {!isSSR && connectorId !== undefined && (
         <div className="flex items-center gap-3">
           <Image
-            src={WALLET_LOGOS_BY_ID[connectorId] ?? ""}
-            height={42}
-            width={42}
             alt={`${CONNECTOR_LABELS_BY_ID[connectorId] ?? ""} logo`}
+            height={42}
+            src={WALLET_LOGOS_BY_ID[connectorId] ?? ""}
+            width={42}
           />
           <div>
             <span className="rounded-md bg-neutral-200 p-1 text-xs font-semibold">
               Wallet
             </span>
-            <Typography variant="body_text_14" component="div">
+            <Typography component="div" variant="body_text_14">
               {shortAddress}
             </Typography>
           </div>
@@ -99,7 +100,7 @@ export default function NftTransferDrawer({
     { enabled: ethereumAddress !== undefined }
   );
 
-  function OnNftDelete(nftId: string) {
+  function onNftDelete(nftId: string) {
     setSelectedNftIds(
       selectedNftIds.filter((selectedNftId) => selectedNftId !== nftId)
     );
@@ -130,10 +131,10 @@ export default function NftTransferDrawer({
     <div className="mr-3 w-[21.875rem] shrink-0">
       {/* TODO @YohanTz: Extract magic values like this somewhere (top-[5.75rem]) */}
       <div className="fixed bottom-0 right-0 top-[5.75rem] m-3 flex w-[21.875rem] shrink-0 flex-col rounded-2xl border border-neutral-100 bg-white px-5 pb-5 pt-8 dark:border-none dark:bg-dark-blue-900">
-        <Typography variant="heading_light_xxs" component="h2">
+        <Typography component="h2" variant="heading_light_xxs">
           Your assets to transfer
         </Typography>
-        <Typography component="p" className="mt-4" variant="body_text_14">
+        <Typography className="mt-4" component="p" variant="body_text_14">
           You need to confirm the transaction in your wallet to start the
           migration.
         </Typography>
@@ -163,11 +164,11 @@ export default function NftTransferDrawer({
               <div className="flex justify-between" key={selectedNft?.id}>
                 <div className="flex items-center gap-4">
                   <Image
-                    src={selectedNft?.image ?? ""}
-                    height={52}
-                    width={52}
                     alt={selectedNft?.title ?? ""}
                     className="rounded"
+                    height={52}
+                    src={selectedNft?.image ?? ""}
+                    width={52}
                   />
                   <div className="flex flex-col">
                     <Typography variant="body_text_14">
@@ -179,8 +180,8 @@ export default function NftTransferDrawer({
                   </div>
                 </div>
                 <IconButton
-                  onClick={() => OnNftDelete(selectedNft?.id ?? "")}
                   icon={<XMarkIcon className="h-5 w-5 text-primary-300" />}
+                  onClick={() => onNftDelete(selectedNft?.id ?? "")}
                 />
               </div>
             );
@@ -194,8 +195,8 @@ export default function NftTransferDrawer({
         </div>
         <Typography
           className="mt-8 rounded-xl bg-purple-100 p-3"
-          variant="body_text_14"
           component="p"
+          variant="body_text_14"
         >
           You must approve the selection of your assets before confirming the
           migration. Each collection will require a signature via your wallet.

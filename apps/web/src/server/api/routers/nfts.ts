@@ -1,6 +1,7 @@
 import { Alchemy, Network } from "alchemy-sdk";
 import { isAddress } from "viem";
 import { z } from "zod";
+
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 
 const alchemy = new Alchemy({
@@ -56,7 +57,7 @@ export const nftsRouter = createTRPCRouter({
         {}
       );
 
-      return { raw: rawNfts, byCollection: nftsByCollection };
+      return { byCollection: nftsByCollection, raw: rawNfts };
     }),
   // getAll: publicProcedure.query(({ ctx }) => {
   //   return ctx.prisma.example.findMany();

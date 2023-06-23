@@ -1,15 +1,16 @@
 import { useAccount } from "@starknet-react/core";
+import { Typography } from "design-system";
 import Image from "next/image";
 import { useMemo } from "react";
 
-import ConnectModal from "./ConnectModal";
+import { useIsSSR } from "~/app/hooks/useIsSSR";
+
 import {
   CHAIN_LOGOS_BY_NAME,
   DEFAULT_STARKNET_CONNECTOR_LOGO,
   WALLET_LOGOS_BY_ID,
 } from "../helpers";
-import { useIsSSR } from "~/app/hooks/useIsSSR";
-import { Typography } from "design-system";
+import ConnectModal from "./ConnectModal";
 
 interface ConnectStarknetButtonProps {
   isModalOpen: boolean;
@@ -22,7 +23,7 @@ export default function ConnectStarknetButton({
 }: ConnectStarknetButtonProps) {
   const isSSR = useIsSSR();
   // Implement onConnect in starknet-react to close the modal on wallet connexion
-  const { address, isConnected, connector } = useAccount();
+  const { address, connector, isConnected } = useAccount();
 
   const shortAddress = useMemo(
     () => (address ? `${address.slice(0, 6)}...${address.slice(-4)}` : ""),
@@ -44,10 +45,10 @@ export default function ConnectStarknetButton({
         </Typography>
         <div className="flex">
           <Image
-            src={CHAIN_LOGOS_BY_NAME.Starknet}
-            height={28}
-            width={28}
             alt="Starknet logo"
+            height={28}
+            src={CHAIN_LOGOS_BY_NAME.Starknet}
+            width={28}
           />
           {connector !== undefined && (
             <Image
@@ -55,10 +56,10 @@ export default function ConnectStarknetButton({
                 WALLET_LOGOS_BY_ID[connector.id()] ??
                 DEFAULT_STARKNET_CONNECTOR_LOGO
               }
-              height={28}
-              width={28}
               alt={`${connector.name()} logo`}
               className="-ml-2 rounded-full outline outline-2 outline-dark-blue-950"
+              height={28}
+              width={28}
             />
           )}
         </div>

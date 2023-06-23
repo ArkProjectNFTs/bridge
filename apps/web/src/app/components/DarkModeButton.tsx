@@ -5,7 +5,7 @@ import { useIsSSR } from "~/app/hooks/useIsSSR";
 
 export default function DarkModeButton() {
   const isSSR = useIsSSR();
-  const { theme, setTheme } = useTheme();
+  const { setTheme, theme } = useTheme();
 
   function toggleTheme() {
     if (theme === "light") {

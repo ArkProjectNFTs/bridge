@@ -1,5 +1,7 @@
 import { useLocalStorage } from "usehooks-ts";
+
 import useAccountFromChain from "~/app/hooks/useAccountFromChain";
+
 import { type Chain } from "../helpers";
 
 export default function useNftSelection(chain: Chain) {
@@ -52,5 +54,5 @@ export default function useNftSelection(chain: Chain) {
     return null;
   }
 
-  return { deleteNft, toggleNftSelection, toggleSelectAll, selectNft };
+  return { deleteNft, selectNft, toggleNftSelection, toggleSelectAll };
 }

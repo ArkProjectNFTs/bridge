@@ -1,16 +1,18 @@
 "use client";
 
-import ConnectStarkNetButton from "./ConnectStarkNetButton";
-import ConnectEthereumButton from "./ConnectEthereumButton";
-import { useEffect, useState } from "react";
-import { type Chain } from "../helpers";
+import { useAccount as useStarknetAccount } from "@starknet-react/core";
 import { Typography } from "design-system";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useAccount as useStarknetAccount } from "@starknet-react/core";
+import { useEffect, useState } from "react";
 import { useAccount as useEthereumAccount } from "wagmi";
-import Image from "next/image";
+
 import DarkModeButton from "~/app/components/DarkModeButton";
+
+import { type Chain } from "../helpers";
+import ConnectEthereumButton from "./ConnectEthereumButton";
+import ConnectStarkNetButton from "./ConnectStarkNetButton";
 
 const connectedPages = [
   { name: "Portfolio", path: "/portfolio" },
@@ -68,12 +70,12 @@ export default function Header() {
           <div className="flex items-center gap-8">
             {connectedPages.map((connectedPage) => {
               return (
-                <Link key={connectedPage.name} href={connectedPage.path}>
+                <Link href={connectedPage.path} key={connectedPage.name}>
                   <Typography
-                    variant="heading_light_xxs"
                     className={
                       pathname === connectedPage.path ? "text-primary-300" : ""
                     }
+                    variant="heading_light_xxs"
                   >
                     {connectedPage.name}
                   </Typography>
@@ -84,22 +86,22 @@ export default function Header() {
         )}
         <div className="flex gap-4">
           <ConnectEthereumButton
-            isModalOpen={openedModal === "Ethereum"}
             onOpenModalChange={(open) => {
               open ? openModal("Ethereum") : closeModal();
             }}
+            isModalOpen={openedModal === "Ethereum"}
           />
           <ConnectStarkNetButton
-            isModalOpen={openedModal === "Starknet"}
             onOpenModalChange={(open) => {
               open ? openModal("Starknet") : closeModal();
             }}
+            isModalOpen={openedModal === "Starknet"}
           />
           <DarkModeButton />
           <Image
-            src="/icons/bridge.svg"
             alt="bridge icon"
             height={32}
+            src="/icons/bridge.svg"
             width={32}
           />
         </div>
