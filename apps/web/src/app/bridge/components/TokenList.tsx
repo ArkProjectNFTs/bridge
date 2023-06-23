@@ -58,6 +58,8 @@ export default function TokenList({
     ? nfts.byCollection[selectedCollectionName] ?? []
     : [];
 
+  const isSelectedAll = selectedCollection.length === selectedNftIds.length;
+
   return (
     <>
       {/* TODO @YohanTz: Export Tabs logic to design system package ? */}
@@ -84,7 +86,9 @@ export default function TokenList({
               className="rounded-md bg-dark-blue-950 p-1.5 font-medium text-white"
               onClick={selectAll}
             >
-              <Typography variant="body_text_bold_14">Select all</Typography>
+              <Typography variant="body_text_bold_14">
+                {isSelectedAll ? "Deselect all" : "Select all"}
+              </Typography>
             </button>
           )}
         </div>

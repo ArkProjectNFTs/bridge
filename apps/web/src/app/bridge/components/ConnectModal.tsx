@@ -1,9 +1,5 @@
-import {
-  useAccount as useStarknetAccount,
-  useConnectors,
-} from "@starknet-react/core";
 import { useAccount as useEthereumAccount } from "wagmi";
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import * as RUIDialog from "@radix-ui/react-dialog";
 
 import Image from "next/image";
@@ -24,13 +20,15 @@ interface ChainButtonProps {
 }
 
 function ChainButton({ chain, onClick }: ChainButtonProps) {
+  const { isConnected, shortAddress } = useAccountFromChain(chain);
+
   return (
     <button
       className="flex w-full items-center justify-between rounded-full bg-dark-blue-950 py-2 pl-3.5 pr-2 text-white"
       onClick={onClick}
     >
       <Typography variant="body_text_bold_14" className="w-full">
-        Connect {chain} wallet
+        {isConnected ? shortAddress : `Connect ${chain} wallet`}
       </Typography>
       <Image
         src={CHAIN_LOGOS_BY_NAME[chain] ?? ""}
@@ -106,7 +104,12 @@ function ConnectorList({ chain }: ConnectorListProps) {
     </>
   ) : (
     <>
-      <Image src="/icons/wallet.svg" height={68} width={68} alt="wallet icon" />
+      <Image
+        src="/medias/wallet.svg"
+        height={80}
+        width={105}
+        alt="wallet icon"
+      />
       <Typography
         variant="heading_light_xxs"
         component={RUIDialog.Title}
@@ -165,9 +168,9 @@ export default function ConnectModal({
       {displayedChain === undefined ? (
         <>
           <Image
-            src="/icons/wallet.svg"
-            height={68}
-            width={68}
+            src="/medias/wallet.svg"
+            height={80}
+            width={105}
             alt="wallet icon"
           />
           <Typography
