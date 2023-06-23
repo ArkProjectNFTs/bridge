@@ -15,7 +15,6 @@ export default function TokenList() {
     selectCollection,
     selectedCollection,
     selectedCollectionName,
-    selectedNftIds,
     toggleNftSelection,
     toggleSelectAll,
   } = useNftSelection("Ethereum");

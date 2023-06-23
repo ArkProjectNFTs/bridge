@@ -1,7 +1,6 @@
 import Image from "next/image";
-import { useLocalStorage } from "usehooks-ts";
 
-import { type Chain } from "../helpers";
+import useTargetChain from "~/app/hooks/useTargetChain";
 
 interface TargetChainButtonProps {
   orientation: "horizontal" | "vertical";
@@ -10,10 +9,7 @@ interface TargetChainButtonProps {
 export default function TargetChainButton({
   orientation,
 }: TargetChainButtonProps) {
-  const [targetChain, setTargetChain] = useLocalStorage<Chain>(
-    "chain",
-    "Ethereum"
-  );
+  const { setTargetChain, targetChain } = useTargetChain();
 
   function toggle() {
     setTargetChain(targetChain === "Ethereum" ? "Starknet" : "Ethereum");

@@ -11,7 +11,7 @@ import { useAccount as useEthereumAccount } from "wagmi";
 import DarkModeButton from "~/app/components/DarkModeButton";
 import { useIsSSR } from "~/app/hooks/useIsSSR";
 
-import { type Chain } from "../helpers";
+import { type Chain } from "../../helpers";
 import useNftSelection from "../hooks/useNftSelection";
 import ConnectEthereumButton from "./ConnectEthereumButton";
 import ConnectStarkNetButton from "./ConnectStarkNetButton";

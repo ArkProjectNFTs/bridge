@@ -1,21 +1,15 @@
 "use client";
 
 import { Typography } from "design-system";
-import { useState } from "react";
-import { useLocalStorage } from "usehooks-ts";
 
+import useTargetChain from "../hooks/useTargetChain";
 import NftTransferDrawer from "./components/NftTransferDrawer";
 import TargetChainSwitch from "./components/TargetChainSwitch";
 import TokenList from "./components/TokenList";
-import { type Chain } from "./helpers";
 
 // TODO @YohanTz: Refactor when the UX is finalized
 export default function Page() {
-  const [selectedNftIds, setSelectedNftIds] = useState<Array<string>>([]);
-  const [targetChain, setTargetChain] = useLocalStorage<Chain>(
-    "chain",
-    "Ethereum"
-  );
+  const { targetChain } = useTargetChain();
 
   return (
     <div className="flex">
@@ -26,10 +20,7 @@ export default function Page() {
           your digital goods?
         </Typography>
 
-        <TargetChainSwitch
-          setTargetChain={setTargetChain}
-          targetChain={targetChain}
-        />
+        <TargetChainSwitch />
 
         <Typography className="mb-20" component="p" variant="body_text_20">
           Select the assets you want to transfer to {targetChain}
@@ -37,11 +28,8 @@ export default function Page() {
 
         <TokenList />
       </main>
-      <NftTransferDrawer
-        selectedNftIds={selectedNftIds}
-        setSelectedNftIds={setSelectedNftIds}
-        targetChain={targetChain}
-      />
+
+      <NftTransferDrawer />
     </div>
   );
 }

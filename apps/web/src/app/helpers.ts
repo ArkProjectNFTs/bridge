@@ -1,12 +1,12 @@
 import { type StaticImageData } from "next/image";
 
-import argentXLogo from "../../../public/logos/argentX.png";
-import braavosLogo from "../../../public/logos/braavos.png";
-import coinbaseLogo from "../../../public/logos/coinbase_wallet.png";
-import ethereumLogo from "../../../public/logos/ethereum.png";
-import metaMaskLogo from "../../../public/logos/metamask.png";
-import starknetLogo from "../../../public/logos/starknet.png";
-import walletConnectLogo from "../../../public/logos/wallet_connect.png";
+import argentXLogo from "../../public/logos/argentX.png";
+import braavosLogo from "../../public/logos/braavos.png";
+import coinbaseLogo from "../../public/logos/coinbase_wallet.png";
+import ethereumLogo from "../../public/logos/ethereum.png";
+import metaMaskLogo from "../../public/logos/metamask.png";
+import starknetLogo from "../../public/logos/starknet.png";
+import walletConnectLogo from "../../public/logos/wallet_connect.png";
 
 export type Chain = "Ethereum" | "Starknet";
 

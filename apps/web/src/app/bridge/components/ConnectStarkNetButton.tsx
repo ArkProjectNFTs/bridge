@@ -9,7 +9,7 @@ import {
   CHAIN_LOGOS_BY_NAME,
   DEFAULT_STARKNET_CONNECTOR_LOGO,
   WALLET_LOGOS_BY_ID,
-} from "../helpers";
+} from "../../helpers";
 import ConnectModal from "./ConnectModal";
 
 interface ConnectStarknetButtonProps {

@@ -2,7 +2,7 @@ import { useConnectors as useStarknetConnect } from "@starknet-react/core";
 import { useEffect } from "react";
 import { useConnect as useEthereumConnect } from "wagmi";
 
-import { type Chain } from "../bridge/helpers";
+import { type Chain } from "../helpers";
 
 export default function useConnectFromChain(chain: Chain) {
   const { connect: ethereumConnect, connectors: ethereumConnectors } =
