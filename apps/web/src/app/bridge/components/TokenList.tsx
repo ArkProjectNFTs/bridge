@@ -1,69 +1,31 @@
 import { Typography } from "design-system";
-import { useState } from "react";
-import { useAccount } from "wagmi";
 
-import { api } from "~/utils/api";
-
+import useNftSelection from "../hooks/useNftSelection";
 import NftCard from "./NftCard";
 
-interface TokenListProps {
-  selectedNftIds: Array<string>;
-  setSelectedNftIds: (nfts: Array<string>) => void;
-}
-
-// TODO @YohanTz: Take time to optimize the lists with React.memo etc.
-export default function TokenList({
-  selectedNftIds,
-  setSelectedNftIds,
-}: TokenListProps) {
-  const [selectedCollectionName, setSelectedCollectionName] = useState<
-    null | string
-  >(null);
-  const { address: ethereumAddress } = useAccount();
-
-  const { data: nfts } = api.nfts.getL1NftsByCollection.useQuery(
-    {
-      address: ethereumAddress ?? "",
-    },
-    { enabled: ethereumAddress !== undefined }
-  );
-
-  function handleNftClick(nftId: string) {
-    if (selectedNftIds.includes(nftId)) {
-      setSelectedNftIds(
-        selectedNftIds.filter((selectedNftId) => selectedNftId !== nftId)
-      );
-      return;
-    }
-    setSelectedNftIds([...selectedNftIds, nftId]);
-  }
-
-  function handleCollectionClick(collectionName: string) {
-    setSelectedCollectionName(collectionName);
-  }
-
-  function selectAll() {
-    if (nfts === undefined) {
-      return;
-    }
-    setSelectedNftIds(
-      nfts.byCollection[selectedCollectionName].map((nft) => nft.id)
-    );
-  }
+/*
+ * TODO @YohanTz: Take time to optimize the lists with React.memo etc.
+ * TODO @YohanTz: Support Ethereum AND Starknet sides
+ */
+export default function TokenList() {
+  const {
+    allCollectionSelected,
+    isSelected,
+    nfts,
+    selectCollection,
+    selectedCollection,
+    selectedCollectionName,
+    selectedNftIds,
+    toggleNftSelection,
+    toggleSelectAll,
+  } = useNftSelection("Ethereum");
 
   if (nfts === undefined) {
     return null;
   }
 
-  const selectedCollection = selectedCollectionName
-    ? nfts.byCollection[selectedCollectionName] ?? []
-    : [];
-
-  const isSelectedAll = selectedCollection.length === selectedNftIds.length;
-
   return (
     <>
-      {/* TODO @YohanTz: Export Tabs logic to design system package ? */}
       <div className="w-full">
         <div className="mb-10 flex w-full justify-between">
           <div className="flex items-center gap-3.5">
@@ -85,10 +47,10 @@ export default function TokenList({
           {selectedCollectionName !== null && (
             <button
               className="rounded-md bg-dark-blue-950 p-1.5 font-medium text-white"
-              onClick={selectAll}
+              onClick={toggleSelectAll}
             >
               <Typography variant="body_text_bold_14">
-                {isSelectedAll ? "Deselect all" : "Select all"}
+                {allCollectionSelected ? "Deselect all" : "Select all"}
               </Typography>
             </button>
           )}
@@ -97,33 +59,27 @@ export default function TokenList({
           {selectedCollectionName === null
             ? Object.entries(nfts.byCollection).map(
                 ([collectionName, nfts]) => {
-                  const isSelected = nfts.every((nft) =>
-                    selectedNftIds.includes(nft.id)
-                  );
-
                   return (
                     <NftCard
                       cardType="collection"
                       image={nfts[0]?.image}
-                      isSelected={isSelected}
+                      isSelected={false}
                       key={collectionName}
                       numberOfNfts={nfts.length}
-                      onClick={() => handleCollectionClick(collectionName)}
+                      onClick={() => selectCollection(collectionName)}
                       title={collectionName}
                     />
                   );
                 }
               )
             : selectedCollection.map((nft) => {
-                const isSelected = selectedNftIds.includes(nft.id);
-
                 return (
                   <NftCard
                     cardType="nft"
                     image={nft.image}
-                    isSelected={isSelected}
+                    isSelected={isSelected(nft.id)}
                     key={nft.id}
-                    onClick={() => handleNftClick(nft.id)}
+                    onClick={() => toggleNftSelection(nft.id)}
                     title={nft.title}
                   />
                 );

@@ -9,8 +9,10 @@ import { useEffect, useState } from "react";
 import { useAccount as useEthereumAccount } from "wagmi";
 
 import DarkModeButton from "~/app/components/DarkModeButton";
+import { useIsSSR } from "~/app/hooks/useIsSSR";
 
 import { type Chain } from "../helpers";
+import useNftSelection from "../hooks/useNftSelection";
 import ConnectEthereumButton from "./ConnectEthereumButton";
 import ConnectStarkNetButton from "./ConnectStarkNetButton";
 
@@ -21,6 +23,7 @@ const connectedPages = [
 ];
 
 export default function Header() {
+  const { selectedNftIds } = useNftSelection("Ethereum");
   const [openedModal, setOpenedModal] = useState<Chain | undefined>(undefined);
   const {
     isConnected: isEthereumConnected,
@@ -30,6 +33,8 @@ export default function Header() {
     isConnected: isStarknetConnected,
     isConnecting: isStarknetConnecting,
   } = useStarknetAccount();
+
+  const isSSR = useIsSSR();
 
   const router = useRouter();
   const pathname = usePathname();
@@ -98,12 +103,23 @@ export default function Header() {
             isModalOpen={openedModal === "Starknet"}
           />
           <DarkModeButton />
-          <Image
-            alt="bridge icon"
-            height={32}
-            src="/icons/bridge.svg"
-            width={32}
-          />
+          <div className="relative flex items-center">
+            <Image
+              alt="bridge icon"
+              height={32}
+              src="/icons/bridge.svg"
+              width={32}
+            />
+            {}
+            {!isSSR && selectedNftIds.length > 0 && (
+              <Typography
+                className="absolute -right-2 top-0 min-w-[1.5rem] rounded-full border-2 border-white bg-primary-300 px-1.5 py-0.5 text-center text-white"
+                variant="body_text_12"
+              >
+                {selectedNftIds.length}
+              </Typography>
+            )}
+          </div>
         </div>
       </div>
     </header>

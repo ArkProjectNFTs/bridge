@@ -11,7 +11,6 @@ import { type Chain } from "./helpers";
 
 // TODO @YohanTz: Refactor when the UX is finalized
 export default function Page() {
-  // TODO @YohanTz: Use custom hook to manage the local storage of selected Nfts (by chain + by address)
   const [selectedNftIds, setSelectedNftIds] = useState<Array<string>>([]);
   const [targetChain, setTargetChain] = useLocalStorage<Chain>(
     "chain",
@@ -26,17 +25,17 @@ export default function Page() {
           <br />
           your digital goods?
         </Typography>
+
         <TargetChainSwitch
           setTargetChain={setTargetChain}
           targetChain={targetChain}
         />
+
         <Typography className="mb-20" component="p" variant="body_text_20">
           Select the assets you want to transfer to {targetChain}
         </Typography>
-        <TokenList
-          selectedNftIds={selectedNftIds}
-          setSelectedNftIds={setSelectedNftIds}
-        />
+
+        <TokenList />
       </main>
       <NftTransferDrawer
         selectedNftIds={selectedNftIds}

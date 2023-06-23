@@ -14,6 +14,7 @@ import {
   type Chain,
   WALLET_LOGOS_BY_ID,
 } from "../helpers";
+import useNftSelection from "../hooks/useNftSelection";
 import TargetChainButton from "./TargetChainButton";
 
 interface ChainTransferSummaryProps {
@@ -77,14 +78,10 @@ function ChainTransferSummary({
 }
 
 interface NftTansferDrawerProps {
-  selectedNftIds: Array<string>;
-  setSelectedNftIds: (nfts: Array<string>) => void;
   targetChain: Chain;
 }
 
 export default function NftTransferDrawer({
-  selectedNftIds,
-  setSelectedNftIds,
   targetChain,
 }: NftTansferDrawerProps) {
   const { address: ethereumAddress, connector: ethereumConnector } =
@@ -93,18 +90,7 @@ export default function NftTransferDrawer({
     useStarknetAccount();
 
   // TODO @YohanTz: Support both sides
-  const { data: nfts } = api.nfts.getL1NftsByCollection.useQuery(
-    {
-      address: ethereumAddress ?? "",
-    },
-    { enabled: ethereumAddress !== undefined }
-  );
-
-  function onNftDelete(nftId: string) {
-    setSelectedNftIds(
-      selectedNftIds.filter((selectedNftId) => selectedNftId !== nftId)
-    );
-  }
+  const { deselectNft, selectedNfts } = useNftSelection("Ethereum");
 
   // TODO @YohanTz: Hook wrapper around wagmi and starknet-react
   const shortEthereumAddress = useMemo(
@@ -121,10 +107,6 @@ export default function NftTransferDrawer({
         ? `${starknetAddress.slice(0, 6)}...${starknetAddress.slice(-4)}`
         : "",
     [starknetAddress]
-  );
-
-  const selectedNfts = selectedNftIds.map((selectedNftId) =>
-    nfts?.raw.find((nft) => nft.id === selectedNftId)
   );
 
   return (
@@ -181,7 +163,7 @@ export default function NftTransferDrawer({
                 </div>
                 <IconButton
                   icon={<XMarkIcon className="h-5 w-5 text-primary-300" />}
-                  onClick={() => onNftDelete(selectedNft?.id ?? "")}
+                  onClick={() => deselectNft(selectedNft?.id ?? "")}
                 />
               </div>
             );
