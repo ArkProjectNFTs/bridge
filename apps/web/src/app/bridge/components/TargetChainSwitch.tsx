@@ -2,19 +2,13 @@ import { Typography } from "design-system";
 import Image from "next/image";
 
 import { useIsSSR } from "~/app/hooks/useIsSSR";
+import useTargetChain from "~/app/hooks/useTargetChain";
 
-import { CHAIN_LOGOS_BY_NAME, type Chain } from "../helpers";
+import { CHAIN_LOGOS_BY_NAME } from "../../helpers";
 import TargetChainButton from "./TargetChainButton";
 
-type TargetChainSwitch = {
-  setTargetChain: (chain: Chain) => void;
-  targetChain: Chain;
-};
-
-export default function TargetChainSwitch({
-  setTargetChain,
-  targetChain,
-}: TargetChainSwitch) {
+export default function TargetChainSwitch() {
+  const { setTargetChain, targetChain } = useTargetChain();
   const isSSR = useIsSSR();
 
   return (

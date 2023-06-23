@@ -6,14 +6,14 @@ import { useMemo } from "react";
 import { useAccount as useEthereumAccount } from "wagmi";
 
 import { useIsSSR } from "~/app/hooks/useIsSSR";
-import { api } from "~/utils/api";
+import useTargetChain from "~/app/hooks/useTargetChain";
 
 import {
   CHAIN_LOGOS_BY_NAME,
   CONNECTOR_LABELS_BY_ID,
   type Chain,
   WALLET_LOGOS_BY_ID,
-} from "../helpers";
+} from "../../helpers";
 import useNftSelection from "../hooks/useNftSelection";
 import TargetChainButton from "./TargetChainButton";
 
@@ -77,17 +77,13 @@ function ChainTransferSummary({
   );
 }
 
-interface NftTansferDrawerProps {
-  targetChain: Chain;
-}
-
-export default function NftTransferDrawer({
-  targetChain,
-}: NftTansferDrawerProps) {
+export default function NftTransferDrawer() {
   const { address: ethereumAddress, connector: ethereumConnector } =
     useEthereumAccount();
   const { address: starknetAddress, connector: starknetConnector } =
     useStarknetAccount();
+
+  const { targetChain } = useTargetChain();
 
   // TODO @YohanTz: Support both sides
   const { deselectNft, selectedNfts } = useNftSelection("Ethereum");

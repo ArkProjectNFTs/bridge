@@ -4,7 +4,7 @@ import { useLocalStorage } from "usehooks-ts";
 import useAccountFromChain from "~/app/hooks/useAccountFromChain";
 import { api } from "~/utils/api";
 
-import { type Chain } from "../helpers";
+import { type Chain } from "../../helpers";
 
 export default function useNftSelection(chain: Chain) {
   const { address } = useAccountFromChain(chain);

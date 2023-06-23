@@ -13,7 +13,7 @@ import {
   CONNECTOR_LABELS_BY_ID,
   type Chain,
   WALLET_LOGOS_BY_ID,
-} from "../helpers";
+} from "../../helpers";
 
 interface ChainButtonProps {
   chain: Chain;

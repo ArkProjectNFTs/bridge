@@ -8,7 +8,8 @@ import { api } from "~/utils/api";
 
 import Footer from "./bridge/components/Footer";
 import Header from "./bridge/components/Header";
-import { type Chain } from "./bridge/helpers";
+import { type Chain } from "./helpers";
+import useTargetChain from "./hooks/useTargetChain";
 import Providers from "./providers";
 
 const arkProjectFont = localFont({
@@ -64,7 +65,7 @@ const styreneAFont = localFont({
 });
 
 function RootLayout({ children }: { children: React.ReactNode }) {
-  const [targetChain] = useLocalStorage<Chain>("chain", "Ethereum");
+  const { targetChain } = useTargetChain();
 
   return (
     <html
