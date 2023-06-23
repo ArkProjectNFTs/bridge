@@ -70,6 +70,8 @@ function RootLayout({ children }: { children: React.ReactNode }) {
     <html
       className={`${arkProjectFont.variable} ${styreneAFont.variable}`}
       lang="en"
+      // suppresHydrationWarning only applies one level deep, necessary because <html> is updated before page load by next-themes
+      suppressHydrationWarning
     >
       <body
         className={`min-h-screen bg-neutral-50 text-dark-blue-950 dark:bg-[#0e2230] dark:text-white ${targetChain}`}
