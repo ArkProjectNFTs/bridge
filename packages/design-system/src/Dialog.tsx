@@ -17,7 +17,7 @@ export function Dialog({ children, isOpen, onOpenChange }: DialogProps) {
           <div className="fixed inset-0 bg-slate-800 opacity-60" />
           {/* TODO @YohanTz: Extract magic values like this somewhere (top-[5.75rem]) */}
           <RUIDialog.Content
-            className="fixed bottom-0 flex w-full flex-col items-center rounded-t-2xl bg-white text-center sm:right-0 sm:top-[5.875rem] sm:m-3 sm:w-[21.875rem] sm:rounded-2xl"
+            className="dark:bg-dark-blue-950 dark:border-dark-blue-900 fixed bottom-0 flex w-full flex-col items-center rounded-t-2xl border border-[#e4edec] bg-white pb-16 text-center sm:right-0 sm:top-[5.875rem] sm:m-3 sm:w-[21.875rem] sm:rounded-2xl"
             onInteractOutside={(event) => event.preventDefault()}
           >
             <div className="flex w-full justify-end p-5">

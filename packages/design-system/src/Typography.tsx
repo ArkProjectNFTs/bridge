@@ -32,15 +32,7 @@ const variants = {
   heading_xs: "font-bold text-base font-ark-project",
   heading_xxs: "font-bold text-sm font-ark-project",
 
-  /* TODO @YohanTz: Check with Nolowene why font weight 500 not the same between web and Figma */
   /* Headings Light */
-  // heading_light_xl: "font-medium text-5xl font-ark-project",
-  // heading_light_l: "font-medium text-4xl font-ark-project",
-  // heading_light_m: "font-medium text-2xl font-ark-project",
-  // heading_light_s: " font-medium text-xl font-ark-project",
-  // heading_light_xs: "font-medium text-base font-ark-project",
-  // heading_light_xxs: "font-medium text-sm font-ark-project",
-
   heading_light_xl: "font-semibold text-5xl font-ark-project",
   heading_light_l: "font-semibold text-4xl font-ark-project",
   heading_light_m: "font-semibold text-2xl font-ark-project",
@@ -64,6 +56,12 @@ const variants = {
 
   /* Logo */
   logo: "font-semibold text-2xl font-ark-project",
+
+  /* Buton */
+  button_text_xl: "font-medium text-lg font-styrene-a",
+  button_text_l: "font-medium text-base font-styrene-a",
+  button_text_s: "font-medium text-sm font-styrene-a",
+  button_text_xs: "font-medium text-xs font-styrene-a",
 };
 
 /* Make typography classes not overidable */

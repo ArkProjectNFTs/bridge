@@ -3,7 +3,7 @@ import { Typography } from "design-system";
 import Image from "next/image";
 import { useMemo } from "react";
 
-import { useIsSSR } from "~/app/hooks/useIsSSR";
+import { useIsSSR } from "~/hooks/useIsSSR";
 
 import {
   CHAIN_LOGOS_BY_NAME,
@@ -37,7 +37,7 @@ export default function ConnectStarknetButton({
   return (
     <>
       <button
-        className="flex items-center gap-2.5 rounded-full bg-dark-blue-950 px-3 py-2 text-sm font-semibold text-white dark:bg-dark-blue-900"
+        className="flex items-center gap-2.5 rounded-full bg-dark-blue-950 px-3 py-2 text-sm font-semibold text-white"
         onClick={() => onOpenModalChange(!isModalOpen)}
       >
         <Typography variant="body_text_bold_14">

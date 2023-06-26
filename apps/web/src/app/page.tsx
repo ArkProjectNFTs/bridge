@@ -33,7 +33,7 @@ export default function Page() {
 
         <ConnectWalletsButton />
 
-        <div className="rounded-3xl bg-white p-6">
+        <div className="rounded-3xl bg-white p-6 dark:bg-dark-blue-900">
           <div className="grid grid-cols-2 gap-6 sm:grid-cols-5">
             {empty_cards.map((card) => {
               return (

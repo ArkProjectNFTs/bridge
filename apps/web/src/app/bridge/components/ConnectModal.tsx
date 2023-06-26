@@ -4,9 +4,9 @@ import Image from "next/image";
 import { useState } from "react";
 import { useAccount as useEthereumAccount } from "wagmi";
 
-import useAccountFromChain from "~/app/hooks/useAccountFromChain";
-import useConnectFromChain from "~/app/hooks/useConnectFromChain";
-import useDisconnectFromChain from "~/app/hooks/useDisconnectFromChain";
+import useAccountFromChain from "~/hooks/useAccountFromChain";
+import useConnectFromChain from "~/hooks/useConnectFromChain";
+import useDisconnectFromChain from "~/hooks/useDisconnectFromChain";
 
 import {
   CHAIN_LOGOS_BY_NAME,
@@ -25,7 +25,7 @@ function ChainButton({ chain, onClick }: ChainButtonProps) {
 
   return (
     <button
-      className="flex w-full items-center justify-between rounded-full bg-dark-blue-950 py-2 pl-3.5 pr-2 text-white"
+      className="flex w-full items-center justify-between rounded-full bg-dark-blue-950 py-2 pl-3.5 pr-2 text-white dark:bg-white dark:text-dark-blue-950"
       onClick={onClick}
     >
       <Typography className="w-full" variant="body_text_bold_14">
@@ -50,7 +50,7 @@ interface ConnectorButtonProps {
 function ConnectorButton({ id, onClick }: ConnectorButtonProps) {
   return (
     <button
-      className="flex w-full items-center justify-between rounded-full bg-dark-blue-950 py-2 pl-3.5 pr-2 text-white"
+      className="flex w-full items-center justify-between rounded-full bg-dark-blue-950 py-2 pl-3.5 pr-2 text-white dark:bg-white dark:text-dark-blue-950"
       onClick={onClick}
     >
       <Typography variant="body_text_bold_14">

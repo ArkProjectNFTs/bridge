@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { useTheme } from "next-themes";
 
-import { useIsSSR } from "~/app/hooks/useIsSSR";
+import { useIsSSR } from "~/hooks/useIsSSR";
 
 export default function DarkModeButton() {
   const isSSR = useIsSSR();

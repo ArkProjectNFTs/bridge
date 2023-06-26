@@ -6,10 +6,10 @@ import { useLocalStorage } from "usehooks-ts";
 import "~/styles/globals.css";
 import { api } from "~/utils/api";
 
+import useTargetChain from "../hooks/useTargetChain";
 import Footer from "./bridge/components/Footer";
 import Header from "./bridge/components/Header";
 import { type Chain } from "./helpers";
-import useTargetChain from "./hooks/useTargetChain";
 import Providers from "./providers";
 
 const arkProjectFont = localFont({
