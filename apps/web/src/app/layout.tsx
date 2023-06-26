@@ -1,7 +1,6 @@
 "use client";
 
 import localFont from "next/font/local";
-import { useLocalStorage } from "usehooks-ts";
 
 import "~/styles/globals.css";
 import { api } from "~/utils/api";
@@ -9,7 +8,6 @@ import { api } from "~/utils/api";
 import useCurrentChain from "../hooks/useCurrentChain";
 import Footer from "./bridge/components/Footer";
 import Header from "./bridge/components/Header";
-import { type Chain } from "./helpers";
 import Providers from "./providers";
 
 const arkProjectFont = localFont({
