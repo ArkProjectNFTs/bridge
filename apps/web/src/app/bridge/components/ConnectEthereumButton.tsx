@@ -3,7 +3,7 @@ import Image from "next/image";
 import { useMemo } from "react";
 import { useAccount, useEnsName } from "wagmi";
 
-import { useIsSSR } from "~/app/hooks/useIsSSR";
+import { useIsSSR } from "~/hooks/useIsSSR";
 
 import {
   CHAIN_LOGOS_BY_NAME,

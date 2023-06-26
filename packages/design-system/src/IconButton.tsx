@@ -1,14 +1,15 @@
 "use client";
 
 interface IconButtonProps {
+  className?: string;
   icon: React.ReactElement;
   onClick: () => void;
 }
 
-export function IconButton({ icon, onClick }: IconButtonProps) {
+export function IconButton({ className, icon, onClick }: IconButtonProps) {
   return (
     <button
-      className="bg-primary-50 flex h-8 w-8 items-center justify-center rounded-full text-white"
+      className={`flex h-8 w-8 items-center justify-center rounded-full text-white ${className}`}
       onClick={onClick}
     >
       {icon}

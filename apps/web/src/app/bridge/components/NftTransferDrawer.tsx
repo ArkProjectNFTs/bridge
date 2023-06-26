@@ -5,8 +5,8 @@ import Image from "next/image";
 import { useMemo } from "react";
 import { useAccount as useEthereumAccount } from "wagmi";
 
-import { useIsSSR } from "~/app/hooks/useIsSSR";
-import useTargetChain from "~/app/hooks/useTargetChain";
+import { useIsSSR } from "~/hooks/useIsSSR";
+import useTargetChain from "~/hooks/useTargetChain";
 
 import {
   CHAIN_LOGOS_BY_NAME,
@@ -35,7 +35,7 @@ function ChainTransferSummary({
 
   return (
     <div
-      className={`flex justify-between gap-3 rounded-2xl bg-neutral-50 px-3.5 ${
+      className={`flex justify-between gap-3 rounded-2xl bg-neutral-50 px-3 dark:bg-[#0e2230] ${
         isTargetChain ? "pb-3 pt-7" : "pb-7 pt-3"
       }`}
     >
@@ -47,7 +47,7 @@ function ChainTransferSummary({
           width={42}
         />
         <div>
-          <span className="rounded-md bg-neutral-200 p-1 text-xs font-semibold">
+          <span className="rounded-md bg-neutral-200 p-1 text-xs font-semibold text-[#0e2230] dark:bg-dark-blue-300">
             {isTargetChain ? "To" : "From"}
           </span>
           <Typography component="div" variant="body_text_14">
@@ -64,7 +64,7 @@ function ChainTransferSummary({
             width={42}
           />
           <div>
-            <span className="rounded-md bg-neutral-200 p-1 text-xs font-semibold">
+            <span className="rounded-md bg-neutral-200 p-1 text-xs font-semibold text-[#0e2230] dark:bg-dark-blue-300">
               Wallet
             </span>
             <Typography component="div" variant="body_text_14">
@@ -108,7 +108,7 @@ export default function NftTransferDrawer() {
   return (
     <div className="mr-3 w-[21.875rem] shrink-0">
       {/* TODO @YohanTz: Extract magic values like this somewhere (top-[5.75rem]) */}
-      <div className="fixed bottom-0 right-0 top-[5.75rem] m-3 flex w-[21.875rem] shrink-0 flex-col rounded-2xl border border-neutral-100 bg-white px-5 pb-5 pt-8 dark:border-none dark:bg-dark-blue-900">
+      <div className="fixed bottom-0 right-0 top-[5.75rem] m-3 flex w-[21.875rem] shrink-0 flex-col rounded-2xl border border-neutral-100 bg-white px-5 pb-5 pt-8 dark:border-dark-blue-900 dark:bg-dark-blue-950">
         <Typography component="h2" variant="heading_light_xxs">
           Your assets to transfer
         </Typography>
@@ -135,6 +135,15 @@ export default function NftTransferDrawer() {
             targetChain={targetChain}
           />
         </div>
+
+        {selectedNfts.length > 0 ? (
+          <Typography className="mt-8" variant="body_text_14">
+            {selectedNfts.length} Nfts selected
+          </Typography>
+        ) : (
+          "TODO EMPTY STATE"
+        )}
+
         {/* TODO @YohanTz: Always show scroll bar to indicate that there is more content to view (with Radix ScrollArea ?) */}
         <div className="mt-8 flex flex-col gap-4 overflow-y-auto">
           {selectedNfts.map((selectedNft) => {
@@ -158,18 +167,15 @@ export default function NftTransferDrawer() {
                   </div>
                 </div>
                 <IconButton
-                  icon={<XMarkIcon className="h-5 w-5 text-primary-300" />}
+                  icon={
+                    <XMarkIcon className="h-5 w-5 text-primary-300 dark:text-dark-blue-400" />
+                  }
+                  className="border border-primary-50 bg-primary-50 dark:border-dark-blue-400 dark:bg-transparent"
                   onClick={() => deselectNft(selectedNft?.id ?? "")}
                 />
               </div>
             );
           })}
-        </div>
-        <div className="mt-4 flex justify-between text-sm">
-          <Typography variant="body_text_14">Total Nfts to migrate</Typography>
-          <Typography variant="body_text_14">
-            {selectedNfts.length}/{selectedNfts.length}
-          </Typography>
         </div>
         <Typography
           className="mt-8 rounded-xl bg-purple-100 p-3"

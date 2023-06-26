@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useLocalStorage } from "usehooks-ts";
 
-import useAccountFromChain from "~/app/hooks/useAccountFromChain";
+import useAccountFromChain from "~/hooks/useAccountFromChain";
 import { api } from "~/utils/api";
 
 import { type Chain } from "../../helpers";

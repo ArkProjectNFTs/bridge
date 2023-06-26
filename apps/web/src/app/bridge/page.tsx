@@ -2,7 +2,7 @@
 
 import { Typography } from "design-system";
 
-import useTargetChain from "../hooks/useTargetChain";
+import useTargetChain from "../../hooks/useTargetChain";
 import NftTransferDrawer from "./components/NftTransferDrawer";
 import TargetChainSwitch from "./components/TargetChainSwitch";
 import TokenList from "./components/TokenList";
