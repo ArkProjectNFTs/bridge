@@ -1,6 +1,6 @@
 import { Typography } from "design-system";
 
-import useTargetChain from "~/hooks/useTargetChain";
+import useCurrentChain from "~/hooks/useCurrentChain";
 
 import useNftSelection from "../hooks/useNftSelection";
 import NftCard from "./NftCard";
@@ -10,7 +10,7 @@ import NftCard from "./NftCard";
  * TODO @YohanTz: Support Ethereum AND Starknet sides
  */
 export default function TokenList() {
-  const { targetChain } = useTargetChain();
+  const { sourceChain } = useCurrentChain();
 
   const {
     allCollectionSelected,
@@ -65,7 +65,7 @@ export default function TokenList() {
                   return (
                     <NftCard
                       cardType="collection"
-                      chain={targetChain}
+                      chain={sourceChain}
                       image={nfts[0]?.image}
                       isSelected={false}
                       key={collectionName}
@@ -80,7 +80,7 @@ export default function TokenList() {
                 return (
                   <NftCard
                     cardType="nft"
-                    chain={targetChain}
+                    chain={sourceChain}
                     image={nft.image}
                     isSelected={isSelected(nft.id)}
                     key={nft.id}

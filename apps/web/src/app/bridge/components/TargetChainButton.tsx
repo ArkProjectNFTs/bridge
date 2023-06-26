@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-import useTargetChain from "~/hooks/useTargetChain";
+import useCurrentChain from "~/hooks/useCurrentChain";
 
 interface TargetChainButtonProps {
   orientation: "horizontal" | "vertical";
@@ -9,7 +9,7 @@ interface TargetChainButtonProps {
 export default function TargetChainButton({
   orientation,
 }: TargetChainButtonProps) {
-  const { toggle } = useTargetChain();
+  const { toggle } = useCurrentChain();
 
   return (
     <div className="relative">
