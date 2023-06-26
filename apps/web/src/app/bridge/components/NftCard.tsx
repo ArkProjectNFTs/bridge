@@ -1,7 +1,10 @@
 import { Typography } from "design-system";
 import Image from "next/image";
 
+import { CHAIN_LOGOS_BY_NAME, type Chain } from "~/app/helpers";
+
 type NftCardProps = {
+  chain: Chain;
   image?: string;
   isSelected: boolean;
   onClick: () => void;
@@ -16,6 +19,7 @@ type NftCardProps = {
 
 export default function NftCard({
   cardType,
+  chain,
   image,
   isSelected,
   numberOfNfts,
@@ -40,14 +44,23 @@ export default function NftCard({
         onClick={onClick}
       >
         {/* TODO @YohanTz: Handle images with different sizes */}
-        <Image
-          alt={title}
-          className="w-full rounded-lg"
-          height={300}
-          // TODO @YohanTz: Handle no image case
-          src={image ?? ""}
-          width={300}
-        />
+        <div className="relative">
+          <Image
+            alt={title}
+            className="w-full rounded-lg"
+            height={300}
+            // TODO @YohanTz: Handle no image case
+            src={image ?? ""}
+            width={300}
+          />
+          <Image
+            alt={`${chain} logo`}
+            className="absolute right-2 top-2"
+            height={32}
+            src={CHAIN_LOGOS_BY_NAME[chain]}
+            width={32}
+          />
+        </div>
         <div className="mt-3 text-left">
           <div className="flex items-center justify-between">
             <Typography
