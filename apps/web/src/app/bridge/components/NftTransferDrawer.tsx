@@ -5,8 +5,8 @@ import Image from "next/image";
 import { useMemo } from "react";
 import { useAccount as useEthereumAccount } from "wagmi";
 
+import useCurrentChain from "~/hooks/useCurrentChain";
 import { useIsSSR } from "~/hooks/useIsSSR";
-import useTargetChain from "~/hooks/useTargetChain";
 
 import {
   CHAIN_LOGOS_BY_NAME,
@@ -83,7 +83,7 @@ export default function NftTransferDrawer() {
   const { address: starknetAddress, connector: starknetConnector } =
     useStarknetAccount();
 
-  const { targetChain } = useTargetChain();
+  const { targetChain } = useCurrentChain();
 
   // TODO @YohanTz: Support both sides
   const { deselectNft, selectedNfts } = useNftSelection("Ethereum");
@@ -184,7 +184,7 @@ export default function NftTransferDrawer() {
           </div>
         )}
         <Typography
-          className="mt-8 rounded-xl bg-purple-100 p-3"
+          className="mt-8 rounded-xl bg-purple-100 p-3 text-dark-blue-950"
           component="p"
           variant="body_text_14"
         >

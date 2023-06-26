@@ -6,7 +6,7 @@ import { useLocalStorage } from "usehooks-ts";
 import "~/styles/globals.css";
 import { api } from "~/utils/api";
 
-import useTargetChain from "../hooks/useTargetChain";
+import useCurrentChain from "../hooks/useCurrentChain";
 import Footer from "./bridge/components/Footer";
 import Header from "./bridge/components/Header";
 import { type Chain } from "./helpers";
@@ -65,7 +65,7 @@ const styreneAFont = localFont({
 });
 
 function RootLayout({ children }: { children: React.ReactNode }) {
-  const { targetChain } = useTargetChain();
+  const { targetChain } = useCurrentChain();
 
   return (
     <html

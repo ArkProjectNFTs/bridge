@@ -2,14 +2,14 @@
 
 import { Typography } from "design-system";
 
-import useTargetChain from "../../hooks/useTargetChain";
+import useCurrentChain from "../../hooks/useCurrentChain";
 import NftTransferDrawer from "./components/NftTransferDrawer";
 import TargetChainSwitch from "./components/TargetChainSwitch";
 import TokenList from "./components/TokenList";
 
 // TODO @YohanTz: Refactor when the UX is finalized
 export default function Page() {
-  const { targetChain } = useTargetChain();
+  const { targetChain } = useCurrentChain();
 
   return (
     <div className="flex">
