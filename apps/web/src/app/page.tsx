@@ -20,7 +20,7 @@ export default function Page() {
   return (
     <div className="flex">
       {/* TODO @YohanTz: Extract magic values like this somewhere (top-[5.75rem]) */}
-      <main className="mx-auto mt-[5.875rem] w-full max-w-7xl px-4 text-center">
+      <main className="mx-auto mt-[5.875rem] w-full max-w-5xl px-4 text-center">
         <Typography
           className="mt-15.5"
           component="h1"
