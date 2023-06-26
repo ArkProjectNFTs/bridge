@@ -141,42 +141,48 @@ export default function NftTransferDrawer() {
             {selectedNfts.length} Nfts selected
           </Typography>
         ) : (
-          "TODO EMPTY STATE"
+          <Typography className="mt-8" component="p" variant="body_text_14">
+            No Nfts selected yet...
+            <br />
+            Select a collection to start
+          </Typography>
         )}
 
         {/* TODO @YohanTz: Always show scroll bar to indicate that there is more content to view (with Radix ScrollArea ?) */}
-        <div className="mt-8 flex flex-col gap-4 overflow-y-auto">
-          {selectedNfts.map((selectedNft) => {
-            return (
-              <div className="flex justify-between" key={selectedNft?.id}>
-                <div className="flex items-center gap-4">
-                  <Image
-                    alt={selectedNft?.title ?? ""}
-                    className="rounded"
-                    height={52}
-                    src={selectedNft?.image ?? ""}
-                    width={52}
-                  />
-                  <div className="flex flex-col">
-                    <Typography variant="body_text_14">
-                      {selectedNft?.collectionName}
-                    </Typography>
-                    <Typography variant="body_text_bold_14">
-                      {selectedNft?.title}
-                    </Typography>
+        {selectedNfts.length > 0 && (
+          <div className="mt-8 flex flex-col gap-4 overflow-y-auto">
+            {selectedNfts.map((selectedNft) => {
+              return (
+                <div className="flex justify-between" key={selectedNft?.id}>
+                  <div className="flex items-center gap-4">
+                    <Image
+                      alt={selectedNft?.title ?? ""}
+                      className="rounded"
+                      height={52}
+                      src={selectedNft?.image ?? ""}
+                      width={52}
+                    />
+                    <div className="flex flex-col">
+                      <Typography variant="body_text_14">
+                        {selectedNft?.collectionName}
+                      </Typography>
+                      <Typography variant="body_text_bold_14">
+                        {selectedNft?.title}
+                      </Typography>
+                    </div>
                   </div>
+                  <IconButton
+                    icon={
+                      <XMarkIcon className="h-5 w-5 text-primary-300 dark:text-dark-blue-400" />
+                    }
+                    className="border border-primary-50 bg-primary-50 dark:border-dark-blue-400 dark:bg-transparent"
+                    onClick={() => deselectNft(selectedNft?.id ?? "")}
+                  />
                 </div>
-                <IconButton
-                  icon={
-                    <XMarkIcon className="h-5 w-5 text-primary-300 dark:text-dark-blue-400" />
-                  }
-                  className="border border-primary-50 bg-primary-50 dark:border-dark-blue-400 dark:bg-transparent"
-                  onClick={() => deselectNft(selectedNft?.id ?? "")}
-                />
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
         <Typography
           className="mt-8 rounded-xl bg-purple-100 p-3"
           component="p"
