@@ -3,21 +3,22 @@
 @tailwind utilities;
 
 .Ethereum {
-  --color-primary-50: #e295f7;
-  --color-primary-100: #e6bdf4;
-  --color-primary-200: #e6bdf4;
-  --color-primary-300: #e295f7;
-  --color-primary-400: #e295f7;
-  --color-primary-500: #e295f7;
-  --color-primary-600: #e295f7;
-  --color-primary-700: #e295f7;
-  --color-primary-800: #e295f7;
-  --color-primary-900: #e295f7;
-  --color-primary-950: #e295f7;
-  --color-primary-300: #e295f7;
+  /* Magic blue */
+  --color-primary-50: #fcf5fe;
+  --color-primary-100: #f8e9fe;
+  --color-primary-200: #f2d2fc;
+  --color-primary-300: #e6a5f7;
+  --color-primary-400: #dc7ff3;
+  --color-primary-500: #ca4fe6;
+  --color-primary-600: #b02fca;
+  --color-primary-700: #9423a8;
+  --color-primary-800: #7b1f89;
+  --color-primary-900: #671f70;
+  --color-primary-950: #43084a;
 }
 
 .Starknet {
+  /* Mint Green */
   --color-primary-50: #f2fbf8;
   --color-primary-100: #d2f5e9;
   --color-primary-200: #a6e9d4;

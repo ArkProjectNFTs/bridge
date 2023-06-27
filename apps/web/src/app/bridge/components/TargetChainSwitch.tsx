@@ -14,7 +14,7 @@ export default function TargetChainSwitch() {
   return (
     <div className=" my-8 inline-flex gap-0.5">
       <button
-        className={`flex items-center gap-2 rounded-l-2xl py-4 pl-3 pr-6 ${
+        className={`flex items-center gap-2 rounded-l-2xl py-4 pl-3 pr-8 ${
           !isSSR && targetChain === "Ethereum"
             ? "bg-primary-100 dark:bg-primary-400"
             : "bg-neutral-200 dark:bg-dark-blue-950"
@@ -31,7 +31,7 @@ export default function TargetChainSwitch() {
       </button>
       <TargetChainButton orientation="horizontal" />
       <button
-        className={`flex items-center gap-2 rounded-r-2xl py-4 pl-6 pr-3 ${
+        className={`flex items-center gap-2 rounded-r-2xl py-4 pl-8 pr-3 ${
           !isSSR && targetChain === "Starknet"
             ? "bg-primary-100 dark:bg-primary-400"
             : "bg-neutral-200 dark:bg-dark-blue-950"

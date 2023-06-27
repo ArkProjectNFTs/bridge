@@ -97,7 +97,10 @@ export default function NftCard({
             )}
           </div>
           {cardType === "collection" ? (
-            <Typography variant="body_text_14">
+            <Typography
+              className="dark:text-dark-blue-300"
+              variant="body_text_14"
+            >
               {numberOfNfts}
               {numberOfNfts > 1 ? " Nfts" : " Nft"}
             </Typography>
