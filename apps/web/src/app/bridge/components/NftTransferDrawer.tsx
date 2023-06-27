@@ -47,7 +47,7 @@ function ChainTransferSummary({
           width={42}
         />
         <div>
-          <span className="rounded-md bg-neutral-200 p-1 text-xs font-semibold text-[#0e2230] dark:bg-dark-blue-300">
+          <span className="rounded-md bg-dark-blue-100 p-1 text-xs font-semibold text-dark-blue-700 dark:bg-dark-blue-300 dark:text-[#0e2230]">
             {isTargetChain ? "To" : "From"}
           </span>
           <Typography component="div" variant="body_text_14">
@@ -64,7 +64,7 @@ function ChainTransferSummary({
             width={42}
           />
           <div>
-            <span className="rounded-md bg-neutral-200 p-1 text-xs font-semibold text-[#0e2230] dark:bg-dark-blue-300">
+            <span className="rounded-md bg-dark-blue-100 p-1 text-xs font-semibold text-dark-blue-700 dark:bg-dark-blue-300 dark:text-[#0e2230]">
               Wallet
             </span>
             <Typography component="div" variant="body_text_14">

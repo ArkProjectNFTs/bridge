@@ -3,9 +3,7 @@ import { type StaticImageData } from "next/image";
 import argentXLogo from "../../public/logos/argentX.png";
 import braavosLogo from "../../public/logos/braavos.png";
 import coinbaseLogo from "../../public/logos/coinbase_wallet.png";
-import ethereumLogo from "../../public/logos/ethereum.png";
 import metaMaskLogo from "../../public/logos/metamask.png";
-import starknetLogo from "../../public/logos/starknet.png";
 import walletConnectLogo from "../../public/logos/wallet_connect.png";
 
 export type Chain = "Ethereum" | "Starknet";
@@ -21,9 +19,10 @@ export const WALLET_LOGOS_BY_ID: Record<string, StaticImageData> = {
   walletConnect: walletConnectLogo,
 };
 
-export const CHAIN_LOGOS_BY_NAME: Record<Chain, StaticImageData> = {
-  Ethereum: ethereumLogo,
-  Starknet: starknetLogo,
+// export const CHAIN_LOGOS_BY_NAME: Record<Chain, StaticImageData> = {
+export const CHAIN_LOGOS_BY_NAME: Record<Chain, string> = {
+  Ethereum: "/logos/ethereum.svg",
+  Starknet: "/logos/starknet.svg",
 };
 
 // TODO @YohanTz: An injected connector may not be Metamask
