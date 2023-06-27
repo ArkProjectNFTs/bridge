@@ -177,9 +177,9 @@ export default function NftTransferDrawer() {
                   </div>
                   <IconButton
                     icon={
-                      <XMarkIcon className="h-5 w-5 text-primary-300 dark:text-dark-blue-400" />
+                      <XMarkIcon className="h-5 w-5 text-dark-blue-700 dark:text-dark-blue-400" />
                     }
-                    className="border border-primary-50 bg-primary-50 dark:border-dark-blue-400 dark:bg-transparent"
+                    className="border-2 border-dark-blue-700 bg-transparent dark:border-dark-blue-400"
                     onClick={() => deselectNft(selectedNft?.id ?? "")}
                   />
                 </div>
