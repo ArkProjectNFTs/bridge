@@ -112,7 +112,11 @@ export default function NftTransferDrawer() {
         <Typography component="h2" variant="heading_light_xxs">
           Your assets to transfer
         </Typography>
-        <Typography className="mt-4" component="p" variant="body_text_14">
+        <Typography
+          className="mt-4 dark:text-dark-blue-300"
+          component="p"
+          variant="body_text_14"
+        >
           You need to confirm the transaction in your wallet to start the
           migration.
         </Typography>
@@ -192,7 +196,7 @@ export default function NftTransferDrawer() {
           migration. Each collection will require a signature via your wallet.
         </Typography>
         <button className="mt-8 w-full rounded-full bg-dark-blue-950 p-3 text-sm text-white">
-          <Typography variant="body_text_bold_14">
+          <Typography variant="button_text_s">
             Approve the selected Nfts
           </Typography>
         </button>

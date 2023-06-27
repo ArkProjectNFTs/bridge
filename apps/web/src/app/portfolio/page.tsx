@@ -1,3 +1,5 @@
+import { Typography } from "design-system";
+
 import Banner from "./components/Banner";
 import NftsTabs from "./components/NftsTabs";
 
@@ -8,6 +10,15 @@ export default function Page() {
         <Banner />
 
         <NftsTabs />
+
+        <Typography
+          className="mt-18 text-left"
+          component="h2"
+          variant="heading_light_s"
+        >
+          Your past transactions
+        </Typography>
+        <hr className="my-5 border-[#e4edec] dark:border-dark-blue-900" />
       </main>
     </div>
   );
