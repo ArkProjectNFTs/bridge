@@ -36,8 +36,8 @@ export const nftsRouter = createTRPCRouter({
         .filter((nft) => nft.tokenType === "ERC721")
         .map((nft) => ({
           collectionName:
-            nft.contract.openSea?.collectionName ||
-            nft.contract.name ||
+            nft.contract.openSea?.collectionName ??
+            nft.contract.name ??
             "Unknown",
           id: `${nft.title}-${nft.tokenId}`,
           image: nft.media[0]?.thumbnail ?? undefined,
