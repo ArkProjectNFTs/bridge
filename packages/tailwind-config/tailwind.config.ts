@@ -38,6 +38,7 @@ export default {
         "ark-project": ["var(--font-ark-project)"],
       },
       spacing: {
+        "10.5": "2.625rem",
         "13": "3.25rem",
         "15.5": "3.875rem",
         "18": "4.5rem",
