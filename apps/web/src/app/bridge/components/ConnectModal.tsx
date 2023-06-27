@@ -81,7 +81,7 @@ function ConnectorList({ chain }: ConnectorListProps) {
       <Image
         alt={`${chain} icon`}
         height={68}
-        src="/icons/ethereum.svg"
+        src={CHAIN_LOGOS_BY_NAME[chain]}
         width={68}
       />
       <div className="w-full px-7">
