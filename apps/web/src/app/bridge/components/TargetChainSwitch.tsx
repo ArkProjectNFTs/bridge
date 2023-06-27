@@ -27,7 +27,7 @@ export default function TargetChainSwitch() {
           src={CHAIN_LOGOS_BY_NAME.Ethereum}
           width={32}
         />
-        <Typography variant="body_text_bold_14">Ethereum</Typography>
+        <Typography variant="button_text_s">Ethereum</Typography>
       </button>
       <TargetChainButton orientation="horizontal" />
       <button
@@ -38,7 +38,7 @@ export default function TargetChainSwitch() {
         }`}
         onClick={() => setTargetChain("Starknet")}
       >
-        <Typography variant="body_text_bold_14">Starknet</Typography>
+        <Typography variant="button_text_s">Starknet</Typography>
         <Image
           alt={`Starknet logo`}
           height={32}

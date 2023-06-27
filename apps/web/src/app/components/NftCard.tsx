@@ -3,11 +3,13 @@ import Image from "next/image";
 
 import { CHAIN_LOGOS_BY_NAME, type Chain } from "~/app/helpers";
 
+import ConditionalWrapper from "./ConditionalWrapper";
+
 type NftCardProps = {
   chain: Chain;
   image?: string;
   isSelected: boolean;
-  onClick: () => void;
+  onClick?: () => void;
   title: string;
 } & (
   | {
@@ -35,13 +37,27 @@ export default function NftCard({
         </>
       )}
       {/* TODO @YohanTz: handle focus visible style properly */}
-      <button
-        className={`h-full w-full overflow-hidden rounded-2xl border bg-white p-3 dark:bg-dark-blue-950 ${
-          isSelected && cardType === "nft"
-            ? "border-primary-300 outline outline-1 outline-primary-300"
-            : "border-neutral-300 dark:border-dark-blue-600"
-        }`}
-        onClick={onClick}
+      <ConditionalWrapper
+        wrapper={(children) =>
+          onClick === undefined ? (
+            <div
+              className={`h-full w-full overflow-hidden rounded-2xl border border-neutral-300 bg-white p-3 dark:border-dark-blue-600 dark:bg-dark-blue-950`}
+            >
+              {children}
+            </div>
+          ) : (
+            <button
+              className={`h-full w-full overflow-hidden rounded-2xl border bg-white p-3 dark:bg-dark-blue-950 ${
+                isSelected && cardType === "nft"
+                  ? "border-primary-300 outline outline-1 outline-primary-300"
+                  : "border-neutral-300 dark:border-dark-blue-600"
+              }`}
+              onClick={onClick}
+            >
+              {children}
+            </button>
+          )
+        }
       >
         {/* TODO @YohanTz: Handle images with different sizes */}
         <div className="relative">
@@ -70,7 +86,7 @@ export default function NftCard({
             >
               {title}
             </Typography>
-            {cardType === "nft" && (
+            {cardType === "nft" && onClick !== undefined && (
               <div
                 className={`h-5 w-5 rounded-full ${
                   isSelected
@@ -87,7 +103,7 @@ export default function NftCard({
             </Typography>
           ) : null}
         </div>
-      </button>
+      </ConditionalWrapper>
     </div>
   );
 }

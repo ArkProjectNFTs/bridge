@@ -1,9 +1,10 @@
 import { Typography } from "design-system";
 
+import ConditionalWrapper from "~/app/components/ConditionalWrapper";
 import useCurrentChain from "~/hooks/useCurrentChain";
 
+import NftCard from "../../components/NftCard";
 import useNftSelection from "../hooks/useNftSelection";
-import NftCard from "./NftCard";
 
 /*
  * TODO @YohanTz: Take time to optimize the lists with React.memo etc.
