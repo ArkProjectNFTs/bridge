@@ -1,9 +1,29 @@
+/*
+  Copyright 2019-2022 StarkWare Industries Ltd.
+
+  Licensed under the Apache License, Version 2.0 (the "License").
+  You may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  https://www.starkware.co/open-source-license/
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions
+  and limitations under the License.
+*/
 // SPDX-License-Identifier: Apache-2.0.
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.0;
 
 import "./IStarknetMessagingEvents.sol";
 
 interface IStarknetMessaging is IStarknetMessagingEvents {
+    /**
+      Returns the max fee (in Wei) that StarkNet will accept per single message.
+    */
+    function getMaxL1MsgFee() external pure returns (uint256);
+
     /**
       Sends a message to an L2 contract.
       This function is payable, the payed amount is the message fee.
@@ -21,10 +41,9 @@ interface IStarknetMessaging is IStarknetMessagingEvents {
 
       Returns the hash of the message.
     */
-    function consumeMessageFromL2(
-        uint256 fromAddress,
-        uint256[] calldata payload
-    ) external returns (bytes32);
+    function consumeMessageFromL2(uint256 fromAddress, uint256[] calldata payload)
+        external
+        returns (bytes32);
 
     /**
       Starts the cancellation of an L1 to L2 message.
@@ -41,8 +60,10 @@ interface IStarknetMessaging is IStarknetMessagingEvents {
     ) external returns (bytes32);
 
     /**
-      Cancels an L1 to L2 message, this function should be called messageCancellationDelay() seconds
-      after the call to startL1ToL2MessageCancellation().
+      Cancels an L1 to L2 message, this function should be called at least
+      messageCancellationDelay() seconds after the call to startL1ToL2MessageCancellation().
+      A message may only be cancelled by its sender.
+      If the message is missing, the call will revert.
 
       Note that the message fee is not refunded.
     */
