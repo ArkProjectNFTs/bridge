@@ -12,8 +12,3 @@ docs/
 
 # Dotenv file
 .env
-
-# Dependencies that can be fetched.
-lib/forge-std/
-lib/openzeppelin-contracts/
-
