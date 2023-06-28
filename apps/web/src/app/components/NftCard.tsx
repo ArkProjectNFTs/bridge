@@ -63,7 +63,7 @@ export default function NftCard({
         <div className="relative">
           <Image
             alt={title}
-            className="w-full rounded-lg"
+            className="h-full w-full rounded-lg"
             height={300}
             // TODO @YohanTz: Handle no image case
             src={image ?? ""}

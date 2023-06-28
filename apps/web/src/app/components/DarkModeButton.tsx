@@ -20,7 +20,7 @@ export default function DarkModeButton() {
   }
 
   return (
-    <button onClick={toggleTheme}>
+    <button className="shrink-0" onClick={toggleTheme}>
       <Image
         src={
           theme === "light" ? "/icons/light_mode.svg" : "/icons/dark_mode.svg"
