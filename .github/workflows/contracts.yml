@@ -52,6 +52,6 @@ jobs:
 
       - name: Run Forge tests
         run: |
-          forge test -vvv
+          forge test -vvv --root apps/blockchain/contracts/ethereum/
         id: test
 
