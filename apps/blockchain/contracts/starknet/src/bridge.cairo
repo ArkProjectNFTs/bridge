@@ -60,7 +60,7 @@ mod Bridge {
         // The class to deploy for ERC721 tokens.
         _erc721_bridgeable_class: ClassHash,
         // Mapping between L2<->L1 collections addresses.
-        // <collection_l2_address, collection_l1_address>
+       // <collection_l2_address, collection_l1_address>
         _l2_to_l1_addresses: LegacyMap::<ContractAddress, felt252>,
         // Mapping between L1<->L2 collections addresses.
         // <collection_l1_address, collection_l2_address>
@@ -88,6 +88,10 @@ mod Bridge {
     #[event]
     fn ReplacedClassHash(contract: ContractAddress, class: ClassHash) {}
 
+    #[event]
+    fn ERC721DefaultClassChanged(class: ClassHash) {}
+
+
     // *** VIEWS ***
 
     // TODO: add some views (admin and not admin) to see some states
@@ -95,6 +99,11 @@ mod Bridge {
     // what is it's L1 address, etc...
     //
     // For that -> maybe having a hash map l1<->l2 and l2<->l1 may be interesting?
+
+    #[external]
+    fn get_erc721_default() -> ClassHash {
+        _erc721_bridgeable_class::read()
+    }
 
     #[view]
     fn is_token_escrowed(collection_address: ContractAddress, token_id: u256) -> bool {
@@ -226,6 +235,8 @@ mod Bridge {
         _ensure_is_admin();
 
         _erc721_bridgeable_class::write(class_hash);
+
+        ERC721DefaultClassChanged(class_hash);
     }
 
     #[external]
@@ -264,7 +275,7 @@ mod Bridge {
         let l1_addr_req: felt252 = *req.collection_l1_address;
         let l2_addr_req: ContractAddress = *req.collection_l2_address;
         let l1_addr_mapping = _l2_to_l1_addresses::read(l2_addr_req);
-        let l2_addr_mapping = _l1_to_l2_addresses::read(l1_addr_mapping);
+        let l2_addr_mapping = _l1_to_l2_addresses::read(l1_addr_req);
 
         let mut panic_data: Array<felt252> = ArrayTrait::new();
 
