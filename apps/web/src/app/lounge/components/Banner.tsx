@@ -37,7 +37,7 @@ export default function Banner() {
         </Typography>
         <div className="mt-6 flex gap-6">
           <Button variant="s">Move other NFTs</Button>
-          <Button variant="s">List on ArkMarket</Button>
+          <Button variant="s">List on OpenSea</Button>
         </div>
       </div>
     </div>

@@ -50,10 +50,10 @@ export default function TokenList() {
           </div>
           {selectedCollectionName !== null && (
             <button
-              className="rounded-md bg-dark-blue-950 p-1.5 font-medium text-white"
+              className="rounded-full bg-dark-blue-950 px-3.5 py-2 font-medium text-white"
               onClick={toggleSelectAll}
             >
-              <Typography variant="body_text_bold_14">
+              <Typography variant="button_text_s">
                 {allCollectionSelected ? "Deselect all" : "Select all"}
               </Typography>
             </button>
