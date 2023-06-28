@@ -28,22 +28,30 @@ jobs:
         working-directory: apps/blockchain/contracts/starknet
 
   test-ethereum-contracts:
+    strategy:
+      fail-fast: true
+
+    name: Foundry testing
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
+      - uses: actions/checkout@v3
         with:
-          node-version: "16.x"
+          submodules: recursive
 
-      - name: Install dependencies
-        run: yarn install
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
 
-      - name: Compile contracts
-        run: yarn build --scope=@starklane/blockchain
+      - name: Run Forge build
+        run: |
+          forge --version
+          forge build --sizes --root apps/blockchain/contracts/ethereum/
+        id: build
 
-      - name: Test contracts
-        run: yarn test --scope=@starklane/blockchain
+      - name: Run Forge tests
+        run: |
+          forge test -vvv
+        id: test
+
