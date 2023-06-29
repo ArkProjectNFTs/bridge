@@ -21,10 +21,7 @@ use option::OptionTrait;
 
 use starknet::{ContractAddress, ContractAddressIntoFelt252};
 
-// TODO(glihm): Remove this on new version of compiler.
-use starklane::utils::serde::SpanSerde;
-
-use starklane::token::erc721::{TokenInfo, TokenInfoSerde, SpanTokenInfoSerde};
+use starklane::token::erc721::{TokenInfo, TokenInfoSerde};
 
 /// Request to bridge tokens.
 ///
@@ -34,7 +31,7 @@ use starklane::token::erc721::{TokenInfo, TokenInfoSerde, SpanTokenInfoSerde};
 ///
 /// TODO(glihm): Check if we do need u256, or if felt252 is ok for all the fields.
 ///              Verify how front-end libs like starknet.js behaves and solidity!
-#[derive(Serde, Drop)]
+#[derive(Copy, Serde, Drop)]
 struct BridgeRequest {
     header: felt252,
     req_hash: felt252,

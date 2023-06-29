@@ -15,24 +15,10 @@ use super::token_uri::TokenURI;
 use super::interfaces::IERC721BridgeableDispatcher;
 
 /// ERC721 token info.
-#[derive(Serde, Drop)]
+#[derive(Copy, Serde, Drop)]
 struct TokenInfo {
     token_id: u256,
     token_uri: TokenURI,
-}
-
-/// We need this implementation as TokenInfo does not
-/// impl Copy (too expensive).
-impl SpanTokenInfoSerde<> of Serde<Span<TokenInfo>> {
-    fn serialize(self: @Span<TokenInfo>, ref output: Array<felt252>) {
-        (*self).len().serialize(ref output);
-        serde::serialize_array_helper(*self, ref output);
-    }
-    fn deserialize(ref serialized: Span<felt252>) -> Option<Span<TokenInfo>> {
-        let length = *serialized.pop_front()?;
-        let mut arr = ArrayTrait::new();
-        Option::Some(serde::deserialize_array_helper(ref serialized, arr, length)?.span())
-    }
 }
 
 #[cfg(test)]

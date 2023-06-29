@@ -6,12 +6,9 @@ version = "1.0.0"
 sierra-replace-ids = true
 
 [dependencies]
-starknet = ">=1.0.0"
+starknet = ">=2.0.0-rc6"
 
 [[target.starknet-contract]]
 sierra = true
-
-[scripts]
-test-caironet = "sudo docker run --rm -v $(pwd):/work -t --entrypoint cairo-test glihm/caironet:1.1.0-d --starknet /work/"
 
 [lib]

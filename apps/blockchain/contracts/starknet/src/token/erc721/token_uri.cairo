@@ -34,7 +34,6 @@ use starknet::{ContractAddress, SyscallResult, StorageAccess, StorageBaseAddress
 
 // TODO(glihm): Remove this on new version of compiler.
 use starklane::utils::{
-    serde::SpanSerde,
     serde_storage
 };
 
@@ -209,37 +208,34 @@ impl TokenURISerde of serde::Serde<TokenURI> {
     }
 }
 
-/// Initializes a TokenURI from a short string.
-impl Felt252IntoTokenURI of Into<felt252, TokenURI> {
-    ///
-    fn into(self: felt252) -> TokenURI {
-        let mut content = ArrayTrait::<felt252>::new();
-        content.append(self);
+impl TokenURIStorageAccess of starknet::StorageAccess<TokenURI> {
 
-        TokenURI {
-            len: 1,
-            content: content.span()
-        }
+    fn read(address_domain: u32, base: starknet::StorageBaseAddress) -> SyscallResult::<TokenURI> {
+        let len = StorageAccess::<u32>::read(address_domain, base)?;
+
+        let mut content: Array<felt252> = ArrayTrait::new();
+        let mut offset: u8 = 1;
+        loop {
+            if offset.into() == len {
+                break ();
+            }
+
+            starknet::storage_read_syscall(
+                address_domain,
+                starknet::storage_address_from_base_and_offset(base, offset)
+            )?;
+
+            offset += 1;
+        };
+
+        SyscallResult::Ok(TokenURI {
+            len,
+            content: content.span(),
+        })
     }
-}
 
-/// Initializes a TokenURI from Array<felt252>.
-impl ArrayIntoTokenURI of Into<Array<felt252>, TokenURI> {
-    ///
-    fn into(self: Array<felt252>) -> TokenURI {
-        TokenURI {
-            len: self.len(),
-            content: self.span()
-        }
-    }
-}
 
-/// Implement the StorageAccess to enable TokenURI being stored in Storage struct.
-///
-/// TODO: check with cairo v2.0.0 if it works?
-impl StorageAccessTokenURI of StorageAccess<TokenURI> {
-    ///
-    fn write(address_domain: u32, base: StorageBaseAddress, value: TokenURI) -> SyscallResult<()> {
+    fn write(address_domain: u32, base: StorageBaseAddress, value: TokenURI) -> SyscallResult::<()> {
         StorageAccess::<u32>::write(address_domain, base, value.len)?;
 
         let mut offset: u8 = 1;
@@ -263,29 +259,49 @@ impl StorageAccessTokenURI of StorageAccess<TokenURI> {
         SyscallResult::Ok(())
     }
 
+    fn read_at_offset_internal(address_domain: u32, base: StorageBaseAddress, offset: u8) -> SyscallResult<TokenURI> {
+        TokenURIStorageAccess::read_at_offset_internal(address_domain, base, offset)
+    }
+    fn write_at_offset_internal(address_domain: u32, base: StorageBaseAddress, offset: u8, value: TokenURI) -> SyscallResult<()> {
+        TokenURIStorageAccess::write_at_offset_internal(address_domain, base, offset, value)
+    }
+    fn size_internal(value: TokenURI) -> u8 {
+        value.len.try_into().unwrap() + 1_u8
+    }
+}
+
+impl TokenURILegacyHash of hash::LegacyHash::<TokenURI> {
+    #[inline(always)]
+    fn hash(state: felt252, value: TokenURI) -> felt252 {
+        let mut buf: Array<felt252> = ArrayTrait::new();
+        value.serialize(ref buf);
+        let k = poseidon::poseidon_hash_span(buf.span());
+        hash::LegacyHash::hash(state, k)
+    }
+}
+
+/// Initializes a TokenURI from a short string.
+impl Felt252IntoTokenURI of Into<felt252, TokenURI> {
     ///
-    fn read(address_domain: u32, base: StorageBaseAddress) -> SyscallResult<TokenURI> {
-        let len = StorageAccess::<u32>::read(address_domain, base)?;
+    fn into(self: felt252) -> TokenURI {
+        let mut content = ArrayTrait::<felt252>::new();
+        content.append(self);
 
-        let mut content: Array<felt252> = ArrayTrait::new();
-        let mut offset: u8 = 1;
-        loop {
-            if offset.into() == len {
-                break ();
-            }
+        TokenURI {
+            len: 1,
+            content: content.span()
+        }
+    }
+}
 
-            starknet::storage_read_syscall(
-                address_domain,
-                starknet::storage_address_from_base_and_offset(base, offset)
-            )?;
-
-            offset += 1;
-        };
-
-        SyscallResult::Ok(TokenURI {
-            len,
-            content: content.span(),
-        })
+/// Initializes a TokenURI from Array<felt252>.
+impl ArrayIntoTokenURI of Into<Array<felt252>, TokenURI> {
+    ///
+    fn into(self: Array<felt252>) -> TokenURI {
+        TokenURI {
+            len: self.len(),
+            content: self.span()
+        }
     }
 }
 

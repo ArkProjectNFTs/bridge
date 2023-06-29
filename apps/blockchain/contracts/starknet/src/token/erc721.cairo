@@ -9,7 +9,7 @@ use token_uri::{
 };
 
 mod token_info;
-use token_info::{TokenInfo, TokenInfoSerde, SpanTokenInfoSerde};
+use token_info::{TokenInfo, TokenInfoSerde};
 
 mod erc721_bridgeable;
 use erc721_bridgeable::ERC721Bridgeable;
