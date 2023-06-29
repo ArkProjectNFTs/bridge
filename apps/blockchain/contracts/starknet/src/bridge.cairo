@@ -37,8 +37,7 @@ trait IBridge<T> {
 
 #[starknet::contract]
 mod bridge_contract {
-    use array::SpanTrait;
-    use array::ArrayTrait;
+    use array::{ArrayTrait, SpanTrait};
     use traits::{Into, TryInto};
     use zeroable::Zeroable;
     use serde::Serde;
@@ -380,7 +379,7 @@ mod bridge_contract {
 #[cfg(test)]
 mod tests {
 
-    use super::Bridge;
+    use super::bridge_contract;
 
     use array::{ArrayTrait, SpanTrait};
     use option::OptionTrait;
@@ -400,7 +399,7 @@ mod tests {
         calldata.append(admin_addr.into());
 
         let (addr, _) = starknet::deploy_syscall(
-            Bridge::TEST_CLASS_HASH.try_into().unwrap(),
+            bridge_contract::TEST_CLASS_HASH.try_into().unwrap(),
             0,
             calldata.span(),
             false).expect('deploy_syscall failed');

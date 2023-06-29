@@ -12,7 +12,8 @@ mod token_info;
 use token_info::{TokenInfo, TokenInfoSerde};
 
 mod erc721_bridgeable;
-use erc721_bridgeable::ERC721Bridgeable;
+use erc721_bridgeable::erc721_bridgeable_contract;
+
 
 #[cfg(test)]
 use erc721_bridgeable::tests::deploy;

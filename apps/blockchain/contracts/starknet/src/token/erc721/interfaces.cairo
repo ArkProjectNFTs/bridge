@@ -26,4 +26,5 @@ trait IERC721Bridgeable<T> {
     fn set_approval_for_all(ref self: T, operator: ContractAddress, approved: bool);
     fn transfer_from(ref self: T, from: ContractAddress, to: ContractAddress, token_id: u256);
     fn replace_class(ref self: T, class_hash: ClassHash);
+    fn approve(ref self: T, to: ContractAddress, token_id: u256);
 }

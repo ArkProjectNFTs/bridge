@@ -7,19 +7,21 @@
 ///! to test the infrastructure.
 
 #[starknet::contract]
-mod ERC721Bridgeable {
+mod erc721_bridgeable_contract {
     use starknet::{
         ContractAddress,
         ClassHash,
     };
     use traits::{TryInto, Into};
     use zeroable::Zeroable;
+    use starknet::contract_address::ContractAddressZeroable;
     use option::OptionTrait;
+    use array::{ArrayTrait, SpanTrait};
 
     use starklane::token::erc721::{TokenURI, Felt252IntoTokenURI};
     use starklane::token::erc721;
 
-    const TOKEN_URI_STORAGE_KEY: felt252 = 0x02d07e6382159ff0f968cba39fe4bab5a235b914d9e4d8730955c0f54f24f433;
+    use starklane::token::erc721::interfaces::IERC721Bridgeable;
 
     #[storage]
     struct Storage {
@@ -30,10 +32,11 @@ mod ERC721Bridgeable {
         owners: LegacyMap<u256, ContractAddress>,
         operator_approvals: LegacyMap<(ContractAddress, ContractAddress), bool>,
         token_approvals: LegacyMap<u256, ContractAddress>,
+        token_uris: LegacyMap<u256, TokenURI>,
     }
 
     #[constructor]
-    fn init(
+    fn constructor(
         ref self: ContractState,
         name: felt252,
         symbol: felt252,
@@ -92,114 +95,118 @@ mod ERC721Bridgeable {
     }
 
 
-    //
-    // *** VIEWS ***
-    //
     #[external(v0)]
-    fn name(self: @ContractState) -> felt252 {
-        self.name_s.read()
-    }
+    impl ERC721Bridgeable of IERC721Bridgeable<ContractState> {
 
-    #[external(v0)]
-    fn symbol(self: @ContractState) -> felt252 {
-        self.symbol_s.read()
-    }
+        //
+        // *** VIEWS ***
+        //
+        fn name(self: @ContractState) -> felt252 {
+            self.name_s.read()
+        }
 
-    #[external(v0)]
-    fn owner_of(self: @ContractState, token_id: u256) -> ContractAddress {
-        let owner = self.owners.read(token_id);
-        assert(!owner.is_zero(), 'ERC721: invalid token ID');
-        owner
-    }
+        fn symbol(self: @ContractState) -> felt252 {
+            self.symbol_s.read()
+        }
 
-    #[external(v0)]
-    fn is_approved_for_all(self: @ContractState, owner: ContractAddress, operator: ContractAddress) -> bool {
-        self.operator_approvals.read((owner, operator))
-    }
+        fn owner_of(self: @ContractState, token_id: u256) -> ContractAddress {
+            get_owner_of(self, token_id)
+        }
 
-    #[external(v0)]
-    fn token_uri(self: @ContractState, token_id: u256) -> TokenURI {
-        assert(exists(self, token_id), 'ERC721: invalid token ID');
-        erc721::token_uri_from_storage(TOKEN_URI_STORAGE_KEY, token_id)
-    }
+        fn is_approved_for_all(self: @ContractState, owner: ContractAddress, operator: ContractAddress) -> bool {
+            is_approved_for_all_check(self, owner, operator)
+        }
 
-    //
-    // *** EXTERNALS ***
-    //
-    #[external(v0)]
-    fn permissioned_mint(ref self: ContractState, to: ContractAddress, token_id: u256, token_uri: TokenURI) {
-        assert(starknet::get_caller_address() == self.bridge_addr.read(),
-               'ERC721: only bridge can pmint');
+        fn balance_of(self: @ContractState, account: ContractAddress) -> u256 {
+            0
+        }
 
-        mint(ref self, to, token_id);
+        fn token_uri(self: @ContractState, token_id: u256) -> TokenURI {
+            assert(exists(self, token_id), 'ERC721: invalid token ID');
+            self.token_uris.read(token_id)
+        }
 
-        erc721::token_uri_to_storage(TOKEN_URI_STORAGE_KEY, token_id, @token_uri);
-    }
+        //
+        // *** EXTERNALS ***
+        //
+        fn permissioned_mint(ref self: ContractState, to: ContractAddress, token_id: u256, token_uri: TokenURI) {
+            assert(starknet::get_caller_address() == self.bridge_addr.read(),
+                   'ERC721: only bridge can pmint');
 
-    #[external(v0)]
-    fn simple_mint(ref self: ContractState, to: ContractAddress, token_id: u256, token_uri: TokenURI) {
-        mint(ref self, to, token_id);
-        erc721::token_uri_to_storage(TOKEN_URI_STORAGE_KEY, token_id, @token_uri);
-    }
+            mint(ref self, to, token_id);
+            self.token_uris.write(token_id, token_uri);
+        }
 
-    #[external(v0)]
-    fn approve(ref self: ContractState, to: ContractAddress, token_id: u256) {
-        let owner = owner_of(@self, token_id);
-        let caller = starknet::get_caller_address();
-        assert(owner == caller || is_approved_for_all(@self, owner, caller), 'ERC721: unauthorized caller');
-        assert(owner != to, 'ERC721: self approval');
+        fn simple_mint(ref self: ContractState, to: ContractAddress, token_id: u256, token_uri: TokenURI) {
+            mint(ref self, to, token_id);
+            self.token_uris.write(token_id, token_uri);
+        }
 
-        self.token_approvals.write(token_id, to);
-        self.emit(Approval { owner, approved: to, token_id });
-    }
+        fn approve(ref self: ContractState, to: ContractAddress, token_id: u256) {
+            let owner = get_owner_of(@self, token_id);
+            let caller = starknet::get_caller_address();
+            assert(owner == caller || is_approved_for_all_check(@self, owner, caller), 'ERC721: unauthorized caller');
+            assert(owner != to, 'ERC721: self approval');
 
-    #[external(v0)]
-    fn set_approval_for_all(ref self: ContractState, operator: ContractAddress, approved: bool) {
-        let owner = starknet::get_caller_address();
-        assert(owner != operator, 'ERC721: self approval');
-        self.operator_approvals.write((owner, operator), approved);
-        self.emit(ApprovalForAll { owner, operator, approved });
-    }
+            self.token_approvals.write(token_id, to);
+            self.emit(Approval { owner, approved: to, token_id });
+        }
 
-    #[external(v0)]
-    fn transfer_from(ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256) {
-        assert(!to.is_zero(), 'ERC721: invalid receiver');
-        assert(is_approved_or_owner_of(@self, starknet::get_caller_address(), token_id),
-               'ERC721: unauthorized caller');
+        fn set_approval_for_all(ref self: ContractState, operator: ContractAddress, approved: bool) {
+            let owner = starknet::get_caller_address();
+            assert(owner != operator, 'ERC721: self approval');
+            self.operator_approvals.write((owner, operator), approved);
+            self.emit(ApprovalForAll { owner, operator, approved });
+        }
 
-        assert(from == owner_of(@self, token_id), 'ERC721: wrong sender');
+        fn transfer_from(ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256) {
+            assert(!to.is_zero(), 'ERC721: invalid receiver');
+            assert(is_approved_or_owner_of(@self, starknet::get_caller_address(), token_id),
+                   'ERC721: unauthorized caller');
 
-        self.token_approvals.write(token_id, Zeroable::zero());
+            assert(from == get_owner_of(@self, token_id), 'ERC721: wrong sender');
 
-        self.owners.write(token_id, to);
+            self.token_approvals.write(token_id, Zeroable::zero());
 
-        self.emit(Transfer { from, to, token_id });
-    }
+            self.owners.write(token_id, to);
 
-    #[external(v0)]
-    fn replace_class(ref self: ContractState, class_hash: ClassHash) {
-        assert(starknet::get_caller_address() == self.collection_owner.read(),
-               'Unauthorized replace class');
+            self.emit(Transfer { from, to, token_id });
+        }
 
-        match starknet::replace_class_syscall(class_hash) {
-            Result::Ok(_) => self.emit(ReplacedClassHash {
-                contract: starknet::get_contract_address(),
-                class: class_hash
-            }),
-            Result::Err(revert_reason) => panic(revert_reason),
-        };
+        fn replace_class(ref self: ContractState, class_hash: ClassHash) {
+            assert(starknet::get_caller_address() == self.collection_owner.read(),
+                   'Unauthorized replace class');
+
+            match starknet::replace_class_syscall(class_hash) {
+                Result::Ok(_) => self.emit(ReplacedClassHash {
+                    contract: starknet::get_contract_address(),
+                    class: class_hash
+                }),
+                Result::Err(revert_reason) => panic(revert_reason),
+            };
+        }
     }
 
     //
     // *** INTERNALS ***
     //
+    fn is_approved_for_all_check(self: @ContractState, owner: ContractAddress, operator: ContractAddress) -> bool {
+        self.operator_approvals.read((owner, operator))
+    }
+
+    fn get_owner_of(self: @ContractState, token_id: u256) -> ContractAddress {
+        let owner = self.owners.read(token_id);
+        assert(!owner.is_zero(), 'ERC721: invalid token ID');
+        owner
+    }
+
     fn exists(self: @ContractState, token_id: u256) -> bool {
         !self.owners.read(token_id).is_zero()
     }
 
     fn is_approved_or_owner_of(self: @ContractState, spender: ContractAddress, token_id: u256) -> bool {
-        let owner = owner_of(self, token_id);
-        owner == spender || is_approved_for_all(self, owner, spender)
+        let owner = get_owner_of(self, token_id);
+        owner == spender || is_approved_for_all_check(self, owner, spender)
     }
 
     fn mint(ref self: ContractState, to: ContractAddress, token_id: u256) {
@@ -217,7 +224,7 @@ mod ERC721Bridgeable {
     }
 
     fn burn(ref self: ContractState, token_id: u256) {
-        let owner = owner_of(@self, token_id);
+        let owner = get_owner_of(@self, token_id);
         self.owners.write(token_id, Zeroable::zero());
 
         self.emit(Transfer {
@@ -230,7 +237,7 @@ mod ERC721Bridgeable {
 
 #[cfg(test)]
 mod tests {
-    use super::ERC721Bridgeable;
+    use super::erc721_bridgeable_contract;
 
     use starklane::token::erc721::interfaces::{IERC721BridgeableDispatcher, IERC721BridgeableDispatcherTrait};
 
@@ -264,7 +271,7 @@ mod tests {
         calldata.append(collection_owner.into());
 
         let (addr, _) = starknet::deploy_syscall(
-            ERC721Bridgeable::TEST_CLASS_HASH.try_into().unwrap(),
+            erc721_bridgeable_contract::TEST_CLASS_HASH.try_into().unwrap(),
             0,
             calldata.span(),
             false).expect('deploy_syscall failed');
