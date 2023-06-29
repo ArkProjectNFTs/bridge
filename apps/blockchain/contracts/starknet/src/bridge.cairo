@@ -130,7 +130,7 @@ mod bridge_contract {
         }
 
         fn is_token_escrowed_ext(self: @ContractState, collection_address: ContractAddress, token_id: u256) -> bool {
-            is_token_escrowed(self, collection_address, token_id)
+            !self.escrow.read((collection_address, token_id)).is_zero()
         }
 
         // *** EXTERNALS ***
@@ -157,15 +157,21 @@ mod bridge_contract {
                     break ();
                 }
 
-                let token: @TokenInfo = req.tokens[i];
+                // let token: TokenInfo = *req.tokens[i];
+                let token_id = 2_u256;
+                let token_uri: TokenURI = '23333'.into();
                 let to = req.owner_l2_address;
                 let from = starknet::get_contract_address();
 
-                if is_token_escrowed(@self, collection_l2_address, *token.token_id) {
-                    collection.transfer_from(from, to, *token.token_id);
+                let is_escrowed = !self.escrow
+                    .read((collection_l2_address, token_id))
+                    .is_zero();
+
+                if is_escrowed {
+                    collection.transfer_from(from, to, token_id);
                     // TODO: emit event.
                 } else {
-                    collection.permissioned_mint(to, *token.token_id, *token.token_uri);
+                    collection.permissioned_mint(to, token_id, token_uri);
                     // TODO: emit event.
                 }
 
@@ -271,9 +277,6 @@ mod bridge_contract {
     }
 
     // *** INTERNALS ***
-    fn is_token_escrowed(self: @ContractState, collection_address: ContractAddress, token_id: u256) -> bool {
-        !self.escrow.read((collection_address, token_id)).is_zero()
-    }
 
     /// Ensures the caller is the bridge admin. Revert if it's not.
     fn ensure_is_admin(self: @ContractState) {
