@@ -157,9 +157,10 @@ mod bridge_contract {
                     break ();
                 }
 
-                // let token: TokenInfo = *req.tokens[i];
-                let token_id = 2_u256;
-                let token_uri: TokenURI = '23333'.into();
+                let token: TokenInfo = *req.tokens[i];
+                let token_id = token.token_id;
+                let token_uri = token.token_uri;
+
                 let to = req.owner_l2_address;
                 let from = starknet::get_contract_address();
 
