@@ -29,8 +29,8 @@ mod erc721_bridgeable_contract {
     struct Storage {
         bridge_addr: ContractAddress,
         collection_owner: ContractAddress,
-        name_s: felt252,
-        symbol_s: felt252,
+        name_s: LongString,
+        symbol_s: LongString,
         owners: LegacyMap<u256, ContractAddress>,
         operator_approvals: LegacyMap<(ContractAddress, ContractAddress), bool>,
         token_approvals: LegacyMap<u256, ContractAddress>,
@@ -40,13 +40,15 @@ mod erc721_bridgeable_contract {
     #[constructor]
     fn constructor(
         ref self: ContractState,
-        name: felt252,
-        symbol: felt252,
+        name: LongString,
+        symbol: LongString,
         bridge_addr: ContractAddress,
         collection_owner: ContractAddress,
     ) {
         assert(!bridge_addr.is_zero(), 'Invalid bridge address');
         assert(!collection_owner.is_zero(), 'Bad collection owner address');
+        assert(name.len > 0, 'Bad name len');
+        assert(symbol.len > 0, 'Bad symbol len');
 
         self.name_s.write(name);
         self.symbol_s.write(symbol);
@@ -103,11 +105,11 @@ mod erc721_bridgeable_contract {
         //
         // *** VIEWS ***
         //
-        fn name(self: @ContractState) -> felt252 {
+        fn name(self: @ContractState) -> LongString {
             self.name_s.read()
         }
 
-        fn symbol(self: @ContractState) -> felt252 {
+        fn symbol(self: @ContractState) -> LongString {
             self.symbol_s.read()
         }
 
@@ -255,20 +257,20 @@ mod tests {
 
     use starklane::token::erc721;
     use starklane::string;
-    use starklane::string::LongString;
+    use starklane::string::{LongString, LongStringSerde};
     use starknet::testing;
 
     /// Deploy a ERC721Bridgeable instance, reusable in tests.
     fn deploy(
-        name: felt252,
-        symbol: felt252,
+        name: LongString,
+        symbol: LongString,
         bridge_addr: ContractAddress,
         collection_owner: ContractAddress,
     ) -> ContractAddress {
 
         let mut calldata: Array<felt252> = array::ArrayTrait::new();
-        calldata.append(name);
-        calldata.append(symbol);
+        name.serialize(ref calldata);
+        symbol.serialize(ref calldata);
         calldata.append(bridge_addr.into());
         calldata.append(collection_owner.into());
 
@@ -281,31 +283,57 @@ mod tests {
         addr
     }
 
+    // TODO: replace those functions by constants when
+    // the address can be constants...!
+
+    /// Mocked bridge addr.
+    fn bridge_addr_mock() -> ContractAddress {
+        starknet::contract_address_const::<'bridge'>()
+    }
+
+    /// Mocked everai collection owner addr.
+    fn collection_owner_addr_mock() -> ContractAddress {
+        starknet::contract_address_const::<'everai collec owner'>()
+    }
+
+    /// Deploy everai collection.
+    fn deploy_everai_collection() -> ContractAddress {
+        deploy('everai duo'.into(),
+               'DUO'.into(),
+               bridge_addr_mock(),
+               collection_owner_addr_mock())
+    }
+
     /// Should have correct constructor valules.
     #[test]
     #[available_gas(2000000000)]
     fn deploy_new() {
-        let BRIDGE = starknet::contract_address_const::<77>();
-        let COLLECTION_OWNER = starknet::contract_address_const::<88>();
+        let BRIDGE = bridge_addr_mock();
+        let COLLECTION_OWNER = collection_owner_addr_mock();
 
-        let collection_addr = deploy('everai duo', 'DUO', BRIDGE, COLLECTION_OWNER);
+        let collection_addr = deploy_everai_collection();
 
         let collection = IERC721BridgeableDispatcher { contract_address: collection_addr };
 
-        assert(collection.name() == 'everai duo', 'Bad name');
-        assert(collection.symbol() == 'DUO', 'Bad symbol');
+        let n = collection.name();
+        assert(n.len == 1, 'Bad name len');
+        assert(*n.content[0] == 'everai duo', 'Bad name content');
+
+        let s = collection.symbol();
+        assert(s.len == 1, 'Bad symbol len');
+        assert(*s.content[0] == 'DUO', 'Bad symbol content');
     }
 
     /// Should store some TokenURI inside the storage.
     #[test]
     #[available_gas(2000000000)]
     fn storage_struct() {
-        let BRIDGE = starknet::contract_address_const::<77>();
-        let COLLECTION_OWNER = starknet::contract_address_const::<88>();
+        let BRIDGE = bridge_addr_mock();
+        let COLLECTION_OWNER = collection_owner_addr_mock();
         let NEW_DUO_OWNER = starknet::contract_address_const::<128>();
         let TOKEN_ID = 244;
 
-        let collection_addr = deploy('everai duo', 'DUO', BRIDGE, COLLECTION_OWNER);
+        let collection_addr = deploy_everai_collection();
 
         let collection = IERC721BridgeableDispatcher { contract_address: collection_addr };
         
@@ -328,11 +356,12 @@ mod tests {
     #[test]
     #[available_gas(2000000000)]
     fn permissioned_mint() {
-        let BRIDGE = starknet::contract_address_const::<77>();
-        let COLLECTION_OWNER = starknet::contract_address_const::<88>();
+        let BRIDGE = bridge_addr_mock();
+        let COLLECTION_OWNER = collection_owner_addr_mock();
         let NEW_DUO_OWNER = starknet::contract_address_const::<128>();
 
-        let collection_addr = deploy('everai duo', 'DUO', BRIDGE, COLLECTION_OWNER);
+        let collection_addr = deploy_everai_collection();
+
         let collection = IERC721BridgeableDispatcher { contract_address: collection_addr };
 
         testing::set_contract_address(BRIDGE);
@@ -345,11 +374,12 @@ mod tests {
     #[should_panic()]
     #[available_gas(2000000000)]
     fn permissioned_mint_fail() {
-        let BRIDGE = starknet::contract_address_const::<77>();
-        let COLLECTION_OWNER = starknet::contract_address_const::<88>();
+        let BRIDGE = bridge_addr_mock();
+        let COLLECTION_OWNER = collection_owner_addr_mock();
         let NEW_DUO_OWNER = starknet::contract_address_const::<128>();
 
-        let collection_addr = deploy('everai duo', 'DUO', BRIDGE, COLLECTION_OWNER);
+        let collection_addr = deploy_everai_collection();
+
         let collection = IERC721BridgeableDispatcher { contract_address: collection_addr };
 
         collection.permissioned_mint(NEW_DUO_OWNER, 0, 'myuri'.into());
@@ -360,13 +390,14 @@ mod tests {
     #[test]
     #[available_gas(2000000000)]
     fn transfer_tokens() {
-        let BRIDGE = starknet::contract_address_const::<77>();
-        let COLLECTION_OWNER = starknet::contract_address_const::<88>();
+        let BRIDGE = bridge_addr_mock();
+        let COLLECTION_OWNER = collection_owner_addr_mock();
         let FROM_DUO_OWNER = starknet::contract_address_const::<128>();
         let TO_DUO_OWNER = starknet::contract_address_const::<128>();
         let TOKEN_ID = 0_u256;
 
-        let collection_addr = deploy('everai duo', 'DUO', BRIDGE, COLLECTION_OWNER);
+        let collection_addr = deploy_everai_collection();
+
         let collection = IERC721BridgeableDispatcher { contract_address: collection_addr };
 
         testing::set_contract_address(BRIDGE);
@@ -382,12 +413,12 @@ mod tests {
     #[test]
     #[available_gas(2000000000)]
     fn token_uri_from_contract_call() {
-        let BRIDGE = starknet::contract_address_const::<77>();
-        let COLLECTION_OWNER = starknet::contract_address_const::<88>();
+        let BRIDGE = bridge_addr_mock();
+        let COLLECTION_OWNER = collection_owner_addr_mock();
         let NEW_DUO_OWNER = starknet::contract_address_const::<128>();
         let TOKEN_ID = 244;
 
-        let collection_addr = deploy('everai duo', 'DUO', BRIDGE, COLLECTION_OWNER);
+        let collection_addr = deploy_everai_collection();
 
         let collection = IERC721BridgeableDispatcher { contract_address: collection_addr };
         

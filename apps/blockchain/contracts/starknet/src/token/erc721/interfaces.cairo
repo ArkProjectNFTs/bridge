@@ -3,8 +3,8 @@ use starklane::string::LongString;
 
 #[starknet::interface]
 trait IERC721Bridgeable<T> {
-    fn name(self: @T) -> felt252;
-    fn symbol(self: @T) -> felt252;
+    fn name(self: @T) -> LongString;
+    fn symbol(self: @T) -> LongString;
     fn balance_of(self: @T, account: ContractAddress) -> u256;
     fn owner_of(self: @T, token_id: u256) -> ContractAddress;
     fn token_uri(self: @T, token_id: u256) -> LongString;

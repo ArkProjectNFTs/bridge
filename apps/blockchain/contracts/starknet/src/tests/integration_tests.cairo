@@ -42,8 +42,8 @@ fn test_bad_request_addresses() {
         req_hash: 123,
         collection_l1_address: 0,
         collection_l2_address: starknet::contract_address_const::<1234>(),
-        collection_name: 'everai duo',
-        collection_symbol: 'DUO',
+        collection_name: 'everai duo'.into(),
+        collection_symbol: 'DUO'.into(),
         collection_contract_type: 'ERC721',
         owner_l1_address: 0x9988,
         owner_l2_address: starknet::contract_address_const::<0x999>(),
@@ -81,8 +81,8 @@ fn bridge_request_from_l1() {
         collection_l1_address: 0x11cc,
         // 0 as the first token of this collection is being bridged.
         collection_l2_address: starknet::contract_address_const::<0>(),
-        collection_name: 'everai duo',
-        collection_symbol: 'DUO',
+        collection_name: 'everai duo'.into(),
+        collection_symbol: 'DUO'.into(),
         collection_contract_type: 'ERC721',
         owner_l1_address: 0x9988,
         owner_l2_address: TOKEN_L2_OWNER,
@@ -119,8 +119,8 @@ fn bridge_request_from_l1() {
         req_hash: 123,
         collection_l1_address: 0x11cc,
         collection_l2_address: collection_l2_address,
-        collection_name: 'everai duo',
-        collection_symbol: 'DUO',
+        collection_name: 'everai duo'.into(),
+        collection_symbol: 'DUO'.into(),
         collection_contract_type: 'ERC721',
         owner_l1_address: 0x9988,
         owner_l2_address: TOKEN_L2_OWNER,
@@ -158,7 +158,12 @@ fn deposit_token_from_l2() {
     let DUO_OWNER_L2 = starknet::contract_address_const::<128>();
     let TOKEN_ID = 887;
 
-    let collection_l2_addr = erc721::deploy('everai duo', 'DUO', bridge_addr, bridge_addr);
+    let collection_l2_addr = erc721::deploy(
+        'everai duo'.into(),
+        'DUO'.into(),
+        bridge_addr,
+        bridge_addr);
+
     let collection = IERC721BridgeableDispatcher { contract_address: collection_l2_addr };
     collection.simple_mint(DUO_OWNER_L2, TOKEN_ID, 'uri'.into());
 

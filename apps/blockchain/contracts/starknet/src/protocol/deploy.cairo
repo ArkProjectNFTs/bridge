@@ -5,18 +5,20 @@
 use traits::Into;
 use starknet::{ContractAddress, ClassHash};
 use array::{ArrayTrait, SpanTrait};
+use serde::Serde;
+use starklane::string::{LongString, LongStringSerde};
 
 #[internal]
 fn deploy_erc721_bridgeable(
     class_hash: ClassHash,
     salt: felt252,
-    name: felt252,
-    symbol: felt252,
+    name: LongString,
+    symbol: LongString,
     bridge_address: ContractAddress,
 ) -> ContractAddress {
     let mut calldata = ArrayTrait::<felt252>::new();
-    calldata.append(name);
-    calldata.append(symbol);
+    name.serialize(ref calldata);
+    symbol.serialize(ref calldata);
     calldata.append(bridge_address.into());
     // For now, the bridge is by default the collection owner.
     calldata.append(bridge_address.into());

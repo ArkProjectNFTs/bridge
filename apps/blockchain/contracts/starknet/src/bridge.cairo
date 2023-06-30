@@ -46,6 +46,7 @@ mod bridge_contract {
     use starknet::{ClassHash, ContractAddress};
     use starknet::contract_address::ContractAddressZeroable;
 
+    use starklane::string::LongString;
     use starklane::protocol::BridgeRequest;
     use starklane::protocol::deploy;
     use starklane::token::erc721::{
@@ -97,8 +98,8 @@ mod bridge_contract {
     struct CollectionDeployedFromL1 {
         l1_addr: felt252,
         l2_addr: ContractAddress,
-        name: felt252,
-        symbol: felt252
+        name: LongString,
+        symbol: LongString
     }
 
     #[derive(Drop, starknet::Event)]
