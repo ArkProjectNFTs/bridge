@@ -220,10 +220,13 @@ impl TokenURIStorageAccess of starknet::StorageAccess<TokenURI> {
                 break ();
             }
 
-            starknet::storage_read_syscall(
+            match starknet::storage_read_syscall(
                 address_domain,
                 starknet::storage_address_from_base_and_offset(base, offset)
-            )?;
+            ) {
+                Result::Ok(r) => r,
+                Result::Err(e) => panic(e)
+            };
 
             offset += 1;
         };
@@ -247,11 +250,14 @@ impl TokenURIStorageAccess of starknet::StorageAccess<TokenURI> {
             let index = offset - 1;
             let uri_chunk = value.content[index.into()];
 
-            starknet::storage_write_syscall(
+            match starknet::storage_write_syscall(
                 address_domain,
                 starknet::storage_address_from_base_and_offset(base, offset),
                 *uri_chunk
-            )?;
+            ) {
+                Result::Ok(r) => r,
+                Result::Err(e) => panic(e),
+            }
 
             offset += 1;
         };
@@ -262,9 +268,11 @@ impl TokenURIStorageAccess of starknet::StorageAccess<TokenURI> {
     fn read_at_offset_internal(address_domain: u32, base: StorageBaseAddress, offset: u8) -> SyscallResult<TokenURI> {
         TokenURIStorageAccess::read_at_offset_internal(address_domain, base, offset)
     }
+
     fn write_at_offset_internal(address_domain: u32, base: StorageBaseAddress, offset: u8, value: TokenURI) -> SyscallResult<()> {
         TokenURIStorageAccess::write_at_offset_internal(address_domain, base, offset, value)
     }
+
     fn size_internal(value: TokenURI) -> u8 {
         value.len.try_into().unwrap() + 1_u8
     }
