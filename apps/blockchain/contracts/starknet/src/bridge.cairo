@@ -50,7 +50,6 @@ mod bridge_contract {
     use starklane::protocol::deploy;
     use starklane::token::erc721::{
         TokenInfo,
-        TokenURI,
         IERC721BridgeableDispatcher,
         IERC721BridgeableDispatcherTrait};
 

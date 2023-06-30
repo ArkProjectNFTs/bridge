@@ -1,13 +1,5 @@
-mod token_uri;
-use token_uri::{
-    TokenURI,
-    ArrayIntoTokenURI,
-    Felt252IntoTokenURI,
-    token_uri_from_contract_call,
-};
-
 mod token_info;
-use token_info::{TokenInfo, TokenInfoSerde};
+use token_info::{TokenInfo, TokenInfoSerde, token_uri_from_contract_call};
 
 mod erc721_bridgeable;
 use erc721_bridgeable::erc721_bridgeable_contract;

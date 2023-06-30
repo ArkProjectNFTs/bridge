@@ -2,10 +2,12 @@
 
 use starklane::bridge::{IBridgeDispatcher, IBridgeDispatcherTrait};
 use starklane::bridge;
-use starklane::token::erc721::{IERC721BridgeableDispatcher, IERC721BridgeableDispatcherTrait, TokenURI, TokenInfo, ArrayIntoTokenURI};
+use starklane::token::erc721::{IERC721BridgeableDispatcher, IERC721BridgeableDispatcherTrait, TokenInfo};
 use starklane::token::erc721;
 use starklane::token::erc721::erc721_bridgeable_contract;
 use starklane::protocol::BridgeRequest;
+
+use starklane::string::LongString;
 
 use debug::PrintTrait;
 use serde::Serde;

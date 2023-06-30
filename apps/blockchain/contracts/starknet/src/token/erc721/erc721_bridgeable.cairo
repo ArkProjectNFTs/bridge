@@ -18,8 +18,10 @@ mod erc721_bridgeable_contract {
     use option::OptionTrait;
     use array::{ArrayTrait, SpanTrait};
 
-    use starklane::token::erc721::{TokenURI, Felt252IntoTokenURI};
     use starklane::token::erc721;
+
+    use starklane::string;
+    use starklane::string::LongString;
 
     use starklane::token::erc721::interfaces::IERC721Bridgeable;
 
@@ -32,7 +34,7 @@ mod erc721_bridgeable_contract {
         owners: LegacyMap<u256, ContractAddress>,
         operator_approvals: LegacyMap<(ContractAddress, ContractAddress), bool>,
         token_approvals: LegacyMap<u256, ContractAddress>,
-        token_uris: LegacyMap<u256, TokenURI>,
+        token_uris: LegacyMap<u256, LongString>,
     }
 
     #[constructor]
@@ -121,7 +123,7 @@ mod erc721_bridgeable_contract {
             0
         }
 
-        fn token_uri(self: @ContractState, token_id: u256) -> TokenURI {
+        fn token_uri(self: @ContractState, token_id: u256) -> LongString {
             assert(exists(self, token_id), 'ERC721: invalid token ID');
             self.token_uris.read(token_id)
         }
@@ -129,7 +131,7 @@ mod erc721_bridgeable_contract {
         //
         // *** EXTERNALS ***
         //
-        fn permissioned_mint(ref self: ContractState, to: ContractAddress, token_id: u256, token_uri: TokenURI) {
+        fn permissioned_mint(ref self: ContractState, to: ContractAddress, token_id: u256, token_uri: LongString) {
             assert(starknet::get_caller_address() == self.bridge_addr.read(),
                    'ERC721: only bridge can pmint');
 
@@ -137,7 +139,7 @@ mod erc721_bridgeable_contract {
             self.token_uris.write(token_id, token_uri);
         }
 
-        fn simple_mint(ref self: ContractState, to: ContractAddress, token_id: u256, token_uri: TokenURI) {
+        fn simple_mint(ref self: ContractState, to: ContractAddress, token_id: u256, token_uri: LongString) {
             mint(ref self, to, token_id);
             self.token_uris.write(token_id, token_uri);
         }
@@ -251,9 +253,9 @@ mod tests {
     use starknet::class_hash::Felt252TryIntoClassHash;
     use starknet::{ContractAddress,ClassHash};
 
-    use starklane::token::erc721::{TokenURI, Felt252IntoTokenURI};
     use starklane::token::erc721;
-
+    use starklane::string;
+    use starklane::string::LongString;
     use starknet::testing;
 
     /// Deploy a ERC721Bridgeable instance, reusable in tests.
@@ -307,7 +309,7 @@ mod tests {
 
         let collection = IERC721BridgeableDispatcher { contract_address: collection_addr };
         
-        let new_uri: TokenURI = 'https:...'.into();
+        let new_uri: LongString = 'https:...'.into();
         collection.simple_mint(NEW_DUO_OWNER, TOKEN_ID, new_uri);
 
         let fetched_uri = collection.token_uri(TOKEN_ID);
@@ -389,7 +391,7 @@ mod tests {
 
         let collection = IERC721BridgeableDispatcher { contract_address: collection_addr };
         
-        let new_uri: TokenURI = 'https:...'.into();
+        let new_uri: LongString = 'https:...'.into();
         collection.simple_mint(NEW_DUO_OWNER, TOKEN_ID, new_uri);
 
         // Unwrap as we should have something as we just minted it.

@@ -11,14 +11,64 @@ use integer::U256TryIntoFelt252;
 use array::{ArrayTrait, SpanTrait};
 use option::OptionTrait;
 
-use super::token_uri::TokenURI;
+use starknet::{ContractAddress, SyscallResult};
+
 use super::interfaces::IERC721BridgeableDispatcher;
+
+use starklane::string;
+use starklane::string::LongString;
 
 /// ERC721 token info.
 #[derive(Copy, Serde, Drop)]
 struct TokenInfo {
     token_id: u256,
-    token_uri: TokenURI,
+    token_uri: LongString,
+}
+
+/// Returns a new URI after a call to
+/// the collection contract.
+///
+/// This function will try both selectors: token_uri and tokenUri.
+///
+/// TODO:
+/// None if it fails? Or do we want to Revert?!
+///
+/// * `collection_address` - Collection address of the collection.
+/// * `token_id` - Token id.
+fn token_uri_from_contract_call(
+    collection_address: ContractAddress,
+    token_id: u256,
+) -> Option<LongString> {
+
+    // TODO: add the interface detection when the standard is out.
+
+    let token_uri_selector = 0x0226ad7e84c1fe08eb4c525ed93cccadf9517670341304571e66f7c4f95cbe54;
+    let tokenUri_selector = 0x0362dec5b8b67ab667ad08e83a2c3ba1db7fdb4ab8dc3a33c057c4fddec8d3de;
+
+    let mut _calldata: Array<felt252> = ArrayTrait::new();
+    token_id.serialize(ref _calldata);
+
+    let calldata = _calldata.span();
+    
+    match starknet::call_contract_syscall(
+        collection_address,
+        token_uri_selector,
+        calldata,
+    ) {
+        Result::Ok(span) => string::long_string_from_span(span),
+        Result::Err(e) => {
+            match starknet::call_contract_syscall(
+                collection_address,
+                tokenUri_selector,
+                calldata,
+            ) {
+                Result::Ok(span) => string::long_string_from_span(span),
+                Result::Err(e) => {
+                    Option::None(())
+                }
+            }
+        }
+    }
 }
 
 #[cfg(test)]
@@ -32,7 +82,7 @@ mod tests {
 
     use starknet::contract_address_const;
 
-    use starklane::token::erc721::{TokenURI, Felt252IntoTokenURI};
+    use starklane::string::{LongString, Felt252IntoLongString};
 
     /// Should serialize and deserialize a RequestTokenBridge.
     #[test]
