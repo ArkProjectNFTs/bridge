@@ -216,7 +216,7 @@ impl TokenURIStorageAccess of starknet::StorageAccess<TokenURI> {
         let mut content: Array<felt252> = ArrayTrait::new();
         let mut offset: u8 = 1;
         loop {
-            if offset.into() == len {
+            if offset.into() == len + 1 {
                 break ();
             }
 
@@ -224,7 +224,7 @@ impl TokenURIStorageAccess of starknet::StorageAccess<TokenURI> {
                 address_domain,
                 starknet::storage_address_from_base_and_offset(base, offset)
             ) {
-                Result::Ok(r) => r,
+                Result::Ok(r) => content.append(r),
                 Result::Err(e) => panic(e)
             };
 
@@ -242,8 +242,9 @@ impl TokenURIStorageAccess of starknet::StorageAccess<TokenURI> {
         StorageAccess::<u32>::write(address_domain, base, value.len)?;
 
         let mut offset: u8 = 1;
+
         loop {
-            if offset.into() == value.len {
+            if offset.into() == value.len + 1 {
                 break ();
             }
 
