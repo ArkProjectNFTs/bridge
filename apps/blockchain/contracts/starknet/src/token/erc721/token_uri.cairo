@@ -32,10 +32,6 @@ use starknet::{ContractAddress, SyscallResult, StorageAccess, StorageBaseAddress
 // #[derive(Copy, Drop)]
 // extern type StorageBaseAddress;
 
-// TODO(glihm): Remove this on new version of compiler.
-use starklane::utils::{
-    serde_storage
-};
 
 /// Token URI represented internally as a list of short string.
 ///
@@ -130,57 +126,6 @@ fn token_uri_from_span(data: Span<felt252>) -> Option<TokenURI> {
             len,
             content: content.span()
         })
-    }
-}
-
-/// Stores a TokenURI into a storage for the given token id.
-///
-/// * `storage_key` - Storage key used to scope the storage.
-/// * `token_id` - The token ID which is combined to the storage_key for a unique key.
-/// * `token_uri` - The TokenURI to be stored.
-fn token_uri_to_storage(storage_key: felt252, token_id: u256, token_uri: @TokenURI) {
-    let mut _keys: Array<felt252> = ArrayTrait::new();
-    _keys.append(storage_key);
-    _keys.append(token_id.try_into().expect('Token id out of range'));
-
-    let keys = _keys.span();
-
-    let mut offset = 0_u8;
-
-    let len = (*token_uri.len).into();
-
-    serde_storage::set(keys, offset, len);
-    offset += 1;
-    serde_storage::set_span(keys, offset, *token_uri.content);
-}
-
-/// Retrieves a TokenURI from storage for the given token id.
-///
-/// * `storage_key` - Storage key used to scope the storage.
-/// * `token_id` - The token ID which is combined to the storage_key for a unique key.
-fn token_uri_from_storage(storage_key: felt252, token_id: u256) -> TokenURI{
-    let mut _keys: Array<felt252> = ArrayTrait::new();
-    _keys.append(storage_key);
-    _keys.append(token_id.try_into().expect('Token id out of range'));
-
-    let keys = _keys.span();
-
-    let mut offset = 0_u8;
-
-    let len: usize = serde_storage::get(keys, offset)
-        .expect('Token ID invalid')
-        .try_into()
-    // Always comes from TokenURI, the unwrap should be safe.
-        .unwrap();
-
-    // TODO: should we return Option::None if length is 0 or more than 255?
-
-    offset += 1;
-    let content = serde_storage::get_span(keys, offset, len);
-
-    TokenURI {
-        len,
-        content
     }
 }
 
