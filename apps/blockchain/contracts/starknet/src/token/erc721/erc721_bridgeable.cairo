@@ -7,7 +7,7 @@
 ///! to test the infrastructure.
 
 #[starknet::contract]
-mod erc721_bridgeable_contract {
+mod erc721_bridgeable {
     use starknet::{
         ContractAddress,
         ClassHash,
@@ -241,7 +241,7 @@ mod erc721_bridgeable_contract {
 
 #[cfg(test)]
 mod tests {
-    use super::erc721_bridgeable_contract;
+    use super::erc721_bridgeable;
 
     use starklane::token::erc721::interfaces::{IERC721BridgeableDispatcher, IERC721BridgeableDispatcherTrait};
 
@@ -275,7 +275,7 @@ mod tests {
         calldata.append(collection_owner.into());
 
         let (addr, _) = starknet::deploy_syscall(
-            erc721_bridgeable_contract::TEST_CLASS_HASH.try_into().unwrap(),
+            erc721_bridgeable::TEST_CLASS_HASH.try_into().unwrap(),
             0,
             calldata.span(),
             false).expect('deploy_syscall failed');

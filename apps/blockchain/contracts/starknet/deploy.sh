@@ -1,24 +1,24 @@
 #!/bin/bash
 
-# export STARKNET_ACCOUNT=~/.accounts/katana_2 
+# export STARKNET_ACCOUNT=~/.accounts/katana_200rc6_1
 # export STARKNET_RPC=http://0.0.0.0:5050
-# export STARKNET_KEYSTORE=~/.keystore/katana_1 
+# export STARKNET_KEYSTORE=~/.keystore/katana_200rc6_1
 
-ADMIN_ACCOUNT_ADDR=0x06f62894bfd81d2e396ce266b2ad0f21e0668d604e5bb1077337b6d570a54aea
+ADMIN_ACCOUNT_ADDR=0x03ee9e18edc71a6df30ac3aca2e0b02a198fbce19b7480a63a0d71cbd76652e0
 
 # TODO: find a way to automatically detect those.
-BRIDGE_CLASS_HASH=0x07a796713f53413f35c7bce37772dc6ef812f45c6ecc632c7d0ab4de8d96e624
-ERC721_CLASS_HASH=0x02515edb3e3fd7034399095a0a712aa12f014cbdd8b27b483b7ad4485aafdbe2
+BRIDGE_CLASS_HASH=0x0548a02cfb04008ed4adadb49a427b061537a7a711a66bdc0341f9409a66c587
+ERC721_CLASS_HASH=0x021ac711d5795b5b86cae6fb1d045f6ebc0c327ba21a3581cb25ebf3e5a6e7dc
 
 # TODO: when startkli address book is out, don't need this anymore.
-BRIDGE_ADDR=0x5434edebab3136aab9aa47128c4a6335615b7e907d36268632ca38bdd4329ea
+BRIDGE_ADDR=0x026fb840546e842f4a858a5b5ea2bfcfeabfdefa2705f56c13d16d966d0912c6
 
-starkli declare ./target/dev/starklane_Bridge.sierra.json
-starkli declare ./target/dev/starklane_ERC721Bridgeable.sierra.json
+starkli declare --compiler-version 2.0.0-rc6 ./target/dev/starklane_bridge.sierra.json --keystore-password 1234
+starkli declare --compiler-version 2.0.0-rc6 ./target/dev/starklane_erc721_bridgeable.sierra.json --keystore-password 1234
 
 # Deploy bridge, with admin addr.
 echo "*** DEPLOYING Bridge"
-starkli deploy "${BRIDGE_CLASS_HASH}" "${ADMIN_ACCOUNT_ADDR}"
+starkli deploy "${BRIDGE_CLASS_HASH}" "${ADMIN_ACCOUNT_ADDR}" --keystore-password 1234
 
 # Deploy ERC721, with bridge addr and admin and admin account as collection owner.
 # everai
@@ -27,9 +27,16 @@ TOKEN_NAME=0x657665726169
 TOKEN_SYMBOL=0x44554f
 
 echo "*** DEPLOYING ERC721Bridgeable"
-starkli deploy "${ERC721_CLASS_HASH}" \
-        "${TOKEN_NAME}" \
-        "${TOKEN_SYMBOL}" \
+starkli deploy --keystore-password 1234 "${ERC721_CLASS_HASH}" \
+        1 "${TOKEN_NAME}" \
+        1 "${TOKEN_SYMBOL}" \
         "${BRIDGE_ADDR}" \
         "${ADMIN_ACCOUNT_ADDR}"
 
+
+# curl --header "Content-Type: application/json"   --request POST   --data '{
+#     "jsonrpc": "2.0",
+#     "method": "katana_l1Handler",
+#     "params": ["0x04d7d59188eaf370aa67e5f57cc51f98c4e59e930cf56776d6c37e3ba1d4172d", "0x02f4a221b39003ca67210ffb52bc7e958008e403625efaeacb7aba78c7456cab", "3"],
+#     "id": 1
+# }' http://0.0.0.0:5050

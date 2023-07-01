@@ -33,10 +33,12 @@ trait IBridge<T> {
     fn is_token_escrowed_ext(self: @T, collection_address: ContractAddress, token_id: u256) -> bool;
 
     fn replace_class(ref self: T, class_hash: ClassHash);
+
+    fn read_dummy(self: @T) -> felt252;
 }
 
 #[starknet::contract]
-mod bridge_contract {
+mod bridge {
     use array::{ArrayTrait, SpanTrait};
     use traits::{Into, TryInto};
     use zeroable::Zeroable;
@@ -72,6 +74,8 @@ mod bridge_contract {
         // Registry of escrowed token for collections.
         // <(collection_l2_address, token_id), original_depositor_l2_address>
         escrow: LegacyMap::<(ContractAddress, u256), ContractAddress>,
+        //
+        dummy: felt252,
     }
 
     #[constructor]
@@ -92,6 +96,7 @@ mod bridge_contract {
         // TODO: factorize this events, one for all.
         ReplacedClassHash: ReplacedClassHash,
         ERC721DefaultClassChanged: ERC721DefaultClassChanged,
+        TestEvent: TestEvent,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -113,6 +118,12 @@ mod bridge_contract {
         class: ClassHash,
     }
 
+    #[derive(Drop, starknet::Event)]
+    struct TestEvent {
+        vv: felt252,
+    }
+
+
     // *** VIEWS ***
 
     // TODO: add some views (admin and not admin) to see some states
@@ -120,9 +131,18 @@ mod bridge_contract {
     // what is it's L1 address, etc...
     //
     // For that -> maybe having a hash map l1<->l2 and l2<->l1 may be interesting?
+    #[l1_handler]
+    fn l1_test(ref self: ContractState, from_address: felt252, i2: felt252) {
+        self.dummy.write(i2);
+        self.emit(TestEvent { vv: 1234 });
+    }
 
     #[external(v0)]
     impl Bridge of super::IBridge<ContractState> {
+
+        fn read_dummy(self: @ContractState) -> felt252 {
+            self.dummy.read()
+        }
 
         fn get_erc721_default(self: @ContractState) -> ClassHash {
             self.erc721_bridgeable_class.read()
@@ -281,7 +301,7 @@ mod bridge_contract {
     /// Ensures the caller is the bridge admin. Revert if it's not.
     fn ensure_is_admin(self: @ContractState) {
         assert(starknet::get_caller_address() == self.bridge_admin.read(),
-               'Unauthorized action');        
+               'Unauthorized action');
     }
 
     /// Verifies the collection addresses in the request and the local mapping
@@ -379,7 +399,7 @@ mod bridge_contract {
 #[cfg(test)]
 mod tests {
 
-    use super::bridge_contract;
+    use super::bridge;
 
     use array::{ArrayTrait, SpanTrait};
     use option::OptionTrait;
@@ -399,7 +419,7 @@ mod tests {
         calldata.append(admin_addr.into());
 
         let (addr, _) = starknet::deploy_syscall(
-            bridge_contract::TEST_CLASS_HASH.try_into().unwrap(),
+            bridge::TEST_CLASS_HASH.try_into().unwrap(),
             0,
             calldata.span(),
             false).expect('deploy_syscall failed');

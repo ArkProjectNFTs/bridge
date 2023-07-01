@@ -4,7 +4,7 @@ use starklane::bridge::{IBridgeDispatcher, IBridgeDispatcherTrait};
 use starklane::bridge;
 use starklane::token::erc721::{IERC721BridgeableDispatcher, IERC721BridgeableDispatcherTrait, TokenInfo};
 use starklane::token::erc721;
-use starklane::token::erc721::erc721_bridgeable_contract;
+use starklane::token::erc721::erc721_bridgeable;
 use starklane::protocol::BridgeRequest;
 
 use starklane::string::LongString;
@@ -33,7 +33,7 @@ fn test_bad_request_addresses() {
     let bridge = IBridgeDispatcher { contract_address: bridge_addr };
 
     testing::set_contract_address(bridge_admin_addr);
-    bridge.set_erc721_default_contract(erc721_bridgeable_contract::TEST_CLASS_HASH.try_into().unwrap());
+    bridge.set_erc721_default_contract(erc721_bridgeable::erc721_bridgeable::TEST_CLASS_HASH.try_into().unwrap());
 
     let mut tokens_to_bridge: Array<TokenInfo> = ArrayTrait::new();
 
@@ -63,7 +63,7 @@ fn bridge_request_from_l1() {
 
     // To set the erc721 default class we must be admin.
     testing::set_contract_address(bridge_admin_addr);
-    bridge.set_erc721_default_contract(erc721_bridgeable_contract::TEST_CLASS_HASH.try_into().unwrap());
+    bridge.set_erc721_default_contract(erc721_bridgeable::erc721_bridgeable::TEST_CLASS_HASH.try_into().unwrap());
 
     let TOKEN_ID = 77;
     let TOKEN_URI = 'http://everai.xyz/77';
@@ -150,7 +150,7 @@ fn deposit_token_from_l2() {
 
     // To set the erc721 default class we must be admin.
     testing::set_contract_address(bridge_admin_addr);
-    bridge.set_erc721_default_contract(erc721_bridgeable_contract::TEST_CLASS_HASH.try_into().unwrap());
+    bridge.set_erc721_default_contract(erc721_bridgeable::erc721_bridgeable::TEST_CLASS_HASH.try_into().unwrap());
 
     // Simulate a collection (which can be something else than ERC721Bridgeable).
     // But in this example we reuse the ERC721Bridgeable.
