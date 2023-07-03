@@ -9,7 +9,7 @@ export STARKNET_KEYSTORE=./katana_key.json
 ADMIN_ACCOUNT_ADDR=0x03ee9e18edc71a6df30ac3aca2e0b02a198fbce19b7480a63a0d71cbd76652e0
 
 # TODO: find a way to automatically detect those.
-BRIDGE_CLASS_HASH=0x0548a02cfb04008ed4adadb49a427b061537a7a711a66bdc0341f9409a66c587
+BRIDGE_CLASS_HASH=0x01907cd06c2522c63f03e88756811f1b6c7c621a1a49d4f846e56098e434e2f7
 ERC721_CLASS_HASH=0x021ac711d5795b5b86cae6fb1d045f6ebc0c327ba21a3581cb25ebf3e5a6e7dc
 
 # TODO: when startkli address book is out, don't need this anymore.

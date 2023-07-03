@@ -135,6 +135,33 @@ mod bridge {
     fn l1_test(ref self: ContractState, from_address: felt252, i2: felt252) {
         self.dummy.write(i2);
         self.emit(TestEvent { vv: 1234 });
+
+        let mut p: Array<felt252> = ArrayTrait::new();
+        p.append(1);
+        p.append(2);
+        p.append(3);
+
+        starknet::send_message_to_l1_syscall(
+            0xbeeffeeb,
+            p.span(),
+        ).unwrap_syscall();
+    }
+
+    #[external(v0)]
+    fn set_dummy(ref self: ContractState, a: felt252) {
+        self.dummy.write(a);
+
+        self.emit(TestEvent { vv: a });
+
+        let mut p: Array<felt252> = ArrayTrait::new();
+        p.append(1);
+        p.append(2);
+        p.append(a);
+
+        starknet::send_message_to_l1_syscall(
+            0xbeeffeeb,
+            p.span(),
+        ).unwrap_syscall();
     }
 
     #[external(v0)]
