@@ -63,13 +63,44 @@ mod tests {
     use starklane::token::erc721::TokenInfo;
     use starklane::string::LongString;
 
+    /// Should deserialize from external array.
+    #[test]
+    #[available_gas(2000000000)]
+    fn deserialize_from_external_buffer() {
+        let mut buf = ArrayTrait::<felt252>::new();
+        buf.append(0x00000000000000000000000000000000000000000000000000000000cafebeef);
+        buf.append(0x00000000000000000000000000000000000000000000000000000000000000ee);
+        buf.append(0x000000000000000000000000e7f1725e7734ce288f8367e1bb143e90bb3f0512);
+        buf.append(0x0);
+        buf.append(0x1);
+        buf.append(0x006576657261692064756f000000000000000000000000000000000000000000);
+        buf.append(0x1);
+        buf.append(0x004556455244554f000000000000000000000000000000000000000000000000);
+        buf.append(0x721);
+        buf.append(0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266);
+        buf.append(0x03ee9e18edc71a6df30ac3aca2e0b02a198fbce19b7480a63a0d71cbd76652e0);
+        buf.append(0x2);
+        buf.append(0x1);
+        buf.append(0x0);
+        buf.append(0x1);
+        buf.append(0x004e4f5f55524900000000000000000000000000000000000000000000000000);
+        buf.append(0x2);
+        buf.append(0x0);
+        buf.append(0x1);
+        buf.append(0x004e4f5f55524900000000000000000000000000000000000000000000000000);
+
+        assert(buf.len() == 20, 'Buf len');
+        let mut sp = buf.span();
+        let req2 = Serde::<BridgeRequest>::deserialize(ref sp).unwrap();
+    }    
+
     /// Should serialize and deserialize a BridgeRequest.
     #[test]
     #[available_gas(2000000000)]
     fn serialize_deserialize() {
         let mut tokens = ArrayTrait::<TokenInfo>::new();
         tokens.append(TokenInfo {
-            token_id: 7777_u256,
+            token_id: 1_u256,
             token_uri: 'https:...'.into(),
         });
 
@@ -105,6 +136,8 @@ mod tests {
         assert(*buf[9] == 0xe1, 'o_l1_addr');
         assert(*buf[10] == 888, 'o_l2_addr');
         assert(*buf[11] == 1, 'tokens len');
+        assert(*buf[12] == 1, 'token id low');
+        assert(*buf[13] == 0, 'token id high');
         assert(*buf[14] == 1, 'token uri len');
         assert(*buf[15] == 'https:...', 'token uri content');
 

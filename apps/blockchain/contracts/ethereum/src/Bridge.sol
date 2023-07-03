@@ -22,7 +22,9 @@ contract Bridge is Ownable {
     // StarknetCore address.
     address _starknetCore;
     // Bridge L2 address for messaging.
-    uint256 _bridgeL2;
+    uint256 _bridgeL2Address;
+    // Bridge L2 selector to deposit token from L1.
+    uint256 _bridgeL2Selector;
     // Mapping between L2<->L1 collections addresses.
     // <collection_l2_address, collection_l1_address>
     mapping(uint256 => address) _l2_to_l1_addresses;
@@ -36,13 +38,16 @@ contract Bridge is Ownable {
     /*
      *
      */
-    constructor(address starknetCore, uint256 bridgeL2)
+    constructor(address starknetCore, uint256 bridgeL2Address, uint256 bridgeL2Selector)
     {
         require(starknetCore != address(0), "StarknetCore address");
-        require(CairoAdapter.isContractAddress(bridgeL2), "Invalid Bridge L2 address");
+        require(CairoAdapter.isContractAddress(bridgeL2Address),
+                "Invalid Bridge L2 address");
+        require(CairoAdapter.isFelt252(bridgeL2Selector), "Invalid Bridge L2 selector");
 
         _starknetCore = starknetCore;
-        _bridgeL2 = bridgeL2;
+        _bridgeL2Address = bridgeL2Address;
+        _bridgeL2Selector = bridgeL2Selector;
         _transferOwnership(msg.sender);
     }
 
@@ -56,6 +61,56 @@ contract Bridge is Ownable {
         string name,
         string symbol
         );
+
+    event TestEvent(
+        address indexed fromAddress,
+        uint256 indexed toAddress,
+        uint256 indexed selector,
+        uint256[] payload,
+        uint256 nonce,
+        uint256[] payload2,
+        uint256 fee
+    );
+
+    function emitTestEvent()
+        public
+        payable {
+        uint256[] memory payload = new uint256[](2);
+        payload[0] = 0xaaaaaaaaaaa;
+        payload[1] = 0xbbbbbbbbbbb;
+
+        emit TestEvent(
+            0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0,
+            0xb2b2b2b2b2b2b22b2b2b2b22b2b2,
+            0x9999999999999999999999999999999999999,
+            payload,
+            0x11223344,
+            payload,
+            0x11111111
+        );
+    }
+
+    /*
+     *
+     */
+    function setBridgeL2Address(uint256 l2Address)
+        public
+        payable
+        onlyOwner {
+        require(CairoAdapter.isContractAddress(l2Address), "Invalid Bridge L2 address");
+        _bridgeL2Address = l2Address;
+    }
+
+    /*
+     *
+     */
+    function setBridgeL2Selector(uint256 l2Selector)
+        public
+        payable
+        onlyOwner {
+        require(CairoAdapter.isFelt252(l2Selector), "Invalid Bridge L2 Selector");
+        _bridgeL2Address = l2Selector;
+    }
 
     /*
      * TODO: check what's better for the UX.
@@ -146,12 +201,8 @@ contract Bridge is Ownable {
 
         uint256[] memory payload = Protocol.bridgeRequestSerialize(req);
 
-        // "on_l1_message" selector.
-        uint256 selector
-            = 0x035b18ea40fc0fe052a663bca34b1c66f25e888f6d54d0c518b9c68f451c65ea;
-
         IStarknetMessaging(_starknetCore).sendMessageToL2{value: msg.value}
-        (_bridgeL2, selector, payload);
+        (_bridgeL2Address, _bridgeL2Selector, payload);
     }
 
     /*

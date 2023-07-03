@@ -97,6 +97,7 @@ mod bridge {
         ReplacedClassHash: ReplacedClassHash,
         ERC721DefaultClassChanged: ERC721DefaultClassChanged,
         TestEvent: TestEvent,
+        TestEvent2: TestEvent2,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -105,6 +106,12 @@ mod bridge {
         l2_addr: ContractAddress,
         name: LongString,
         symbol: LongString
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct TestEvent2 {
+        type_1: felt252,
+        l2_addr: ContractAddress,
     }
 
     #[derive(Drop, starknet::Event)]
@@ -164,6 +171,26 @@ mod bridge {
         ).unwrap_syscall();
     }
 
+    #[l1_handler]
+    fn deposit_from_l1(ref self: ContractState, from_address: felt252, req: BridgeRequest) {
+        // TODO: ensure it's the L1 bridge talking.
+        super::IBridge::on_l1_message(ref self, req);
+    }
+
+    #[external(v0)]
+    fn write_dummy(ref self: ContractState, i2: felt252) {
+        self.dummy.write(i2);
+        self.emit(TestEvent { vv: i2 });
+
+        let mut payload: Array<felt252> = ArrayTrait::new();
+        payload.append(1);
+        payload.append(i2);
+        starknet::send_message_to_l1_syscall(
+            0xe001,
+            payload.span()
+        ).unwrap_syscall();
+    }
+
     #[external(v0)]
     impl Bridge of super::IBridge<ContractState> {
 
@@ -216,9 +243,11 @@ mod bridge {
 
                 if is_escrowed {
                     collection.transfer_from(from, to, token_id);
+                    self.emit(TestEvent2 { type_1: 0x11, l2_addr: collection_l2_address });
                     // TODO: emit event.
                 } else {
                     collection.permissioned_mint(to, token_id, token_uri);
+                    self.emit(TestEvent2 { type_1: 0x22, l2_addr: collection_l2_address });
                     // TODO: emit event.
                 }
 

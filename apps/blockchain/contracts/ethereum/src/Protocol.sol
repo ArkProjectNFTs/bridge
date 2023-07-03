@@ -71,9 +71,9 @@ library Protocol {
 
         // TODO: support variable length string.
         // For now, name and symbol are felts, so only one uint256 each.
-        /* len += CairoAdapter.shortStringPackedLength(req.collectionName); */
-        /* len += CairoAdapter.shortStringPackedLength(req.collectionSymbol); */
-        len += 2;
+        len += CairoAdapter.shortStringSerializedLength(req.collectionName);
+        len += CairoAdapter.shortStringSerializedLength(req.collectionSymbol);
+        //len += 2;
 
         // Variable length tokens.
         for (uint256 i = 0; i < req.tokens.length; i++) {
@@ -90,28 +90,22 @@ library Protocol {
         // TODO: add a method to compute the length of the serialized form
         // of the struct...!
 
-        // Variable length strings.
-        // TODO: change this for serialization when Starknet side
-        // will support strings (as it supports URI).
-        uint256[] memory nameBuf =
-            CairoAdapter.shortStringPack(req.collectionName);
-
-        uint256[] memory symbolBuf =
-            CairoAdapter.shortStringPack(req.collectionSymbol);
-
         buf[1] = req.header;
         buf[2] = req.reqHash;
         buf[3] = uint256(uint160(req.collectionL1Address));
         buf[4] = req.collectionL2Address;
-        buf[5] = nameBuf[0];
-        buf[6] = symbolBuf[0];
-        buf[7] = req.collectionContractType;
-        buf[8] = uint256(uint160(req.ownerL1Address));
-        buf[9] = req.ownerL2Address;
 
-        buf[10] = req.tokens.length;
+        uint256 idx = 5;
+        idx += CairoAdapter.shortStringSerialize(req.collectionName, buf, idx);
+        idx += CairoAdapter.shortStringSerialize(req.collectionSymbol, buf, idx);
 
-        uint256 idx = 11;
+        buf[idx++] = req.collectionContractType;
+        buf[idx++] = uint256(uint160(req.ownerL1Address));
+        buf[idx++] = req.ownerL2Address;
+
+        buf[idx++] = req.tokens.length;
+
+        //uint256 idx = 11;
         for (uint256 i = 0; i < req.tokens.length; i++) {
             TokenInfo memory info = req.tokens[i];
             // TODO: we may also add a tokenInfoSerialize to be cleaner.
