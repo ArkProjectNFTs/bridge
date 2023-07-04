@@ -8,7 +8,7 @@ STARKNET_CORE_ADDR=0x5FbDB2315678afecb367f032d93F642f64180aa3
 KATANA_ACCOUNT=0x03ee9e18edc71a6df30ac3aca2e0b02a198fbce19b7480a63a0d71cbd76652e0
 
 # TODO: automatize this one.. of made it constant.
-BRIDGE_L2_ADDR=0x064749323f544aa6ff43fa0c57f4f91444a879a30580cdb2e13e7b9e91bf8e3b
+BRIDGE_L2_ADDR=0x05405709d153fd8801db71030ca7983d5c964666f42adf195f07aad5ccdc921d
 
 # deposit_from_l1
 BRIDGE_L2_SELECTOR=0x03fbd841a521983062b0a7adb2a91b5fe9f54499857cdc25ebdf1fa77df7a8d5
@@ -68,3 +68,7 @@ cast send 0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0 "depositTokens(uint256,addr
 # cast send 0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0 "setBridgeL2Address(uint256)" "${BRIDGE_L2_ADDR}" --rpc-url http://127.0.0.1:8545 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --value 1
 
 # cast send 0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0 "setBridgeL2Selector(uint256)" "${BRIDGE_L2_SELECTOR}" --rpc-url http://127.0.0.1:8545 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --value 1
+
+# cast call 0x5FbDB2315678afecb367f032d93F642f64180aa3 "verifyMessageHash(uint256)" 0x38573a88977d1a8373aaa7992a65b6e3bdba307b6a890c3b57180c7bd6cea9e7  --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --rpc-url http://127.0.0.1:8545
+
+# cast send 0x5FbDB2315678afecb367f032d93F642f64180aa3 "consumeMessageFromL2(uint256,uint256[])" 0x03ee9e18edc71a6df30ac3aca2e0b02a198fbce19b7480a63a0d71cbd76652e0 '[1,1390849295786071768276380950238675083608645509734]'  --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --rpc-url http://127.0.0.1:8545 --value 1 --gas-limit 99999

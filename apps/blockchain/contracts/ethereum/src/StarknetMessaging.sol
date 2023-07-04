@@ -161,6 +161,25 @@ contract StarknetMessaging is IStarknetMessaging {
         return uint256(l2ToL1Messages()[hash]);
     }
 
+    event TestConsumeEvent(
+        uint256 indexed fromAddress,
+        address indexed toAddress,
+        uint256 indexed keccak,
+        uint256[] payload
+    );
+
+    function testConsumeMessageFromL2(uint256 fromAddress, uint256[] calldata payload)
+        external
+        payable
+        returns (bytes32)
+    {
+        bytes32 msgHash = keccak256(
+            abi.encodePacked(fromAddress, uint256(uint160(msg.sender)), payload.length, payload)
+        );
+
+        emit TestConsumeEvent(fromAddress, msg.sender, uint256(msgHash), payload);
+        return msgHash;
+    }
 
     /**
       Consumes a message that was sent from an L2 contract.

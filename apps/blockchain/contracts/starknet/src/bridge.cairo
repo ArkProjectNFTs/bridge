@@ -186,7 +186,7 @@ mod bridge {
         payload.append(1);
         payload.append(i2);
         starknet::send_message_to_l1_syscall(
-            0xe001,
+            i2,
             payload.span()
         ).unwrap_syscall();
     }

@@ -7,13 +7,14 @@ export STARKNET_RPC=http://0.0.0.0:5050
 export STARKNET_KEYSTORE=./katana_key.json
 
 ADMIN_ACCOUNT_ADDR=0x03ee9e18edc71a6df30ac3aca2e0b02a198fbce19b7480a63a0d71cbd76652e0
+ETH_ACCOUNT=0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
 
 # TODO: find a way to automatically detect those.
-BRIDGE_CLASS_HASH=0x01e9f1d779951b868e1ae37b8b47f3d93cd727b545d2e762ed284d6df81e5c73
+BRIDGE_CLASS_HASH=0x06698bc60f0d3a2aa22b3e9127343e887535a98f0d72c0a38f90eb5574e1378e
 ERC721_CLASS_HASH=0x021ac711d5795b5b86cae6fb1d045f6ebc0c327ba21a3581cb25ebf3e5a6e7dc
 
 # TODO: when startkli address book is out, don't need this anymore.
-BRIDGE_ADDR=0x064749323f544aa6ff43fa0c57f4f91444a879a30580cdb2e13e7b9e91bf8e3b
+BRIDGE_ADDR=0x05405709d153fd8801db71030ca7983d5c964666f42adf195f07aad5ccdc921d
 
 $STARKLI declare --compiler-version 2.0.0 ./target/dev/starklane_bridge.sierra.json --keystore-password 1234
 $STARKLI declare --compiler-version 2.0.0 ./target/dev/starklane_erc721_bridgeable.sierra.json --keystore-password 1234
@@ -45,3 +46,4 @@ $STARKLI deploy --keystore-password 1234 --salt 0x12345 "${ERC721_CLASS_HASH}" \
 #     "id": 1
 # }' http://0.0.0.0:5050
 
+# starkli invoke 0x05405709d153fd8801db71030ca7983d5c964666f42adf195f07aad5ccdc921d write_dummy 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 --rpc http://0.0.0.0:5050 --account katana_account.json --keystore katana_key.json 
