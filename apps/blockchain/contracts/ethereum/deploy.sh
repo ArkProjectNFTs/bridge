@@ -53,9 +53,9 @@ forge create --rpc-url "${RPC_URL}" \
 cast send 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512 "setApprovalForAll(address,bool)" 0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0 1 --rpc-url http://127.0.0.1:8545 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
 
 # Mint tokens 1 and 2.
-cast send 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512 "test_mint(address,uint256)" 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 1 --rpc-url http://127.0.0.1:8545 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+cast send 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512 "testMint(address,uint256)" 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 1 --rpc-url http://127.0.0.1:8545 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
 
-cast send 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512 "test_mint(address,uint256)" 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 2 --rpc-url http://127.0.0.1:8545 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+cast send 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512 "testMint(address,uint256)" 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 2 --rpc-url http://127.0.0.1:8545 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
 
 # Deposit some tokens to send message to L2.
 cast send 0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0 "depositTokens(uint256,address,uint256,uint256[])" 0xee 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512 "${KATANA_ACCOUNT}" '[1,2]' --rpc-url http://127.0.0.1:8545 --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 --value 1

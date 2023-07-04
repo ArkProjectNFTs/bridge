@@ -21,7 +21,7 @@ contract ERC721BridgeableTest is Test {
         string memory tokenURI = "https://...";
 
         vm.prank(address(BRIDGE));
-        erc721b.permissioned_mint(NEW_OWNER, tokenId, tokenURI);
+        erc721b.permissionedMint(NEW_OWNER, tokenId, tokenURI);
         assertEq(erc721b.ownerOf(tokenId), NEW_OWNER);
     }
 

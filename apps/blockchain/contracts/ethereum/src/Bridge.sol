@@ -111,30 +111,31 @@ contract Bridge is Ownable {
         require(req.header == 0x222, "BAD REQ HEADER");
 
         // Verify the address mapping from the request.
+        address collectionAddress = _verifyRequestMappingAddresses(req);
+        if (collectionAddress == address(0)) {
+            collectionAddress = _deployERC721Collection(
+                req.collectionL2Address,
+                req.collectionName,
+                req.collectionSymbol);
+        }
 
-        // Deploy if required + register mapping if newly deployed.
+        ERC721Bridgeable collection = ERC721Bridgeable(collectionAddress);
 
-        // Permissioned mint or transfer for each token.
+        for (uint256 i = 0; i < req.tokens.length; i++) {
+            TokenInfo memory info = req.tokens[i];
 
+            bool isEscrowed = _escrow[collectionAddress][info.tokenId] > address(0);
+
+            if (isEscrowed) {
+                collection.transferFrom(address(this), req.ownerL1Address, info.tokenId);
+            } else {
+                collection.permissionedMint(req.ownerL1Address, info.tokenId, info.tokenURI);
+            }
+        }
+
+        // TODO: emit event + adding if collection deployed/if permissionedMint/Transfered.
+        // add also the message HASH into the logged event.
         // Emit claiming event.
-    }
-
-    /*
-     * Test function for now. Need to be integrated correctly.
-     */
-    function _deployERC721Collection(
-        uint256 l2Address,
-        string memory name,
-        string memory symbol)
-        public payable
-        returns (address) {
-
-        ERC721Bridgeable c = new ERC721Bridgeable(name, symbol);
-        _l1_to_l2_addresses[address(c)] = l2Address;
-
-        emit CollectionDeployedFromL2(address(c), l2Address, name, symbol);
-
-        return address(c);
     }
 
     /*
@@ -193,6 +194,24 @@ contract Bridge is Ownable {
 
         IStarknetMessaging(_starknetCore).sendMessageToL2{value: msg.value}
         (_bridgeL2Address, _bridgeL2Selector, payload);
+    }
+
+    /*
+     * Test function for now. Need to be integrated correctly.
+     */
+    function _deployERC721Collection(
+        uint256 l2Address,
+        string memory name,
+        string memory symbol)
+        internal
+        returns (address) {
+
+        ERC721Bridgeable c = new ERC721Bridgeable(name, symbol);
+        _l1_to_l2_addresses[address(c)] = l2Address;
+
+        emit CollectionDeployedFromL2(address(c), l2Address, name, symbol);
+
+        return address(c);
     }
 
     /*

@@ -18,12 +18,12 @@ contract ERC721Bridgeable is ERC721URIStorage, Ownable {
     }
 
     //
-    function test_mint(address to, uint256 tokenId) public {
+    function testMint(address to, uint256 tokenId) public {
         _mint(to, tokenId);
     }
 
     //
-    function permissioned_mint(
+    function permissionedMint(
         address to,
         uint256 tokenId,
         string memory tokenURI)
