@@ -24,7 +24,9 @@ trait IBridge<T> {
         collection_l2_address: ContractAddress,
         owner_l1_address: felt252,
         tokens_ids: Span<u256>
-    ) -> BridgeRequest;
+    );
+
+    fn set_bridge_l1_addr(ref self: T, address: felt252);
 
     fn set_erc721_default_contract(ref self: T, class_hash: ClassHash);
 
@@ -63,6 +65,8 @@ mod bridge {
     struct Storage {
         // Bridge administrator.
         bridge_admin: ContractAddress,
+        // Bridge address on L1 (to allow it to consume messages).
+        bridge_l1_address: felt252,
         // The class to deploy for ERC721 tokens.
         erc721_bridgeable_class: ClassHash,
         // Mapping between L2<->L1 collections addresses.
@@ -194,6 +198,11 @@ mod bridge {
     #[external(v0)]
     impl Bridge of super::IBridge<ContractState> {
 
+        fn set_bridge_l1_addr(ref self: ContractState, address: felt252) {
+            // TODO: only admin.
+            self.bridge_l1_address.write(address);
+        }
+
         fn read_dummy(self: @ContractState) -> felt252 {
             self.dummy.read()
         }
@@ -214,6 +223,7 @@ mod bridge {
         /// we must know exactly how deserialization works from l1_handler.
         ///
         /// TODO: Returns the contract address for testing purposes. Need to be revised.
+        /// TODO: switch this to INTERNAL...!
         fn on_l1_message(ref self: ContractState, req: BridgeRequest) -> ContractAddress{
             // TODO: check header version + len?
             // Length in header may be useless, only a version to start
@@ -271,7 +281,7 @@ mod bridge {
             collection_l2_address: ContractAddress,
             owner_l1_address: felt252,
             tokens_ids: Span<u256>
-        ) -> BridgeRequest {
+        ) {
             // TODO: is that correct? The deposit_tokens is called from user's account contract?
             let from = starknet::get_caller_address();
             let to = starknet::get_contract_address();
@@ -313,9 +323,9 @@ mod bridge {
 
             let collection_l1_address = self.l2_to_l1_addresses.read(collection_l2_address);
 
-            BridgeRequest {
+            let req = BridgeRequest {
                 // TODO: define the header content.
-                header: 1,
+                header: 0x222,
                 req_hash,
                 collection_l1_address,
                 collection_l2_address,
@@ -326,7 +336,19 @@ mod bridge {
                 owner_l1_address,
                 owner_l2_address: from,
                 tokens: tokens.span(),
-            }
+            };
+
+            let mut req_buf: Array<felt252> = ArrayTrait::new();
+            req.serialize(ref req_buf);
+
+            // TODO: check if bridge open or if at least bridge_l1_address is set.
+
+            // TODO: we can match the error to emit an event in case of error and an event in case
+            // of success.
+            starknet::send_message_to_l1_syscall(
+                self.bridge_l1_address.read(),
+                req_buf.span(),
+            ).unwrap_syscall();
         }
 
         /// Sets the default class hash to be deployed when the

@@ -45,6 +45,9 @@ interface IStarknetMessaging is IStarknetMessagingEvents {
         external
         returns (bytes32);
 
+    function testConsumeMessageFromL2(uint256 fromAddress, uint256[] calldata payload)
+        external;
+
     /**
       Starts the cancellation of an L1 to L2 message.
       A message can be canceled messageCancellationDelay() seconds after this function is called.

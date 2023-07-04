@@ -2,6 +2,8 @@
 
 pragma solidity ^0.8.0;
 
+import "openzeppelin-contracts/contracts/utils/Strings.sol";
+
 /*
  * Modulus used for computation in Starknet. This is the maximum value.
  *
@@ -82,6 +84,18 @@ library CairoAdapter {
         felts[0] = uint128(val);
         felts[1] = uint128(val >> 128);
         return felts;
+    }
+
+    /*
+     *
+     */
+    function uint256FromCairo(uint256[] memory buf, uint256 offset)
+        internal
+        pure
+        returns (uint256) {
+        // u256 in cairo is 2 felts long.
+        require(offset + 1 < buf.length, "buffer too short to unpack u256.");
+        return (buf[offset + 1] << 128) | uint128(buf[offset]);
     }
 
     /*
@@ -190,6 +204,22 @@ library CairoAdapter {
         }
 
         return packedData;
+    }
+
+    /*
+     *
+     */
+    function shortStringUnpack(uint256[] memory buf, uint256 offset, uint256 len)
+        internal
+        pure
+        returns (string memory) {
+
+        string memory s;
+        for (uint256 i = offset; i < offset + len; i++) {
+            s = string.concat(s, Strings.toString(buf[i]));
+        }
+
+        return s;
     }
 
 }

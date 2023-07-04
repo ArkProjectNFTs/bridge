@@ -117,38 +117,57 @@ library Protocol {
         return buf;
     }
 
+    event Deserializer(uint256 indexed a, uint256 indexed b, uint256 indexed c);
+
     /*
      *
      */
     function bridgeRequestDeserialize(uint256[] calldata buf)
         internal
-        pure
         returns (BridgeRequest memory) {
 
-        // Check if the first uint256 is the span<felt> length...?
-        // It should be.
-
         BridgeRequest memory req;
+        
+        uint256 idx = 0;
 
-        req.header = buf[0];
-        req.reqHash = buf[1];
-        req.collectionL1Address = address(uint160(buf[2]));
-        req.collectionL2Address = buf[3];
+        emit Deserializer(1, buf.length, idx);
+        req.header = buf[idx++];
+        req.reqHash = buf[idx++];
+        req.collectionL1Address = address(uint160(buf[idx++]));
+        req.collectionL2Address = buf[idx++];
+        emit Deserializer(2, 0, idx);
 
-        // TODO: check OZ toString for this...
-        req.collectionName = "TODO"; // buf[4]
-        req.collectionSymbol = "TODO"; // buf[5]
+        // Get length of name and symbol before unpack.
+        uint256 nameLen = buf[idx++];
+        req.collectionName = CairoAdapter.shortStringUnpack(buf, idx, nameLen);
+        idx += nameLen;
+        emit Deserializer(3, 0, idx);
 
-        req.collectionContractType = buf[6];
-        req.ownerL1Address = address(uint160(buf[7]));
-        req.ownerL2Address = buf[8];
+        uint256 symbolLen = buf[idx++];
+        req.collectionSymbol = CairoAdapter.shortStringUnpack(buf, idx, symbolLen);
+        idx += symbolLen;
+        emit Deserializer(4, 0, idx);
 
-        /* uint256 nTokens = buf[9]; */
+        req.collectionContractType = buf[idx++];
+        req.ownerL1Address = address(uint160(buf[idx++]));
+        req.ownerL2Address = buf[idx++];
+        emit Deserializer(5, 0, idx);
 
-        /* uint256 idx = 10; */
-        /* for (uint256 i = 0; i < req.tokens.length; i++) { */
-        /*     // Load tokens from serialized buffer. */
-        /* } */
+        uint256 nTokens = buf[idx++];
+        emit Deserializer(6, 0, idx);
+        req.tokens = new TokenInfo[](nTokens);
+
+        for (uint256 i = 0; i < nTokens; i++) {
+            TokenInfo memory info;
+            // token id is u256 in cairo -> 2 felts.
+            info.tokenId = CairoAdapter.uint256FromCairo(buf, idx);
+            idx += 2;
+            uint256 lenURI = buf[idx++];
+            info.tokenURI = CairoAdapter.shortStringUnpack(buf, idx, lenURI);
+            idx += lenURI;
+
+            req.tokens[i] = info;
+        }
 
         return req;
     }

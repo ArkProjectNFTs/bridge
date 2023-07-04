@@ -145,40 +145,42 @@ contract StarknetMessaging is IStarknetMessaging {
         return (msgHash, nonce);
     }
 
+    /**
+       Adds the hash of a validated messaged from L2.
+     */
     function addMessageHashFromL2(uint256 msgHash)
         external
         payable {
-        // TODO: verify the sender of this TX is an allowed administartor.
+        // TODO: guard -> only owner can do that.
         bytes32 hash = bytes32(msgHash);
         emit AddedMessageHashFromL2(hash);
         l2ToL1Messages()[hash] += 1;
     }
 
+    /**
+       Returns number of references on the given hash.
+     */
     function verifyMessageHash(uint256 msgHash)
         external
         view returns (uint256) {
+        // TODO: guard -> only owner can do that.
         bytes32 hash = bytes32(msgHash);
         return uint256(l2ToL1Messages()[hash]);
     }
 
-    event TestConsumeEvent(
-        uint256 indexed fromAddress,
-        address indexed toAddress,
-        uint256 indexed keccak,
-        uint256[] payload
-    );
 
-    function testConsumeMessageFromL2(uint256 fromAddress, uint256[] calldata payload)
-        external
-        payable
-        returns (bytes32)
-    {
-        bytes32 msgHash = keccak256(
-            abi.encodePacked(fromAddress, uint256(uint160(msg.sender)), payload.length, payload)
+    event TestConsume(
+        uint256 indexed fromAddress,
+        uint256 indexed sender,
+        bytes32 indexed msgHash,
+        bytes encoded
         );
 
-        emit TestConsumeEvent(fromAddress, msg.sender, uint256(msgHash), payload);
-        return msgHash;
+    function testConsumeMessageFromL2(uint256 fromAddress, uint256[] calldata payload)
+        external {
+        bytes memory encoded = abi.encodePacked(fromAddress, uint256(uint160(msg.sender)), payload.length, payload);
+        bytes32 msgHash = keccak256(encoded);
+        emit TestConsume(fromAddress, uint256(uint160(msg.sender)), msgHash, encoded);
     }
 
     /**
@@ -189,8 +191,7 @@ contract StarknetMessaging is IStarknetMessaging {
     function consumeMessageFromL2(uint256 fromAddress, uint256[] calldata payload)
         external
         override
-        returns (bytes32)
-    {
+        returns (bytes32) {
         bytes32 msgHash = keccak256(
             abi.encodePacked(fromAddress, uint256(uint160(msg.sender)), payload.length, payload)
         );

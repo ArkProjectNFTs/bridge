@@ -14,6 +14,8 @@ import "openzeppelin-contracts/contracts/access/Ownable.sol";
 //       the front must send the request in it's uint256[] buffer form....!
 //       Then at this moment check if collection deployed or not + then permissioned_mint / transfer.
 
+// REVISE EXTERNAL/PUBLIC + PAYABLE OR NOT.
+
 /*
  * Bridge contract.
  */
@@ -62,34 +64,6 @@ contract Bridge is Ownable {
         string symbol
         );
 
-    event TestEvent(
-        address indexed fromAddress,
-        uint256 indexed toAddress,
-        uint256 indexed selector,
-        uint256[] payload,
-        uint256 nonce,
-        uint256[] payload2,
-        uint256 fee
-    );
-
-    function emitTestEvent()
-        public
-        payable {
-        uint256[] memory payload = new uint256[](2);
-        payload[0] = 0xaaaaaaaaaaa;
-        payload[1] = 0xbbbbbbbbbbb;
-
-        emit TestEvent(
-            0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0,
-            0xb2b2b2b2b2b2b22b2b2b2b22b2b2,
-            0x9999999999999999999999999999999999999,
-            payload,
-            0x11223344,
-            payload,
-            0x11111111
-        );
-    }
-
     /*
      *
      */
@@ -112,21 +86,37 @@ contract Bridge is Ownable {
         _bridgeL2Address = l2Selector;
     }
 
+    event CheckSerialize(uint256[] buf);
+
     /*
      * TODO: check what's better for the UX.
      * but this implies a transaction. And we will not pay for everybody...
      * We can batch the incoming requests, and then notify users?
      */
     function claimTokens(uint256 fromAddress, uint256[] calldata bridgeRequest)
-        public
-        payable {
+        external {
+        // Verify the caller is legit to claim, will revert if not legit.
+        bytes32 msgHash = IStarknetMessaging(_starknetCore).consumeMessageFromL2(
+            fromAddress,
+            bridgeRequest);
+
+        /* IStarknetMessaging(_starknetCore).testConsumeMessageFromL2( */
+        /*     fromAddress, */
+        /*     bridgeRequest); */
+
+        emit CheckSerialize(bridgeRequest);
+
         // Deserialize the request.
+        BridgeRequest memory req = Protocol.bridgeRequestDeserialize(bridgeRequest);
+        require(req.header == 0x222, "BAD REQ HEADER");
 
         // Verify the address mapping from the request.
 
         // Deploy if required + register mapping if newly deployed.
 
         // Permissioned mint or transfer for each token.
+
+        // Emit claiming event.
     }
 
     /*
