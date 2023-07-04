@@ -43,6 +43,12 @@ contract StarknetMessaging is IStarknetMessaging {
 
     uint256 constant MAX_L1_MSG_FEE = 1 ether;
 
+    // A message hash was registered from L2.
+    event AddedMessageHashFromL2(
+        bytes32 indexed messageHash
+    );
+
+
     function getMaxL1MsgFee() public pure override returns (uint256) {
         return MAX_L1_MSG_FEE;
     }
@@ -138,6 +144,23 @@ contract StarknetMessaging is IStarknetMessaging {
         l1ToL2Messages()[msgHash] = msg.value + 1;
         return (msgHash, nonce);
     }
+
+    function addMessageHashFromL2(uint256 msgHash)
+        external
+        payable {
+        // TODO: verify the sender of this TX is an allowed administartor.
+        bytes32 hash = bytes32(msgHash);
+        emit AddedMessageHashFromL2(hash);
+        l2ToL1Messages()[hash] += 1;
+    }
+
+    function verifyMessageHash(uint256 msgHash)
+        external
+        view returns (uint256) {
+        bytes32 hash = bytes32(msgHash);
+        return uint256(l2ToL1Messages()[hash]);
+    }
+
 
     /**
       Consumes a message that was sent from an L2 contract.
