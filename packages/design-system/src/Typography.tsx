@@ -34,7 +34,7 @@ const variants = {
 
   /* Headings Light */
   heading_light_xl: "font-semibold text-5xl font-ark-project",
-  heading_light_l: "font-semibold text-4xl font-ark-project",
+  heading_light_l: "font-semibold sm:text-4xl text-xl font-ark-project",
   heading_light_m: "font-semibold text-2xl font-ark-project",
   heading_light_s: " font-semibold text-xl font-ark-project",
   heading_light_xs: "font-semibold text-base font-ark-project",
@@ -43,7 +43,7 @@ const variants = {
   /* Body */
   body_text_24: "font-normal text-2xl font-styrene-a",
   body_text_bold_24: "font-bold text-2xl font-styrene-a",
-  body_text_20: "font-normal text-xl font-styrene-a",
+  body_text_20: "font-normal sm:text-xl text-base font-styrene-a",
   body_text_bold_20: "font-bold text-xl font-styrene-a",
   body_text_18: "font-normal text-lg font-styrene-a",
   body_text_bold_18: "font-bold text-lg font-styrene-a",
@@ -59,7 +59,7 @@ const variants = {
 
   /* Buton */
   button_text_xl: "font-medium text-lg font-styrene-a",
-  button_text_l: "font-medium text-base font-styrene-a",
+  button_text_l: "font-medium sm:text-base text-sm font-styrene-a",
   button_text_s: "font-medium text-sm font-styrene-a",
   button_text_xs: "font-medium text-xs font-styrene-a",
 };

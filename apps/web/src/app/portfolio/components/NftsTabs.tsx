@@ -8,15 +8,23 @@ import NftCard from "~/app/components/NftCard";
 import { api } from "~/utils/api";
 
 interface NftTabsTriggerProps {
+  className?: string;
   nftNumber: number;
   tabName: string;
   tabValue: string;
 }
 
-function NftTabsTrigger({ nftNumber, tabName, tabValue }: NftTabsTriggerProps) {
+function NftTabsTrigger({
+  className,
+  nftNumber,
+  tabName,
+  tabValue,
+}: NftTabsTriggerProps) {
   return (
     <Tabs.Trigger
-      className="group flex items-center gap-2.5 rounded-full bg-[#e4edec] py-1.5 pl-3 pr-2 data-[state=active]:bg-[#1C2F55] data-[state=active]:text-white dark:bg-dark-blue-900 dark:data-[state=active]:bg-primary-400"
+      className={`group flex items-center gap-2.5 whitespace-nowrap rounded-full bg-[#e4edec] py-1.5 pl-3 pr-2 data-[state=active]:bg-[#1C2F55] data-[state=active]:text-white dark:bg-dark-blue-900 dark:data-[state=active]:bg-primary-400 ${
+        className || ""
+      }`}
       value={tabValue}
     >
       <Typography variant="button_text_s">{tabName}</Typography>
@@ -46,8 +54,9 @@ export default function NftsTabs() {
 
   return (
     <Tabs.Root className="mt-18" defaultValue="all">
-      <Tabs.List className="flex justify-center gap-4">
+      <Tabs.List className="flex items-center gap-4 overflow-x-scroll">
         <NftTabsTrigger
+          className="ml-auto"
           nftNumber={nfts.raw.length}
           tabName="All nfts"
           tabValue="all"
@@ -63,6 +72,7 @@ export default function NftsTabs() {
           tabValue="ethereum"
         />
         <NftTabsTrigger
+          className="mr-auto"
           nftNumber={0}
           tabName="Starknet Nfts"
           tabValue="starknet"
@@ -70,7 +80,10 @@ export default function NftsTabs() {
       </Tabs.List>
 
       <div className="mt-10.5 ">
-        <Tabs.Content className="grid grid-cols-5 gap-5" value="all">
+        <Tabs.Content
+          className="grid grid-cols-2 gap-5 sm:grid-cols-5"
+          value="all"
+        >
           {nfts.raw.map((nft) => {
             return (
               <NftCard
@@ -84,7 +97,10 @@ export default function NftsTabs() {
             );
           })}
         </Tabs.Content>
-        <Tabs.Content className="grid grid-cols-5 gap-5" value="collections">
+        <Tabs.Content
+          className="grid grid-cols-2 gap-5 sm:grid-cols-5"
+          value="collections"
+        >
           {Object.entries(nfts.byCollection).map(([collectionName, nfts]) => {
             return (
               <NftCard
@@ -99,7 +115,10 @@ export default function NftsTabs() {
             );
           })}
         </Tabs.Content>
-        <Tabs.Content className="grid grid-cols-5 gap-5" value="ethereum">
+        <Tabs.Content
+          className="grid grid-cols-2 gap-5 sm:grid-cols-5"
+          value="ethereum"
+        >
           {nfts.raw.map((nft) => {
             return (
               <NftCard
@@ -113,7 +132,10 @@ export default function NftsTabs() {
             );
           })}
         </Tabs.Content>
-        <Tabs.Content className="grid grid-cols-5 gap-5" value="starknet">
+        <Tabs.Content
+          className="grid grid-cols-2 gap-5 sm:grid-cols-5"
+          value="starknet"
+        >
           No Starknet Nfts yet
         </Tabs.Content>
       </div>

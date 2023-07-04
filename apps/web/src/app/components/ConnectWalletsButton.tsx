@@ -16,16 +16,17 @@ export default function ConnectWalletsButton() {
   return (
     <>
       <button
-        className="mx-auto mb-23 mt-12 flex items-center gap-2.5 rounded-full bg-dark-blue-950 px-6 py-5 dark:bg-primary-400"
+        className="mx-auto mb-10.5 mt-6 flex w-full items-center justify-center gap-2.5 rounded-full bg-dark-blue-950 py-3.5 dark:bg-primary-400 sm:mb-23 sm:mt-12 sm:w-auto sm:px-6 sm:py-5"
         onClick={openModal}
       >
         <Image
           alt="wallet icon"
+          className="h-[24px] w-auto sm:h-[32px]"
           height={32}
           src="/icons/wallet_small.svg"
           width={32}
         />
-        <Typography className="text-white" variant="body_text_bold_16">
+        <Typography className="text-white" variant="button_text_l">
           Connect wallets
         </Typography>
       </button>

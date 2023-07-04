@@ -13,6 +13,14 @@ export default function useNftSelection(chain: Chain) {
     Record<`0x${string}`, Array<string>>
   >("selectedNftIdsByAddress", {});
 
+  const [
+    lastSelectedCollectionNameByAddress,
+    setLastSelectedCollectionNameByAddress,
+  ] = useLocalStorage<Record<`0x${string}`, null | string>>(
+    "lastSelectedCollectionNameByAddress",
+    {}
+  );
+
   const { data: nfts } = api.nfts.getL1NftsByCollection.useQuery(
     {
       address: address ?? "",
@@ -57,6 +65,22 @@ export default function useNftSelection(chain: Chain) {
     }
 
     // TODO @YohanTz: Check if selectedNft is from another collection !
+    if (
+      selectedCollectionName !== null &&
+      lastSelectedCollectionNameByAddress[address] !== null &&
+      lastSelectedCollectionNameByAddress[address] !== selectedCollectionName
+    ) {
+      setSelectedNftIdsByAddress({
+        ...selectedNftIdsByAddress,
+        [address]: [nftId],
+      });
+      setLastSelectedCollectionNameByAddress({
+        ...lastSelectedCollectionNameByAddress,
+        [address]: selectedCollectionName,
+      });
+      return;
+    }
+
     setSelectedNftIdsByAddress({
       ...selectedNftIdsByAddress,
       [address]: [...selectedNftIds, nftId],

@@ -1,12 +1,13 @@
 import { Typography } from "design-system";
 
+import MainPageContainer from "../components/MainPageContainer";
 import Banner from "./components/Banner";
 import NftsTabs from "./components/NftsTabs";
 
 export default function Page() {
   return (
     <div className="flex">
-      <main className="mx-auto mt-[5.875rem] w-full max-w-5xl px-4 text-center">
+      <MainPageContainer>
         <Banner />
 
         <NftsTabs />
@@ -19,7 +20,7 @@ export default function Page() {
           Your past transactions
         </Typography>
         <hr className="my-5 border-[#e4edec] dark:border-dark-blue-900" />
-      </main>
+      </MainPageContainer>
     </div>
   );
 }

@@ -3,6 +3,7 @@
 import { Typography } from "design-system";
 
 import useCurrentChain from "../../hooks/useCurrentChain";
+import MainPageContainer from "../components/MainPageContainer";
 import NftTransferDrawer from "./components/NftTransferDrawer";
 import TargetChainSwitch from "./components/TargetChainSwitch";
 import TokenList from "./components/TokenList";
@@ -13,7 +14,7 @@ export default function Page() {
 
   return (
     <div className="flex">
-      <main className="mx-auto mt-[5.875rem] w-full max-w-5xl px-4 text-center">
+      <MainPageContainer>
         <Typography className="mt-13" component="h1" variant="heading_light_l">
           Where do you want to move
           <br />
@@ -27,7 +28,7 @@ export default function Page() {
         </Typography>
 
         <TokenList />
-      </main>
+      </MainPageContainer>
 
       <NftTransferDrawer />
     </div>

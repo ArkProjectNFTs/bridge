@@ -2,7 +2,6 @@
 
 import { useAccount as useStarknetAccount } from "@starknet-react/core";
 import { Typography } from "design-system";
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -71,7 +70,7 @@ export default function Header() {
         <Typography variant="logo">starklane</Typography>
       </Link>
       {isFullyConnected && (
-        <div className="flex items-center gap-8">
+        <div className="hidden items-center gap-8 lg:flex">
           {connectedPages.map((connectedPage) => {
             return (
               <Link href={connectedPage.path} key={connectedPage.name}>
@@ -89,18 +88,20 @@ export default function Header() {
         </div>
       )}
       <div className="flex gap-4">
-        <ConnectEthereumButton
-          onOpenModalChange={(open) => {
-            open ? openModal("Ethereum") : closeModal();
-          }}
-          isModalOpen={openedModal === "Ethereum"}
-        />
-        <ConnectStarkNetButton
-          onOpenModalChange={(open) => {
-            open ? openModal("Starknet") : closeModal();
-          }}
-          isModalOpen={openedModal === "Starknet"}
-        />
+        <div className="hidden gap-4 lg:flex">
+          <ConnectEthereumButton
+            onOpenModalChange={(open) => {
+              open ? openModal("Ethereum") : closeModal();
+            }}
+            isModalOpen={openedModal === "Ethereum"}
+          />
+          <ConnectStarkNetButton
+            onOpenModalChange={(open) => {
+              open ? openModal("Starknet") : closeModal();
+            }}
+            isModalOpen={openedModal === "Starknet"}
+          />
+        </div>
         <DarkModeButton />
         <div className="relative flex items-center">
           <svg

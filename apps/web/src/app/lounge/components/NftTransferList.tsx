@@ -141,7 +141,7 @@ export default function NftTransferList() {
               </svg>
             </Toolbar.ToggleItem>
             <Toolbar.ToggleItem
-              className="group grid place-items-center px-2 py-1.5 data-[state=on]:bg-[#e4edec]   dark:data-[state=on]:bg-dark-blue-900"
+              className="group grid place-items-center px-2 py-1.5 data-[state=on]:bg-[#e4edec] dark:data-[state=on]:bg-dark-blue-900"
               value="list"
             >
               <svg
@@ -226,17 +226,29 @@ export default function NftTransferList() {
         <table className="w-full text-left">
           <thead>
             <tr>
-              <Typography component="th" variant="button_text_l">
+              <Typography
+                className="pb-5 pl-6"
+                component="th"
+                variant="button_text_l"
+              >
                 Nfts in transit ({nftTransferData.length})
               </Typography>
-              <Typography component="th" variant="button_text_l">
+              <Typography
+                className="pb-5"
+                component="th"
+                variant="button_text_l"
+              >
                 Transfer status
               </Typography>
-              <Typography component="th" variant="button_text_l">
+              <Typography
+                className="pb-5"
+                component="th"
+                variant="button_text_l"
+              >
                 Arrival
               </Typography>
               <Typography
-                className="text-right"
+                className=" pb-5 pr-6 text-right"
                 component="th"
                 variant="button_text_l"
               >
@@ -245,52 +257,60 @@ export default function NftTransferList() {
             </tr>
           </thead>
 
-          <tbody className="">
+          <tbody className="rounded-3xl">
             {nftTransferData.map((nft, index) => {
               return (
-                <tr key={index}>
-                  <td className="flex gap-4">
-                    <Image
-                      alt="nft image"
-                      className="rounded-lg"
-                      height={52}
-                      src={nft.image}
-                      width={52}
-                    />
-                    <div className="flex flex-col gap-1.5">
-                      <Typography variant="body_text_14">
-                        {nft.collectionName}
-                      </Typography>
-                      <Typography variant="body_text_bold_14">
-                        {nft.name}
-                      </Typography>
+                <tr className="group" key={index}>
+                  <td
+                    className={`bg-white pb-4 pl-6 group-first:rounded-ss-3xl group-first:pt-6 group-last:rounded-es-3xl`}
+                  >
+                    <div className="flex gap-4 ">
+                      <Image
+                        alt="nft image"
+                        className="rounded-lg"
+                        height={52}
+                        src={nft.image}
+                        width={52}
+                      />
+                      <div className="flex flex-col gap-1.5">
+                        <Typography variant="body_text_14">
+                          {nft.collectionName}
+                        </Typography>
+                        <Typography variant="body_text_bold_14">
+                          {nft.name}
+                        </Typography>
+                      </div>
                     </div>
                   </td>
 
-                  <td>
+                  <td className="bg-white pb-4 group-first:pt-6">
                     {/* TODO @YohanTz: Extract this badge to its own component (used in cards also) */}
                     <Typography
-                      className="mt-3 rounded-full bg-red-200 px-2 py-1 text-center"
+                      className="mt-3 rounded-full bg-red-100 px-2 py-1 text-center"
                       variant="button_text_xs"
                     >
                       Transfer in progress ...
                     </Typography>
                   </td>
-                  <td className="flex gap-10">
-                    <div className="flex flex-col">
-                      <Typography
-                        className="text-[#686c73]"
-                        variant="body_text_12"
-                      >
-                        Estimated arrival
-                      </Typography>
-                      <Typography variant="button_text_s">
-                        10/09/2023 - 2:43pm
-                      </Typography>
+                  <td className=" bg-white pb-4 group-first:pt-6">
+                    <div className="flex gap-10">
+                      <div className="flex flex-col">
+                        <Typography
+                          className="text-[#686c73]"
+                          variant="body_text_12"
+                        >
+                          Estimated arrival
+                        </Typography>
+                        <Typography variant="button_text_s">
+                          10/09/2023 - 2:43pm
+                        </Typography>
+                      </div>
+                      <Button variant="s">Stop transfer</Button>
                     </div>
-                    <Button variant="s">Stop transfer</Button>
                   </td>
-                  <td className="text-right">+</td>
+                  <td className="bg-white pb-4 pr-6 text-right group-first:rounded-se-3xl group-first:pt-6 group-last:rounded-ee-3xl">
+                    +
+                  </td>
                 </tr>
               );
             })}

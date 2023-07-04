@@ -7,6 +7,7 @@ import emptyCard3 from "../../public/medias/empty_card_3.png";
 import emptyCard4 from "../../public/medias/empty_card_4.png";
 import emptyCard5 from "../../public/medias/empty_card_5.png";
 import ConnectWalletsButton from "./components/ConnectWalletsButton";
+import MainPageContainer from "./components/MainPageContainer";
 
 const empty_cards = [
   { alt: "empty Nft card 1", src: emptyCard1 },
@@ -20,9 +21,9 @@ export default function Page() {
   return (
     <div className="flex">
       {/* TODO @YohanTz: Extract magic values like this somewhere (top-[5.75rem]) */}
-      <main className="mx-auto mt-[5.875rem] w-full max-w-5xl px-4 text-center">
+      <MainPageContainer>
         <Typography
-          className="mt-15.5"
+          className="mt-10.5 sm:mt-15.5"
           component="h1"
           variant="heading_light_l"
         >
@@ -39,7 +40,7 @@ export default function Page() {
               return (
                 <Image
                   alt={card.alt}
-                  className="display-none h-auto w-full"
+                  className="h-auto w-full last:hidden sm:last:block"
                   height={208}
                   key={card.alt}
                   src={card.src}
@@ -48,12 +49,16 @@ export default function Page() {
               );
             })}
           </div>
-          <Typography className="mt-16" component="p" variant="body_text_20">
+          <Typography
+            className="mt-5 sm:mt-16"
+            component="p"
+            variant="body_text_20"
+          >
             In this space, you can explore and enjoy your digital treasures from
             any blockchain.
           </Typography>
         </div>
-      </main>
+      </MainPageContainer>
     </div>
   );
 }
