@@ -53,10 +53,12 @@ export default function ConnectStarknetButton({
           {connector !== undefined && (
             <Image
               src={
-                WALLET_LOGOS_BY_ID[connector.id()] ??
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                WALLET_LOGOS_BY_ID[connector.id] ??
                 DEFAULT_STARKNET_CONNECTOR_LOGO
               }
-              alt={`${connector.name()} logo`}
+              // eslint-disable-next-line @typescript-eslint/restrict-template-expressions, @typescript-eslint/unbound-method
+              alt={`${connector.name} logo`}
               className="-ml-2 rounded-full outline outline-2 outline-dark-blue-950"
               height={28}
               width={28}

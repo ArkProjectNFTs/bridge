@@ -134,7 +134,8 @@ export default function NftTransferDrawer() {
           <TargetChainButton orientation="vertical" />
           <ChainTransferSummary
             chain="Starknet"
-            connectorId={starknetConnector?.id()}
+            // eslint-disable-next-line @typescript-eslint/unbound-method
+            connectorId={starknetConnector?.id}
             shortAddress={shortStarknetAddress}
             targetChain={targetChain}
           />

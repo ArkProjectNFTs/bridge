@@ -1,6 +1,5 @@
 import { Typography } from "design-system";
 
-import ConditionalWrapper from "~/app/components/ConditionalWrapper";
 import useCurrentChain from "~/hooks/useCurrentChain";
 
 import NftCard from "../../components/NftCard";

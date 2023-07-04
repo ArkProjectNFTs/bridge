@@ -43,7 +43,8 @@ export default function useConnectFromChain(chain: Chain) {
             connect() {
               starknetConnect(connector);
             },
-            id: connector.id(),
+            // eslint-disable-next-line @typescript-eslint/unbound-method
+            id: connector.id,
           };
         }
       }),
