@@ -8,7 +8,7 @@ export default function ChainSwitch() {
   const { setTargetChain, targetChain } = useCurrentChain();
 
   return (
-    <div className="mt-9 inline-flex gap-1 rounded-full border border-[#d3e2e1] bg-[#e4edec] dark:border-dark-blue-600 dark:bg-dark-blue-900">
+    <div className="mt-8 inline-flex gap-1 rounded-full border border-[#d3e2e1] bg-[#e4edec] dark:border-dark-blue-600 dark:bg-dark-blue-900 sm:mt-9">
       <button
         className={`rounded-full border-8 ${
           targetChain === "Ethereum"

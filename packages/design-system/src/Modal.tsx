@@ -15,7 +15,7 @@ export default function Modal({ children, isOpen, onOpenChange }: ModalProps) {
       <Dialog.Portal>
         <div className="fixed inset-0 bg-[#16334999] backdrop-blur-lg" />
         <Dialog.Content
-          className="dark:bg-dark-blue-950 dark:border-dark-blue-900 max-[100vw] fixed left-1/2 top-1/2 flex w-[26.25rem] -translate-x-1/2 -translate-y-1/2 flex-col items-center rounded-2xl border border-[#e4edec] bg-white p-6"
+          className="dark:bg-dark-blue-950 dark:border-dark-blue-900 fixed bottom-0 left-0 right-0 flex flex-col items-center rounded-t-2xl border border-[#e4edec] bg-white p-6 sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:w-[26.25rem] sm:max-w-[100vw] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl"
           onInteractOutside={(event) => event.preventDefault()}
         >
           <div className="flex w-full justify-end">

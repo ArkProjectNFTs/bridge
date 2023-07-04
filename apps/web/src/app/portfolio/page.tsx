@@ -1,6 +1,7 @@
 import { Typography } from "design-system";
 
 import MainPageContainer from "../components/MainPageContainer";
+import NftTransferList from "../lounge/components/NftTransferList";
 import Banner from "./components/Banner";
 import NftsTabs from "./components/NftsTabs";
 
@@ -19,7 +20,8 @@ export default function Page() {
         >
           Your past transactions
         </Typography>
-        <hr className="my-5 border-[#e4edec] dark:border-dark-blue-900" />
+        <hr className="mt-5 border-[#e4edec] dark:border-dark-blue-900" />
+        <NftTransferList />
       </MainPageContainer>
     </div>
   );

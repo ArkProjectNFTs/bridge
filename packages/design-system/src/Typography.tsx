@@ -45,7 +45,7 @@ const variants = {
   body_text_bold_24: "font-bold text-2xl font-styrene-a",
   body_text_20: "font-normal sm:text-xl text-base font-styrene-a",
   body_text_bold_20: "font-bold text-xl font-styrene-a",
-  body_text_18: "font-normal text-lg font-styrene-a",
+  body_text_18: "font-normal sm:text-lg text-base font-styrene-a",
   body_text_bold_18: "font-bold text-lg font-styrene-a",
   body_text_16: "font-normal text-base font-styrene-a",
   body_text_bold_16: "font-bold text-base font-styrene-a",

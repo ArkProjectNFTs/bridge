@@ -1,3 +1,5 @@
+"use client";
+
 import * as Toolbar from "@radix-ui/react-toolbar";
 import { Button, Typography } from "design-system";
 import Image from "next/image";
@@ -17,12 +19,12 @@ const empty_cards = [
 function NftTransferEmptyState() {
   return (
     <>
-      <div className="mt-23 grid grid-cols-2 gap-6 sm:grid-cols-5">
+      <div className="mt-9 grid grid-cols-2 gap-6 sm:mt-23 sm:grid-cols-5">
         {empty_cards.map((card, index) => {
           return (
             <Image
               alt={card.alt}
-              className="display-none h-auto w-full"
+              className="display-none h-auto w-full last:hidden sm:last:block"
               height={208}
               key={index}
               src={card.src}
@@ -31,38 +33,46 @@ function NftTransferEmptyState() {
           );
         })}
       </div>
-      <Typography className="mt-16" component="p" variant="body_text_18">
+      <Typography
+        className="mt-5 sm:mt-16"
+        component="p"
+        variant="body_text_18"
+      >
         There is nothing there...
       </Typography>
     </>
   );
 }
 
-const nftTransferData = [
-  {
-    collectionName: "Mekaverse",
-    image:
-      "https://res.cloudinary.com/alchemyapi/image/upload/thumbnailv2/eth-mainnet/c7d56728cd014a242e514b7e5678ac8c",
-    name: "Meka #1946",
-  },
-  {
-    collectionName: "Mekaverse",
-    image:
-      "https://res.cloudinary.com/alchemyapi/image/upload/thumbnailv2/eth-mainnet/6a4518d6b802eb23f4bf9814b0886996",
-    name: "Meka #6521",
-  },
-  {
-    collectionName: "MekaBot",
-    image:
-      "https://res.cloudinary.com/alchemyapi/image/upload/thumbnailv2/eth-mainnet/58c0df0adf91e4899d9ae9fa352c24bf",
-    name: "MekaBot #775",
-  },
-  {
-    collectionName: "Look Up",
-    image:
-      "https://res.cloudinary.com/alchemyapi/image/upload/thumbnailv2/eth-mainnet/413c13070c7327df7f57e1eb1a62e6e1",
-    name: "Look Up",
-  },
+const nftTransferData: Array<{
+  collectionName: string;
+  image: string;
+  name: string;
+}> = [
+  // {
+  //   collectionName: "Mekaverse",
+  //   image:
+  //     "https://res.cloudinary.com/alchemyapi/image/upload/thumbnailv2/eth-mainnet/c7d56728cd014a242e514b7e5678ac8c",
+  //   name: "Meka #1946",
+  // },
+  // {
+  //   collectionName: "Mekaverse",
+  //   image:
+  //     "https://res.cloudinary.com/alchemyapi/image/upload/thumbnailv2/eth-mainnet/6a4518d6b802eb23f4bf9814b0886996",
+  //   name: "Meka #6521",
+  // },
+  // {
+  //   collectionName: "MekaBot",
+  //   image:
+  //     "https://res.cloudinary.com/alchemyapi/image/upload/thumbnailv2/eth-mainnet/58c0df0adf91e4899d9ae9fa352c24bf",
+  //   name: "MekaBot #775",
+  // },
+  // {
+  //   collectionName: "Look Up",
+  //   image:
+  //     "https://res.cloudinary.com/alchemyapi/image/upload/thumbnailv2/eth-mainnet/413c13070c7327df7f57e1eb1a62e6e1",
+  //   name: "Look Up",
+  // },
 ];
 
 export default function NftTransferList() {
@@ -71,7 +81,7 @@ export default function NftTransferList() {
   return nftTransferData.length === 0 ? (
     <NftTransferEmptyState />
   ) : (
-    <div className="mb-6 mt-18">
+    <div className="mb-6 mt-9 sm:mt-18">
       <div className="flex justify-between">
         <Typography variant="button_text_l">
           Nfts in transit ({nftTransferData.length})
@@ -84,7 +94,7 @@ export default function NftTransferList() {
               }
             }}
             aria-label="Display options"
-            className="flex overflow-hidden rounded-md border border-[#d3e2e1] dark:border-dark-blue-600"
+            className="hidden overflow-hidden rounded-md border border-[#d3e2e1] dark:border-dark-blue-600 sm:flex"
             type="single"
             value={displayOption}
           >
@@ -209,7 +219,7 @@ export default function NftTransferList() {
       </div>
 
       {displayOption === "card" ? (
-        <div className="mt-6 grid grid-cols-5 gap-5">
+        <div className="mt-6 grid grid-cols-2 gap-5 sm:grid-cols-5">
           {nftTransferData.map((nft, index) => {
             return (
               <NftTransferCard
