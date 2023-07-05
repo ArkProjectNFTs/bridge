@@ -65,6 +65,19 @@ contract Bridge is Ownable {
         );
 
     /*
+     * Event emitted when a bridge request if claimed by a user.
+     */
+    event BridgeRequestClaimed(
+        bytes32 indexed msgHash,
+        address indexed collection,
+        address indexed ownerL1Address,
+        bool collectionDeployed,
+        uint256 nTokenTransfered,
+        uint256 nTokenPermissionMinted
+        );
+
+
+    /*
      *
      */
     function setBridgeL2Address(uint256 l2Address)
@@ -86,15 +99,14 @@ contract Bridge is Ownable {
         _bridgeL2Address = l2Selector;
     }
 
-    event CheckSerialize(uint256[] buf);
-
     /*
      * TODO: check what's better for the UX.
      * but this implies a transaction. And we will not pay for everybody...
      * We can batch the incoming requests, and then notify users?
      */
     function claimTokens(uint256 fromAddress, uint256[] calldata bridgeRequest)
-        external {
+        external
+        payable {
         // Verify the caller is legit to claim, will revert if not legit.
         bytes32 msgHash = IStarknetMessaging(_starknetCore).consumeMessageFromL2(
             fromAddress,
@@ -104,23 +116,25 @@ contract Bridge is Ownable {
         /*     fromAddress, */
         /*     bridgeRequest); */
 
-        emit CheckSerialize(bridgeRequest);
-
         // Deserialize the request.
         BridgeRequest memory req = Protocol.bridgeRequestDeserialize(bridgeRequest);
         require(req.header == 0x222, "BAD REQ HEADER");
 
-        // Verify the address mapping from the request.
         address collectionAddress = _verifyRequestMappingAddresses(req);
+        bool collectionDeployed = false;
+
         if (collectionAddress == address(0)) {
-            collectionAddress = _deployERC721Collection(
-                req.collectionL2Address,
-                req.collectionName,
-                req.collectionSymbol);
+            ERC721Bridgeable c = new ERC721Bridgeable(req.collectionName, req.collectionSymbol);
+            _l1_to_l2_addresses[address(c)] = req.collectionL2Address;
+            emit CollectionDeployedFromL2(address(c), req.collectionL2Address, "aa", "bb");
+            collectionAddress = address(c);
+            collectionDeployed = true;
         }
 
         ERC721Bridgeable collection = ERC721Bridgeable(collectionAddress);
 
+        uint256 nMinted = 0;
+        uint256 nTransfered = 0;
         for (uint256 i = 0; i < req.tokens.length; i++) {
             TokenInfo memory info = req.tokens[i];
 
@@ -128,14 +142,20 @@ contract Bridge is Ownable {
 
             if (isEscrowed) {
                 collection.transferFrom(address(this), req.ownerL1Address, info.tokenId);
+                nTransfered++;
             } else {
                 collection.permissionedMint(req.ownerL1Address, info.tokenId, info.tokenURI);
+                nMinted++;
             }
         }
 
-        // TODO: emit event + adding if collection deployed/if permissionedMint/Transfered.
-        // add also the message HASH into the logged event.
-        // Emit claiming event.
+        emit BridgeRequestClaimed(
+            msgHash,
+            collectionAddress,
+            req.ownerL1Address,
+            collectionDeployed,
+            nTransfered,
+            nMinted);
     }
 
     /*
@@ -199,20 +219,21 @@ contract Bridge is Ownable {
     /*
      * Test function for now. Need to be integrated correctly.
      */
-    function _deployERC721Collection(
-        uint256 l2Address,
-        string memory name,
-        string memory symbol)
-        internal
-        returns (address) {
+    /* function _deployERC721Collection( */
+    /*     uint256 l2Address, */
+    /*     string memory name, */
+    /*     string memory symbol) */
+    /*     public */
+    /*     payable */
+    /*     returns (address) { */
 
-        ERC721Bridgeable c = new ERC721Bridgeable(name, symbol);
-        _l1_to_l2_addresses[address(c)] = l2Address;
+    /*     ERC721Bridgeable c = new ERC721Bridgeable("aa", "bb"); */
+    /*     _l1_to_l2_addresses[address(c)] = l2Address; */
 
-        emit CollectionDeployedFromL2(address(c), l2Address, name, symbol);
+    /*     emit CollectionDeployedFromL2(address(c), l2Address, name, symbol); */
 
-        return address(c);
-    }
+    /*     return address(c); */
+    /* } */
 
     /*
      * Verifies if the request collection addresses are correct

@@ -124,37 +124,32 @@ library Protocol {
      */
     function bridgeRequestDeserialize(uint256[] calldata buf)
         internal
+        pure
         returns (BridgeRequest memory) {
 
         BridgeRequest memory req;
         
         uint256 idx = 0;
 
-        emit Deserializer(1, buf.length, idx);
         req.header = buf[idx++];
         req.reqHash = buf[idx++];
         req.collectionL1Address = address(uint160(buf[idx++]));
         req.collectionL2Address = buf[idx++];
-        emit Deserializer(2, 0, idx);
 
         // Get length of name and symbol before unpack.
         uint256 nameLen = buf[idx++];
         req.collectionName = CairoAdapter.shortStringUnpack(buf, idx, nameLen);
         idx += nameLen;
-        emit Deserializer(3, 0, idx);
 
         uint256 symbolLen = buf[idx++];
         req.collectionSymbol = CairoAdapter.shortStringUnpack(buf, idx, symbolLen);
         idx += symbolLen;
-        emit Deserializer(4, 0, idx);
 
         req.collectionContractType = buf[idx++];
         req.ownerL1Address = address(uint160(buf[idx++]));
         req.ownerL2Address = buf[idx++];
-        emit Deserializer(5, 0, idx);
 
         uint256 nTokens = buf[idx++];
-        emit Deserializer(6, 0, idx);
         req.tokens = new TokenInfo[](nTokens);
 
         for (uint256 i = 0; i < nTokens; i++) {
