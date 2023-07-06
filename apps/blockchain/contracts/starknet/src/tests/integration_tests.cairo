@@ -2,7 +2,9 @@
 
 use starklane::bridge::{IBridgeDispatcher, IBridgeDispatcherTrait};
 use starklane::bridge;
-use starklane::token::erc721::{IERC721BridgeableDispatcher, IERC721BridgeableDispatcherTrait, TokenInfo};
+use starklane::token::erc721::{
+    IERC721BridgeableDispatcher, IERC721BridgeableDispatcherTrait, TokenInfo
+};
 use starklane::token::erc721;
 use starklane::token::erc721::erc721_bridgeable;
 use starklane::protocol::BridgeRequest;
@@ -18,10 +20,8 @@ use core::result::ResultTrait;
 use traits::{TryInto, Into};
 use starknet::contract_address::Felt252TryIntoContractAddress;
 use starknet::class_hash::Felt252TryIntoClassHash;
-use starknet::{ContractAddress,ClassHash};
+use starknet::{ContractAddress, ClassHash};
 use starknet::testing;
-
-
 
 
 #[test]
@@ -33,7 +33,10 @@ fn test_bad_request_addresses() {
     let bridge = IBridgeDispatcher { contract_address: bridge_addr };
 
     testing::set_contract_address(bridge_admin_addr);
-    bridge.set_erc721_default_contract(erc721_bridgeable::erc721_bridgeable::TEST_CLASS_HASH.try_into().unwrap());
+    bridge
+        .set_erc721_default_contract(
+            erc721_bridgeable::erc721_bridgeable::TEST_CLASS_HASH.try_into().unwrap()
+        );
 
     let mut tokens_to_bridge: Array<TokenInfo> = ArrayTrait::new();
 
@@ -63,17 +66,17 @@ fn bridge_request_from_l1() {
 
     // To set the erc721 default class we must be admin.
     testing::set_contract_address(bridge_admin_addr);
-    bridge.set_erc721_default_contract(erc721_bridgeable::erc721_bridgeable::TEST_CLASS_HASH.try_into().unwrap());
+    bridge
+        .set_erc721_default_contract(
+            erc721_bridgeable::erc721_bridgeable::TEST_CLASS_HASH.try_into().unwrap()
+        );
 
     let TOKEN_ID = 77;
     let TOKEN_URI = 'http://everai.xyz/77';
     let TOKEN_L2_OWNER = starknet::contract_address_const::<0x8899>();
 
     let mut tokens_to_bridge: Array<TokenInfo> = ArrayTrait::new();
-    tokens_to_bridge.append(TokenInfo {
-        token_id: TOKEN_ID,
-        token_uri: TOKEN_URI.into(),
-    });
+    tokens_to_bridge.append(TokenInfo { token_id: TOKEN_ID, token_uri: TOKEN_URI.into(),  });
 
     let req = BridgeRequest {
         header: 1,
@@ -102,17 +105,14 @@ fn bridge_request_from_l1() {
     assert(token_uri.len == 1, 'Bad token uri len');
     assert(*token_uri.content[0] == TOKEN_URI, 'Bad token uri content');
 
-
     // Now the collection is already deployed, new request for the same collection, new token to be
     // mint.
     let NEW_TOKEN_ID = 88;
     let NEW_TOKEN_URI = 'http://everai.xyz/88';
 
     let mut tokens_to_bridge_new: Array<TokenInfo> = ArrayTrait::new();
-    tokens_to_bridge_new.append(TokenInfo {
-        token_id: NEW_TOKEN_ID,
-        token_uri: NEW_TOKEN_URI.into(),
-    });
+    tokens_to_bridge_new
+        .append(TokenInfo { token_id: NEW_TOKEN_ID, token_uri: NEW_TOKEN_URI.into(),  });
 
     let req_new = BridgeRequest {
         header: 1,
@@ -136,9 +136,7 @@ fn bridge_request_from_l1() {
     let token_uri_new = collection.token_uri(NEW_TOKEN_ID);
     assert(token_uri_new.len == 1, 'Bad token uri len');
     assert(*token_uri_new.content[0] == NEW_TOKEN_URI, 'Bad token uri content');
-
-
-    // Now, we need to do a setup to test escrow scenario, which comes after sending request to L1.
+// Now, we need to do a setup to test escrow scenario, which comes after sending request to L1.
 }
 
 #[test]
@@ -150,7 +148,10 @@ fn deposit_token_from_l2() {
 
     // To set the erc721 default class we must be admin.
     testing::set_contract_address(bridge_admin_addr);
-    bridge.set_erc721_default_contract(erc721_bridgeable::erc721_bridgeable::TEST_CLASS_HASH.try_into().unwrap());
+    bridge
+        .set_erc721_default_contract(
+            erc721_bridgeable::erc721_bridgeable::TEST_CLASS_HASH.try_into().unwrap()
+        );
 
     // Simulate a collection (which can be something else than ERC721Bridgeable).
     // But in this example we reuse the ERC721Bridgeable.
@@ -159,20 +160,18 @@ fn deposit_token_from_l2() {
     let TOKEN_ID = 887;
 
     let collection_l2_addr = erc721::deploy(
-        'everai duo'.into(),
-        'DUO'.into(),
-        bridge_addr,
-        bridge_addr);
+        'everai duo'.into(), 'DUO'.into(), bridge_addr, bridge_addr
+    );
 
     let collection = IERC721BridgeableDispatcher { contract_address: collection_l2_addr };
     collection.simple_mint(DUO_OWNER_L2, TOKEN_ID, 'uri'.into());
 
     let mut tokens: Array<u256> = ArrayTrait::new();
     tokens.append(TOKEN_ID);
-    
+
     // Simulate we are the duo owner.
     testing::set_contract_address(DUO_OWNER_L2);
-    
+
     // Approval is required to allow deposit token.
     collection.set_approval_for_all(bridge_addr, true);
 

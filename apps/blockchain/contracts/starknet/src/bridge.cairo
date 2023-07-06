@@ -1,13 +1,12 @@
 ///! Bridge contract.
 ///!
 ///! The bridge contract is in charge to handle
-///! the logic associated with bridge request from
-///! a L1 message, or a deposit token from L2 transaction.
+///! the logic associated with assets transfer.
 ///!
-///! Bridge needs to keep L1<->L2 reverse mapping up to date
+///! The bridge needs to keep L1<->L2 reverse mapping up to date
 ///! to ensure all scenarios can be hanlded without deploying
 ///! the same collection twice.
-///! This takes in account unexpected minting after collection
+///! This takes in account the possible minting after a collection
 ///! being bridged.
 
 use starknet::{ContractAddress, ClassHash};
@@ -54,9 +53,8 @@ mod bridge {
     use starklane::protocol::BridgeRequest;
     use starklane::protocol::deploy;
     use starklane::token::erc721::{
-        TokenInfo,
-        IERC721BridgeableDispatcher,
-        IERC721BridgeableDispatcherTrait};
+        TokenInfo, IERC721BridgeableDispatcher, IERC721BridgeableDispatcherTrait
+    };
 
     // TODO(glihm): refacto when `Self` is supported inside imports.
     use starklane::token::erc721;
@@ -126,12 +124,12 @@ mod bridge {
 
     #[derive(Drop, starknet::Event)]
     struct ERC721DefaultClassChanged {
-        class: ClassHash,
+        class: ClassHash, 
     }
 
     #[derive(Drop, starknet::Event)]
     struct TestEvent {
-        vv: felt252,
+        vv: felt252, 
     }
 
 
@@ -152,10 +150,7 @@ mod bridge {
         p.append(2);
         p.append(3);
 
-        starknet::send_message_to_l1_syscall(
-            0xbeeffeeb,
-            p.span(),
-        ).unwrap_syscall();
+        starknet::send_message_to_l1_syscall(0xbeeffeeb, p.span(), ).unwrap_syscall();
     }
 
     #[external(v0)]
@@ -169,10 +164,7 @@ mod bridge {
         p.append(2);
         p.append(a);
 
-        starknet::send_message_to_l1_syscall(
-            0xbeeffeeb,
-            p.span(),
-        ).unwrap_syscall();
+        starknet::send_message_to_l1_syscall(0xbeeffeeb, p.span(), ).unwrap_syscall();
     }
 
     #[l1_handler]
@@ -189,15 +181,11 @@ mod bridge {
         let mut payload: Array<felt252> = ArrayTrait::new();
         payload.append(1);
         payload.append(i2);
-        starknet::send_message_to_l1_syscall(
-            i2,
-            payload.span()
-        ).unwrap_syscall();
+        starknet::send_message_to_l1_syscall(i2, payload.span()).unwrap_syscall();
     }
 
     #[external(v0)]
     impl Bridge of super::IBridge<ContractState> {
-
         fn set_bridge_l1_addr(ref self: ContractState, address: felt252) {
             // TODO: only admin.
             self.bridge_l1_address.write(address);
@@ -211,7 +199,9 @@ mod bridge {
             self.erc721_bridgeable_class.read()
         }
 
-        fn is_token_escrowed_ext(self: @ContractState, collection_address: ContractAddress, token_id: u256) -> bool {
+        fn is_token_escrowed_ext(
+            self: @ContractState, collection_address: ContractAddress, token_id: u256
+        ) -> bool {
             !self.escrow.read((collection_address, token_id)).is_zero()
         }
 
@@ -224,7 +214,7 @@ mod bridge {
         ///
         /// TODO: Returns the contract address for testing purposes. Need to be revised.
         /// TODO: switch this to INTERNAL...!
-        fn on_l1_message(ref self: ContractState, req: BridgeRequest) -> ContractAddress{
+        fn on_l1_message(ref self: ContractState, req: BridgeRequest) -> ContractAddress {
             // TODO: check header version + len?
             // Length in header may be useless, only a version to start
             // to ensure we can upgrade both side without conflict.
@@ -232,7 +222,9 @@ mod bridge {
             // TODO: add a global request verificator! (no owner addr to 0, at least 1 token, etc...)
 
             let collection_l2_address = ensure_collection_deployment(ref self, @req);
-            let collection = IERC721BridgeableDispatcher { contract_address: collection_l2_address };
+            let collection = IERC721BridgeableDispatcher {
+                contract_address: collection_l2_address
+            };
 
             let mut i = 0;
             loop {
@@ -247,18 +239,16 @@ mod bridge {
                 let to = req.owner_l2_address;
                 let from = starknet::get_contract_address();
 
-                let is_escrowed = !self.escrow
-                    .read((collection_l2_address, token_id))
-                    .is_zero();
+                let is_escrowed = !self.escrow.read((collection_l2_address, token_id)).is_zero();
 
                 if is_escrowed {
                     collection.transfer_from(from, to, token_id);
                     self.emit(TestEvent2 { type_1: 0x11, l2_addr: collection_l2_address });
-                    // TODO: emit event.
+                // TODO: emit event.
                 } else {
                     collection.permissioned_mint(to, token_id, token_uri);
                     self.emit(TestEvent2 { type_1: 0x22, l2_addr: collection_l2_address });
-                    // TODO: emit event.
+                // TODO: emit event.
                 }
 
                 i += 1;
@@ -285,7 +275,9 @@ mod bridge {
             // TODO: is that correct? The deposit_tokens is called from user's account contract?
             let from = starknet::get_caller_address();
             let to = starknet::get_contract_address();
-            let collection = IERC721BridgeableDispatcher { contract_address: collection_l2_address };
+            let collection = IERC721BridgeableDispatcher {
+                contract_address: collection_l2_address
+            };
 
             let collection_name = collection.name();
             let collection_symbol = collection.symbol();
@@ -303,9 +295,8 @@ mod bridge {
                 collection.transfer_from(from, to, token_id);
                 self.escrow.write((collection_l2_address, token_id), from);
 
-                let token_uri = match erc721::token_uri_from_contract_call(
-                    collection_l2_address,
-                    token_id) {
+                let token_uri =
+                    match erc721::token_uri_from_contract_call(collection_l2_address, token_id) {
                     Option::Some(uri) => uri,
                     Option::None(_) => {
                         // TODO: Token URI missing for the token...? Revert? Skip?
@@ -313,10 +304,7 @@ mod bridge {
                     }
                 };
 
-                tokens.append(TokenInfo {
-                    token_id,
-                    token_uri,
-                });
+                tokens.append(TokenInfo { token_id, token_uri,  });
 
                 i += 1;
             };
@@ -345,10 +333,8 @@ mod bridge {
 
             // TODO: we can match the error to emit an event in case of error and an event in case
             // of success.
-            starknet::send_message_to_l1_syscall(
-                self.bridge_l1_address.read(),
-                req_buf.span(),
-            ).unwrap_syscall();
+            starknet::send_message_to_l1_syscall(self.bridge_l1_address.read(), req_buf.span(), )
+                .unwrap_syscall();
         }
 
         /// Sets the default class hash to be deployed when the
@@ -365,10 +351,12 @@ mod bridge {
             ensure_is_admin(@self);
 
             match starknet::replace_class_syscall(class_hash) {
-                Result::Ok(_) => self.emit(ReplacedClassHash {
-                    contract: starknet::get_contract_address(),
-                    class: class_hash
-                }),
+                Result::Ok(_) => self
+                    .emit(
+                        ReplacedClassHash {
+                            contract: starknet::get_contract_address(), class: class_hash
+                        }
+                    ),
                 Result::Err(revert_reason) => panic(revert_reason),
             };
         }
@@ -378,8 +366,7 @@ mod bridge {
 
     /// Ensures the caller is the bridge admin. Revert if it's not.
     fn ensure_is_admin(self: @ContractState) {
-        assert(starknet::get_caller_address() == self.bridge_admin.read(),
-               'Unauthorized action');
+        assert(starknet::get_caller_address() == self.bridge_admin.read(), 'Unauthorized action');
     }
 
     /// Verifies the collection addresses in the request and the local mapping
@@ -388,9 +375,7 @@ mod bridge {
     ///
     /// Returns collection L2 address if deploy is required, else 0.
     fn verify_request_mapping_addresses(
-        self: @ContractState,
-        l1_addr_req: felt252,
-        l2_addr_req: ContractAddress,
+        self: @ContractState, l1_addr_req: felt252, l2_addr_req: ContractAddress, 
     ) -> ContractAddress {
         let l1_addr_mapping = self.l2_to_l1_addresses.read(l2_addr_req);
         let l2_addr_mapping = self.l1_to_l2_addresses.read(l1_addr_req);
@@ -398,8 +383,7 @@ mod bridge {
         let mut panic_data: Array<felt252> = ArrayTrait::new();
 
         // L1 address must always be set as we receive the request from L1.
-        if l1_addr_req.is_zero()
-        {
+        if l1_addr_req.is_zero() {
             panic_data.append('L1 address cannot be 0');
             panic(panic_data);
         }
@@ -438,11 +422,12 @@ mod bridge {
     /// Returns the address of the collection on l2.
     ///
     /// * `req` - Request for bridging assets.
-    fn ensure_collection_deployment(ref self: ContractState, req: @BridgeRequest) -> ContractAddress {
+    fn ensure_collection_deployment(
+        ref self: ContractState, req: @BridgeRequest
+    ) -> ContractAddress {
         let collection_l2_addr = verify_request_mapping_addresses(
-            @self,
-            *req.collection_l1_address,
-            *req.collection_l2_address);
+            @self, *req.collection_l1_address, *req.collection_l2_address
+        );
 
         if !collection_l2_addr.is_zero() {
             return collection_l2_addr;
@@ -463,20 +448,22 @@ mod bridge {
         self.l1_to_l2_addresses.write(*req.collection_l1_address, l2_addr_from_deploy);
         self.l2_to_l1_addresses.write(l2_addr_from_deploy, *req.collection_l1_address);
 
-        self.emit(CollectionDeployedFromL1 {
-            l1_addr: *req.collection_l1_address,
-            l2_addr: l2_addr_from_deploy,
-            name: *req.collection_name,
-            symbol: *req.collection_symbol });
+        self
+            .emit(
+                CollectionDeployedFromL1 {
+                    l1_addr: *req.collection_l1_address,
+                    l2_addr: l2_addr_from_deploy,
+                    name: *req.collection_name,
+                    symbol: *req.collection_symbol
+                }
+            );
 
         l2_addr_from_deploy
     }
-
 }
 
 #[cfg(test)]
 mod tests {
-
     use super::bridge;
 
     use array::{ArrayTrait, SpanTrait};
@@ -484,25 +471,20 @@ mod tests {
     use core::result::ResultTrait;
     use traits::{TryInto, Into};
     use starknet::class_hash::Felt252TryIntoClassHash;
-    use starknet::{ContractAddress,ClassHash};
+    use starknet::{ContractAddress, ClassHash};
 
     use starknet::testing;
 
     /// Deploy a bridge instance.
-    fn deploy(
-        admin_addr: ContractAddress,
-    ) -> ContractAddress {
-
+    fn deploy(admin_addr: ContractAddress, ) -> ContractAddress {
         let mut calldata: Array<felt252> = array::ArrayTrait::new();
         calldata.append(admin_addr.into());
 
         let (addr, _) = starknet::deploy_syscall(
-            bridge::TEST_CLASS_HASH.try_into().unwrap(),
-            0,
-            calldata.span(),
-            false).expect('deploy_syscall failed');
+            bridge::TEST_CLASS_HASH.try_into().unwrap(), 0, calldata.span(), false
+        )
+            .expect('deploy_syscall failed');
 
         addr
     }
-
 }

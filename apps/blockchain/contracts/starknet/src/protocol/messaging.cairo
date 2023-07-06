@@ -92,17 +92,14 @@ mod tests {
         assert(buf.len() == 20, 'Buf len');
         let mut sp = buf.span();
         let req2 = Serde::<BridgeRequest>::deserialize(ref sp).unwrap();
-    }    
+    }
 
     /// Should serialize and deserialize a BridgeRequest.
     #[test]
     #[available_gas(2000000000)]
     fn serialize_deserialize() {
         let mut tokens = ArrayTrait::<TokenInfo>::new();
-        tokens.append(TokenInfo {
-            token_id: 1_u256,
-            token_uri: 'https:...'.into(),
-        });
+        tokens.append(TokenInfo { token_id: 1_u256, token_uri: 'https:...'.into(),  });
 
         let mut tokens_span = tokens.span();
 
@@ -144,5 +141,4 @@ mod tests {
         let mut sp = buf.span();
         let req2 = Serde::<BridgeRequest>::deserialize(ref sp).unwrap();
     }
-
 }

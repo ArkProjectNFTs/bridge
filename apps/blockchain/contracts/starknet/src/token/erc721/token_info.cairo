@@ -36,10 +36,8 @@ struct TokenInfo {
 /// * `collection_address` - Collection address of the collection.
 /// * `token_id` - Token id.
 fn token_uri_from_contract_call(
-    collection_address: ContractAddress,
-    token_id: u256,
+    collection_address: ContractAddress, token_id: u256, 
 ) -> Option<LongString> {
-
     // TODO: add the interface detection when the standard is out.
 
     let token_uri_selector = 0x0226ad7e84c1fe08eb4c525ed93cccadf9517670341304571e66f7c4f95cbe54;
@@ -49,18 +47,12 @@ fn token_uri_from_contract_call(
     token_id.serialize(ref _calldata);
 
     let calldata = _calldata.span();
-    
-    match starknet::call_contract_syscall(
-        collection_address,
-        token_uri_selector,
-        calldata,
-    ) {
+
+    match starknet::call_contract_syscall(collection_address, token_uri_selector, calldata, ) {
         Result::Ok(span) => string::long_string_from_span(span),
         Result::Err(e) => {
             match starknet::call_contract_syscall(
-                collection_address,
-                tokenUri_selector,
-                calldata,
+                collection_address, tokenUri_selector, calldata, 
             ) {
                 Result::Ok(span) => string::long_string_from_span(span),
                 Result::Err(e) => {
@@ -88,10 +80,7 @@ mod tests {
     #[test]
     #[available_gas(2000000000)]
     fn serialize_deserialize() {
-        let info = TokenInfo {
-            token_id: 7777_u256,
-            token_uri: 'https:...'.into(),
-        };
+        let info = TokenInfo { token_id: 7777_u256, token_uri: 'https:...'.into(),  };
 
         let mut buf = ArrayTrait::<felt252>::new();
         info.serialize(ref buf);
@@ -106,5 +95,4 @@ mod tests {
         let mut sp = buf.span();
         let info2 = Serde::<TokenInfo>::deserialize(ref sp).unwrap();
     }
-
 }

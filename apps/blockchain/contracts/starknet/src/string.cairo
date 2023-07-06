@@ -18,7 +18,6 @@ struct LongString {
     // Number of felt252 (short string) used to represent the
     // entire LongString.
     len: usize,
-
     // Span of felt252 (short string) to be concatenated
     // to have the complete long string.
     content: Span<felt252>,
@@ -30,7 +29,6 @@ struct LongString {
 /// * `data` - Data that may contain a single felt LongString or a
 ///            serialized LongString.
 fn long_string_from_span(data: Span<felt252>) -> Option<LongString> {
-
     if data.len() == 0_usize {
         Option::None(())
     } else if data.len() == 1_usize {
@@ -45,7 +43,7 @@ fn long_string_from_span(data: Span<felt252>) -> Option<LongString> {
         let mut i = 1_usize;
         loop {
             if i == len + 1 {
-                break();
+                break ();
             }
 
             content.append(*data[i]);
@@ -53,10 +51,7 @@ fn long_string_from_span(data: Span<felt252>) -> Option<LongString> {
             i += 1;
         };
 
-        Option::Some(LongString {
-            len,
-            content: content.span()
-        })
+        Option::Some(LongString { len, content: content.span() })
     }
 }
 
@@ -75,19 +70,16 @@ impl LongStringSerde of serde::Serde<LongString> {
         // Same here, deserializing the Span gives us the len.
         let content = Serde::<Span<felt252>>::deserialize(ref serialized)?;
 
-        Option::Some(
-            LongString {
-		len: content.len(),
-                content,
-            }
-        )
+        Option::Some(LongString { len: content.len(), content,  })
     }
 }
 
 /// StorageAccess implementation for LongString.
 impl LongStringStorageAccess of starknet::StorageAccess<LongString> {
     ///
-    fn read(address_domain: u32, base: starknet::StorageBaseAddress) -> SyscallResult::<LongString> {
+    fn read(
+        address_domain: u32, base: starknet::StorageBaseAddress
+    ) -> SyscallResult::<LongString> {
         let len = StorageAccess::<u32>::read(address_domain, base)?;
 
         let mut content: Array<felt252> = ArrayTrait::new();
@@ -98,8 +90,7 @@ impl LongStringStorageAccess of starknet::StorageAccess<LongString> {
             }
 
             match starknet::storage_read_syscall(
-                address_domain,
-                starknet::storage_address_from_base_and_offset(base, offset)
+                address_domain, starknet::storage_address_from_base_and_offset(base, offset)
             ) {
                 Result::Ok(r) => content.append(r),
                 Result::Err(e) => panic(e)
@@ -108,14 +99,13 @@ impl LongStringStorageAccess of starknet::StorageAccess<LongString> {
             offset += 1;
         };
 
-        SyscallResult::Ok(LongString {
-            len,
-            content: content.span(),
-        })
+        SyscallResult::Ok(LongString { len, content: content.span(),  })
     }
 
     ///
-    fn write(address_domain: u32, base: StorageBaseAddress, value: LongString) -> SyscallResult::<()> {
+    fn write(
+        address_domain: u32, base: StorageBaseAddress, value: LongString
+    ) -> SyscallResult::<()> {
         StorageAccess::<u32>::write(address_domain, base, value.len)?;
 
         let mut offset: u8 = 1;
@@ -144,12 +134,16 @@ impl LongStringStorageAccess of starknet::StorageAccess<LongString> {
     }
 
     ///
-    fn read_at_offset_internal(address_domain: u32, base: StorageBaseAddress, offset: u8) -> SyscallResult<LongString> {
+    fn read_at_offset_internal(
+        address_domain: u32, base: StorageBaseAddress, offset: u8
+    ) -> SyscallResult<LongString> {
         LongStringStorageAccess::read_at_offset_internal(address_domain, base, offset)
     }
 
     ///
-    fn write_at_offset_internal(address_domain: u32, base: StorageBaseAddress, offset: u8, value: LongString) -> SyscallResult<()> {
+    fn write_at_offset_internal(
+        address_domain: u32, base: StorageBaseAddress, offset: u8, value: LongString
+    ) -> SyscallResult<()> {
         LongStringStorageAccess::write_at_offset_internal(address_domain, base, offset, value)
     }
 
@@ -160,7 +154,7 @@ impl LongStringStorageAccess of starknet::StorageAccess<LongString> {
 }
 
 /// LegacyHash implementation for LongString.
-impl LongStringLegacyHash of hash::LegacyHash::<LongString> {
+impl LongStringLegacyHash of hash::LegacyHash<LongString> {
     ///
     fn hash(state: felt252, value: LongString) -> felt252 {
         let mut buf: Array<felt252> = ArrayTrait::new();
@@ -177,10 +171,7 @@ impl Felt252IntoLongString of Into<felt252, LongString> {
         let mut content = ArrayTrait::<felt252>::new();
         content.append(self);
 
-        LongString {
-            len: 1,
-            content: content.span()
-        }
+        LongString { len: 1, content: content.span() }
     }
 }
 
@@ -188,16 +179,12 @@ impl Felt252IntoLongString of Into<felt252, LongString> {
 impl ArrayIntoLongString of Into<Array<felt252>, LongString> {
     ///
     fn into(self: Array<felt252>) -> LongString {
-        LongString {
-            len: self.len(),
-            content: self.span()
-        }
+        LongString { len: self.len(), content: self.span() }
     }
 }
 
 #[cfg(test)]
 mod tests {
-
     use debug::PrintTrait;
     use serde::Serde;
     use array::{ArrayTrait, SpanTrait};
@@ -262,6 +249,5 @@ mod tests {
         // Will make the test fail if deserialization fails.
         let u2 = Serde::<LongString>::deserialize(ref sp).unwrap();
     }
-
 }
 

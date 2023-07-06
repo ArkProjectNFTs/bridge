@@ -8,10 +8,7 @@
 
 #[starknet::contract]
 mod erc721_bridgeable {
-    use starknet::{
-        ContractAddress,
-        ClassHash,
-    };
+    use starknet::{ContractAddress, ClassHash, };
     use traits::{TryInto, Into};
     use zeroable::Zeroable;
     use starknet::contract_address::ContractAddressZeroable;
@@ -101,7 +98,6 @@ mod erc721_bridgeable {
 
     #[external(v0)]
     impl ERC721Bridgeable of IERC721Bridgeable<ContractState> {
-
         //
         // *** VIEWS ***
         //
@@ -117,7 +113,9 @@ mod erc721_bridgeable {
             get_owner_of(self, token_id)
         }
 
-        fn is_approved_for_all(self: @ContractState, owner: ContractAddress, operator: ContractAddress) -> bool {
+        fn is_approved_for_all(
+            self: @ContractState, owner: ContractAddress, operator: ContractAddress
+        ) -> bool {
             is_approved_for_all_check(self, owner, operator)
         }
 
@@ -133,15 +131,21 @@ mod erc721_bridgeable {
         //
         // *** EXTERNALS ***
         //
-        fn permissioned_mint(ref self: ContractState, to: ContractAddress, token_id: u256, token_uri: LongString) {
-            assert(starknet::get_caller_address() == self.bridge_addr.read(),
-                   'ERC721: only bridge can pmint');
+        fn permissioned_mint(
+            ref self: ContractState, to: ContractAddress, token_id: u256, token_uri: LongString
+        ) {
+            assert(
+                starknet::get_caller_address() == self.bridge_addr.read(),
+                'ERC721: only bridge can pmint'
+            );
 
             mint(ref self, to, token_id);
             self.token_uris.write(token_id, token_uri);
         }
 
-        fn simple_mint(ref self: ContractState, to: ContractAddress, token_id: u256, token_uri: LongString) {
+        fn simple_mint(
+            ref self: ContractState, to: ContractAddress, token_id: u256, token_uri: LongString
+        ) {
             mint(ref self, to, token_id);
             self.token_uris.write(token_id, token_uri);
         }
@@ -149,24 +153,33 @@ mod erc721_bridgeable {
         fn approve(ref self: ContractState, to: ContractAddress, token_id: u256) {
             let owner = get_owner_of(@self, token_id);
             let caller = starknet::get_caller_address();
-            assert(owner == caller || is_approved_for_all_check(@self, owner, caller), 'ERC721: unauthorized caller');
+            assert(
+                owner == caller || is_approved_for_all_check(@self, owner, caller),
+                'ERC721: unauthorized caller'
+            );
             assert(owner != to, 'ERC721: self approval');
 
             self.token_approvals.write(token_id, to);
             self.emit(Approval { owner, approved: to, token_id });
         }
 
-        fn set_approval_for_all(ref self: ContractState, operator: ContractAddress, approved: bool) {
+        fn set_approval_for_all(
+            ref self: ContractState, operator: ContractAddress, approved: bool
+        ) {
             let owner = starknet::get_caller_address();
             assert(owner != operator, 'ERC721: self approval');
             self.operator_approvals.write((owner, operator), approved);
             self.emit(ApprovalForAll { owner, operator, approved });
         }
 
-        fn transfer_from(ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256) {
+        fn transfer_from(
+            ref self: ContractState, from: ContractAddress, to: ContractAddress, token_id: u256
+        ) {
             assert(!to.is_zero(), 'ERC721: invalid receiver');
-            assert(is_approved_or_owner_of(@self, starknet::get_caller_address(), token_id),
-                   'ERC721: unauthorized caller');
+            assert(
+                is_approved_or_owner_of(@self, starknet::get_caller_address(), token_id),
+                'ERC721: unauthorized caller'
+            );
 
             assert(from == get_owner_of(@self, token_id), 'ERC721: wrong sender');
 
@@ -178,14 +191,18 @@ mod erc721_bridgeable {
         }
 
         fn replace_class(ref self: ContractState, class_hash: ClassHash) {
-            assert(starknet::get_caller_address() == self.collection_owner.read(),
-                   'Unauthorized replace class');
+            assert(
+                starknet::get_caller_address() == self.collection_owner.read(),
+                'Unauthorized replace class'
+            );
 
             match starknet::replace_class_syscall(class_hash) {
-                Result::Ok(_) => self.emit(ReplacedClassHash {
-                    contract: starknet::get_contract_address(),
-                    class: class_hash
-                }),
+                Result::Ok(_) => self
+                    .emit(
+                        ReplacedClassHash {
+                            contract: starknet::get_contract_address(), class: class_hash
+                        }
+                    ),
                 Result::Err(revert_reason) => panic(revert_reason),
             };
         }
@@ -194,7 +211,9 @@ mod erc721_bridgeable {
     //
     // *** INTERNALS ***
     //
-    fn is_approved_for_all_check(self: @ContractState, owner: ContractAddress, operator: ContractAddress) -> bool {
+    fn is_approved_for_all_check(
+        self: @ContractState, owner: ContractAddress, operator: ContractAddress
+    ) -> bool {
         self.operator_approvals.read((owner, operator))
     }
 
@@ -208,7 +227,9 @@ mod erc721_bridgeable {
         !self.owners.read(token_id).is_zero()
     }
 
-    fn is_approved_or_owner_of(self: @ContractState, spender: ContractAddress, token_id: u256) -> bool {
+    fn is_approved_or_owner_of(
+        self: @ContractState, spender: ContractAddress, token_id: u256
+    ) -> bool {
         let owner = get_owner_of(self, token_id);
         owner == spender || is_approved_for_all_check(self, owner, spender)
     }
@@ -220,22 +241,14 @@ mod erc721_bridgeable {
         // Update token_id owner
         self.owners.write(token_id, to);
 
-        self.emit(Transfer {
-            from: Zeroable::zero(),
-            to,
-            token_id,
-        });
+        self.emit(Transfer { from: Zeroable::zero(), to, token_id,  });
     }
 
     fn burn(ref self: ContractState, token_id: u256) {
         let owner = get_owner_of(@self, token_id);
         self.owners.write(token_id, Zeroable::zero());
 
-        self.emit(Transfer {
-            from: owner,
-            to: Zeroable::zero(),
-            token_id,
-        });
+        self.emit(Transfer { from: owner, to: Zeroable::zero(), token_id,  });
     }
 }
 
@@ -243,7 +256,9 @@ mod erc721_bridgeable {
 mod tests {
     use super::erc721_bridgeable;
 
-    use starklane::token::erc721::interfaces::{IERC721BridgeableDispatcher, IERC721BridgeableDispatcherTrait};
+    use starklane::token::erc721::interfaces::{
+        IERC721BridgeableDispatcher, IERC721BridgeableDispatcherTrait
+    };
 
     use serde::Serde;
     use array::{ArrayTrait, SpanTrait};
@@ -253,7 +268,7 @@ mod tests {
     use traits::{TryInto, Into};
     use starknet::contract_address::Felt252TryIntoContractAddress;
     use starknet::class_hash::Felt252TryIntoClassHash;
-    use starknet::{ContractAddress,ClassHash};
+    use starknet::{ContractAddress, ClassHash};
 
     use starklane::token::erc721;
     use starklane::string;
@@ -267,7 +282,6 @@ mod tests {
         bridge_addr: ContractAddress,
         collection_owner: ContractAddress,
     ) -> ContractAddress {
-
         let mut calldata: Array<felt252> = array::ArrayTrait::new();
         name.serialize(ref calldata);
         symbol.serialize(ref calldata);
@@ -275,10 +289,9 @@ mod tests {
         calldata.append(collection_owner.into());
 
         let (addr, _) = starknet::deploy_syscall(
-            erc721_bridgeable::TEST_CLASS_HASH.try_into().unwrap(),
-            0,
-            calldata.span(),
-            false).expect('deploy_syscall failed');
+            erc721_bridgeable::TEST_CLASS_HASH.try_into().unwrap(), 0, calldata.span(), false
+        )
+            .expect('deploy_syscall failed');
 
         addr
     }
@@ -298,10 +311,7 @@ mod tests {
 
     /// Deploy everai collection.
     fn deploy_everai_collection() -> ContractAddress {
-        deploy('everai duo'.into(),
-               'DUO'.into(),
-               bridge_addr_mock(),
-               collection_owner_addr_mock())
+        deploy('everai duo'.into(), 'DUO'.into(), bridge_addr_mock(), collection_owner_addr_mock())
     }
 
     /// Should have correct constructor valules.
@@ -336,20 +346,19 @@ mod tests {
         let collection_addr = deploy_everai_collection();
 
         let collection = IERC721BridgeableDispatcher { contract_address: collection_addr };
-        
+
         let new_uri: LongString = 'https:...'.into();
         collection.simple_mint(NEW_DUO_OWNER, TOKEN_ID, new_uri);
 
         let fetched_uri = collection.token_uri(TOKEN_ID);
         assert(fetched_uri.len == 1_usize, 'Bad uri len');
         assert(*fetched_uri.content[0] == 'https:...', 'Bad uri content');
-
-        // Test that the storage is well separated by contract address.
-        // Calling collection2 token uri will revert saying Invalid Token ID,
-        // this is what we are expecting.
-        // let collection2_addr = deploy('everai duo 2', 'DUO2', BRIDGE, COLLECTION_OWNER);
-        // let collection2 = IERC721BridgeableDispatcher { contract_address: collection2_addr };
-        // collection2.token_uri(TOKEN_ID);
+    // Test that the storage is well separated by contract address.
+    // Calling collection2 token uri will revert saying Invalid Token ID,
+    // this is what we are expecting.
+    // let collection2_addr = deploy('everai duo 2', 'DUO2', BRIDGE, COLLECTION_OWNER);
+    // let collection2 = IERC721BridgeableDispatcher { contract_address: collection2_addr };
+    // collection2.token_uri(TOKEN_ID);
     }
 
     /// Should mint token from bridge call.
@@ -421,15 +430,13 @@ mod tests {
         let collection_addr = deploy_everai_collection();
 
         let collection = IERC721BridgeableDispatcher { contract_address: collection_addr };
-        
+
         let new_uri: LongString = 'https:...'.into();
         collection.simple_mint(NEW_DUO_OWNER, TOKEN_ID, new_uri);
 
         // Unwrap as we should have something as we just minted it.
         let fetched_uri = erc721::token_uri_from_contract_call(collection_addr, TOKEN_ID).unwrap();
         assert(fetched_uri.len == 1_usize, 'Bad uri len');
-        assert(*fetched_uri.content[0] == 'https:...', 'Bad uri content');        
+        assert(*fetched_uri.content[0] == 'https:...', 'Bad uri content');
     }
-
-
 }
