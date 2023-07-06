@@ -20,7 +20,7 @@ const empty_cards = [
 export default function Page() {
   return (
     <div className="flex">
-      {/* TODO @YohanTz: Extract magic values like this somewhere (top-[5.75rem]) */}
+      {/* TODO @YohanTz: Extract magic values like this to CSS variable (top-[5.75rem]) */}
       <MainPageContainer>
         <Typography
           className="mt-10.5 sm:mt-15.5"

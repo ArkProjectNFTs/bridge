@@ -36,7 +36,7 @@ const variants = {
   heading_light_xl: "font-semibold text-5xl font-ark-project",
   heading_light_l: "font-semibold sm:text-4xl text-xl font-ark-project",
   heading_light_m: "font-semibold text-2xl font-ark-project",
-  heading_light_s: " font-semibold text-xl font-ark-project",
+  heading_light_s: " font-semibold sm:text-xl text-sm font-ark-project",
   heading_light_xs: "font-semibold text-base font-ark-project",
   heading_light_xxs: "font-semibold text-sm font-ark-project",
 

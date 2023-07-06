@@ -1,5 +1,4 @@
-import { Button, Typography } from "design-system";
-import Modal from "design-system/src/Modal";
+import { Button, Modal, Typography } from "design-system";
 import Image from "next/image";
 
 import { CHAIN_LOGOS_BY_NAME } from "~/app/helpers";

@@ -49,12 +49,12 @@ const nftTransferData: Array<{
   image: string;
   name: string;
 }> = [
-  // {
-  //   collectionName: "Mekaverse",
-  //   image:
-  //     "https://res.cloudinary.com/alchemyapi/image/upload/thumbnailv2/eth-mainnet/c7d56728cd014a242e514b7e5678ac8c",
-  //   name: "Meka #1946",
-  // },
+  {
+    collectionName: "Mekaverse",
+    image:
+      "https://res.cloudinary.com/alchemyapi/image/upload/thumbnailv2/eth-mainnet/c7d56728cd014a242e514b7e5678ac8c",
+    name: "Meka #1946",
+  },
   // {
   //   collectionName: "Mekaverse",
   //   image:

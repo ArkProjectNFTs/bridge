@@ -4,7 +4,7 @@ import { Typography } from "design-system";
 
 import useCurrentChain from "../../hooks/useCurrentChain";
 import MainPageContainer from "../components/MainPageContainer";
-import NftTransferDrawer from "./components/NftTransferDrawer";
+import NftTransferDrawer from "./components/NftTransferSummary";
 import TargetChainSwitch from "./components/TargetChainSwitch";
 import TokenList from "./components/TokenList";
 

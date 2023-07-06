@@ -38,6 +38,8 @@ export default function useNftSelection(chain: Chain) {
 
   const selectedNftIds = address ? selectedNftIdsByAddress[address] ?? [] : [];
 
+  const numberOfSelectedNfts = selectedNftIds.length;
+
   // TODO @YohanTz: Directly search in the collection and filter nft not in the wallet anymore
   const selectedNfts = selectedNftIds.map((selectedNftId) =>
     nfts?.raw.find((nft) => nft.id === selectedNftId)
@@ -131,6 +133,7 @@ export default function useNftSelection(chain: Chain) {
     deselectNft,
     isSelected,
     nfts,
+    numberOfSelectedNfts,
     selectCollection,
     selectNft,
     selectedCollection,
