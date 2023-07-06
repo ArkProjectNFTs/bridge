@@ -18,8 +18,8 @@ BRIDGE_L1_ADDR=0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0
 BRIDGE_ADDR=0x04cca79029a72c1ab566f1ec3ceac5461d0609e2b025a7a28c4ecd35b4a0a6cf
 ERC721_ADDR=0x06c3b32561ee2b2327dfd61052c0ea361b7576f347e352a17cabb644dd85e2e9
 
-$STARKLI declare --compiler-version 2.0.0 ./target/dev/starklane_bridge.sierra.json --keystore-password 1234
-$STARKLI declare --compiler-version 2.0.0 ./target/dev/starklane_erc721_bridgeable.sierra.json --keystore-password 1234
+$STARKLI declare --compiler-version 2.0.1 ./target/dev/starklane_bridge.sierra.json --keystore-password 1234
+$STARKLI declare --compiler-version 2.0.1 ./target/dev/starklane_erc721_bridgeable.sierra.json --keystore-password 1234
 
 # Deploy bridge, with admin addr.
 echo "*** DEPLOYING Bridge"
