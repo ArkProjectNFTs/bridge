@@ -70,7 +70,7 @@ export default function Header() {
         <Typography variant="logo">starklane</Typography>
       </Link>
       {isFullyConnected && (
-        <div className="hidden items-center gap-8 lg:flex">
+        <div className="hidden items-center gap-8 md:flex">
           {connectedPages.map((connectedPage) => {
             return (
               <Link href={connectedPage.path} key={connectedPage.name}>
@@ -88,7 +88,7 @@ export default function Header() {
         </div>
       )}
       <div className="flex gap-4">
-        <div className="hidden gap-4 lg:flex">
+        <div className="hidden gap-4 md:flex">
           <ConnectEthereumButton
             onOpenModalChange={(open) => {
               open ? openModal("Ethereum") : closeModal();

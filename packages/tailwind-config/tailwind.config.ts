@@ -4,6 +4,14 @@ export default {
   content: ["./**/*.{js,ts,jsx,tsx}"],
   darkMode: "class",
   theme: {
+    screens: {
+      sm: "428px",
+      md: "1024px",
+      lg: "1366px",
+      xl: "1536px",
+      "2xl": "1920px",
+      "3xl": "2460px",
+    },
     extend: {
       // TODO @YohanTz: Move the colors object away from the extend property once all colors are defined
       colors: {

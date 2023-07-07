@@ -5,14 +5,14 @@ import Link from "next/link";
 export default function Banner() {
   return (
     // TODO @YohanTz: Padding
-    <div className="mt-6 flex flex-col-reverse items-center rounded-3xl bg-primary-200 px-5 pt-8 text-center text-dark-blue-950 sm:mt-18 sm:flex-row sm:gap-11 sm:px-8 sm:pt-0 sm:text-left">
+    <div className="mt-6 flex flex-col-reverse items-center rounded-3xl bg-primary-200 px-5 pt-8 text-center text-dark-blue-950 md:mt-18 md:flex-row md:gap-11 md:px-8 md:pt-0 md:text-left">
       <Image
         alt="portfolio banner illustration"
         height={300}
         src="/medias/vault.svg"
         width={330}
       />
-      <div className="text-center sm:py-8 sm:text-left">
+      <div className="text-center md:py-8 md:text-left">
         <Typography className="" component="h1" variant="heading_light_l">
           Welcome to your
           <br />
@@ -20,7 +20,7 @@ export default function Banner() {
         </Typography>
 
         <Link
-          className="mx-auto mt-6 inline-flex items-center gap-2.5 rounded-full bg-dark-blue-950 px-8 py-5 sm:mt-11"
+          className="mx-auto mt-6 inline-flex items-center gap-2.5 rounded-full bg-dark-blue-950 px-8 py-5 md:mt-11"
           href="/bridge"
         >
           <Image

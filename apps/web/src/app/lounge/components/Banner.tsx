@@ -1,5 +1,5 @@
 "use client";
-import { Button, Typography } from "design-system";
+import { Typography } from "design-system";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -10,11 +10,11 @@ export default function Banner() {
 
   return (
     // TODO @YohanTz: Padding
-    <div className="mt-8 flex flex-col-reverse items-center gap-11 overflow-hidden rounded-3xl bg-primary-300 px-6 pt-8 text-dark-blue-950 sm:mt-10 sm:flex-row sm:px-8 sm:py-4">
+    <div className="mt-8 flex flex-col-reverse items-center gap-11 overflow-hidden rounded-3xl bg-primary-300 px-6 pt-8 text-dark-blue-950 md:mt-10 md:flex-row md:px-8 md:py-4">
       {targetChain === "Ethereum" ? (
         <Image
           alt="lounge banner illustration"
-          className="relative top-[60px] -mt-[60px] sm:top-0 sm:mt-0"
+          className="relative top-[60px] -mt-[60px] md:top-0 md:mt-0"
           height={275}
           src="/medias/ethereum_lounge.svg"
           width={345}
@@ -22,13 +22,13 @@ export default function Banner() {
       ) : (
         <Image
           alt="lounge banner illustration"
-          className="relative top-[60px] -mt-[60px] sm:top-0 sm:mt-0"
+          className="relative top-[60px] -mt-[60px] md:top-0 md:mt-0"
           height={310}
           src="/medias/starknet_lounge.svg"
           width={300}
         />
       )}
-      <div className="text-center sm:text-left">
+      <div className="text-center md:text-left">
         <Typography component="h1" variant="heading_light_l">
           Welcome to
           <br />
@@ -38,7 +38,7 @@ export default function Banner() {
           Here you can monitor the status of your assets and their smooth
           reception on {targetChain} in real time.
         </Typography>
-        <div className="mt-6 flex flex-col gap-6 sm:flex-row">
+        <div className="mt-6 flex flex-col gap-6 md:flex-row">
           <Link
             className="flex items-center justify-center rounded-full bg-dark-blue-950 px-6 py-3.5 text-white"
             href="/bridge"

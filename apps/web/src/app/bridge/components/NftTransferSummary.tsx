@@ -174,10 +174,10 @@ function TransferSummary() {
                     width={52}
                   />
                   <div className="flex flex-col">
-                    <Typography variant="body_text_14">
+                    <Typography ellipsable variant="body_text_14">
                       {selectedNft?.collectionName}
                     </Typography>
-                    <Typography variant="body_text_bold_14">
+                    <Typography ellipsable variant="body_text_bold_14">
                       {selectedNft?.title}
                     </Typography>
                   </div>
@@ -217,13 +217,13 @@ export default function TransferSummaryContainer() {
 
   return (
     <>
-      <Drawer className="hidden lg:block">
+      <Drawer className="hidden md:block">
         <TransferSummary />
       </Drawer>
       {numberOfSelectedNfts > 0 && (
         <Modal
-          backdropClassName={`lg:hidden ${showMobileSummary ? "" : "hidden"}`}
-          className="text-left lg:hidden"
+          backdropClassName={`md:hidden ${showMobileSummary ? "" : "hidden"}`}
+          className="text-left md:hidden"
           isOpen
           onOpenChange={setShowMobileSummary}
         >

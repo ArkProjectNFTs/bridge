@@ -1,4 +1,5 @@
 import * as RUIDialog from "@radix-ui/react-dialog";
+import { useAccount as useStarknetAccount } from "@starknet-react/core";
 import { Dialog, Typography } from "design-system";
 import Image from "next/image";
 import { useState } from "react";
@@ -149,7 +150,6 @@ export default function ConnectModal({
     initialChain
   );
 
-  // TODO @YohanTz: Implement onConnect in useAccount hook from starknet-react
   function onWalletConnect() {
     if (initialChain === undefined) {
       setDisplayedChain(undefined);
@@ -163,6 +163,12 @@ export default function ConnectModal({
       onWalletConnect();
     },
   });
+
+  // useStarknetAccount({
+  //   onConnect() {
+  //     onWalletConnect();
+  //   },
+  // });
 
   return (
     <Dialog isOpen={isOpen} onOpenChange={onOpenChange}>

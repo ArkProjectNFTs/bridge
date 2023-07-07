@@ -64,11 +64,14 @@ const variants = {
   button_text_xs: "font-medium text-xs font-styrene-a",
 };
 
+const ellipsableClasses = "whitespace-nowrap text-ellipsis overflow-hidden";
+
 /* Make typography classes not overidable */
 interface TypographyProps {
   children: React.ReactNode;
   className?: string;
   component?: React.ElementType;
+  ellipsable?: boolean;
   variant: keyof typeof variants;
 }
 
@@ -76,13 +79,18 @@ export function Typography({
   children,
   className,
   component,
+  ellipsable,
   variant,
 }: TypographyProps) {
   const Component = component ?? "span";
 
   return (
     // TODO @YohanTz: Use tailwind-merge
-    <Component className={`${variants[variant]} ${className}`}>
+    <Component
+      className={`${variants[variant]} ${className ?? ""} ${
+        ellipsable ? ellipsableClasses : ""
+      }`}
+    >
       {children}
     </Component>
   );

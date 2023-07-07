@@ -31,12 +31,17 @@ export default function NftTransferCard({
       >
         <Image
           alt="nft image"
-          className="h-auto w-full rounded-lg"
+          className="aspect-[11/9] h-auto w-full rounded-lg object-cover"
           height={200}
           src={image}
           width={200}
         />
-        <Typography className="mt-3" component="p" variant="body_text_bold_14">
+        <Typography
+          className="mt-3"
+          component="p"
+          ellipsable
+          variant="body_text_bold_14"
+        >
           {name}
         </Typography>
 

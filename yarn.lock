@@ -1297,10 +1297,10 @@
     "@stablelib/random" "^1.0.2"
     "@stablelib/wipe" "^1.0.1"
 
-"@starknet-react/core@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@starknet-react/core/-/core-1.0.1.tgz#0f20569e018e9d5aae69c4c48fec3850eb5f0dbc"
-  integrity sha512-7hcu2qb7Lyvlje6oTZAyvmppkJuK3A/8dJ7yenQtL7NrKo4vraoEpSirnwkf3biKPR6XXcqB60ArHWN+/+3m9A==
+"@starknet-react/core@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@starknet-react/core/-/core-1.0.2.tgz#893c6cec6676d96b25a00ff3c8d233884e258922"
+  integrity sha512-nJzr6mYdj5WF/MoYCfuIZY37Q7ai8fPePUsHQicbLm0H52EwN/KvT/nmXdzX+IVg5umwkxaioPQWejfoChL9pA==
   dependencies:
     "@tanstack/react-query" "^4.29.12"
     get-starknet-core "^3.0.1"

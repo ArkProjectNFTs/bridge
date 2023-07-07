@@ -59,11 +59,10 @@ export default function NftCard({
           )
         }
       >
-        {/* TODO @YohanTz: Handle images with different sizes */}
         <div className="relative">
           <Image
             alt={title}
-            className="h-full w-full rounded-lg"
+            className="aspect-square h-full w-full rounded-lg object-cover"
             height={300}
             // TODO @YohanTz: Handle no image case
             src={image ?? ""}
@@ -83,6 +82,7 @@ export default function NftCard({
               variant={
                 cardType === "nft" ? "body_text_bold_14" : "body_text_bold_16"
               }
+              ellipsable
             >
               {title}
             </Typography>
