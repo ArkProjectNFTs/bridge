@@ -40,16 +40,8 @@ contract Bridge is Ownable {
     /*
      *
      */
-    constructor(address starknetCore, uint256 bridgeL2Address, uint256 bridgeL2Selector)
+    constructor()
     {
-        require(starknetCore != address(0), "StarknetCore address");
-        require(CairoAdapter.isContractAddress(bridgeL2Address),
-                "Invalid Bridge L2 address");
-        require(CairoAdapter.isFelt252(bridgeL2Selector), "Invalid Bridge L2 selector");
-
-        _starknetCore = starknetCore;
-        _bridgeL2Address = bridgeL2Address;
-        _bridgeL2Selector = bridgeL2Selector;
         _transferOwnership(msg.sender);
     }
 
@@ -76,13 +68,21 @@ contract Bridge is Ownable {
         uint256 nTokenPermissionMinted
         );
 
+    /*
+     *
+     */
+    function setStarknetCoreAddress(address addr)
+        external
+        onlyOwner {
+        require(addr > address(0), "Invalid Starknet Core address");
+        _starknetCore = addr;
+    }
 
     /*
      *
      */
     function setBridgeL2Address(uint256 l2Address)
-        public
-        payable
+        external
         onlyOwner {
         require(CairoAdapter.isContractAddress(l2Address), "Invalid Bridge L2 address");
         _bridgeL2Address = l2Address;
@@ -92,8 +92,7 @@ contract Bridge is Ownable {
      *
      */
     function setBridgeL2Selector(uint256 l2Selector)
-        public
-        payable
+        external
         onlyOwner {
         require(CairoAdapter.isFelt252(l2Selector), "Invalid Bridge L2 Selector");
         _bridgeL2Address = l2Selector;

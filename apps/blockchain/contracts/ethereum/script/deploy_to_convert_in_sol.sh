@@ -1,5 +1,11 @@
 #!/bin/bash
 
+### CHANGE FOR SCRIPTS....!
+#forge script script/Starklane.s.sol:Starklane --rpc-url $RPC_URL --broadcast -vvvv --gas-limit 99999999
+
+# Script for anvil with some tests.
+# Script for goerli + prod.
+
 RPC_URL=http://127.0.0.1:8545
 PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
 STARKNET_CORE_ADDR=0x5FbDB2315678afecb367f032d93F642f64180aa3
