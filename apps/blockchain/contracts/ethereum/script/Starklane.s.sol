@@ -34,5 +34,3 @@ contract Starklane is Script {
         vm.writeJson(output, "./local/logs/tokens.json");
     }
 }
-
-// PRIVATE_KEY=0x402c81c9a7d39e6223e64566b8d3299ffd23297e21e85102772b7bc3b089e5a7
