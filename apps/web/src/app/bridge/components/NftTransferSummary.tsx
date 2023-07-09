@@ -92,6 +92,7 @@ function TransferAction() {
   const { address: ethereumAddress } = useEthereumAccount();
   const { address: starknetAddress } = useStarknetAccount();
 
+  // TODO @YohanTz: Refacto to custom hook
   const { data: isApprovedForAll } = useContractRead({
     abi: erc721ABI,
     address: selectedNfts[0]?.collectionContractAddress as `0x${string}`,
