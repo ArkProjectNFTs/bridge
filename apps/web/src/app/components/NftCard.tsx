@@ -32,8 +32,20 @@ export default function NftCard({
     <div className="relative w-full">
       {cardType === "collection" && (
         <>
-          <div className="absolute inset-0 z-[-1] -translate-x-1 translate-y-1 rounded-2xl border border-neutral-200 bg-white dark:border-dark-blue-600 dark:bg-dark-blue-950" />
-          <div className="absolute inset-0 z-[-2] -translate-x-2 translate-y-2 rounded-2xl border border-neutral-200 bg-white dark:border-dark-blue-600 dark:bg-dark-blue-950" />
+          <div
+            className={`absolute inset-0 z-[-1] -translate-x-[5px] translate-y-[5px] rounded-2xl bg-white dark:bg-dark-blue-950 ${
+              isSelected && cardType === "collection"
+                ? "border-2 border-primary-300"
+                : "border border-neutral-200 dark:border-dark-blue-600"
+            }`}
+          />
+          <div
+            className={`absolute inset-0 z-[-2] -translate-x-[9px] translate-y-[9px] rounded-2xl bg-white dark:bg-dark-blue-950 ${
+              isSelected && cardType === "collection"
+                ? "border-2 border-primary-300"
+                : "border border-neutral-200 dark:border-dark-blue-600"
+            }`}
+          />
         </>
       )}
       {/* TODO @YohanTz: handle focus visible style properly */}
@@ -48,7 +60,7 @@ export default function NftCard({
           ) : (
             <button
               className={`h-full w-full overflow-hidden rounded-2xl border bg-white p-3 dark:bg-dark-blue-950 ${
-                isSelected && cardType === "nft"
+                isSelected
                   ? "border-primary-300 outline outline-1 outline-primary-300"
                   : "border-neutral-300 dark:border-dark-blue-600"
               }`}

@@ -15,6 +15,7 @@ export default function TokenList() {
   const {
     allCollectionSelected,
     isSelected,
+    lastSelectedCollectionName,
     nfts,
     selectCollection,
     selectedCollection,
@@ -30,16 +31,16 @@ export default function TokenList() {
   return (
     <>
       <div className="w-full">
-        <div className="mb-10 flex w-full justify-between">
-          <div className="flex items-center gap-3.5">
-            <Typography variant="heading_light_s">
+        <div className="mb-10 flex w-full flex-wrap justify-between gap-3.5">
+          <div className="flex max-w-full items-center gap-3.5">
+            <Typography ellipsable variant="heading_light_s">
               {selectedCollectionName
                 ? `${selectedCollectionName} Collection`
                 : "Collections"}
             </Typography>
             {selectedCollectionName !== null && (
               <Typography
-                className="rounded-full bg-primary-300 px-2 py-1.5 text-white"
+                className="shrink-0 rounded-full bg-primary-300 px-2 py-1.5 text-white"
                 variant="body_text_bold_12"
               >
                 {selectedCollection.length}
@@ -67,7 +68,7 @@ export default function TokenList() {
                       cardType="collection"
                       chain={sourceChain}
                       image={nfts[0]?.image}
-                      isSelected={false}
+                      isSelected={collectionName === lastSelectedCollectionName}
                       key={collectionName}
                       numberOfNfts={nfts.length}
                       onClick={() => selectCollection(collectionName)}
@@ -85,7 +86,7 @@ export default function TokenList() {
                     isSelected={isSelected(nft.id)}
                     key={nft.id}
                     onClick={() => toggleNftSelection(nft.id)}
-                    title={nft.title}
+                    title={nft.title.length > 0 ? nft.title : nft.tokenId}
                   />
                 );
               })}

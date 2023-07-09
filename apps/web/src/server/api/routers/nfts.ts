@@ -6,15 +6,17 @@ import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 
 const alchemy = new Alchemy({
   apiKey: process.env.ALCHEMY_API_KEY,
-  network: Network.ETH_MAINNET,
-  // network: Network.ETH_GOERLI,
+  // network: Network.ETH_MAINNET,
+  network: Network.ETH_GOERLI,
 });
 
 export type Nft = {
+  collectionContractAddress: string;
   collectionName: string;
   id: string;
   image: string | undefined;
   title: string;
+  tokenId: string;
 };
 
 const Address = z.object({
@@ -38,6 +40,7 @@ export const nftsRouter = createTRPCRouter({
           (nft) => nft.tokenType === "ERC721" || nft.tokenType === "ERC1155"
         )
         .map((nft) => ({
+          collectionContractAddress: nft.contract.address,
           collectionName:
             nft.contract.openSea?.collectionName ??
             nft.contract.name ??
@@ -46,6 +49,7 @@ export const nftsRouter = createTRPCRouter({
           // TODO @YohanTz: Support videos
           image: nft.media[0]?.thumbnail ?? undefined,
           title: nft.title,
+          tokenId: nft.tokenId,
         }));
 
       const nftsByCollection = rawNfts.reduce<Record<string, Array<Nft>>>(

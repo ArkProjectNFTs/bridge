@@ -3,12 +3,20 @@ import { useAccount as useStarknetAccount } from "@starknet-react/core";
 import { Button, Drawer, IconButton, Modal, Typography } from "design-system";
 import Image from "next/image";
 import { useMemo, useState } from "react";
-import { useAccount as useEthereumAccount } from "wagmi";
+import { parseGwei } from "viem";
+import {
+  erc721ABI,
+  useContractRead,
+  useContractWrite,
+  useAccount as useEthereumAccount,
+  useWaitForTransaction,
+} from "wagmi";
 
 import useCurrentChain from "~/hooks/useCurrentChain";
 import { useIsSSR } from "~/hooks/useIsSSR";
 
 import {
+  BRIDGE_ADDRESS,
   CHAIN_LOGOS_BY_NAME,
   CONNECTOR_LABELS_BY_ID,
   type Chain,
@@ -74,6 +82,115 @@ function ChainTransferSummary({
         </div>
       )}
     </div>
+  );
+}
+
+function TransferAction() {
+  const { targetChain } = useCurrentChain();
+  const { selectedNfts } = useNftSelection("Ethereum");
+
+  const { address: ethereumAddress } = useEthereumAccount();
+  const { address: starknetAddress } = useStarknetAccount();
+
+  const { data: isApprovedForAll } = useContractRead({
+    abi: erc721ABI,
+    address: selectedNfts[0]?.collectionContractAddress as `0x${string}`,
+    args: [ethereumAddress ?? "0xtest", BRIDGE_ADDRESS],
+    functionName: "isApprovedForAll",
+    watch: true,
+  });
+
+  // TODO @YohanTz: use usePrepareContractWrite
+  const { data: approveData, write: approveForAll } = useContractWrite({
+    abi: erc721ABI,
+    address: selectedNfts[0]?.collectionContractAddress as `0x${string}`,
+    args: [BRIDGE_ADDRESS, true],
+    functionName: "setApprovalForAll",
+  });
+
+  const { isLoading: isApproveLoading } = useWaitForTransaction({
+    hash: approveData?.hash,
+  });
+
+  // TODO @YohanTz: use usePrepareContractWrite
+  const { data: depositData, write: depositTokens } = useContractWrite({
+    // abi: bridgeAbi,
+    abi: [
+      {
+        inputs: [
+          { internalType: "uint256", name: "reqHash", type: "uint256" },
+          {
+            internalType: "address",
+            name: "collectionAddress",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "ownerL2Address",
+            type: "uint256",
+          },
+          { internalType: "uint256[]", name: "tokensIds", type: "uint256[]" },
+        ],
+        name: "depositTokens",
+        outputs: [],
+        stateMutability: "payable",
+        type: "function",
+      },
+    ],
+    address: BRIDGE_ADDRESS,
+    args: [
+      "0xbeef",
+      selectedNfts[0]?.collectionContractAddress,
+      starknetAddress,
+      selectedNfts.map((selectedNft) => selectedNft?.tokenId),
+    ],
+    functionName: "depositTokens",
+    value: parseGwei("40000"),
+  });
+
+  const { isLoading: isDepositLoading } = useWaitForTransaction({
+    hash: depositData?.hash,
+  });
+
+  return isApprovedForAll ? (
+    <>
+      <Typography
+        className="mt-8 rounded-xl bg-[#60D2B34D] p-3 text-dark-blue-950"
+        component="p"
+        variant="body_text_14"
+      >
+        Gas fees are free, handed by Everai!
+      </Typography>
+      <button
+        className="mt-8 w-full rounded-full bg-dark-blue-950 p-3 text-sm text-white"
+        onClick={() => depositTokens()}
+      >
+        <Typography variant="button_text_s">
+          {isDepositLoading
+            ? "Loading..."
+            : `Confirm transfer to ${targetChain}`}
+        </Typography>
+      </button>
+    </>
+  ) : (
+    <>
+      <Typography
+        className="mt-8 rounded-xl bg-purple-100 p-3 text-dark-blue-950"
+        component="p"
+        variant="body_text_14"
+      >
+        You must approve the selection of your assets before confirming the
+        migration. Each collection will require a signature via your wallet.
+      </Typography>
+      <button
+        className="mt-8 w-full rounded-full bg-dark-blue-950 p-3 text-sm text-white"
+        onClick={() => approveForAll()}
+      >
+        <Typography variant="button_text_s">
+          {isApproveLoading ? "Loading..." : "Approve the selected Nfts"}
+        </Typography>
+      </button>
+    </>
   );
 }
 
@@ -178,7 +295,9 @@ function TransferSummary() {
                       {selectedNft?.collectionName}
                     </Typography>
                     <Typography ellipsable variant="body_text_bold_14">
-                      {selectedNft?.title}
+                      {selectedNft?.title.length ?? 0 > 0
+                        ? selectedNft?.title
+                        : selectedNft?.tokenId}
                     </Typography>
                   </div>
                 </div>
@@ -194,19 +313,7 @@ function TransferSummary() {
           })}
         </div>
       )}
-      <Typography
-        className="mt-8 rounded-xl bg-purple-100 p-3 text-dark-blue-950"
-        component="p"
-        variant="body_text_14"
-      >
-        You must approve the selection of your assets before confirming the
-        migration. Each collection will require a signature via your wallet.
-      </Typography>
-      <button className="mt-8 w-full rounded-full bg-dark-blue-950 p-3 text-sm text-white">
-        <Typography variant="button_text_s">
-          Approve the selected Nfts
-        </Typography>
-      </button>
+      <TransferAction />
     </>
   );
 }

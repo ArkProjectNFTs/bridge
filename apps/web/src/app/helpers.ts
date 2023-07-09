@@ -33,3 +33,5 @@ export const CONNECTOR_LABELS_BY_ID: Record<string, string> = {
   injected: "Metamask",
   walletConnect: "WalletConnect",
 };
+
+export const BRIDGE_ADDRESS = "0x348EA7811204C80B8cB71ACdd7a8DC82FD553a18";

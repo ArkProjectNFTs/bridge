@@ -40,6 +40,10 @@ export default function useNftSelection(chain: Chain) {
 
   const numberOfSelectedNfts = selectedNftIds.length;
 
+  const lastSelectedCollectionName = address
+    ? lastSelectedCollectionNameByAddress[address]
+    : undefined;
+
   // TODO @YohanTz: Directly search in the collection and filter nft not in the wallet anymore
   const selectedNfts = selectedNftIds.map((selectedNftId) =>
     nfts?.raw.find((nft) => nft.id === selectedNftId)
@@ -49,8 +53,15 @@ export default function useNftSelection(chain: Chain) {
     selectedCollection.length === selectedNftIds.length;
 
   function deselectNft(nftId: string) {
-    if (address === undefined) {
+    if (address === undefined || !selectedNftIds.includes(nftId)) {
       return null;
+    }
+
+    if (selectedNftIds.length === 1) {
+      setLastSelectedCollectionNameByAddress({
+        ...lastSelectedCollectionNameByAddress,
+        [address]: null,
+      });
     }
 
     setSelectedNftIdsByAddress({
@@ -66,11 +77,8 @@ export default function useNftSelection(chain: Chain) {
       return null;
     }
 
-    // TODO @YohanTz: Check if selectedNft is from another collection !
     if (
-      selectedCollectionName !== null &&
-      lastSelectedCollectionNameByAddress[address] !== null &&
-      lastSelectedCollectionNameByAddress[address] !== selectedCollectionName
+      selectedCollectionName !== lastSelectedCollectionNameByAddress[address]
     ) {
       setSelectedNftIdsByAddress({
         ...selectedNftIdsByAddress,
@@ -112,11 +120,19 @@ export default function useNftSelection(chain: Chain) {
         ...selectedNftIdsByAddress,
         [address]: [],
       });
+      setLastSelectedCollectionNameByAddress({
+        ...lastSelectedCollectionNameByAddress,
+        [address]: null,
+      });
       return;
     }
     setSelectedNftIdsByAddress({
       ...selectedNftIdsByAddress,
       [address]: selectedCollection.map((nft) => nft.id),
+    });
+    setLastSelectedCollectionNameByAddress({
+      ...lastSelectedCollectionNameByAddress,
+      [address]: selectedCollectionName,
     });
   }
 
@@ -132,6 +148,7 @@ export default function useNftSelection(chain: Chain) {
     allCollectionSelected,
     deselectNft,
     isSelected,
+    lastSelectedCollectionName,
     nfts,
     numberOfSelectedNfts,
     selectCollection,
