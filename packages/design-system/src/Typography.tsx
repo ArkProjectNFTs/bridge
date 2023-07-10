@@ -25,20 +25,20 @@
 /* TODO @YohanTz: line-height */
 const variants = {
   /* Headings */
-  heading_xl: "font-bold text-5xl font-ark-project",
-  heading_l: "font-bold text-4xl font-ark-project",
-  heading_m: "font-bold text-2xl font-ark-project",
-  heading_s: "font-bold text-xl font-ark-project",
-  heading_xs: "font-bold text-base font-ark-project",
-  heading_xxs: "font-bold text-sm font-ark-project",
+  heading_xl: "font-bold sm:text-5xl text-2xl font-ark-project",
+  heading_l: "font-bold sm:text-4xl text-xl font-ark-project",
+  heading_m: "font-bold sm:text-2xl text-lg font-ark-project",
+  heading_s: "font-bold sm:text-xl text-base font-ark-project",
+  heading_xs: "font-bold sm:text-base text-sm font-ark-project",
+  heading_xxs: "font-bold sm:text-sm text-xs font-ark-project",
 
   /* Headings Light */
-  heading_light_xl: "font-semibold text-5xl font-ark-project",
+  heading_light_xl: "font-semibold sm:text-5xl text-2xl  font-ark-project",
   heading_light_l: "font-semibold sm:text-4xl text-xl font-ark-project",
-  heading_light_m: "font-semibold text-2xl font-ark-project",
-  heading_light_s: " font-semibold sm:text-xl text-sm font-ark-project",
-  heading_light_xs: "font-semibold text-base font-ark-project",
-  heading_light_xxs: "font-semibold text-sm font-ark-project",
+  heading_light_m: "font-semibold sm:text-2xl text-lg font-ark-project",
+  heading_light_s: " font-semibold sm:text-xl text-base font-ark-project",
+  heading_light_xs: "font-semibold sm:text-base text-sm font-ark-project",
+  heading_light_xxs: "font-semibold sm:text-sm text-xs font-ark-project",
 
   /* Body */
   body_text_24: "font-normal text-2xl font-styrene-a",
