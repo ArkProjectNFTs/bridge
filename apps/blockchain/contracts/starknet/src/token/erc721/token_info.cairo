@@ -16,7 +16,7 @@ use starknet::{ContractAddress, SyscallResult};
 use super::interfaces::IERC721BridgeableDispatcher;
 
 use starklane::string;
-use starklane::string::{LongString, SpanFeltTryIntoLongString};
+use starklane::string::{LongString, SpanFeltTryIntoLongString, SpanFeltSerializedTryIntoLongString};
 
 /// ERC721 token info.
 #[derive(Copy, Serde, Drop)]
@@ -48,13 +48,14 @@ fn token_uri_from_contract_call(
 
     let calldata = _calldata.span();
 
+    // As we use syscall, the return value is a raw span of serialized data.
     match starknet::call_contract_syscall(collection_address, token_uri_selector, calldata, ) {
-        Result::Ok(span) => span.try_into(),
+        Result::Ok(span) => SpanFeltSerializedTryIntoLongString::try_into(span),
         Result::Err(e) => {
             match starknet::call_contract_syscall(
                 collection_address, tokenUri_selector, calldata, 
             ) {
-                Result::Ok(span) => span.try_into(),
+                Result::Ok(span) => SpanFeltSerializedTryIntoLongString::try_into(span),
                 Result::Err(e) => {
                     Option::None(())
                 }

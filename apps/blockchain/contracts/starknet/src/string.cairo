@@ -149,7 +149,6 @@ impl ArrayIntoLongString of Into<Array<felt252>, LongString> {
     }
 }
 
-
 /// Long string may be a single felt or an already
 /// serialized LongString for contract that supports it.
 ///
@@ -168,7 +167,35 @@ impl SpanFeltTryIntoLongString of TryInto<Span<felt252>, LongString> {
     }
 }
 
+impl SpanFeltSerializedTryIntoLongString of TryInto<Span<felt252>, LongString> {
+    fn try_into(self: Span<felt252>) -> Option<LongString> {
+        if self.len() == 0_usize {
+            Option::None(())
+        } else if self.len() == 1_usize {
+            Option::Some((*self[0]).into())
+        } else {
+            // We need to skip the first felt252 which is the length.
+            let len = (*self[0]).try_into().expect('Bad LongString len from span');
 
+            let mut content: Array<felt252> = ArrayTrait::new();
+
+            let mut i = 1_usize;
+            loop {
+                if i == len + 1 {
+                    break ();
+                }
+
+                content.append(*self[i]);
+
+                i += 1;
+            };
+
+            Option::Some(LongString { content: content.span() })
+        }
+    }
+}
+
+///
 #[cfg(test)]
 mod tests {
     use debug::PrintTrait;
@@ -230,6 +257,7 @@ mod tests {
         }
     }
 
+    ///
     fn deploy_contract1() -> IContract1Dispatcher {
         let mut calldata: Array<felt252> = ArrayTrait::new();
 
