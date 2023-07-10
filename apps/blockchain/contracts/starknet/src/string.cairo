@@ -15,11 +15,10 @@ use starknet::{ContractAddress, SyscallResult, StorageAccess, StorageBaseAddress
 /// LongString represented internally as a list of short string.
 #[derive(Copy, Drop)]
 struct LongString {
-    // Number of felt252 (short string) used to represent the
-    // entire LongString.
-    len: usize,
     // Span of felt252 (short string) to be concatenated
     // to have the complete long string.
+    // We take advantage of the Span serialization where
+    // the size is always present.
     content: Span<felt252>,
 }
 
@@ -37,8 +36,7 @@ impl LongStringSerde of serde::Serde<LongString> {
     fn deserialize(ref serialized: Span<felt252>) -> Option<LongString> {
         // Same here, deserializing the Span gives us the len.
         let content = Serde::<Span<felt252>>::deserialize(ref serialized)?;
-
-        Option::Some(LongString { len: content.len(), content,  })
+        Option::Some(LongString { content,  })
     }
 }
 
@@ -67,19 +65,19 @@ impl LongStringStorageAccess of starknet::StorageAccess<LongString> {
             offset += 1;
         };
 
-        SyscallResult::Ok(LongString { len, content: content.span(),  })
+        SyscallResult::Ok(LongString { content: content.span(),  })
     }
 
     ///
     fn write(
         address_domain: u32, base: StorageBaseAddress, value: LongString
     ) -> SyscallResult::<()> {
-        StorageAccess::<u32>::write(address_domain, base, value.len)?;
+        StorageAccess::<u32>::write(address_domain, base, value.content.len())?;
 
         let mut offset: u8 = 1;
 
         loop {
-            if offset.into() == value.len + 1 {
+            if offset.into() == value.content.len() + 1 {
                 break ();
             }
 
@@ -117,7 +115,7 @@ impl LongStringStorageAccess of starknet::StorageAccess<LongString> {
 
     ///
     fn size_internal(value: LongString) -> u8 {
-        value.len.try_into().unwrap() + 1_u8
+        value.content.len().try_into().unwrap() + 1_u8
     }
 }
 
@@ -139,7 +137,7 @@ impl Felt252IntoLongString of Into<felt252, LongString> {
         let mut content = ArrayTrait::<felt252>::new();
         content.append(self);
 
-        LongString { len: 1, content: content.span() }
+        LongString { content: content.span() }
     }
 }
 
@@ -147,7 +145,7 @@ impl Felt252IntoLongString of Into<felt252, LongString> {
 impl ArrayIntoLongString of Into<Array<felt252>, LongString> {
     ///
     fn into(self: Array<felt252>) -> LongString {
-        LongString { len: self.len(), content: self.span() }
+        LongString { content: self.span() }
     }
 }
 
@@ -165,23 +163,7 @@ impl SpanFeltTryIntoLongString of TryInto<Span<felt252>, LongString> {
             let ll: felt252 = *self[0];
             Option::Some(ll.into())
         } else {
-            // We skip to remove the first felt252 which is the length.
-            let len: usize = (*self[0]).try_into().expect('Bad LongString len from span');
-            
-            let mut content: Array<felt252> = ArrayTrait::new();
-            
-            let mut i = 1_usize;
-            loop {
-                if i == len + 1 {
-                    break ();
-                }
-                
-                content.append(*self[i]);
-                
-                i += 1;
-            };
-            
-            Option::Some(LongString { len, content: content.span() })
+            Option::Some(LongString { content: self })
         }
     }
 }
@@ -201,8 +183,7 @@ mod tests {
     #[available_gas(2000000000)]
     fn from_felt252() {
         let u1: LongString = 'https:...'.into();
-        assert(u1.len == 1, 'll len');
-        assert(u1.content.len() == 1, 'content len');
+        assert(u1.content.len() == 1, 'll len');
         assert(*u1.content[0] == 'https:...', 'content 0');
     }
 
@@ -216,8 +197,7 @@ mod tests {
         content.append('5fbzdi');
 
         let u1: LongString = content.into();
-        assert(u1.len == 3, 'll len');
-        assert(u1.content.len() == 3, 'content len');
+        assert(u1.content.len() == 3, 'll len');
         assert(*u1.content[0] == 'ipfs://bafybeigdyrzt5sfp7udm7h', 'content 0');
         assert(*u1.content[1] == 'u76uh7y26nf3efuylqabf3oclgtqy5', 'content 1');
         assert(*u1.content[2] == '5fbzdi', 'content 2');
@@ -225,14 +205,13 @@ mod tests {
         let mut content_empty = ArrayTrait::<felt252>::new();
 
         let u2: LongString = content_empty.into();
-        assert(u2.len == 0, 'll len');
-        assert(u2.content.len() == 0, 'content len');
+        assert(u2.content.len() == 0, 'll len');
     }
 
-    /// Should serialize and deserialize a LongString.
+    /// Should serialize a LongString.
     #[test]
     #[available_gas(2000000000)]
-    fn serialize_deserialize() {
+    fn serialize() {
         let mut content = ArrayTrait::<felt252>::new();
         content.append('hello');
         content.append('world');
@@ -242,16 +221,28 @@ mod tests {
         let mut buf = ArrayTrait::<felt252>::new();
         u1.serialize(ref buf);
 
-        assert(buf.len() == 3, 'serialized buf len');
+        assert(buf.len() == 3, 'Serialized buf len');
 
-        assert(*buf[0] == 2, 'expected len');
-        assert(*buf[1] == 'hello', 'expected item 0');
-        assert(*buf[2] == 'world', 'expected item 1');
+        assert(*buf[0] == 2, 'Expected len');
+        assert(*buf[1] == 'hello', 'Expected item 0');
+        assert(*buf[2] == 'world', 'Expected item 1');
+    }
+
+    /// Should deserialize a LongString.
+    #[test]
+    #[available_gas(2000000000)]
+    fn deserialize() {
+        let mut buf = ArrayTrait::<felt252>::new();
+        buf.append(2);
+        buf.append('hello');
+        buf.append('world');
 
         let mut sp = buf.span();
 
-        // Will make the test fail if deserialization fails.
-        let u2 = Serde::<LongString>::deserialize(ref sp).unwrap();
+        let ll = Serde::<LongString>::deserialize(ref sp).unwrap();
+        assert(ll.content.len() == 2, 'Bad deserialized len');
+        assert(*ll.content[0] == 'hello', 'Expected item 0');
+        assert(*ll.content[1] == 'world', 'Expected item 1');
     }
 }
 

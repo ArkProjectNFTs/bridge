@@ -44,8 +44,8 @@ mod erc721_bridgeable {
     ) {
         assert(!bridge_addr.is_zero(), 'Invalid bridge address');
         assert(!collection_owner.is_zero(), 'Bad collection owner address');
-        assert(name.len > 0, 'Bad name len');
-        assert(symbol.len > 0, 'Bad symbol len');
+        assert(name.content.len() > 0, 'Bad name len');
+        assert(symbol.content.len() > 0, 'Bad symbol len');
 
         self.name_s.write(name);
         self.symbol_s.write(symbol);
@@ -326,11 +326,11 @@ mod tests {
         let collection = IERC721BridgeableDispatcher { contract_address: collection_addr };
 
         let n = collection.name();
-        assert(n.len == 1, 'Bad name len');
+        assert(n.content.len() == 1, 'Bad name len');
         assert(*n.content[0] == 'everai duo', 'Bad name content');
 
         let s = collection.symbol();
-        assert(s.len == 1, 'Bad symbol len');
+        assert(s.content.len() == 1, 'Bad symbol len');
         assert(*s.content[0] == 'DUO', 'Bad symbol content');
     }
 
@@ -351,7 +351,7 @@ mod tests {
         collection.simple_mint(NEW_DUO_OWNER, TOKEN_ID, new_uri);
 
         let fetched_uri = collection.token_uri(TOKEN_ID);
-        assert(fetched_uri.len == 1_usize, 'Bad uri len');
+        assert(fetched_uri.content.len() == 1_usize, 'Bad uri len');
         assert(*fetched_uri.content[0] == 'https:...', 'Bad uri content');
     // Test that the storage is well separated by contract address.
     // Calling collection2 token uri will revert saying Invalid Token ID,
@@ -436,7 +436,7 @@ mod tests {
 
         // Unwrap as we should have something as we just minted it.
         let fetched_uri = erc721::token_uri_from_contract_call(collection_addr, TOKEN_ID).unwrap();
-        assert(fetched_uri.len == 1_usize, 'Bad uri len');
+        assert(fetched_uri.content.len() == 1_usize, 'Bad uri len');
         assert(*fetched_uri.content[0] == 'https:...', 'Bad uri content');
     }
 }
