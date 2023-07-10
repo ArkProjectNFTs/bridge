@@ -174,9 +174,118 @@ mod tests {
     use debug::PrintTrait;
     use serde::Serde;
     use array::{ArrayTrait, SpanTrait};
-    use traits::Into;
+    use traits::{Into, TryInto};
     use option::OptionTrait;
-    use super::{LongString, LongStringSerde, ArrayIntoLongString};
+    use result::ResultTrait;
+    use super::{LongString, LongStringSerde, ArrayIntoLongString, SpanFeltTryIntoLongString};
+
+    #[starknet::interface]
+    trait IContract1<T> {
+        fn get_ll(self: @T) -> LongString;
+        fn set_ll(ref self: T, ll: LongString);
+
+        fn get_ll_value(self: @T, key: u256) -> LongString;
+        fn set_ll_value(ref self: T, key: u256, value: LongString);
+
+        fn get_ll_key(self: @T, key: LongString) -> felt252;
+        fn set_ll_key(ref self: T, key: LongString, value: felt252);
+    }
+
+    #[starknet::contract]
+    mod contract1 {
+        use super::{LongString, IContract1};
+
+        #[storage]
+        struct Storage {
+            ll: LongString,
+            uris: LegacyMap<u256, LongString>,
+            strs: LegacyMap<LongString, felt252>,
+        }
+
+        #[external(v0)]
+        impl Contract1 of IContract1<ContractState> {
+            fn get_ll(self: @ContractState) -> LongString {
+                self.ll.read()
+            }
+
+            fn set_ll(ref self: ContractState, ll: LongString) {
+                self.ll.write(ll);
+            }
+
+            fn get_ll_value(self: @ContractState, key: u256) -> LongString {
+                self.uris.read(key)
+            }
+
+            fn set_ll_value(ref self: ContractState, key: u256, value: LongString) {
+                self.uris.write(key, value);
+            }
+
+            fn get_ll_key(self: @ContractState, key: LongString) -> felt252 {
+                self.strs.read(key)
+            }
+
+            fn set_ll_key(ref self: ContractState, key: LongString, value: felt252) {
+                self.strs.write(key, value)
+            }
+        }
+    }
+
+    fn deploy_contract1() -> IContract1Dispatcher {
+        let mut calldata: Array<felt252> = ArrayTrait::new();
+
+        let (addr, _) = starknet::deploy_syscall(
+            contract1::TEST_CLASS_HASH.try_into().unwrap(), 0, calldata.span(), false
+        )
+            .expect('contract1 deploy failed');
+
+        IContract1Dispatcher { contract_address: addr }
+    }
+
+    /// Should correctly get LongString from storage.
+    #[test]
+    #[available_gas(2000000000)]
+    fn from_storage() {
+        let c1: IContract1Dispatcher = deploy_contract1();
+
+        c1.set_ll('salut'.into());
+
+        let ll = c1.get_ll();
+        assert(ll.content.len() == 1, 'bad len from storage');
+        assert(*ll.content[0] == 'salut', 'bad content from storage');
+    }
+
+    /// Should correctly get LongString as a value of storage legacymap.
+    #[test]
+    #[available_gas(2000000000)]
+    fn from_storage_value_hashmap() {
+        let c1: IContract1Dispatcher = deploy_contract1();
+
+        c1.set_ll_value(1_u256, 'salut'.into());
+
+        let ll = c1.get_ll_value(1_u256);
+        assert(ll.content.len() == 1, 'bad len from storage');
+        assert(*ll.content[0] == 'salut', 'bad content from storage');
+
+        let ll = c1.get_ll_value(2_u256);
+        assert(ll.content.len() == 0, 'bad len 0 expected');
+    }
+
+    /// Should correctly get LongString as a key of storage legacymap.
+    #[test]
+    #[available_gas(2000000000)]
+    fn from_storage_key_hashmap() {
+        let c1: IContract1Dispatcher = deploy_contract1();
+
+        let ll = 'salut'.into();
+
+        c1.set_ll_key(ll, 1234);
+
+        let f = c1.get_ll_key(ll);
+        assert(f == 1234, 'bad felt from ll value');
+
+        let f = c1.get_ll_key('blou'.into());
+        assert(f == 0, 'bad felt 0 expected');
+    }
 
     /// Should init a LongString from felt252.
     #[test]
@@ -206,6 +315,18 @@ mod tests {
 
         let u2: LongString = content_empty.into();
         assert(u2.content.len() == 0, 'll len');
+    }
+
+    /// Should init a LongString from Span<felt252>.
+    #[test]
+    #[available_gas(2000000000)]
+    fn from_span_felt252() {
+        let mut a: Array<felt252> = ArrayTrait::new();
+        a.append('https:...');
+
+        let u1: LongString = (a.span()).try_into().unwrap();
+        assert(u1.content.len() == 1, 'll len');
+        assert(*u1.content[0] == 'https:...', 'content 0');
     }
 
     /// Should serialize a LongString.

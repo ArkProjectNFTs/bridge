@@ -434,7 +434,7 @@ mod tests {
         let new_uri: LongString = 'https:...'.into();
         collection.simple_mint(NEW_DUO_OWNER, TOKEN_ID, new_uri);
 
-        // Unwrap as we should have something as we just minted it.
+        // Unwrap as we should have something we just minted.
         let fetched_uri = erc721::token_uri_from_contract_call(collection_addr, TOKEN_ID).unwrap();
         assert(fetched_uri.content.len() == 1_usize, 'Bad uri len');
         assert(*fetched_uri.content[0] == 'https:...', 'Bad uri content');
