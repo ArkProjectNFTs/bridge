@@ -149,12 +149,9 @@ impl ArrayIntoLongString of Into<Array<felt252>, LongString> {
     }
 }
 
-/// Long string may be a single felt or an already
-/// serialized LongString for contract that supports it.
-///
-/// * `data` - Data that may contain a single felt LongString or a
-///            serialized LongString.
+/// Long string from span.
 impl SpanFeltTryIntoLongString of TryInto<Span<felt252>, LongString> {
+    ///
     fn try_into(self: Span<felt252>) -> Option<LongString> {
         if self.len() == 0_usize {
             Option::None(())
@@ -167,7 +164,10 @@ impl SpanFeltTryIntoLongString of TryInto<Span<felt252>, LongString> {
     }
 }
 
+/// Long string may be a single felt or an already
+/// serialized LongString for contract that supports it.
 impl SpanFeltSerializedTryIntoLongString of TryInto<Span<felt252>, LongString> {
+    ///
     fn try_into(self: Span<felt252>) -> Option<LongString> {
         if self.len() == 0_usize {
             Option::None(())
