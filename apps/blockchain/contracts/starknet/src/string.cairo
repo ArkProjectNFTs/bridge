@@ -23,38 +23,6 @@ struct LongString {
     content: Span<felt252>,
 }
 
-/// Long string may be a single felt or an already
-/// serialized LongString for contract that supports it.
-///
-/// * `data` - Data that may contain a single felt LongString or a
-///            serialized LongString.
-fn long_string_from_span(data: Span<felt252>) -> Option<LongString> {
-    if data.len() == 0_usize {
-        Option::None(())
-    } else if data.len() == 1_usize {
-        let ll: felt252 = *data[0];
-        Option::Some(ll.into())
-    } else {
-        // We need to remove the first felt252 which is the length.
-        let len = (*data[0]).try_into().expect('Bad LongString len from span');
-
-        let mut content: Array<felt252> = ArrayTrait::new();
-
-        let mut i = 1_usize;
-        loop {
-            if i == len + 1 {
-                break ();
-            }
-
-            content.append(*data[i]);
-
-            i += 1;
-        };
-
-        Option::Some(LongString { len, content: content.span() })
-    }
-}
-
 /// Serde implementation for LongString.
 impl LongStringSerde of serde::Serde<LongString> {
     ///
@@ -182,6 +150,42 @@ impl ArrayIntoLongString of Into<Array<felt252>, LongString> {
         LongString { len: self.len(), content: self.span() }
     }
 }
+
+
+/// Long string may be a single felt or an already
+/// serialized LongString for contract that supports it.
+///
+/// * `data` - Data that may contain a single felt LongString or a
+///            serialized LongString.
+impl SpanFeltTryIntoLongString of TryInto<Span<felt252>, LongString> {
+    fn try_into(self: Span<felt252>) -> Option<LongString> {
+        if self.len() == 0_usize {
+            Option::None(())
+        } else if self.len() == 1_usize {
+            let ll: felt252 = *self[0];
+            Option::Some(ll.into())
+        } else {
+            // We skip to remove the first felt252 which is the length.
+            let len: usize = (*self[0]).try_into().expect('Bad LongString len from span');
+            
+            let mut content: Array<felt252> = ArrayTrait::new();
+            
+            let mut i = 1_usize;
+            loop {
+                if i == len + 1 {
+                    break ();
+                }
+                
+                content.append(*self[i]);
+                
+                i += 1;
+            };
+            
+            Option::Some(LongString { len, content: content.span() })
+        }
+    }
+}
+
 
 #[cfg(test)]
 mod tests {

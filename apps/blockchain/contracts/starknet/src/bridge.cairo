@@ -168,6 +168,16 @@ mod bridge {
     }
 
     #[l1_handler]
+    fn deposit_from_l1_2(
+        ref self: ContractState,
+        from_address: felt252,
+        payload_len: felt252,
+        req: BridgeRequest) {
+        // TODO: ensure it's the L1 bridge talking.
+        super::IBridge::on_l1_message(ref self, req);
+    }
+
+    #[l1_handler]
     fn deposit_from_l1(ref self: ContractState, from_address: felt252, req: BridgeRequest) {
         // TODO: ensure it's the L1 bridge talking.
         super::IBridge::on_l1_message(ref self, req);
