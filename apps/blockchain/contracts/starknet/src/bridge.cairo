@@ -168,6 +168,18 @@ mod bridge {
     }
 
     #[l1_handler]
+    fn deposit_from_l1_3(
+        ref self: ContractState,
+        from_address: felt252,
+        payload: Span<felt252>) {
+        // Can't have a ref on payload...!
+        // Need to copy all the values...?!
+        // TODO: ensure it's the L1 bridge talking.
+        //super::IBridge::on_l1_message(ref self, req);
+        self.emit(TestEvent { vv: 123498 });
+    }
+
+    #[l1_handler]
     fn deposit_from_l1_2(
         ref self: ContractState,
         from_address: felt252,
