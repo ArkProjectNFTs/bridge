@@ -13,13 +13,15 @@ contract DeployERC721B is Script {
     function setUp() public {}
 
     function run() public {
-        uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
-        address bridgeL1Address = vm.envAddress("BRIDGE_L1_ADDRESS");
-        address deployerAddress = vm.envAddress("EOA_ADDRESS");
+        address deployerAddress = vm.envAddress("ACCOUNT_ADDRESS");
+        uint256 deployerPrivateKey = vm.envUint("ACCOUNT_PRIVATE_KEY");
+
+        // Change as necesary.
+        address bridgeL1Address = address(0);
 
         vm.startBroadcast(deployerPrivateKey);
 
-        ERC721Bridgeable collection = new ERC721Bridgeable("glihm token 2", "GLIHM2");
+        ERC721Bridgeable collection = new ERC721Bridgeable("yoyo 721", "YOYO721");
         collection.setApprovalForAll(address(bridgeL1Address), true);
         collection.testMintRange(deployerAddress, 1, 10);
 
@@ -27,15 +29,14 @@ contract DeployERC721B is Script {
     }
 }
 
-contract TestBridgeAll is Script {
+contract DeployAllLocal is Script {
     function setUp() public {}
 
     function run() public {
-        uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
-        address deployerAddress = vm.envAddress("EOA_ADDRESS");
+        uint256 deployerPrivateKey = vm.envUint("ACCOUNT_PRIVATE_KEY");
+        address deployerAddress = vm.envAddress("ACCOUNT_ADDRESS");
 
-        //address starknetCoreAddress = vm.envAddress("STARKNET_CORE_L1_ADDRESS");
-
+        uint256 ownerL2Address = vm.envUint("OWNER_L2_ADDRESS");
         uint256 bridgeL2Address = vm.envUint("BRIDGE_L2_ADDRESS");
         uint256 bridgeL2Selector = vm.envUint("BRIDGE_L2_SELECTOR");
 
@@ -45,23 +46,37 @@ contract TestBridgeAll is Script {
 
         Bridge b = new Bridge();
         b.setStarknetCoreAddress(address(sn));
-        b.setBridgeL2Address(bridgeL2Address);
-        b.setBridgeL2Selector(bridgeL2Selector);
+
+        if (bridgeL2Address != 0) {
+            b.setBridgeL2Address(bridgeL2Address);
+        }
+
+        if (bridgeL2Selector != 0) {
+            b.setBridgeL2Selector(bridgeL2Selector);
+        }
 
         ERC721Bridgeable collection = new ERC721Bridgeable("aaaa", "AAAJ");
         collection.setApprovalForAll(address(b), true);
-        collection.testMint(deployerAddress, 1);
-        collection.testMint(deployerAddress, 2);
+        collection.testMintRange(deployerAddress, 1, 20);
 
-        uint256 reqHash = 0x88991122;
-        address collectionAddress = address(collection);
-        uint256 ownerL2Address = 0x07c0ea427ddca72a6bdd66746e9c0c0651e5eac76977ab9b7bbf796a410f8929;
-        uint256[] memory tokensIds = new uint256[](1);
-        tokensIds[0] = 1;
+        if (ownerL2Address != 0) {
+            uint256 reqHash = 0x88991122;
+            address collectionAddress = address(collection);
 
-        b.depositTokens{value: 50000}(reqHash, collectionAddress, ownerL2Address, tokensIds);
+            uint256[] memory tokensIds = new uint256[](1);
+            tokensIds[0] = 1;
+
+            b.depositTokens{value: 50000}(reqHash, collectionAddress, ownerL2Address, tokensIds);
+        }
 
         vm.stopBroadcast();
+
+        string memory json = "local_deploy";
+        vm.serializeString(json, "starknet_messaging_addr", vm.toString(address(sn)));
+        vm.serializeString(json, "bridge_addr", vm.toString(address(b)));
+        vm.serializeString(json, "erc721_addr", vm.toString(address(collection)));
+
+        Utils.writeJson(json, "local_deploy.json");
     }
 }
 
@@ -92,9 +107,8 @@ contract ChangeL2Data is Script {
     function setUp() public {}
 
     function run() public {
-        uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
+        uint256 deployerPrivateKey = vm.envUint("ACCOUNT_PRIVATE_KEY");
         address bridgeL1Address = vm.envAddress("BRIDGE_L1_ADDRESS");
-        //uint256 bridgeL2Address = vm.envUint("BRIDGE_L2_ADDRESS");
         uint256 bridgeL2Selector = vm.envUint("BRIDGE_L2_SELECTOR");
 
         vm.startBroadcast(deployerPrivateKey);

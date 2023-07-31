@@ -42,7 +42,7 @@ contract Bridge is Ownable {
      */
     constructor()
     {
-        _transferOwnership(msg.sender);
+        //_transferOwnership(msg.sender);
     }
 
     /*
@@ -95,7 +95,17 @@ contract Bridge is Ownable {
         external
         onlyOwner {
         require(CairoAdapter.isFelt252(l2Selector), "Invalid Bridge L2 Selector");
-        _bridgeL2Address = l2Selector;
+        _bridgeL2Selector = l2Selector;
+    }
+
+    /*
+     *
+     */
+    function getL2Info()
+        external
+        view
+        returns (uint256, uint256) {
+        return (_bridgeL2Address, _bridgeL2Selector);
     }
 
     /*

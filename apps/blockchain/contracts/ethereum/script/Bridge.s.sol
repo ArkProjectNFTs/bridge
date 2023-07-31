@@ -11,7 +11,9 @@ contract Deploy is Script {
     function setUp() public {}
 
     function run() public {
-        uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
+        uint256 deployerPrivateKey = vm.envUint("ACCOUNT_PRIVATE_KEY");
+        console.log(deployerPrivateKey);
+
         address starknetCoreAddress = vm.envAddress("STARKNET_CORE_L1_ADDRESS");
         uint256 bridgeL2Address = vm.envUint("BRIDGE_L2_ADDRESS");
         uint256 bridgeL2Selector = vm.envUint("BRIDGE_L2_SELECTOR");
@@ -29,9 +31,5 @@ contract Deploy is Script {
         vm.serializeString(json, "bridge_address", vm.toString(address(b)));
 
         Utils.writeJson(json, "bridge_deploy.json");
-
-        /* string memory localLogs = vm.envString("LOCAL_LOGS"); */
-        /* vm.createDir(localLogs, true); */
-        /* vm.writeJson(output, string.concat(localLogs, "bridge_deploy.json")); */
     }
 }
