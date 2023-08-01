@@ -9,14 +9,19 @@ pub mod utils;
 use bridge_request::{BridgeRequest, BridgeRequestStatus, StatusChange};
 use storage::{mongo::request_store::MongoRequestStore, store::BridgeRequestStore};
 use std::time::SystemTime;
-use events::ethereum;
+use events::ethereum::EthereumClient;
 
 #[tokio::main]
 async fn main() -> Result<()> {
 
     let addr_str = "0x7F435bC17d2eD2954142449b4BD71D151cDFb141";
     let addr: Address = Address::parse_checksummed(addr_str, None).unwrap();
-    ethereum::fetch_logs(9000000, 9445823, addr).await?;
+
+    let rpc_url = "https://goerli.infura.io/v3/d8088a2c561f4641bcc0f788e631804b";
+    let eth_client = EthereumClient::new(rpc_url).expect("Can't init eth client");
+
+    let eth_logs = eth_client.fetch_logs("0x89440", "0x9021bf", addr).await?;
+    println!("{:?}", eth_logs);
 
     let event_signature = keccak256(b"OwnershipTransferred(address,address)");
     println!("{}", event_signature.to_string());
