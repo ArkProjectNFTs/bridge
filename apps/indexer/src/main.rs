@@ -1,53 +1,62 @@
-use alloy_primitives::{address, Address, U256};
+use alloy_primitives::{address, Address, U256, keccak256};
 use anyhow::Result;
 
 pub mod bridge_request;
 pub mod storage;
+pub mod events;
 pub mod utils;
 
 use bridge_request::{BridgeRequest, BridgeRequestStatus, StatusChange};
 use storage::{mongo::request_store::MongoRequestStore, store::BridgeRequestStore};
-
 use std::time::SystemTime;
+use events::ethereum;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let req_store =
-        MongoRequestStore::new("mongodb://127.0.0.1:27017", "starklane", "bridge_reqs").await?;
 
-    let epoch = match SystemTime::now().duration_since(SystemTime::UNIX_EPOCH) {
-        Ok(n) => n.as_secs(),
-        Err(_) => panic!("SystemTime before UNIX EPOCH!"),
-    };
+    let addr_str = "0x7F435bC17d2eD2954142449b4BD71D151cDFb141";
+    let addr: Address = Address::parse_checksummed(addr_str, None).unwrap();
+    ethereum::fetch_logs(9000000, 9445823, addr).await?;
 
-    let hash = format!("{}", epoch);
+    let event_signature = keccak256(b"OwnershipTransferred(address,address)");
+    println!("{}", event_signature.to_string());
 
-    let req = BridgeRequest {
-        hash: hash.clone(),
-        header: String::from("0"),
-        chain_src: String::from("eth"),
-        from: String::from("0x22"),
-        to: String::from("0x33"),
-        content: String::from("[1324, 234]"),
-    };
+    // let req_store =
+    //     MongoRequestStore::new("mongodb://127.0.0.1:27017", "starklane", "bridge_reqs").await?;
 
-    req_store.insert(req).await?;
-    req_store
-        .status_set(
-            &hash,
-            BridgeRequestStatus::SrcSubmitted,
-            utils::utc_now_seconds(),
-        )
-        .await?;
+    // let epoch = match SystemTime::now().duration_since(SystemTime::UNIX_EPOCH) {
+    //     Ok(n) => n.as_secs(),
+    //     Err(_) => panic!("SystemTime before UNIX EPOCH!"),
+    // };
 
-    let status = req_store.status_get(&hash).await?;
-    println!("STATUS! {:?}", status);
+    // let hash = format!("{}", epoch);
 
-    let r = req_store.get_by_hash("1690863218").await?;
-    println!("REQ! {:?}", r);
+    // let req = BridgeRequest {
+    //     hash: hash.clone(),
+    //     header: String::from("0"),
+    //     chain_src: String::from("eth"),
+    //     from: String::from("0x22"),
+    //     to: String::from("0x33"),
+    //     content: String::from("[1324, 234]"),
+    // };
 
-    let reqs = req_store.list_by_wallet("0x33").await?;
-    println!("REQS! {:?}", reqs);
+    // req_store.insert(req).await?;
+    // req_store
+    //     .status_set(
+    //         &hash,
+    //         BridgeRequestStatus::SrcSubmitted,
+    //         utils::utc_now_seconds(),
+    //     )
+    //     .await?;
+
+    // let status = req_store.status_get(&hash).await?;
+    // println!("STATUS! {:?}", status);
+
+    // let r = req_store.get_by_hash("1690863218").await?;
+    // println!("REQ! {:?}", r);
+
+    // let reqs = req_store.list_by_wallet("0x33").await?;
+    // println!("REQS! {:?}", reqs);
 
     // let mut n: U256 = "42".parse().unwrap();
     // n += U256::from(10);
