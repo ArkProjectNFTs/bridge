@@ -1,12 +1,11 @@
 use anyhow::Result;
 use async_trait::async_trait;
-use mongodb::{Database, Collection, Client, options::ClientOptions, bson::{doc, Bson}};
 use futures::TryStreamExt;
+use mongodb::{bson::doc, options::ClientOptions, Client, Collection};
 use serde::{Deserialize, Serialize};
 
-use crate::utils;
-use crate::{BridgeRequest, BridgeRequestStatus, StatusChange};
 use crate::storage::store::BridgeRequestStore;
+use crate::{BridgeRequest, BridgeRequestStatus, StatusChange};
 
 ///
 pub struct MongoRequestStore {
@@ -19,16 +18,14 @@ impl MongoRequestStore {
     pub async fn new(
         connection_string: &str,
         db_name: &str,
-        collection_name: &str
+        collection_name: &str,
     ) -> Result<MongoRequestStore> {
         let client_options = ClientOptions::parse(connection_string).await?;
         let client = Client::with_options(client_options)?;
         let db = client.database(db_name);
         let collection = db.collection::<BridgeRequestMongo>(collection_name);
 
-        Ok(MongoRequestStore {
-            collection,
-        })
+        Ok(MongoRequestStore { collection })
     }
 }
 
@@ -102,7 +99,11 @@ impl BridgeRequestStore for MongoRequestStore {
 
     ///
     async fn get_by_hash(&self, hash: &str) -> Result<Option<BridgeRequest>> {
-        match self.collection.find_one(doc! { "hash": hash }, None).await? {
+        match self
+            .collection
+            .find_one(doc! { "hash": hash }, None)
+            .await?
+        {
             Some(req) => Ok(Some(BridgeRequest::from(req))),
             None => Ok(None),
         }
@@ -110,17 +111,14 @@ impl BridgeRequestStore for MongoRequestStore {
 
     ///
     async fn insert(&self, req: BridgeRequest) -> Result<()> {
-        self.collection.insert_one(BridgeRequestMongo::from(req), None).await?;
+        self.collection
+            .insert_one(BridgeRequestMongo::from(req), None)
+            .await?;
         Ok(())
     }
 
     ///
-    async fn status_set(
-        &self,
-        hash: &str,
-        status: BridgeRequestStatus,
-        time: u64
-    ) -> Result<()> {
+    async fn status_set(&self, hash: &str, status: BridgeRequestStatus, time: u64) -> Result<()> {
         let filter = doc! { "hash": hash };
 
         let update = doc! {
@@ -134,16 +132,18 @@ impl BridgeRequestStore for MongoRequestStore {
             }
         };
 
-        self.collection
-            .update_one(filter, update, None)
-            .await?;
+        self.collection.update_one(filter, update, None).await?;
 
         Ok(())
     }
 
     ///
     async fn status_get(&self, hash: &str) -> Result<Vec<StatusChange>> {
-        if let Some(req) = self.collection.find_one(doc! { "hash": hash }, None).await? {
+        if let Some(req) = self
+            .collection
+            .find_one(doc! { "hash": hash }, None)
+            .await?
+        {
             Ok(req.status_changes)
         } else {
             Ok(vec![])

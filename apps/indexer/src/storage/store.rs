@@ -1,6 +1,6 @@
+use crate::{BridgeRequest, BridgeRequestStatus, StatusChange};
 use anyhow::Result;
 use async_trait::async_trait;
-use crate::{BridgeRequest, BridgeRequestStatus, StatusChange};
 
 /// Store for the requests persistence.
 #[async_trait]
@@ -15,12 +15,7 @@ pub trait BridgeRequestStore {
     async fn insert(&self, req: BridgeRequest) -> Result<()>;
 
     ///
-    async fn status_set(
-        &self,
-        hash: &str,
-        status: BridgeRequestStatus,
-        time: u64,
-    ) -> Result<()>;
+    async fn status_set(&self, hash: &str, status: BridgeRequestStatus, time: u64) -> Result<()>;
 
     ///
     async fn status_get(&self, hash: &str) -> Result<Vec<StatusChange>>;
@@ -29,7 +24,6 @@ pub trait BridgeRequestStore {
 /// Store for bridged collections persistence.
 #[async_trait]
 pub trait BridgedCollectionStore {
-
     /// Insert a collection as being bridged for the first time.
     async fn insert(
         &self,

@@ -1,22 +1,19 @@
-use anyhow::Result;
 use alloy_primitives::{address, Address, U256};
+use anyhow::Result;
 
 pub mod bridge_request;
-pub mod utils;
 pub mod storage;
+pub mod utils;
 
-use bridge_request::{BridgeRequestStatus, BridgeRequest, StatusChange};
+use bridge_request::{BridgeRequest, BridgeRequestStatus, StatusChange};
 use storage::{mongo::request_store::MongoRequestStore, store::BridgeRequestStore};
 
 use std::time::SystemTime;
 
 #[tokio::main]
 async fn main() -> Result<()> {
-
-    let req_store = MongoRequestStore::new(
-        "mongodb://127.0.0.1:27017",
-        "starklane",
-        "bridge_reqs").await?;
+    let req_store =
+        MongoRequestStore::new("mongodb://127.0.0.1:27017", "starklane", "bridge_reqs").await?;
 
     let epoch = match SystemTime::now().duration_since(SystemTime::UNIX_EPOCH) {
         Ok(n) => n.as_secs(),
@@ -35,7 +32,13 @@ async fn main() -> Result<()> {
     };
 
     req_store.insert(req).await?;
-    req_store.status_set(&hash, BridgeRequestStatus::SrcSubmitted, utils::utc_now_seconds()).await?;
+    req_store
+        .status_set(
+            &hash,
+            BridgeRequestStatus::SrcSubmitted,
+            utils::utc_now_seconds(),
+        )
+        .await?;
 
     let status = req_store.status_get(&hash).await?;
     println!("STATUS! {:?}", status);
