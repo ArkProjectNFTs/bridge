@@ -8,6 +8,7 @@ use crate::storage::store::BridgeRequestStore;
 use crate::{BridgeRequest, BridgeRequestStatus, StatusChange};
 
 ///
+#[derive(Debug, Clone)]
 pub struct MongoRequestStore {
     collection: Collection<BridgeRequestMongo>,
 }

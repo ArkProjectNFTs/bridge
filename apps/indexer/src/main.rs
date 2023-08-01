@@ -4,28 +4,112 @@ use anyhow::Result;
 pub mod bridge_request;
 pub mod storage;
 pub mod events;
+pub mod indexing;
 pub mod utils;
 
 use bridge_request::{BridgeRequest, BridgeRequestStatus, StatusChange};
 use storage::{mongo::request_store::MongoRequestStore, store::BridgeRequestStore};
 use std::time::SystemTime;
-use events::ethereum::EthereumClient;
+use events::{
+    ethereum::EthereumClient,
+    starknet::StarknetClient,
+};
+
+use indexing::{
+    ethereum::EthereumIndexer,
+    config::StarklaneIndexerConfig,
+};
+
+use starknet::{
+    macros::felt,
+    core::{types::{BlockId, BlockTag}},
+};
+
+use tokio_util::sync::CancellationToken;
+
+use clap::Parser;
+
+#[derive(Parser, Debug)]
+#[clap(about = "Starklane indexer")]
+struct Args {
+    #[clap(long, help = "Configuration file (JSON)")]
+    config_file: String,
+
+    #[clap(long, help = "Mongo db connection string")]
+    mongodb: String,
+}
 
 #[tokio::main]
 async fn main() -> Result<()> {
 
-    let addr_str = "0x7F435bC17d2eD2954142449b4BD71D151cDFb141";
-    let addr: Address = Address::parse_checksummed(addr_str, None).unwrap();
+    let args = Args::parse();
+    let config = StarklaneIndexerConfig::from_file(&args.config_file)
+        .expect("Config couldn't be loaded");
 
-    let rpc_url = "https://goerli.infura.io/v3/d8088a2c561f4641bcc0f788e631804b";
-    let eth_client = EthereumClient::new(rpc_url).expect("Can't init eth client");
+    let mongo_store =
+        MongoRequestStore::new(&args.mongodb, "starklane", "bridge_reqs").await?;
 
-    let eth_logs = eth_client.fetch_logs("0x89440", "0x9021bf", addr).await?;
-    println!("{:?}", eth_logs);
+    let eth_indexer = EthereumIndexer::new(config.ethereum.clone())
+        .expect("Eth indexer couldn't be created");
 
-    let event_signature = keccak256(b"OwnershipTransferred(address,address)");
-    println!("{}", event_signature.to_string());
+    // start starknet indexer.
 
+    // If requested -> start API to serve data from the store.
+
+    let cancel_token = CancellationToken::new();
+    let cancel_token2 = cancel_token.clone();
+
+    let handle = tokio::spawn(async move {
+        tokio::select! {
+            _ = cancel_token2.cancelled() => {
+                println!("token cancelled")
+            }
+            _ = eth_indexer.start::<MongoRequestStore>(mongo_store.clone()) => {
+                println!("eth indexer unexpected failure")
+            }
+        }
+    });
+
+    tokio::spawn(async move {
+        tokio::time::sleep(std::time::Duration::from_secs(3)).await;
+        cancel_token.cancel();
+    });
+
+    println!("waiting...");
+    // Wait for tasks to complete
+    handle.await.unwrap();
+
+
+    // // ****SN EVENTS****
+    // let sn_bridge_addr = felt!("0x0348c73fe84aef749add99dddccda56bee301c45b8e29a6f01db59a752b4f711");
+    // let sn_rpc = "https://starknet-goerli.g.alchemy.com/v2/wMpF8vGBxupzy10brUQ1yyc71dIPmtap";
+    // let sn_client = StarknetClient::new(sn_rpc).expect("Can't init sn client");
+
+    // let from_block = BlockId::Number(1);
+    // let to_block = BlockId::Tag(BlockTag::Latest);
+
+    // let events = sn_client.fetch_events(from_block, to_block, sn_bridge_addr).await?;
+    // println!("{:?}", events);
+
+    
+
+
+    // // *****ETH LOGS*****
+    // let addr_str = "0x7F435bC17d2eD2954142449b4BD71D151cDFb141";
+    // let addr: Address = Address::parse_checksummed(addr_str, None).unwrap();
+
+    // let rpc_url = "https://goerli.infura.io/v3/d8088a2c561f4641bcc0f788e631804b";
+    // let eth_client = EthereumClient::new(rpc_url).expect("Can't init eth client");
+
+    // let eth_logs = eth_client.fetch_logs("0x89440", "0x9021bf", addr).await?;
+    // println!("{:?}", eth_logs);
+
+    // let event_signature = keccak256(b"OwnershipTransferred(address,address)");
+    // println!("{}", event_signature.to_string());
+
+
+
+    // *****MONGODB******
     // let req_store =
     //     MongoRequestStore::new("mongodb://127.0.0.1:27017", "starklane", "bridge_reqs").await?;
 
