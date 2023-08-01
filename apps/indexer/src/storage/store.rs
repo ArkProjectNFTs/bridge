@@ -1,16 +1,42 @@
 use anyhow::Result;
 use async_trait::async_trait;
-use crate::{BridgeRequest, BridgeRequestStatus};
+use crate::{BridgeRequest, BridgeRequestStatus, StatusChange};
 
 /// Store for the requests persistence.
 #[async_trait]
-pub trait Store {
+pub trait BridgeRequestStore {
     ///
-    async fn req_by_wallet(&self, address: &str) -> Result<Vec<BridgeRequest>>;
+    async fn list_by_wallet(&self, address: &str) -> Result<Vec<BridgeRequest>>;
+
     ///
-    async fn req_by_hash(&self, hash: &str) -> Result<Option<BridgeRequest>>;
+    async fn get_by_hash(&self, hash: &str) -> Result<Option<BridgeRequest>>;
+
     ///
-    async fn req_save(&self, req: &BridgeRequest) -> Result<()>;
+    async fn insert(&self, req: BridgeRequest) -> Result<()>;
+
     ///
-    async fn req_status_set(&self, hash: &str, status: BridgeRequestStatus) -> Result<()>;
+    async fn status_set(
+        &self,
+        hash: &str,
+        status: BridgeRequestStatus,
+        time: u64,
+    ) -> Result<()>;
+
+    ///
+    async fn status_get(&self, hash: &str) -> Result<Vec<StatusChange>>;
+}
+
+/// Store for bridged collections persistence.
+#[async_trait]
+pub trait BridgedCollectionStore {
+
+    /// Insert a collection as being bridged for the first time.
+    async fn insert(
+        &self,
+        chain_src: &str,
+        address_src: &str,
+        address_dst: &str,
+        time: u64,
+        req_hash: &str,
+    ) -> Result<()>;
 }
