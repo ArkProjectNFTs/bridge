@@ -17,6 +17,7 @@ use events::{
 
 use indexing::{
     ethereum::EthereumIndexer,
+    starknet::StarknetIndexer,
     config::StarklaneIndexerConfig,
 };
 
@@ -49,20 +50,29 @@ async fn main() -> Result<()> {
     let mongo_store =
         Arc::new(MongoRequestStore::new(&args.mongodb, "starklane", "bridge_reqs").await?);
 
-    let eth_indexer = EthereumIndexer::new(config.ethereum.clone())
-        .expect("Eth indexer couldn't be created");
+    let eth_store = Arc::clone(&mongo_store);
+    let sn_store = Arc::clone(&mongo_store);
 
-    // start starknet indexer.
+    let eth_indexer = EthereumIndexer::new(config.ethereum.clone())
+        .expect("Ethereum indexer couldn't be created");
+
+    let sn_indexer = StarknetIndexer::new(config.starknet.clone())
+        .expect("Starknet indexer couldn't be created");
 
     // If requested -> start API to serve data from the store.
 
-    let handle = tokio::spawn(async move {
-        eth_indexer.start::<MongoRequestStore>(Arc::clone(&mongo_store)).await;
+    let eth_handle = tokio::spawn(async move {
+        eth_indexer.start::<MongoRequestStore>(eth_store).await;
+    });
+
+    let sn_handle = tokio::spawn(async move {
+        sn_indexer.start::<MongoRequestStore>(sn_store).await;
     });
 
     println!("waiting...");
     // Wait for tasks to complete
-    handle.await.unwrap();
+
+    let (eth_res, sn_res) = tokio::join!(eth_handle, sn_handle);
 
 
     // // ****SN EVENTS****
