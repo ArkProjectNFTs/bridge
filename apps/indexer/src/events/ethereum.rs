@@ -75,6 +75,14 @@ impl EthereumClient {
         to_block: &str,
         address: Address
     ) -> Result<Vec<EthereumLogEntry>> {
+
+        // Need to split how the blocks are parsed...! As if it's too much,
+        // we may have a JSON RPC error from the node... As there is no hard limit
+        // on the from/to values.
+        //
+        // Must be done by chunks of 500/1000 blocks maximum for instance.
+        // if to - from > 500 => iterate to get all logs.
+
         let payload = json!({
             "jsonrpc": "2.0",
             "id": 1,

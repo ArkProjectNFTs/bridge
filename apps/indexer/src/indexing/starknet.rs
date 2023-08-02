@@ -56,25 +56,16 @@ impl StarknetIndexer {
             if let Ok(events) = maybe_sn_events {
                 println!("{:?}", events);
                 // identify the events + register data in the db store.
+
+                // TODO: we want to have a store transaction for each block.
+                // This will ensure that the block is or fully processed,
+                // or not processed at all.
+                // The store for indexing state will register if the block is processed.
+                // And block is skipped if already processed.
+                //
+                // To identify block, the log entry have a block_number field.
             } else {
                 println!("{}", "Error at getting starknet events...!");
-            }
-
-            let req = BridgeRequest {
-                hash: String::from("0x8888"),
-                chain_src: String::from("sn"),
-                from: String::from("0x22"),
-                to: String::from("0x33"),
-                collection: String::from("0x999"),
-                content: String::from("[1324, 234]"),
-            };
-
-            match store.insert(req).await {
-                Ok(()) => {},
-                Err(e) => {
-                    println!("Error using the db... stopping loop");
-                    break;
-                }
             }
 
             time::sleep(Duration::from_secs(self.config.fetch_interval)).await;

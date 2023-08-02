@@ -33,10 +33,6 @@ impl EthereumIndexer {
         let addr: Address = Address::parse_checksummed(self.config.address.clone(), None)
             .expect("Ethereum address is invalid");
 
-        // Need to split how the blocks are parsed...! As if it's too much,
-        // we may have a JSON RPC error from the node...
-        // Must be done by chunks of 500/1000 blocks maximum.
-
         let to_block = if let Some(to) = &self.config.to_block {
             &to
         } else {
@@ -52,29 +48,21 @@ impl EthereumIndexer {
             if let Ok(logs) = maybe_eth_logs {
                 println!("{:?}", logs);
                 // identify the logs + register data in the db store.
+
+                // TODO: we want to have a store transaction for each block.
+                // This will ensure that the block is or fully processed,
+                // or not processed at all.
+                // The store for indexing state will register if the block is processed.
+                // And block is skipped if already processed.
+                //
+                // To identify block, the log entry have a block_number field.
+
             } else {
                 println!("{}", "Error at getting logs...!");                    
             }
             
             // let event_signature = keccak256(b"OwnershipTransferred(address,address)");
             // println!("{}", event_signature.to_string());
-
-            let req = BridgeRequest {
-                hash: String::from("0x1234"),
-                chain_src: String::from("eth"),
-                from: String::from("0x22"),
-                to: String::from("0x33"),
-                collection: String::from("0x82859"),
-                content: String::from("[1324, 234]"),
-            };
-
-            match store.insert(req).await {
-                Ok(()) => {},
-                Err(e) => {
-                    println!("Error using the db... stopping loop");
-                    break;
-                }
-            }
 
             time::sleep(Duration::from_secs(self.config.fetch_interval)).await;
         }
