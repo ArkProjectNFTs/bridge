@@ -57,10 +57,14 @@ impl EthereumIndexer {
                 //
                 // To identify block, the log entry have a block_number field.
 
+                // TODO:
+                // Keep track of the latest block number fetched, to be the
+                // next "from" at the next iteration.
+
             } else {
-                println!("{}", "Error at getting logs...!");                    
+                println!("Error at getting logs...! {:?}", maybe_eth_logs);
             }
-            
+
             // let event_signature = keccak256(b"OwnershipTransferred(address,address)");
             // println!("{}", event_signature.to_string());
 

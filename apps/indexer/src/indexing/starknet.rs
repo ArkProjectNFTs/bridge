@@ -65,7 +65,7 @@ impl StarknetIndexer {
                 //
                 // To identify block, the log entry have a block_number field.
             } else {
-                println!("{}", "Error at getting starknet events...!");
+                println!("Error at getting starknet events...! {:?}", maybe_sn_events);
             }
 
             time::sleep(Duration::from_secs(self.config.fetch_interval)).await;

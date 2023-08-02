@@ -42,7 +42,7 @@ impl ToString for BridgeRequestStatus {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Default, Serialize, Deserialize)]
 pub struct BridgeRequest {
     // Request's hash, unique identifier through source and destination chains.
     pub hash: String,

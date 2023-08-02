@@ -9,6 +9,15 @@ use starknet::{
 };
 use url::Url;
 
+use crate::bridge_request::{BridgeRequest};
+
+impl From<EmittedEvent> for BridgeRequest {
+    ///
+    fn from(event: EmittedEvent) -> Self {
+        BridgeRequest::default()
+    }
+}
+
 ///
 pub struct StarknetClient {
     rpc_url: String,
@@ -49,7 +58,7 @@ impl StarknetClient {
 
         let mut events = vec![];
 
-        let chunk_size = 500;
+        let chunk_size = 100;
         let mut continuation_token: Option<String> = None;
 
         loop {

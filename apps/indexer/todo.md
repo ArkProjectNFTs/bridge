@@ -1,7 +1,13 @@
 ## TODO Starklane
 
-- [ ] Fix eth logs fetch to ensure request is never too big. For this,
+- [x] Fix eth logs fetch to ensure request is never too big. For this,
 limit to 500-1000 blocks slices.
+
+- [ ] Optimisation: For now, the whole block range logs/events is kept in memory.
+We do want to process the range once fetched, even if the range may be sliced into
+smalled ranges. Like this, we ensure low RAM usage. (so, move the slice logic into indexing)
+Also, if all the blocks in the range are already saved,
+we can skip the whole range fetching.
 
 - [ ] Fix logic when logs/events are identified, in order to have a store
 transaction associated with each block. But how to solve this with race
