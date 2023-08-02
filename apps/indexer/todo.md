@@ -13,6 +13,18 @@ Check the event/logs structure to ensure in both chains the content is still the
 In solidity, don't use string into data, but use bytes representation (check if for strings,
 is not better this way though...)
 
+- [ ] On the bridge contract (L1 and L2), we should check for the approval manually.
+Like this, we can emit an event Initiated[L1/L2]Error and directly expose the reason
+on the UI thanks to the indexer. Without the need to go into the explorer.
+So the execution must not revert -> to keep the logs.
+Or do we revert, but it's not easy for us to expose the reason of the failure.
+Or yes -> if the front-end follows the transaction, and can give the result as string!
+(may be better like this...!)
+!!!!!!
+Neeed to check with Yohan, but as the front-end always check the approval... We should
+not have problem for that, and only someone sending raw tx may have the problem, but
+this person is more advanced and may check the explorer.
+
 - [ ] Add the thin API layer to serve data (axum). This may be a clap argument to choose
 if the API must be started up or not (+ port). Maybe only an `Option<String>` being
 the ip:port to bind.
