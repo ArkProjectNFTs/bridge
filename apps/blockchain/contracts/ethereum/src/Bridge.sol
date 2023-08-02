@@ -42,7 +42,6 @@ contract Bridge is Ownable {
      */
     constructor()
     {
-        //_transferOwnership(msg.sender);
     }
 
     /*
@@ -50,11 +49,13 @@ contract Bridge is Ownable {
      * first token being bridged from L2.
      */
     event CollectionDeployedFromL2(
-        address indexed l1Address,
-        uint256 indexed l2Address,
+        uint256 indexed reqHash,
+        uint256 block_timestamp,
+        address l1Address,
+        uint256 l2Address,
         string name,
         string symbol
-        );
+    );
 
     /*
      * Event emitted when a bridge request if claimed by a user.
@@ -67,6 +68,15 @@ contract Bridge is Ownable {
         uint256 nTokenTransfered,
         uint256 nTokenPermissionMinted
         );
+
+    /*
+     * Bridge request initiated from L1.
+     */
+    event InitiatedOnL1(
+        uint256 indexed reqHash,
+        uint256 block_timestamp,
+        uint256[] reqContent
+    );
 
     /*
      *
@@ -116,6 +126,18 @@ contract Bridge is Ownable {
     function claimTokens(uint256 fromAddress, uint256[] calldata bridgeRequest)
         external
         payable {
+        // TODO: here we want to first check that the quick claim wasn't made...!
+        // if quick claim setup by user -> can't use the regular claim.
+        // This also guards the fact that use try to claim 2 times...!
+
+        // TODO: Before consuming -> deserialize the request + check the header to know
+        // if quick claim is setup or not.
+
+        // Once request deserialized -> compute the message hash and verify that
+        // the claim method is matching the available hash.
+        // As the header is in the request, the hash will differ if someone tries to
+        // send a request with a different claim method.
+
         // Verify the caller is legit to claim, will revert if not legit.
         bytes32 msgHash = IStarknetMessaging(_starknetCore).consumeMessageFromL2(
             fromAddress,
@@ -135,7 +157,7 @@ contract Bridge is Ownable {
         if (collectionAddress == address(0)) {
             ERC721Bridgeable c = new ERC721Bridgeable(req.collectionName, req.collectionSymbol);
             _l1_to_l2_addresses[address(c)] = req.collectionL2Address;
-            emit CollectionDeployedFromL2(address(c), req.collectionL2Address, "aa", "bb");
+            emit CollectionDeployedFromL2(req.reqHash, block.timestamp, address(c), req.collectionL2Address, "aa", "bb");
             collectionAddress = address(c);
             collectionDeployed = true;
         }
@@ -186,6 +208,12 @@ contract Bridge is Ownable {
 
         ERC721 collection = ERC721(collectionAddress);
 
+        // req hash -> keccak from collectionAddress + ownerL2Address + tokenIds.
+        // add a salt to it from the front end.
+        // If no salt given -> revert.
+        // Also, the bridge must keep the bridge request hash that were processed.
+        // We can't deposit tokens with the same request hash -> use an other salt et voilà.
+        //
         BridgeRequest memory req;
 
         req.header = 0xcafebeef;
@@ -223,6 +251,14 @@ contract Bridge is Ownable {
 
         IStarknetMessaging(_starknetCore).sendMessageToL2{value: msg.value}
         (_bridgeL2Address, _bridgeL2Selector, payload);
+
+        // Do we need all this info, or the event data can be parsed and
+        // the serialized request is parsed is enough? As the header
+        // is the first uint256 of the request -> we can always check the version easily?
+        emit InitiatedOnL1(
+            req.reqHash,
+            block.timestamp,
+            payload);
     }
 
     /*
