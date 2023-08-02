@@ -2125,7 +2125,6 @@ dependencies = [
  "serde_json",
  "starknet",
  "tokio",
- "tokio-util",
  "url",
 ]
 

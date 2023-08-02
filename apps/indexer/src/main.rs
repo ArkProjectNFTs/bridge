@@ -25,8 +25,6 @@ use starknet::{
     core::{types::{BlockId, BlockTag}},
 };
 
-use tokio_util::sync::CancellationToken;
-
 use clap::Parser;
 use std::sync::Arc;
 
