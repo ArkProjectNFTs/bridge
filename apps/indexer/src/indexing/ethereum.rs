@@ -33,10 +33,20 @@ impl EthereumIndexer {
         let addr: Address = Address::parse_checksummed(self.config.address.clone(), None)
             .expect("Ethereum address is invalid");
 
+        // Need to split how the blocks are parsed...! As if it's too much,
+        // we may have a JSON RPC error from the node...
+        // Must be done by chunks of 500/1000 blocks maximum.
+
+        let to_block = if let Some(to) = &self.config.to_block {
+            &to
+        } else {
+            "latest"
+        };
+
         loop {
             let maybe_eth_logs = self.client.fetch_logs(
                 &self.config.from_block,
-                &self.config.to_block,
+                to_block,
                 addr).await;
 
             if let Ok(logs) = maybe_eth_logs {
@@ -51,10 +61,10 @@ impl EthereumIndexer {
 
             let req = BridgeRequest {
                 hash: String::from("0x1234"),
-                header: String::from("0"),
                 chain_src: String::from("eth"),
                 from: String::from("0x22"),
                 to: String::from("0x33"),
+                collection: String::from("0x82859"),
                 content: String::from("[1324, 234]"),
             };
 

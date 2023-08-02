@@ -37,11 +37,16 @@ impl StarknetIndexer {
 
         let addr = FieldElement::from_hex_be(&self.config.address)
             .expect("Starknet: can't deserialize address");
+
         let from_block = parse_block_id(&self.config.from_block)
             .expect("Starknet: can't deserialize from_block");
-        let to_block = parse_block_id(&self.config.to_block)
-            .expect("Starknet: can't deserialize to_block");
 
+        let to_block = if let Some(to) = &self.config.to_block {
+            parse_block_id(&to).expect("Starknet: can't deserialize to_block")
+        } else {
+            BlockId::Tag(BlockTag::Latest)
+        };
+        
         loop {
             let maybe_sn_events = self.client.fetch_events(
                 from_block,
@@ -57,10 +62,10 @@ impl StarknetIndexer {
 
             let req = BridgeRequest {
                 hash: String::from("0x8888"),
-                header: String::from("0"),
                 chain_src: String::from("sn"),
                 from: String::from("0x22"),
                 to: String::from("0x33"),
+                collection: String::from("0x999"),
                 content: String::from("[1324, 234]"),
             };
 

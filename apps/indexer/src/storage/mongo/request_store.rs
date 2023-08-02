@@ -32,18 +32,11 @@ impl MongoRequestStore {
 
 #[derive(Debug, Serialize, Deserialize)]
 struct BridgeRequestMongo {
-    // Request's hash, unique identifier through source and destination chains.
     pub hash: String,
-    // Request's header, containing info about the request.
-    pub header: String,
-    // Source chain.
     pub chain_src: String,
-    // Wallet originating the request on the source chain.
     pub from: String,
-    // Wallet receiving the assets on the destination chain.
     pub to: String,
-    // Full raw content of the request (JSON). Contains the request's hash
-    // and header too. It aims at being used mostly to claim the message on L1.
+    pub collection: String,
     pub content: String,
     // Keep track of the status changes. The current status is the last element of the array.
     pub status_changes: Vec<StatusChange>,
@@ -54,10 +47,10 @@ impl From<BridgeRequest> for BridgeRequestMongo {
     fn from(req: BridgeRequest) -> Self {
         BridgeRequestMongo {
             hash: req.hash,
-            header: req.header,
             chain_src: req.chain_src,
             from: req.from,
             to: req.to,
+            collection: req.collection,
             content: req.content,
             status_changes: vec![],
         }
@@ -68,10 +61,10 @@ impl From<BridgeRequestMongo> for BridgeRequest {
     fn from(req: BridgeRequestMongo) -> Self {
         BridgeRequest {
             hash: req.hash,
-            header: req.header,
             chain_src: req.chain_src,
             from: req.from,
             to: req.to,
+            collection: req.collection,
             content: req.content,
         }
     }
@@ -119,7 +112,12 @@ impl BridgeRequestStore for MongoRequestStore {
     }
 
     ///
-    async fn status_set(&self, hash: &str, status: BridgeRequestStatus, time: u64) -> Result<()> {
+    async fn status_set(
+        &self, hash: &str,
+        status: BridgeRequestStatus,
+        time: u64,
+        tx_hash: String,
+    ) -> Result<()> {
         let filter = doc! { "hash": hash };
 
         let update = doc! {
@@ -127,8 +125,9 @@ impl BridgeRequestStore for MongoRequestStore {
                 "status_changes": doc!{
                     "to_status": status.to_string(),
                     // TODO: check if it's the best solution here...
-                    //       we can also use string.
+                    //       we can also use a string.
                     "time": time as i64,
+                    "tx_hash": tx_hash,
                 }
             }
         };

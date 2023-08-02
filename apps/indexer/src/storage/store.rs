@@ -2,6 +2,13 @@ use crate::{BridgeRequest, BridgeRequestStatus, StatusChange};
 use anyhow::Result;
 use async_trait::async_trait;
 
+/// Store related to the indexing state.
+#[async_trait]
+pub trait IndexingStore {
+    // Need to save that a block is processed on a given chain.
+    // chain: String, block_number: u64, timestamp: u64 (time the block was processed).
+}
+
 /// Store for the requests persistence.
 #[async_trait]
 pub trait BridgeRequestStore {
@@ -14,8 +21,14 @@ pub trait BridgeRequestStore {
     ///
     async fn insert(&self, req: BridgeRequest) -> Result<()>;
 
-    ///
-    async fn status_set(&self, hash: &str, status: BridgeRequestStatus, time: u64) -> Result<()>;
+    /// TODO: add tx_hash here...!
+    async fn status_set(
+        &self,
+        hash: &str,
+        status: BridgeRequestStatus,
+        time: u64,
+        tx_hash: String,
+    ) -> Result<()>;
 
     ///
     async fn status_get(&self, hash: &str) -> Result<Vec<StatusChange>>;

@@ -10,7 +10,7 @@ use std::io::Read;
 pub struct ChainConfig {
     pub rpc_url: String,
     pub from_block: String,
-    pub to_block: String,
+    pub to_block: Option<String>,
     pub address: String,
     pub fetch_interval: u64,
 }
