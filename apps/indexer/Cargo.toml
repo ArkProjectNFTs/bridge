@@ -16,3 +16,4 @@ starknet = "0.5.0"
 tokio = { version = "1", features = ["full"] }
 url = "2.3.1"
 clap = { version = "4.3.19", features = ["derive", "env", "string"] }
+regex = "1.9.1"
