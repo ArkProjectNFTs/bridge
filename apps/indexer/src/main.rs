@@ -28,6 +28,8 @@ use starknet::{
 use tokio_util::sync::CancellationToken;
 
 use clap::Parser;
+use std::sync::Arc;
+
 
 #[derive(Parser, Debug)]
 #[clap(about = "Starklane indexer")]
@@ -47,7 +49,7 @@ async fn main() -> Result<()> {
         .expect("Config couldn't be loaded");
 
     let mongo_store =
-        MongoRequestStore::new(&args.mongodb, "starklane", "bridge_reqs").await?;
+        Arc::new(MongoRequestStore::new(&args.mongodb, "starklane", "bridge_reqs").await?);
 
     let eth_indexer = EthereumIndexer::new(config.ethereum.clone())
         .expect("Eth indexer couldn't be created");
@@ -56,23 +58,8 @@ async fn main() -> Result<()> {
 
     // If requested -> start API to serve data from the store.
 
-    let cancel_token = CancellationToken::new();
-    let cancel_token2 = cancel_token.clone();
-
     let handle = tokio::spawn(async move {
-        tokio::select! {
-            _ = cancel_token2.cancelled() => {
-                println!("token cancelled")
-            }
-            _ = eth_indexer.start::<MongoRequestStore>(mongo_store.clone()) => {
-                println!("eth indexer unexpected failure")
-            }
-        }
-    });
-
-    tokio::spawn(async move {
-        tokio::time::sleep(std::time::Duration::from_secs(3)).await;
-        cancel_token.cancel();
+        eth_indexer.start::<MongoRequestStore>(Arc::clone(&mongo_store)).await;
     });
 
     println!("waiting...");
@@ -91,7 +78,7 @@ async fn main() -> Result<()> {
     // let events = sn_client.fetch_events(from_block, to_block, sn_bridge_addr).await?;
     // println!("{:?}", events);
 
-    
+
 
 
     // // *****ETH LOGS*****

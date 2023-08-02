@@ -6,7 +6,10 @@ use crate::events::ethereum::{EthereumClient};
 
 use super::config::ChainConfig;
 
+use crate::bridge_request::{BridgeRequest};
+
 use tokio::time::{self, Duration};
+use std::sync::Arc;
 
 ///
 pub struct EthereumIndexer {
@@ -26,7 +29,7 @@ impl EthereumIndexer {
     }
 
     ///
-    pub async fn start<T: BridgeRequestStore>(&self, store: T) {
+    pub async fn start<T: BridgeRequestStore>(&self, store: Arc<T>) {
         let addr: Address = Address::parse_checksummed(self.config.address.clone(), None)
             .expect("Ethereum address is invalid");
 
@@ -45,6 +48,23 @@ impl EthereumIndexer {
             
             // let event_signature = keccak256(b"OwnershipTransferred(address,address)");
             // println!("{}", event_signature.to_string());
+
+            let req = BridgeRequest {
+                hash: String::from("0x1234"),
+                header: String::from("0"),
+                chain_src: String::from("eth"),
+                from: String::from("0x22"),
+                to: String::from("0x33"),
+                content: String::from("[1324, 234]"),
+            };
+
+            match store.insert(req).await {
+                Ok(()) => {},
+                Err(e) => {
+                    println!("Error using the db... stopping loop");
+                    break;
+                }
+            }
 
             time::sleep(Duration::from_secs(self.config.fetch_interval)).await;
         }
