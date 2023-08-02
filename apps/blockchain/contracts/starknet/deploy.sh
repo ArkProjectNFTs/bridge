@@ -18,8 +18,8 @@ BRIDGE_L1_ADDR=0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0
 BRIDGE_ADDR=0x04cca79029a72c1ab566f1ec3ceac5461d0609e2b025a7a28c4ecd35b4a0a6cf
 ERC721_ADDR=0x06c3b32561ee2b2327dfd61052c0ea361b7576f347e352a17cabb644dd85e2e9
 
-$STARKLI declare --compiler-version 2.0.1 ./target/dev/starklane_bridge.sierra.json --keystore-password 1234
-$STARKLI declare --compiler-version 2.0.1 ./target/dev/starklane_erc721_bridgeable.sierra.json --keystore-password 1234
+$STARKLI declare ./target/dev/starklane_bridge.sierra.json --keystore-password 1234
+$STARKLI declare ./target/dev/starklane_erc721_bridgeable.sierra.json --keystore-password 1234
 
 # Deploy bridge, with admin addr.
 echo "*** DEPLOYING Bridge"
@@ -29,15 +29,11 @@ $STARKLI invoke "${BRIDGE_ADDR}" set_erc721_default_contract "${ERC721_CLASS_HAS
 $STARKLI invoke --keystore-password 1234 "${BRIDGE_ADDR}" set_bridge_l1_addr "${BRIDGE_L1_ADDR}"
 
 # Deploy ERC721, with bridge addr and admin and admin account as collection owner.
-# everai
-TOKEN_NAME=0x657665726169
-# DUO
-TOKEN_SYMBOL=0x44554f
 
 echo "*** DEPLOYING ERC721Bridgeable"
 $STARKLI deploy --keystore-password 1234 --salt 0x12345 "${ERC721_CLASS_HASH}" \
-        1 "${TOKEN_NAME}" \
-        1 "${TOKEN_SYMBOL}" \
+        1 str:glihm \
+        1 str:ggggg \
         "${BRIDGE_ADDR}" \
         "${ADMIN_ACCOUNT_ADDR}"
 
