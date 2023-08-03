@@ -14,7 +14,7 @@ contract ERC721Bridgeable is ERC721URIStorage, Ownable {
     constructor(string memory name, string memory symbol)
         ERC721(name, symbol)
     {
-        _transferOwnership(msg.sender);
+        //_transferOwnership(msg.sender);
     }
 
     //

@@ -21,6 +21,8 @@ import "openzeppelin-contracts/contracts/access/Ownable.sol";
  */
 contract Bridge is Ownable {
 
+    // initialize through proxy with data -> ownership, starknetCore address, bridge L2 address, bridge L2 Selector. (maybe changed later)
+
     // StarknetCore address.
     address _starknetCore;
     // Bridge L2 address for messaging.
@@ -195,6 +197,10 @@ contract Bridge is Ownable {
      *
      * Will revert if any of the token is missing approval
      * for the bridge as operator.
+     *
+     * TODO: add the amounts uint256[] to also support ERC1155.
+     * this array must be empty if the collection if ERC721.
+     * If ERC1155 -> length must match the tokensIds length.
      */
     function depositTokens(
         uint256 reqHash,
@@ -229,6 +235,11 @@ contract Bridge is Ownable {
 
         address from = req.ownerL1Address;
         address to = address(this);
+
+        // Check the supported interface of the collection to know how to construct
+        // the request.
+        // Use the supported interface ERC-165 if available.
+        // If not available -> for now revert? Or is there an other solution for that?
 
         for (uint256 i = 0; i < tokensIds.length; i++) {
             TokenInfo memory info;
