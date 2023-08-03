@@ -1,35 +1,33 @@
 ## TODO Starklane
 
-- [x] Fix eth logs fetch to ensure request is never too big. For this,
+- [x] indexer: Fix eth logs fetch to ensure request is never too big. For this,
 limit to 500-1000 blocks slices.
 
-- [ ] Optimisation: For now, the whole block range logs/events is kept in memory.
+- [ ] contracts: Rework the request hash to be compatible with ERC1155 and ERC721.
+
+- [ ] contracts: When tokens are deposited, we need a salt from the front-end and not the request hash.
+The request hash will be derived from the salt + request content.
+Also, ensure that the request hash fits in a felt (clear the 6 left most bits).
+
+- [ ] contracts: Add the quick claim and regular claim. Both must be exclusive, and done in the same
+claimToken method. Just check the header for the claim method to be used + ensure
+the claiming is possible.
+
+- [ ] indexer: Optimisation: For now, the whole block range logs/events is kept in memory.
 We do want to process the range once fetched, even if the range may be sliced into
 smalled ranges. Like this, we ensure low RAM usage. (so, move the slice logic into indexing)
 Also, if all the blocks in the range are already saved,
 we can skip the whole range fetching.
 
-- [ ] Fix logic when logs/events are identified, in order to have a store
+- [ ] indexer: Fix logic when logs/events are identified, in order to have a store
 transaction associated with each block. But how to solve this with race
 between L1/L2 indexing?
 
-- [ ] Rework the logs in solidity and events in cairo to fit the new nomenclature. We need
+- [ ] contracts: Rework the logs in solidity and events in cairo to fit the new nomenclature. We need
 the request content on each event for now.
 Check the event/logs structure to ensure in both chains the content is still the same.
 In solidity, don't use string into data, but use bytes representation (check if for strings,
 is not better this way though...)
-
-- [ ] On the bridge contract (L1 and L2), we should check for the approval manually.
-Like this, we can emit an event Initiated[L1/L2]Error and directly expose the reason
-on the UI thanks to the indexer. Without the need to go into the explorer.
-So the execution must not revert -> to keep the logs.
-Or do we revert, but it's not easy for us to expose the reason of the failure.
-Or yes -> if the front-end follows the transaction, and can give the result as string!
-(may be better like this...!)
-!!!!!!
-Neeed to check with Yohan, but as the front-end always check the approval... We should
-not have problem for that, and only someone sending raw tx may have the problem, but
-this person is more advanced and may check the explorer.
 
 - [ ] Add the thin API layer to serve data (axum). This may be a clap argument to choose
 if the API must be started up or not (+ port). Maybe only an `Option<String>` being
