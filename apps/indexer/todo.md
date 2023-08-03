@@ -3,7 +3,11 @@
 - [x] indexer: Fix eth logs fetch to ensure request is never too big. For this,
 limit to 500-1000 blocks slices.
 
-- [ ] contracts: Rework the request hash to be compatible with ERC1155 and ERC721.
+- [ ] contracts: Rework the request hash to be compatible with ERC1155 and ERC721. On this new format,
+depending contract type in the header -> the arrays lengths must match if not 0.
+token_ids, token_amounts, token_uris.
+For 721 -> ids and uris must match. Amounts is empty as it's always 1.
+For 1155 -> ids and amounts must match. Uris is empty as URI is at contract level.
 
 - [ ] contracts: When tokens are deposited, we need a salt from the front-end and not the request hash.
 The request hash will be derived from the salt + request content.
