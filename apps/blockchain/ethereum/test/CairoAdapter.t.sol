@@ -75,6 +75,25 @@ contract CairoAdapterTest is Test {
     }
 
     //
+    function testShortStringUnpack() public {
+        uint256 v1 = 0x00414243000000000000000000000000000000000000000000000000000000;
+        string memory a = CairoAdapter.uint256AsciiToString(v1);
+        assertEq(a, "ABC");
+        assertTrue(Strings.equal(a, "ABC"));
+
+        uint256[] memory buf = new uint256[](1);
+        buf[0] = 0x00414243000000000000000000000000000000000000000000000000000000;
+        string memory s = CairoAdapter.shortStringUnpack(buf, 0, buf.length);
+        assertEq(s, "ABC");
+
+        uint256[] memory buf2 = new uint256[](2);
+        buf2[0] = 0x004142434445464748494a4b4c4d4e4f505152535455565758595a3031323334;
+        buf2[1] = 0x0035363738393061626364656667000000000000000000000000000000000000;
+        string memory s2 = CairoAdapter.shortStringUnpack(buf2, 0, buf2.length);
+        assertTrue(Strings.equal(s2, "ABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890abcdefg"));
+    }
+
+    //
     function testShortStringSerialize() public {
         uint256[] memory buf = new uint256[](2);
         uint256 offset = 0;

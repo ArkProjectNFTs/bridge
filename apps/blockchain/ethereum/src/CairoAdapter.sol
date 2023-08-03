@@ -117,7 +117,7 @@ library CairoAdapter {
         buf[offset + 1] = felts[1];
         return 2;
     }
-    
+
     /*
      * Computes the lengths of the packed cairo string and add
      * one uint256 for the encoded length itself.
@@ -216,10 +216,43 @@ library CairoAdapter {
 
         string memory s;
         for (uint256 i = offset; i < offset + len; i++) {
-            s = string.concat(s, Strings.toString(buf[i]));
+            s = string.concat(s, uint256AsciiToString(buf[i]));
         }
 
         return s;
     }
+
+    /*
+     *
+     */
+    function uint256AsciiToString(uint256 value) internal pure returns (string memory) {
+        string memory s = new string(32);
+        bytes memory byteString = bytes(s);
+        uint256 notNullCharCount = 0;
+
+        // Extract all ascii values inside the uint256.
+        for (uint256 i = 0; i < 32; i++) {
+            uint256 asciiValue = (value >> (8 * (31 - i))) & 0xFF;
+            byteString[i] = bytes1(uint8(asciiValue));
+            if (asciiValue > 0) {
+                notNullCharCount++;
+            }
+        }
+
+        // Only use the not null ascii character to rebuild the string.
+        bytes memory finalString = new bytes(notNullCharCount);
+
+        // Not opti, but accurate to remove all null chars in this situation.
+        uint256 finalIdx = 0;
+        for (uint256 i = 0; i < 32; i++) {
+            if (byteString[i] > 0) {
+                finalString[finalIdx] = byteString[i];
+                finalIdx += 1;
+            }
+        }        
+
+        return string(finalString);
+    }
+
 
 }
