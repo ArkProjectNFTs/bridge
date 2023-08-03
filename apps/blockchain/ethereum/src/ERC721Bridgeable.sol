@@ -7,6 +7,12 @@ import "openzeppelin-contracts/contracts/access/Ownable.sol";
 
 /*
  * ERC721 that can be bridged.
+ *
+ * -> Don't use ERC721URIStorage but ERC721 and use baseURI
+ * override     function _baseURI() internal view virtual returns (string memory) {
+        return "";
+    }
+    To return something concatenated with the base URI for each token.
  */
 contract ERC721Bridgeable is ERC721URIStorage, Ownable {
 

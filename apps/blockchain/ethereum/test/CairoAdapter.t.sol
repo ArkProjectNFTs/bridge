@@ -64,7 +64,14 @@ contract CairoAdapterTest is Test {
             buf[0],
             0x0041424344000000000000000000000000000000000000000000000000000000);
 
-        // TODO: add 2 felts test.
+        uint256[] memory buf2 = CairoAdapter.shortStringPack("ABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890abcdefg");
+        assertEq(buf2.length, 2);
+        assertEq(
+            buf2[0],
+            0x004142434445464748494a4b4c4d4e4f505152535455565758595a3031323334);
+        assertEq(
+            buf2[1],
+            0x0035363738393061626364656667000000000000000000000000000000000000);
     }
 
     //

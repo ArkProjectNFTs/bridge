@@ -247,6 +247,12 @@ contract Bridge is Ownable {
 
             // TODO: what to do if a token has no URI...?!! How to check that?
             //       verify that starknet handles the case of string of length 0.
+
+            // For the TokenURI -> why not sending (at least for now) in a felt
+            // the `eth://0xCollectionAddress` ? Like this, a dApp can directly
+            // make a call to this collection to get the original tokenURI.
+            // This will not work if the token is burnt. But if in escrow, it's fine,
+            // and it fits in one felt!
             info.tokenURI = collection.tokenURI(info.tokenId);
             if (bytes(info.tokenURI).length == 0) {
                 info.tokenURI = "NO_URI";
