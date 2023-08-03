@@ -55,3 +55,10 @@ exactly as the quick claim....!
 - [ ] Verify the token URI on starknet seems to fail in utf-8.
 
 - [ ] Complete documentation on the technical choices and architecture.
+
+- [ ] If a collection is already deployed on L2 for instance, we need a mechanism to identify
+the owner of the collection on L1 and authorize pre-register the address on L2 (from L1 to have this fully on chain).
+Like this, nothing is deployed when tokens arrive -> only mintFromBridge.
+Need an interface IERC[721/1155]Bridgeable that only consider the functions for the bridge actions.
+Here is a great question... if a user try to bridge before the declaration of the address is made... then the token will be locked in escrow.
+How can we prevent this...? The collection owner must do some communication then..!
