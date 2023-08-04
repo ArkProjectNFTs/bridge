@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.13;
+pragma solidity ^0.8.0;
 
 import "forge-std/Script.sol";
 
@@ -20,16 +20,9 @@ contract Deploy is Script {
 
         vm.startBroadcast(deployerPrivateKey);
 
-        Bridge b = new Bridge();
-        b.setStarknetCoreAddress(starknetCoreAddress);
-        b.setBridgeL2Address(bridgeL2Address);
-        b.setBridgeL2Selector(bridgeL2Selector);
 
         vm.stopBroadcast();
 
-        string memory json = "bridge_deploy";
-        vm.serializeString(json, "bridge_address", vm.toString(address(b)));
 
-        Utils.writeJson(json, "bridge_deploy.json");
     }
 }
