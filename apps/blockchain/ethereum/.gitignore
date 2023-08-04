@@ -13,5 +13,5 @@ docs/
 # Dotenv file
 **/*.env
 
-# Local folder
-local/
+# Local logs folder
+logs/
