@@ -10,25 +10,25 @@ import "./Events.sol";
 
 import "starknet/IStarknetMessaging.sol";
 import "openzeppelin-contracts/contracts/access/Ownable.sol";
+import "openzeppelin-contracts/contracts/proxy/utils/UUPSUpgradeable.sol";
 
 /*
  * Starklane bridge contract.
  */
-contract Starklane is Ownable, StarklaneState, StarklaneEvents {
-
-    //
-    bool _isInitialized;
+contract Starklane is Ownable, StarklaneState, StarklaneEvents, UUPSUpgradeable {
 
     /*
      * Initializes Starklane, only callable once.
      */
     function initialize(bytes calldata data) public {
-        require(!_isInitialized, "Already initialized.");
-        _isInitialized = true;
+
+        address impl = _getImplementation();
+        require(!_initializedImpls[impl], "Implementation already initialized.");
+        _initializedImpls[impl] = true;
 
         (
             address owner,
-            IStarknetMessaging starknetCore,
+            IStarknetMessaging starknetCoreAddress,
             uint256 starklaneL2Address,
             uint256 starklaneL2Selector
         ) = abi.decode(
@@ -36,13 +36,20 @@ contract Starklane is Ownable, StarklaneState, StarklaneEvents {
             (address, IStarknetMessaging, uint256, uint256)
         );
 
-        _starknetCore = starknetCore;
+        _starknetCoreAddress = starknetCoreAddress;
+
+        _transferOwnership(owner);
 
         setStarklaneL2Address(Cairo.snaddressWrap(starklaneL2Address));
         setStarklaneL2Selector(Cairo.felt252Wrap(starklaneL2Selector));
-
-        _transferOwnership(owner);
     }
+
+    /*
+     * Only owner should be able to upgrade. Override required from OZ implementation.
+     *
+     *https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/proxy/utils/UUPSUpgradeable.sol#L126
+     */
+    function _authorizeUpgrade(address) internal override onlyOwner { }
 
     /*
      * TODO: check what's better for the UX.
@@ -77,4 +84,21 @@ contract Starklane is Ownable, StarklaneState, StarklaneEvents {
 
     }
 
+    /*
+     * Ensures unsupported function is directly reverted.
+     */
+    fallback()
+        external
+        payable {
+        revert("unsupported");
+    }
+
+    /*
+     * Ensures no ether is received without a function call.
+     */
+    receive()
+        external
+        payable { 
+        revert("Kass does not accept assets");
+    }
 }

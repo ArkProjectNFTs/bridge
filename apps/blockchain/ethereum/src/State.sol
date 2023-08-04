@@ -13,7 +13,7 @@ import "openzeppelin-contracts/contracts/access/Ownable.sol";
 contract StarklaneState is Ownable {
 
     // StarknetCore.
-    IStarknetMessaging _starknetCore;
+    IStarknetMessaging _starknetCoreAddress;
 
     // Starklane L2 address for messaging.
     snaddress _starklaneL2Address;
@@ -21,17 +21,18 @@ contract StarklaneState is Ownable {
     // Bridge L2 selector to deposit token from L1.
     felt252 _starklaneL2Selector;
 
-    // Mapping between L2<->L1 collections addresses.
-    // <collection_l2_address, collection_l1_address>
+    // Mapping between L2<->L1 contracts addresses.
     mapping(snaddress => address) _l2_to_l1_addresses;
 
-    // Mapping between L1<->L2 collections addresses.
-    // <collection_l1_address, collection_l2_address>
+    // Mapping between L1<->L2 contracts addresses.
     mapping(address => snaddress) _l1_to_l2_addresses;
 
     // Escrowed token.
-    // Mapping of the collection address, to the mapping (token_id, depositor address).
+    // Mapping of the contract address, to the mapping (token_id, depositor address).
     mapping(address => mapping(uint256 => address)) _escrow;
+
+    // Mapping for implementations initialization.
+    mapping(address implementation => bool initialized) _initializedImpls;
 
     /*
      * Retrieves info about Starklane L2 mapping.

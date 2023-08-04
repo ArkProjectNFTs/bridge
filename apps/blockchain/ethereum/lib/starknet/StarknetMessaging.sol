@@ -16,8 +16,8 @@
 // SPDX-License-Identifier: Apache-2.0.
 pragma solidity ^0.8.0;
 
-import "starknet/IStarknetMessaging.sol";
-import "starknet/NamedStorage.sol";
+import "./IStarknetMessaging.sol";
+import "./NamedStorage.sol";
 
 /**
   Implements sending messages to L2 by adding them to a pipe and consuming messages from L2 by
@@ -42,12 +42,6 @@ contract StarknetMessaging is IStarknetMessaging {
     );
 
     uint256 constant MAX_L1_MSG_FEE = 1 ether;
-
-    // A message hash was registered from L2.
-    event AddedMessageHashFromL2(
-        bytes32 indexed messageHash
-    );
-
 
     function getMaxL1MsgFee() public pure override returns (uint256) {
         return MAX_L1_MSG_FEE;
@@ -115,6 +109,7 @@ contract StarknetMessaging is IStarknetMessaging {
         return
             keccak256(
                 abi.encodePacked(
+                    // MODIFIED HERE: adding uint160 for casting.
                     uint256(uint160(msg.sender)),
                     toAddress,
                     nonce,
@@ -146,44 +141,6 @@ contract StarknetMessaging is IStarknetMessaging {
     }
 
     /**
-       Adds the hash of a validated messaged from L2.
-     */
-    function addMessageHashFromL2(uint256 msgHash)
-        external
-        payable {
-        // TODO: guard -> only owner can do that.
-        bytes32 hash = bytes32(msgHash);
-        emit AddedMessageHashFromL2(hash);
-        l2ToL1Messages()[hash] += 1;
-    }
-
-    /**
-       Returns number of references on the given hash.
-     */
-    function verifyMessageHash(uint256 msgHash)
-        external
-        view returns (uint256) {
-        // TODO: guard -> only owner can do that.
-        bytes32 hash = bytes32(msgHash);
-        return uint256(l2ToL1Messages()[hash]);
-    }
-
-
-    event TestConsume(
-        uint256 indexed fromAddress,
-        uint256 indexed sender,
-        bytes32 indexed msgHash,
-        bytes encoded
-        );
-
-    function testConsumeMessageFromL2(uint256 fromAddress, uint256[] calldata payload)
-        external {
-        bytes memory encoded = abi.encodePacked(fromAddress, uint256(uint160(msg.sender)), payload.length, payload);
-        bytes32 msgHash = keccak256(encoded);
-        emit TestConsume(fromAddress, uint256(uint160(msg.sender)), msgHash, encoded);
-    }
-
-    /**
       Consumes a message that was sent from an L2 contract.
 
       Returns the hash of the message.
@@ -191,8 +148,10 @@ contract StarknetMessaging is IStarknetMessaging {
     function consumeMessageFromL2(uint256 fromAddress, uint256[] calldata payload)
         external
         override
-        returns (bytes32) {
+        returns (bytes32)
+    {
         bytes32 msgHash = keccak256(
+            // MODIFIED HERE: adding uint160 for casting.
             abi.encodePacked(fromAddress, uint256(uint160(msg.sender)), payload.length, payload)
         );
 
