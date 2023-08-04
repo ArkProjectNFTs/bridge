@@ -177,4 +177,50 @@ contract CairoTest is Test {
             buf[1],
             0x0041424344000000000000000000000000000000000000000000000000000000);
     }
+
+    //
+    function test_shortStringDeserialize() public {
+        uint256[] memory buf = new uint256[](3);
+        buf[0] = 2;
+        buf[1] = 0x004142434445464748494a4b4c4d4e4f505152535455565758595a3031323334;
+        buf[2] = 0x0035363738393061626364656667000000000000000000000000000000000000;
+
+        (uint256 inc, string memory s) = Cairo.shortStringDeserialize(buf, 0);
+        assertEq(inc, 3);
+        assertTrue(Strings.equal(s, "ABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890abcdefg"));
+    }
+
+    //
+    function test_shortStringArraySerialize() public {
+        string[] memory data = new string[](2);
+        data[0] = "ABCD";
+        data[1] = "abcd";
+
+        uint256[] memory buf = new uint256[](5);
+
+        uint256 inc = Cairo.shortStringArraySerialize(data, buf, 0);
+        assertEq(inc, 5);
+        assertEq(buf[0], 2);
+        assertEq(buf[1], 1);
+        assertEq(buf[2], 0x0041424344000000000000000000000000000000000000000000000000000000);
+        assertEq(buf[3], 1);
+        assertEq(buf[4], 0x0061626364000000000000000000000000000000000000000000000000000000);
+    }
+
+    //
+    function test_shortStringArrayDeserialize() public {
+        uint256[] memory buf = new uint256[](5);
+        buf[0] = 2;
+        buf[1] = 1;
+        buf[2] = 0x0041424344000000000000000000000000000000000000000000000000000000;
+        buf[3] = 1;
+        buf[4] = 0x0061626364000000000000000000000000000000000000000000000000000000;
+
+        (uint256 inc, string[] memory strs) = Cairo.shortStringArrayDeserialize(buf, 0);
+        assertEq(inc, 5);
+        assertEq(strs[0], "ABCD");
+        assertEq(strs[1], "abcd");
+    }
+
+
 }
