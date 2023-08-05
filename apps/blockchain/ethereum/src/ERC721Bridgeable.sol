@@ -3,10 +3,9 @@
 pragma solidity ^0.8.0;
 
 import "openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
-import "openzeppelin-contracts/contracts/access/Ownable.sol";
-import "openzeppelin-contracts/contracts/proxy/utils/UUPSUpgradeable.sol";
 
 import "./IERC721Bridgeable.sol";
+import "./UUPSProxied.sol";
 
 /*
  * ERC721 that can be minted by the bridge.
@@ -15,16 +14,13 @@ import "./IERC721Bridgeable.sol";
  * be overriden to work correctly, as the constructor can't be called,
  * but initialization function instead.
  */
-contract ERC721Bridgeable is ERC721, Ownable, UUPSUpgradeable, IERC721Bridgeable {
+contract ERC721Bridgeable is ERC721, UUPSOwnableProxied, IERC721Bridgeable {
 
     //
     string private _name;
 
     //
     string private _symbol;
-
-    // Mapping for implementations initialization.
-    mapping(address implementation => bool initialized) _initializedImpls;
 
     /*
      * Intialize used instead.
@@ -70,12 +66,9 @@ contract ERC721Bridgeable is ERC721, Ownable, UUPSUpgradeable, IERC721Bridgeable
      * Initializes the implementation.
      */
     function initialize(bytes calldata data)
-        public {
-
-        address impl = _getImplementation();
-        require(!_initializedImpls[impl], "Implementation already initialized.");
-        _initializedImpls[impl] = true;
-
+        public
+        onlyInit
+    {
         (string memory n, string memory s) = abi.decode(data, (string, string));
 
         _name = n;
@@ -85,9 +78,15 @@ contract ERC721Bridgeable is ERC721, Ownable, UUPSUpgradeable, IERC721Bridgeable
     }
 
     /*
-     * Only owner should be able to upgrade.
+     * By default empty, or perhaps we can target a default URI?
      */
-    function _authorizeUpgrade(address) internal override onlyOwner { }
+    function _baseURI()
+        internal
+        view
+        override
+        returns (string memory) {
+        return "";
+    }
 
     /*
      *
