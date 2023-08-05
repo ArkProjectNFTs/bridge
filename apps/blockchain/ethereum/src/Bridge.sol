@@ -55,24 +55,20 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEvents, Stark
        @param salt A salt used to generate the request hash.
        @param collection Address of the collection contract.
        @param toL2Address New owner address on Starknet.
-       @param tokenIds Ids of the token to transfer. At least 1 token is required.
-       @param tokenValues Values (amount) for each token. Applies for ERC1155 only.
-       If empty, this is like providing the value `1` for each token. If
-       not empty, the length must match the `tokenIds` length.
+       @param ids Ids of the token to transfer. At least 1 token is required.
     */
     function depositTokens(
         uint256 salt,
         address collection,
         snaddress toL2Address,
-        uint256[] calldata tokenIds,
-        uint256[] calldata tokenValues
+        uint256[] calldata ids
     )
         external
         payable
     {
         require(collection > address(0), "Bad contract L1 address.");
         require(salt != 0, "Request salt must be greater that 0.");
-        require(tokenIds.length > 0, "At least one token must be bridged.");
+        require(ids.length > 0, "At least one token must be bridged.");
 
         CollectionType ctype = TokenUtil.detectInterface(collection);
         if (ctype == CollectionType.ERC1155) {
@@ -82,14 +78,14 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEvents, Stark
         Request memory req;
 
         req.header = Protocol.requestHeaderV1(ctype);
-        req.hash = Protocol.requestHash(salt, collection, toL2Address, tokenIds);
+        req.hash = Protocol.requestHash(salt, collection, toL2Address, ids);
         req.contractL1Address = collection;
         req.contractL2Address = _l1ToL2Addresses[collection];
 
         if (ctype == CollectionType.ERC721) {
             (req.name, req.symbol, req.tokenURIs) = TokenUtil.erc721Metadata(
                 collection,
-                tokenIds
+                ids
             );
         } else {
             (req.uri) = TokenUtil.erc1155Metadata(collection);
@@ -98,13 +94,15 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEvents, Stark
         req.ownerL1Address = _msgSender();
         req.ownerL2Address = toL2Address;
 
-        // Escrow tokens.
+        depositIntoEscrow(ctype, collection, _msgSender(), ids);
 
-        // Send request.
-        /* uint256[] memory payload = Protocol.bridgeRequestSerialize(req); */
+        uint256[] memory payload = Protocol.requestSerialize(req);
 
-        /* IStarknetMessaging(_starknetCore).sendMessageToL2{value: msg.value} */
-        /* (_bridgeL2Address, _bridgeL2Selector, payload); */
+        IStarknetMessaging(_starknetCoreAddress).sendMessageToL2{value: msg.value}(
+            snaddress.unwrap(_starklaneL2Address),
+            felt252.unwrap(_starklaneL2Selector),
+            payload
+        );
 
         // Emit event.
     }

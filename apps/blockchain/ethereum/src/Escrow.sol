@@ -2,7 +2,6 @@
 
 pragma solidity ^0.8.0;
 
-import "openzeppelin-contracts/contracts/access/Ownable.sol";
 import "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol";
 import "openzeppelin-contracts/contracts/token/ERC1155/IERC1155.sol";
 
@@ -11,7 +10,7 @@ import "./token/TokenUtil.sol";
 /**
    @title Contract responsible of escrowing tokens.
 */
-contract StarklaneEscrow is Ownable {
+contract StarklaneEscrow {
 
     // Escrowed token.
     // Mapping (collectionAddres => (tokenId => depositor)).
@@ -25,7 +24,7 @@ contract StarklaneEscrow is Ownable {
 
        @return Array of bools (true if escrowed, false otherwise).
     */
-    function tokensEscrowStatus(
+    function escrowStatuses(
         address collection,
         uint256[] calldata ids
     )
@@ -56,8 +55,7 @@ contract StarklaneEscrow is Ownable {
         address from,
         uint256[] memory ids
     )
-        public
-        onlyOwner
+        internal
     {
         address to = address(this);
 
@@ -71,7 +69,8 @@ contract StarklaneEscrow is Ownable {
                 // 2) check the supply is exactly one.
                 // 3) transfert.
                 //(bool success, bytes memory data) = contractAddress.call("");
-
+                // but.. token can be minted again so... No sure it makes a lot of sense
+                // to bridge them.
                 IERC1155(collection).safeTransferFrom(from, to, id, 1, "");
             }
 
@@ -95,8 +94,7 @@ contract StarklaneEscrow is Ownable {
         address to,
         uint256 id
     )
-        public
-        onlyOwner
+        internal
         returns (bool)
     {
         if (!_isEscrowed(collection, id)) {
