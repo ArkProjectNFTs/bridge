@@ -11,17 +11,22 @@ import "./UUPSProxied.sol";
 
 import "starknet/IStarknetMessaging.sol";
 
-/*
- * Starklane bridge contract.
+/**
+   @title Starklane bridge contract.
  */
 contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEvents {
 
     /*
-     * Initializes Starklane, only callable once.
+      @notice Initializes the implementation, only callable once.
+
+      @param data Data to init the implementation.
      */
-    function initialize(bytes calldata data)
+    function initialize(
+        bytes calldata data
+    )
         public
-        onlyInit {
+        onlyInit
+    {
 
         (
             address owner,
@@ -41,36 +46,47 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEvents {
         setStarklaneL2Selector(Cairo.felt252Wrap(starklaneL2Selector));
     }
 
-    /*
-     * TODO: check what's better for the UX.
-     * but this implies a transaction. And we will not pay for everybody...
-     * We can batch the incoming requests, and then notify users?
-     */
-    function claimTokens(uint256 fromAddress, uint256[] calldata bridgeRequest)
+    /**
+       @notice Deposits token in escrow and initiates the
+       transfer to Starknet. Will revert if any of the token is missing approval
+       for the bridge as operator.
+
+       @param salt A salt used to generate the request hash.
+       @param contractAddress Address of the token contract.
+       @param toL2Address New owner address on Starknet.
+       @param tokenIds Ids of the token to transfer. At least 1 token is required.
+       @param tokenValues Values (amount) for each token. Applies for ERC1155 only.
+       If empty, this is like providing the value `1` for each token. If
+       not empty, the length must match the `tokenIds` length.
+       @param tokenURIs URIs for each token. Applies for ERC721 only.
+       Can be empty if the contract is using a baseURI combined with token id.
+       If not empty, the length must match the `tokenIds` length.
+    */
+    function depositTokens(
+        uint256 salt,
+        address contractAddress,
+        felt252 toL2Address,
+        uint256[] calldata tokenIds,
+        uint256[] calldata tokenValues,
+        string[] calldata tokenURIs
+    )
         external
-        payable {
+        payable
+    {
+        
 
     }
 
-    /*
-     * Deposit token in escrow and initiates the
-     * transfer to Starknet.
-     *
-     * Will revert if any of the token is missing approval
-     * for the bridge as operator.
-     *
-     * TODO: add the amounts uint256[] to also support ERC1155.
-     * this array must be empty if the collection if ERC721.
-     * If ERC1155 -> length must match the tokensIds length.
+    /**
+       @notice Claims tokens received from L2.
      */
-    function depositTokens(
-        felt252 reqHash,
-        address collectionAddress,
-        felt252 ownerL2Address,
-        uint256[] calldata tokensIds)
+    function claimTokens(
+        uint256 fromAddress,
+        uint256[] calldata bridgeRequest
+    )
         external
-        payable {
-
+        payable
+    {
 
     }
 

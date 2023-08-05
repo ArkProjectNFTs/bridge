@@ -4,6 +4,9 @@ pragma solidity ^0.8.0;
 import "forge-std/Test.sol";
 import "../src/sn/Cairo.sol";
 
+/**
+   @title Cairo testing.
+*/
 contract CairoTest is Test {
 
     //
@@ -222,5 +225,14 @@ contract CairoTest is Test {
         assertEq(strs[1], "abcd");
     }
 
+    //
+    function test_shortStringArrayDeserializeEmpty() public {
+        uint256[] memory buf = new uint256[](1);
+        buf[0] = 0;
+
+        (uint256 inc, string[] memory strs) = Cairo.shortStringArrayDeserialize(buf, 0);
+        assertEq(inc, 1);
+        assertEq(strs.length, 0);
+    }
 
 }

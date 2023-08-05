@@ -4,14 +4,12 @@ pragma solidity ^0.8.8;
 
 import "./sn/Cairo.sol";
 
-/*
- * Request to bridge tokens.
- *
- * Ethereum addresses always fit into a single felt252.
- */
+/**
+   @notice Request to bridge tokens.
+*/
 struct Request {
     felt252 header;
-    felt252 reqHash;
+    felt252 hash;
 
     address contractL1Address;
     snaddress contractL2Address;
@@ -25,21 +23,61 @@ struct Request {
 
     uint256[] tokenIds;
     uint256[] tokenValues;
-    string[] tokenUris;
+    string[] tokenURIs;
 }
 
-/*
- * Library related to the protocol for bridging tokens.
- */
+/**
+   @title Library related to the protocol for bridging tokens.
+*/
 library Protocol {
 
-    /*
-     * Computes the serialized length of a request.
+    /**
+       @notice Computes the request hash.
+
+       @param salt Random salt.
+       @param contractAddress Token contract address (L1).
+       @param toL2Address New owner on Starknet (L2).
+       @param tokenIds List of token ids to be transfered.
+
+       @return Request hash.
      */
-    function requestSerializedLength(Request memory req)
+    function requestHash(
+        uint256 salt,
+        address contractAddress,
+        felt252 toL2Address,
+        uint256[] memory tokenIds
+    )
         internal
         pure
-        returns (uint256) {
+        returns (felt252)
+    {
+        bytes32 hash = keccak256(
+            abi.encodePacked(
+                salt,
+                contractAddress,
+                felt252.unwrap(toL2Address),
+                tokenIds
+            )
+        );
+
+        uint256 hashUint = uint256(hash) & (type(uint256).max >> 8);
+        return Cairo.felt252Wrap(hashUint);
+    }
+
+    /**
+       @notice Computes the serialized length of a request.
+
+       @param req Request of which the length is computed.
+
+       @return Length of the uint256[] that can contain the serialized request.
+    */
+    function requestSerializedLength(
+        Request memory req
+    )
+        internal
+        pure
+        returns (uint256)
+    {
         // Constant length part of the request is always 6 uint256 long.
         uint256 len = 6;
 
@@ -53,31 +91,35 @@ library Protocol {
         len += (req.tokenValues.length * 2) + 1;
 
         // For strings, we must iterate on the array to know the length of each string.
-        // We start by adding the length of the tokenUris array.
+        // We start by adding the length of the tokenURIs array.
         len += 1;
-        for (uint256 i = 0; i < req.tokenUris.length; i++) {
-            len += Cairo.shortStringSerializedLength(req.tokenUris[i]);
+        for (uint256 i = 0; i < req.tokenURIs.length; i++) {
+            len += Cairo.shortStringSerializedLength(req.tokenURIs[i]);
         }
 
         return len;
     }
 
-    /*
-     * Serializes a bridge request into an array of uint256
-     * that is compatible with serialization expected by Starknet messaging.
-     *
-     * TODO: add link to the protocol design.
-     */
-    function requestSerialize(Request memory req)
+    /**
+       @notice Serializes a bridge request into an array of uint256
+       that is compatible with serialization expected by Starknet messaging.
+
+       @param req Request to serialize.
+
+       @return uint256[] with the serialized request.
+    */
+    function requestSerialize(
+        Request memory req
+    )
         internal
         pure
-        returns (uint256[] memory) {
-
+        returns (uint256[] memory)
+    {
         uint256[] memory buf = new uint256[](requestSerializedLength(req));
 
         // Constant length part of the request.
         buf[0] = felt252.unwrap(req.header);
-        buf[1] = felt252.unwrap(req.reqHash);
+        buf[1] = felt252.unwrap(req.hash);
 
         buf[2] = uint256(uint160(req.contractL1Address));
         buf[3] = snaddress.unwrap(req.contractL2Address);
@@ -93,55 +135,57 @@ library Protocol {
 
         offset += Cairo.uint256ArraySerialize(req.tokenIds, buf, offset);
         offset += Cairo.uint256ArraySerialize(req.tokenValues, buf, offset);
-        offset += Cairo.shortStringArraySerialize(req.tokenUris, buf, offset);
+        offset += Cairo.shortStringArraySerialize(req.tokenURIs, buf, offset);
 
         return buf;
     }
 
-    /*
-     *
-     */
-    function requestDeserialize(uint256[] calldata buf)
+    /**
+       @notice Deserializes a request from uint256[] from starknet messaging.
+
+       @param buf Uint256[] buffer with the serialized request.
+       @param offset Offset in the buffer where deserialization starts.
+
+       @return Request.
+    */
+    function requestDeserialize(
+        uint256[] memory buf,
+        uint256 offset
+    )
         internal
         pure
-        returns (Request memory) {
-
+        returns (Request memory)
+    {
         Request memory req;
 
-        req.header = Cairo.felt252Wrap(buf[0]);
-        req.reqHash = Cairo.felt252Wrap(buf[1]);
+        req.header = Cairo.felt252Wrap(buf[offset++]);
+        req.hash = Cairo.felt252Wrap(buf[offset++]);
 
-        req.contractL1Address = address(uint160(buf[2]));
-        req.contractL2Address = Cairo.snaddressWrap(buf[3]);
+        req.contractL1Address = address(uint160(buf[offset++]));
+        req.contractL2Address = Cairo.snaddressWrap(buf[offset++]);
 
-        req.ownerL1Address = address(uint160(buf[4]));
-        req.ownerL2Address = Cairo.snaddressWrap(buf[5]);
+        req.ownerL1Address = address(uint160(buf[offset++]));
+        req.ownerL2Address = Cairo.snaddressWrap(buf[offset++]);
 
-        uint256 offset = 6;
+        uint256 inc;
 
-        (uint256 inc1, string memory name) = Cairo.shortStringDeserialize(buf, offset);
-        offset += inc1;
-        req.name = name;
+        (inc, req.name) = Cairo.shortStringDeserialize(buf, offset);
+        offset += inc;
 
-        (uint256 inc2, string memory symbol) = Cairo.shortStringDeserialize(buf, offset);
-        offset += inc2;
-        req.symbol = symbol;
+        (inc, req.symbol) = Cairo.shortStringDeserialize(buf, offset);
+        offset += inc;
 
-        (uint256 inc3, string memory uri) = Cairo.shortStringDeserialize(buf, offset);
-        offset += inc3;
-        req.uri = uri;
+        (inc, req.uri) = Cairo.shortStringDeserialize(buf, offset);
+        offset += inc;
 
-        (uint256 inc4, uint256[] memory ids) = Cairo.uint256ArrayDeserialize(buf, offset);
-        offset += inc4;
-        req.tokenIds = ids;
+        (inc, req.tokenIds) = Cairo.uint256ArrayDeserialize(buf, offset);
+        offset += inc;
 
-        (uint256 inc5, uint256[] memory amounts) = Cairo.uint256ArrayDeserialize(buf, offset);
-        offset += inc5;
-        req.tokenValues = amounts;
+        (inc, req.tokenValues) = Cairo.uint256ArrayDeserialize(buf, offset);
+        offset += inc;
 
-        (uint256 inc6, string[] memory uris) = Cairo.shortStringArrayDeserialize(buf, offset);
-        offset += inc6;
-        req.tokenUris = uris;
+        (inc, req.tokenURIs) = Cairo.shortStringArrayDeserialize(buf, offset);
+        offset += inc;
 
         return req;
     }
