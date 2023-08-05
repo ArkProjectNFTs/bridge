@@ -3,6 +3,7 @@
 pragma solidity ^0.8.8;
 
 import "./sn/Cairo.sol";
+import "./token/TokenUtil.sol";
 
 /**
    @notice Request to bridge tokens.
@@ -31,6 +32,36 @@ struct Request {
 */
 library Protocol {
 
+    uint256 private constant ERC721_MASK = 0x100;
+    uint256 private constant ERC1155_MASK = 0x200;
+
+    /**
+       @notice Computes the V1 header value.
+
+       @dev Header is a felt252 (31 bits).
+       Byte 0 is the version (0x1).
+       Byte 1 is the contract interface (0x1 = ERC721, 0x2 = ERC1155).
+     */
+    function requestHeaderV1(
+        TokenContractInterface intf
+    )
+        internal
+        pure
+        returns (felt252)
+    {
+        assert(intf != TokenContractInterface.OTHER);
+
+        uint256 h = 0x1;
+
+        if (intf == TokenContractInterface.ERC721) {
+            h |= ERC721_MASK;
+        } else {
+            h |= ERC1155_MASK;
+        }
+
+        return Cairo.felt252Wrap(h);
+    }
+
     /**
        @notice Computes the request hash.
 
@@ -44,7 +75,7 @@ library Protocol {
     function requestHash(
         uint256 salt,
         address contractAddress,
-        felt252 toL2Address,
+        snaddress toL2Address,
         uint256[] memory tokenIds
     )
         internal
@@ -55,7 +86,7 @@ library Protocol {
             abi.encodePacked(
                 salt,
                 contractAddress,
-                felt252.unwrap(toL2Address),
+                snaddress.unwrap(toL2Address),
                 tokenIds
             )
         );

@@ -62,19 +62,41 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEvents {
     function depositTokens(
         uint256 salt,
         address contractAddress,
-        felt252 toL2Address,
+        snaddress toL2Address,
         uint256[] calldata tokenIds,
         uint256[] calldata tokenValues
     )
         external
         payable
     {
+        require(contractAddress > address(0), "Bad contract L1 address.");
+        require(salt != 0, "Request salt must be greater that 0.");
+        require(tokenIds.length > 0, "At least one token must be bridged.");
+
         TokenContractInterface intf = TokenUtil.detectInterface(contractAddress);
         require(
             intf != TokenContractInterface.OTHER,
             "Only ERC721 and ERC1155 are supported."
         );
-        
+
+        Request memory req;
+
+        req.header = Protocol.requestHeaderV1(intf);
+        req.hash = Protocol.requestHash(salt, contractAddress, toL2Address, tokenIds);
+        req.contractL1Address = contractAddress;
+        req.contractL2Address = _l1ToL2Addresses[contractAddress];
+
+        if (intf == TokenContractInterface.ERC721) {
+            (req.name, req.symbol, req.tokenURIs) = TokenUtil.erc721Metadata(
+                contractAddress,
+                tokenIds
+            );
+        } else {
+            (req.uri) = TokenUtil.erc1155Metadata(contractAddress);
+        }
+
+        req.ownerL1Address = _msgSender();
+        req.ownerL2Address = toL2Address;
     }
 
     /**

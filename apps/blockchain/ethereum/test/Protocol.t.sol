@@ -73,7 +73,7 @@ contract ProtocolTest is Test {
         felt252 hash = Protocol.requestHash(
             123,
             0x0000000000000000000000000000000000000000,
-            Cairo.felt252Wrap(0x1),
+            Cairo.snaddressWrap(0x1),
             ids
         );
 

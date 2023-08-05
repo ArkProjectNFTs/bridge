@@ -22,10 +22,10 @@ contract StarklaneState is Ownable {
     felt252 _starklaneL2Selector;
 
     // Mapping between L2<->L1 contracts addresses.
-    mapping(snaddress => address) _l2_to_l1_addresses;
+    mapping(snaddress => address) _l2ToL1Addresses;
 
     // Mapping between L1<->L2 contracts addresses.
-    mapping(address => snaddress) _l1_to_l2_addresses;
+    mapping(address => snaddress) _l1ToL2Addresses;
 
     // Escrowed token.
     // Mapping of the contract address, to the mapping (token_id, depositor address).

@@ -40,7 +40,7 @@ contract UUPSOwnableProxied is Ownable, UUPSUpgradeable {
         external
         payable
         {
-            revert("Unsupported function.");
+            revert("unsupported");
         }
 
     /**
@@ -50,7 +50,6 @@ contract UUPSOwnableProxied is Ownable, UUPSUpgradeable {
         external
         payable
         {
-            revert("Can't receive Ether directly.");
+            revert("Kass does not accept assets");
         }
 }
-
