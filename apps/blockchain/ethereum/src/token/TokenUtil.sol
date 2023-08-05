@@ -10,9 +10,9 @@ import "openzeppelin-contracts/contracts/token/ERC1155/extensions/ERC1155Supply.
 import "openzeppelin-contracts/contracts/utils/introspection/ERC165Checker.sol";
 
 /**
-   @notice Token interfaces that are supported by the bridge.
+   @notice Collection type that are supported by the bridge.
  */
-enum TokenContractInterface {
+enum CollectionType {
     ERC721,
     ERC1155
 }
@@ -27,14 +27,14 @@ library TokenUtil {
 
        @param contractAddress Address of the contract to be verified.
 
-       @return TokenContractInterface.
+       @return CollectionType.
      */
     function detectInterface(
         address contractAddress
     )
         internal
         view
-        returns (TokenContractInterface)
+        returns (CollectionType)
     {
         bool supportsERC721 = ERC165Checker.supportsInterface(
             contractAddress,
@@ -42,7 +42,7 @@ library TokenUtil {
         );
 
         if (supportsERC721) {
-            return TokenContractInterface.ERC721;
+            return CollectionType.ERC721;
         }
 
         bool supportsERC1155 = ERC165Checker.supportsInterface(
@@ -51,7 +51,7 @@ library TokenUtil {
         );
 
         if (supportsERC1155) {
-            return TokenContractInterface.ERC1155;
+            return CollectionType.ERC1155;
         }
 
         revert("Unsupported token standard. Only ERC721 and ERC1155 are supported.");

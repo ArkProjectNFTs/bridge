@@ -51,7 +51,7 @@ contract StarklaneEscrow is Ownable {
        @param ids Tokens to be deposited.
      */
     function depositIntoEscrow(
-        TokenContractInterface tokenType,
+        CollectionType tokenType,
         address collection,
         address from,
         uint256[] memory ids
@@ -64,7 +64,7 @@ contract StarklaneEscrow is Ownable {
         for (uint256 i = 0; i < ids.length; i++) {
             uint256 id = ids[i];
 
-            if (tokenType == TokenContractInterface.ERC721) {
+            if (tokenType == CollectionType.ERC721) {
                 IERC721(collection).safeTransferFrom(from, to, id);
             } else {
                 // We need here 3 calls.... 1) check the existence of token.
@@ -90,7 +90,7 @@ contract StarklaneEscrow is Ownable {
        @return True if the token was into escrow, false otherwise.
      */
     function withdrawFromEscrow(
-        TokenContractInterface tokenType,
+        CollectionType tokenType,
         address collection,
         address to,
         uint256 id
@@ -105,7 +105,7 @@ contract StarklaneEscrow is Ownable {
 
         address from = address(this);
 
-        if (tokenType == TokenContractInterface.ERC721) {
+        if (tokenType == CollectionType.ERC721) {
             IERC721(collection).safeTransferFrom(from, to, id);
         } else {
             IERC1155(collection).safeTransferFrom(from, to, id, 1, "");

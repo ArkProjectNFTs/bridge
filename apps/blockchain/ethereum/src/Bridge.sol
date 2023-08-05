@@ -73,8 +73,8 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEvents {
         require(salt != 0, "Request salt must be greater that 0.");
         require(tokenIds.length > 0, "At least one token must be bridged.");
 
-        TokenContractInterface intf = TokenUtil.detectInterface(contractAddress);
-        if (intf == TokenContractInterface.ERC1155) {
+        CollectionType intf = TokenUtil.detectInterface(contractAddress);
+        if (intf == CollectionType.ERC1155) {
             revert("ERC1155: not supported yet, work in progress.");
         }
 
@@ -85,7 +85,7 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEvents {
         req.contractL1Address = contractAddress;
         req.contractL2Address = _l1ToL2Addresses[contractAddress];
 
-        if (intf == TokenContractInterface.ERC721) {
+        if (intf == CollectionType.ERC721) {
             (req.name, req.symbol, req.tokenURIs) = TokenUtil.erc721Metadata(
                 contractAddress,
                 tokenIds

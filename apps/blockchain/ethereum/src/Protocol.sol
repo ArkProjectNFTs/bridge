@@ -43,7 +43,7 @@ library Protocol {
        Byte 1 is the contract interface (0x1 = ERC721, 0x2 = ERC1155).
      */
     function requestHeaderV1(
-        TokenContractInterface intf
+        CollectionType intf
     )
         internal
         pure
@@ -51,7 +51,7 @@ library Protocol {
     {
         uint256 h = 0x1;
 
-        if (intf == TokenContractInterface.ERC721) {
+        if (intf == CollectionType.ERC721) {
             h |= ERC721_MASK;
         } else {
             h |= ERC1155_MASK;
