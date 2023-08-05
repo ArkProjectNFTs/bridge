@@ -12,11 +12,11 @@ struct Request {
     felt252 header;
     felt252 hash;
 
-    address contractL1Address;
-    snaddress contractL2Address;
+    address collectionL1;
+    snaddress collectionL2;
 
-    address ownerL1Address;
-    snaddress ownerL2Address;
+    address ownerL1;
+    snaddress ownerL2;
 
     string name;
     string symbol;
@@ -152,11 +152,11 @@ library Protocol {
         buf[0] = felt252.unwrap(req.header);
         buf[1] = felt252.unwrap(req.hash);
 
-        buf[2] = uint256(uint160(req.contractL1Address));
-        buf[3] = snaddress.unwrap(req.contractL2Address);
+        buf[2] = uint256(uint160(req.collectionL1));
+        buf[3] = snaddress.unwrap(req.collectionL2);
 
-        buf[4] = uint256(uint160(req.ownerL1Address));
-        buf[5] = snaddress.unwrap(req.ownerL2Address);
+        buf[4] = uint256(uint160(req.ownerL1));
+        buf[5] = snaddress.unwrap(req.ownerL2);
 
         // Variable length part of the request.
         uint256 offset = 6;
@@ -192,11 +192,11 @@ library Protocol {
         req.header = Cairo.felt252Wrap(buf[offset++]);
         req.hash = Cairo.felt252Wrap(buf[offset++]);
 
-        req.contractL1Address = address(uint160(buf[offset++]));
-        req.contractL2Address = Cairo.snaddressWrap(buf[offset++]);
+        req.collectionL1 = address(uint160(buf[offset++]));
+        req.collectionL2 = Cairo.snaddressWrap(buf[offset++]);
 
-        req.ownerL1Address = address(uint160(buf[offset++]));
-        req.ownerL2Address = Cairo.snaddressWrap(buf[offset++]);
+        req.ownerL1 = address(uint160(buf[offset++]));
+        req.ownerL2 = Cairo.snaddressWrap(buf[offset++]);
 
         uint256 inc;
 

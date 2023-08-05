@@ -21,10 +21,10 @@ contract ProtocolTest is Test {
         Request memory req = Request ({
             header: Cairo.felt252Wrap(0x1),
             hash: Cairo.felt252Wrap(0x1),
-            contractL1Address: address(0x0),
-            contractL2Address: Cairo.snaddressWrap(0x123),
-            ownerL1Address: address(0x0),
-            ownerL2Address: Cairo.snaddressWrap(0x789),
+            collectionL1: address(0x0),
+            collectionL2: Cairo.snaddressWrap(0x123),
+            ownerL1: address(0x0),
+            ownerL2: Cairo.snaddressWrap(0x789),
             name: "",
             symbol: "",
             uri: "ABCD",
@@ -50,10 +50,10 @@ contract ProtocolTest is Test {
         Request memory req = Request ({
             header: Cairo.felt252Wrap(0x1),
             hash: Cairo.felt252Wrap(0x1),
-            contractL1Address: address(0x0),
-            contractL2Address: Cairo.snaddressWrap(0x123),
-            ownerL1Address: address(0x0),
-            ownerL2Address: Cairo.snaddressWrap(0x789),
+            collectionL1: address(0x0),
+            collectionL2: Cairo.snaddressWrap(0x123),
+            ownerL1: address(0x0),
+            ownerL2: Cairo.snaddressWrap(0x789),
             name: "ABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890abcdefg",
             symbol: "SYMBOL",
             uri: "ABCD",
@@ -140,10 +140,10 @@ contract ProtocolTest is Test {
 
         assertEq(felt252.unwrap(req.header), 0x1);
         assertEq(felt252.unwrap(req.hash), 0x1);
-        assertEq(req.contractL1Address, address(0x0));
-        assertEq(snaddress.unwrap(req.contractL2Address), 0x123);
-        assertEq(req.ownerL1Address, address(0x0));
-        assertEq(snaddress.unwrap(req.ownerL2Address), 0x789);
+        assertEq(req.collectionL1, address(0x0));
+        assertEq(snaddress.unwrap(req.collectionL2), 0x123);
+        assertEq(req.ownerL1, address(0x0));
+        assertEq(snaddress.unwrap(req.ownerL2), 0x789);
         assertEq(req.name, "");
         assertEq(req.symbol, "");
         assertEq(req.uri, "ABCD");

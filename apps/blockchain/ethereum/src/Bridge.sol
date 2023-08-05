@@ -53,24 +53,24 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEvents, Stark
        for the bridge as operator.
 
        @param salt A salt used to generate the request hash.
-       @param collection Address of the collection contract.
-       @param toL2Address New owner address on Starknet.
+       @param collectionL1 Address of the collection contract.
+       @param ownerL2 New owner address on Starknet.
        @param ids Ids of the token to transfer. At least 1 token is required.
     */
     function depositTokens(
         uint256 salt,
-        address collection,
-        snaddress toL2Address,
+        address collectionL1,
+        snaddress ownerL2,
         uint256[] calldata ids
     )
         external
         payable
     {
-        require(collection > address(0), "Bad contract L1 address.");
+        require(collectionL1 > address(0), "Bad contract L1 address.");
         require(salt != 0, "Request salt must be greater that 0.");
         require(ids.length > 0, "At least one token must be bridged.");
 
-        CollectionType ctype = TokenUtil.detectInterface(collection);
+        CollectionType ctype = TokenUtil.detectInterface(collectionL1);
         if (ctype == CollectionType.ERC1155) {
             revert("ERC1155: not supported yet, work in progress.");
         }
@@ -78,23 +78,24 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEvents, Stark
         Request memory req;
 
         req.header = Protocol.requestHeaderV1(ctype);
-        req.hash = Protocol.requestHash(salt, collection, toL2Address, ids);
-        req.contractL1Address = collection;
-        req.contractL2Address = _l1ToL2Addresses[collection];
+        req.hash = Protocol.requestHash(salt, collectionL1, ownerL2, ids);
+        req.collectionL1 = collectionL1;
+        req.collectionL2 = _l1ToL2Addresses[collectionL1];
+
+        address ownerL1 = _msgSender();
+        req.ownerL1 = ownerL1;
+        req.ownerL2 = ownerL2;
 
         if (ctype == CollectionType.ERC721) {
             (req.name, req.symbol, req.tokenURIs) = TokenUtil.erc721Metadata(
-                collection,
+                collectionL1,
                 ids
             );
         } else {
-            (req.uri) = TokenUtil.erc1155Metadata(collection);
+            (req.uri) = TokenUtil.erc1155Metadata(collectionL1);
         }
 
-        req.ownerL1Address = _msgSender();
-        req.ownerL2Address = toL2Address;
-
-        depositIntoEscrow(ctype, collection, _msgSender(), ids);
+        depositIntoEscrow(ctype, collectionL1, ownerL1, ids);
 
         uint256[] memory payload = Protocol.requestSerialize(req);
 
