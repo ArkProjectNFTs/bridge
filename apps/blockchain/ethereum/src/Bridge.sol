@@ -96,7 +96,7 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEvents, Stark
             (req.uri) = TokenUtil.erc1155Metadata(collectionL1);
         }
 
-        depositIntoEscrow(ctype, collectionL1, ownerL1, ids);
+        _depositIntoEscrow(ctype, collectionL1, ownerL1, ids);
 
         uint256[] memory payload = Protocol.requestSerialize(req);
 
@@ -114,12 +114,45 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEvents, Stark
      */
     function claimTokens(
         uint256 fromAddress,
-        uint256[] calldata bridgeRequest
+        uint256[] calldata data
     )
         external
         payable
     {
 
+        Request memory req = Protocol.requestDeserialize(data, 0);
+
+        // 1. Verify the request content + the type of claim and if it's valid.
+        //    (quick claim, regular claim).
+
+        address collectionL1 = _verifyRequestAddresses(req.collectionL1, req.collectionL2);
+
+        // TODO: check for collection type to know which ERC is required...!
+        CollectionType ctype = CollectionType.ERC721;
+
+        if (collectionL1 == address(0x0)) {
+            // TODO: add if for ERC1155.
+            collectionL1 = _deployERC721Bridgeable(
+                req.name,
+                req.symbol,
+                req.collectionL2,
+                req.hash
+            );
+        }
+
+        for (uint256 i = 0; i < req.tokenIds.length; i++) {
+            uint256 id = req.tokenIds[i];
+
+            bool wasEscrowed = _withdrawFromEscrow(ctype, collectionL1, req.ownerL1, id);
+
+            if (!wasEscrowed) {
+                // TODO: perhaps, implement the same interface for ERC721 and ERC1155..
+                // As we only want to deal with UNIQ ones...!
+                // BridgeableToken !!
+                // Also, check what to do with URIs...!
+                IERC721Bridgeable(collectionL1).mintFromBridge(req.ownerL1, id);
+            }
+        }
     }
 
 }

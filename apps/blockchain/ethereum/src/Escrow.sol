@@ -49,7 +49,7 @@ contract StarklaneEscrow {
        @param from Owner depositing the tokens.
        @param ids Tokens to be deposited.
      */
-    function depositIntoEscrow(
+    function _depositIntoEscrow(
         CollectionType tokenType,
         address collection,
         address from,
@@ -88,7 +88,7 @@ contract StarklaneEscrow {
 
        @return True if the token was into escrow, false otherwise.
      */
-    function withdrawFromEscrow(
+    function _withdrawFromEscrow(
         CollectionType tokenType,
         address collection,
         address to,
