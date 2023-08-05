@@ -5,7 +5,7 @@ pragma solidity ^0.8.0;
 import "openzeppelin-contracts/contracts/token/ERC1155/ERC1155.sol";
 
 import "./IERC1155Bridgeable.sol";
-import "./UUPSProxied.sol";
+import "../UUPSProxied.sol";
 
 /*
  * ERC1155 that can be minted by the bridge.
@@ -40,7 +40,7 @@ contract ERC1155Bridgeable is ERC1155, UUPSOwnableProxied, IERC1155Bridgeable {
     /*
      *
      */
-    function testMint(address to, uint256 id, uint256 value)
+    function mintFree(address to, uint256 id, uint256 value)
         external {
 
         _mint(to, id, value, "");

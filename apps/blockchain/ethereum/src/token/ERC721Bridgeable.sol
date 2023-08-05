@@ -5,7 +5,7 @@ pragma solidity ^0.8.0;
 import "openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
 
 import "./IERC721Bridgeable.sol";
-import "./UUPSProxied.sol";
+import "../UUPSProxied.sol";
 
 /*
  * ERC721 that can be minted by the bridge.
@@ -47,7 +47,7 @@ contract ERC721Bridgeable is ERC721, UUPSOwnableProxied, IERC721Bridgeable {
     /*
      *
      */
-    function testMintRange(address to, uint256 idStart, uint256 idEnd)
+    function mintRangeFree(address to, uint256 idStart, uint256 idEnd)
         external {
 
         require(idStart < idEnd, "Bad range");

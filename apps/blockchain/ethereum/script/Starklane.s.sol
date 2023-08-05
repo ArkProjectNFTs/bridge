@@ -5,8 +5,9 @@ import "forge-std/Script.sol";
 
 import "./Utils.sol";
 import "src/Bridge.sol";
-import "src/StarknetMessagingLocal.sol";
-import "src/ERC721Bridgeable.sol";
+import "src/sn/StarknetMessagingLocal.sol";
+import "src/token/ERC721Bridgeable.sol";
+
 import "openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
 

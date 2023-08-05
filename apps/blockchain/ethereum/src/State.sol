@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-import "./Cairo.sol";
+import "./sn/Cairo.sol";
 
 import "starknet/IStarknetMessaging.sol";
 import "openzeppelin-contracts/contracts/access/Ownable.sol";

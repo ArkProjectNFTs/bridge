@@ -2,9 +2,9 @@
 
 pragma solidity ^0.8.0;
 
-import "./Cairo.sol";
+import "./sn/Cairo.sol";
+import "./token/ERC721Bridgeable.sol";
 import "./Protocol.sol";
-import "./ERC721Bridgeable.sol";
 import "./State.sol";
 import "./Events.sol";
 import "./UUPSProxied.sol";

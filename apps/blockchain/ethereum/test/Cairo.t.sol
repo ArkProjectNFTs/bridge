@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "forge-std/Test.sol";
-import "../src/Cairo.sol";
+import "../src/sn/Cairo.sol";
 
 contract CairoTest is Test {
 

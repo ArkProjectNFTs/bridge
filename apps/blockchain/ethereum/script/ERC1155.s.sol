@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import "forge-std/Script.sol";
 
 import "./Utils.sol";
-import "src/token/ERC721Bridgeable.sol";
+import "src/token/ERC1155Bridgeable.sol";
 import "openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
 
@@ -18,29 +18,26 @@ contract Deploy is Script {
         
         vm.startBroadcast(config.deployerPrivateKey);
 
-        address impl = address(new ERC721Bridgeable());
+        address impl = address(new ERC1155Bridgeable());
         
         bytes memory dataInit = abi.encodeWithSelector(
-            ERC721Bridgeable.initialize.selector,
-            abi.encode(
-                "test token",
-                "TTT"
-            )
+            ERC1155Bridgeable.initialize.selector,
+            abi.encode("")
         );
 
-        address proxyAddress = vm.envAddress("ERC721_PROXY_ADDRESS");
+        address proxyAddress = vm.envAddress("ERC1155_PROXY_ADDRESS");
 
         if (proxyAddress == address(0x0)) {
             proxyAddress = address(new ERC1967Proxy(impl, dataInit));
         } else {
-            ERC721Bridgeable(payable(proxyAddress)).upgradeToAndCall(impl, dataInit);
+            ERC1155Bridgeable(payable(proxyAddress)).upgradeToAndCall(impl, dataInit);
         }
 
         vm.stopBroadcast();
 
-        string memory json = "erc721_deploy";
+        string memory json = "erc1155_deploy";
         vm.serializeString(json, "proxy_address", vm.toString(proxyAddress));
         vm.serializeString(json, "impl_address", vm.toString(impl));
-        Utils.writeJson(json, "erc721_deploy.json");
+        Utils.writeJson(json, "erc1155_deploy.json");
     }
 }

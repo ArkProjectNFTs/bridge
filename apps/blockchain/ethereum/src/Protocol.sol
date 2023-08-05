@@ -2,8 +2,7 @@
 
 pragma solidity ^0.8.8;
 
-import "./Cairo.sol";
-
+import "./sn/Cairo.sol";
 
 /*
  * Request to bridge tokens.
