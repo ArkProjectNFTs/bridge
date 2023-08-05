@@ -20,7 +20,8 @@ contract Starklane is Ownable, StarklaneState, StarklaneEvents, UUPSUpgradeable 
     /*
      * Initializes Starklane, only callable once.
      */
-    function initialize(bytes calldata data) public {
+    function initialize(bytes calldata data)
+        public {
 
         address impl = _getImplementation();
         require(!_initializedImpls[impl], "Implementation already initialized.");
@@ -45,11 +46,12 @@ contract Starklane is Ownable, StarklaneState, StarklaneEvents, UUPSUpgradeable 
     }
 
     /*
-     * Only owner should be able to upgrade. Override required from OZ implementation.
-     *
-     *https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/proxy/utils/UUPSUpgradeable.sol#L126
+     * Only owner should be able to upgrade.
      */
-    function _authorizeUpgrade(address) internal override onlyOwner { }
+    function _authorizeUpgrade(address)
+        internal
+        override
+        onlyOwner { }
 
     /*
      * TODO: check what's better for the UX.
