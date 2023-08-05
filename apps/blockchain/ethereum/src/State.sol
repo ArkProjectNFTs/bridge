@@ -21,12 +21,6 @@ contract StarklaneState is Ownable {
     // Bridge L2 selector to deposit token from L1.
     felt252 _starklaneL2Selector;
 
-    // Mapping between L2<->L1 contracts addresses.
-    mapping(snaddress => address) _l2ToL1Addresses;
-
-    // Mapping between L1<->L2 contracts addresses.
-    mapping(address => snaddress) _l1ToL2Addresses;
-
     /*
      * Retrieves info about Starklane L2 mapping.
      */

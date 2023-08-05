@@ -53,18 +53,6 @@ library Cairo {
 
     /*
      * Verifies if the given uint256 can be considered
-     * as a valid ContractAddress on Starknet.
-     */
-    function isContractAddress(uint256 val)
-        internal
-        pure
-        returns (bool) {
-
-        return val > 0 && val < SN_MODULUS;
-    }
-
-    /*
-     * Verifies if the given uint256 can be considered
      * as a felt252.
      */
     function isFelt252(uint256 val)
@@ -93,7 +81,7 @@ library Cairo {
 
     /*
      * Wraps an uint256 into a snaddress.
-     * Ensures that the val can fit into a felt252 and is not the address 0.
+     * Ensures that the val can fit into a felt252.
      *
      * Require is used instead of assert as the uint256 may come from
      * external user.
@@ -103,7 +91,7 @@ library Cairo {
         pure
         returns (snaddress) {
 
-        require(isContractAddress(val), "Error wrapping uint256 into snaddress.");
+        require(isFelt252(val), "Error wrapping uint256 into snaddress.");
         return snaddress.wrap(val);
     }
 

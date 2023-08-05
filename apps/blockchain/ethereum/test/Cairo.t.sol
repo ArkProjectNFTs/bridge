@@ -14,13 +14,6 @@ contract CairoTest is Test {
     }
 
     //
-    function test_isContractAddress() public {
-        assertFalse(Cairo.isContractAddress(0));
-        assertFalse(Cairo.isContractAddress(SN_MODULUS + 1));
-        assertTrue(Cairo.isContractAddress(0x12345));
-    }
-
-    //
     function test_isFelt252() public {
         assertFalse(Cairo.isFelt252(SN_MODULUS + 1));
         assertTrue(Cairo.isFelt252(0));
@@ -45,9 +38,6 @@ contract CairoTest is Test {
 
         vm.expectRevert(bytes("Error wrapping uint256 into snaddress."));
         Cairo.snaddressWrap(type(uint256).max);
-
-        vm.expectRevert(bytes("Error wrapping uint256 into snaddress."));
-        Cairo.snaddressWrap(0);
     }
 
     //

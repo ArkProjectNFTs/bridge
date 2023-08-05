@@ -5,6 +5,7 @@ pragma solidity ^0.8.0;
 import "./sn/Cairo.sol";
 import "./token/ERC721Bridgeable.sol";
 import "./token/TokenUtil.sol";
+import "./token/CollectionManager.sol";
 import "./Protocol.sol";
 import "./State.sol";
 import "./Escrow.sol";
@@ -16,7 +17,7 @@ import "starknet/IStarknetMessaging.sol";
 /**
    @title Starklane bridge contract.
  */
-contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEvents, StarklaneEscrow {
+contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEvents, StarklaneEscrow, CollectionManager {
 
     /**
       @notice Initializes the implementation, only callable once.
