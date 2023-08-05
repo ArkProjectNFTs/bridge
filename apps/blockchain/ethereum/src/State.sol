@@ -27,10 +27,6 @@ contract StarklaneState is Ownable {
     // Mapping between L1<->L2 contracts addresses.
     mapping(address => snaddress) _l1ToL2Addresses;
 
-    // Escrowed token.
-    // Mapping of the contract address, to the mapping (token_id, depositor address).
-    mapping(address => mapping(uint256 => address)) _escrow;
-
     /*
      * Retrieves info about Starklane L2 mapping.
      */

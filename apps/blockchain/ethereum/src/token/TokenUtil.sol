@@ -6,6 +6,7 @@ import "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol";
 import "openzeppelin-contracts/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 import "openzeppelin-contracts/contracts/token/ERC1155/IERC1155.sol";
 import "openzeppelin-contracts/contracts/token/ERC1155/extensions/IERC1155MetadataURI.sol";
+import "openzeppelin-contracts/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
 import "openzeppelin-contracts/contracts/utils/introspection/ERC165Checker.sol";
 
 /**
@@ -13,8 +14,7 @@ import "openzeppelin-contracts/contracts/utils/introspection/ERC165Checker.sol";
  */
 enum TokenContractInterface {
     ERC721,
-    ERC1155,
-    OTHER
+    ERC1155
 }
 
 /**
@@ -52,9 +52,9 @@ library TokenUtil {
 
         if (supportsERC1155) {
             return TokenContractInterface.ERC1155;
-        } else {
-            return TokenContractInterface.OTHER;
         }
+
+        revert("Unsupported token standard. Only ERC721 and ERC1155 are supported.");
     }
 
     /**

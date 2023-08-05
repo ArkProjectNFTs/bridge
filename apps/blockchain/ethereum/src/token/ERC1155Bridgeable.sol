@@ -3,6 +3,7 @@
 pragma solidity ^0.8.0;
 
 import "openzeppelin-contracts/contracts/token/ERC1155/ERC1155.sol";
+import "openzeppelin-contracts/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
 
 import "./IERC1155Bridgeable.sol";
 import "../UUPSProxied.sol";
@@ -14,7 +15,7 @@ import "../UUPSProxied.sol";
    be overriden to work correctly, as the constructor can't be called,
    but initialization function instead.
 */
-contract ERC1155Bridgeable is ERC1155, UUPSOwnableProxied, IERC1155Bridgeable {
+contract ERC1155Bridgeable is ERC1155Supply, UUPSOwnableProxied, IERC1155Bridgeable {
 
     /**
        @notice Default constructor, but intialize is used instead.

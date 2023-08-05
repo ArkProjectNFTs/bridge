@@ -74,10 +74,9 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEvents {
         require(tokenIds.length > 0, "At least one token must be bridged.");
 
         TokenContractInterface intf = TokenUtil.detectInterface(contractAddress);
-        require(
-            intf != TokenContractInterface.OTHER,
-            "Only ERC721 and ERC1155 are supported."
-        );
+        if (intf == TokenContractInterface.ERC1155) {
+            revert("ERC1155 not supported yet");
+        }
 
         Request memory req;
 
@@ -97,6 +96,16 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEvents {
 
         req.ownerL1Address = _msgSender();
         req.ownerL2Address = toL2Address;
+
+        // Escrow tokens.
+
+        // Send request.
+        /* uint256[] memory payload = Protocol.bridgeRequestSerialize(req); */
+
+        /* IStarknetMessaging(_starknetCore).sendMessageToL2{value: msg.value} */
+        /* (_bridgeL2Address, _bridgeL2Selector, payload); */
+
+        // Emit event.
     }
 
     /**

@@ -49,8 +49,6 @@ library Protocol {
         pure
         returns (felt252)
     {
-        assert(intf != TokenContractInterface.OTHER);
-
         uint256 h = 0x1;
 
         if (intf == TokenContractInterface.ERC721) {
