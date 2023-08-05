@@ -75,7 +75,7 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEvents {
 
         TokenContractInterface intf = TokenUtil.detectInterface(contractAddress);
         if (intf == TokenContractInterface.ERC1155) {
-            revert("ERC1155 not supported yet");
+            revert("ERC1155: not supported yet, work in progress.");
         }
 
         Request memory req;
