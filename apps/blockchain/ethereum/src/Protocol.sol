@@ -41,9 +41,11 @@ library Protocol {
        @dev Header is a felt252 (31 bits).
        Byte 0 is the version (0x1).
        Byte 1 is the contract interface (0x1 = ERC721, 0x2 = ERC1155).
+
+       @param ctype The collection type.
      */
     function requestHeaderV1(
-        CollectionType intf
+        CollectionType ctype
     )
         internal
         pure
@@ -51,7 +53,7 @@ library Protocol {
     {
         uint256 h = 0x1;
 
-        if (intf == CollectionType.ERC721) {
+        if (ctype == CollectionType.ERC721) {
             h |= ERC721_MASK;
         } else {
             h |= ERC1155_MASK;
@@ -64,7 +66,7 @@ library Protocol {
        @notice Computes the request hash.
 
        @param salt Random salt.
-       @param contractAddress Token contract address (L1).
+       @param collection Token collection contract address (L1).
        @param toL2Address New owner on Starknet (L2).
        @param tokenIds List of token ids to be transfered.
 
@@ -72,7 +74,7 @@ library Protocol {
      */
     function requestHash(
         uint256 salt,
-        address contractAddress,
+        address collection,
         snaddress toL2Address,
         uint256[] memory tokenIds
     )
@@ -83,7 +85,7 @@ library Protocol {
         bytes32 hash = keccak256(
             abi.encodePacked(
                 salt,
-                contractAddress,
+                collection,
                 snaddress.unwrap(toL2Address),
                 tokenIds
             )

@@ -7,6 +7,7 @@ import "./token/ERC721Bridgeable.sol";
 import "./token/TokenUtil.sol";
 import "./Protocol.sol";
 import "./State.sol";
+import "./Escrow.sol";
 import "./Events.sol";
 import "./UUPSProxied.sol";
 
@@ -15,7 +16,7 @@ import "starknet/IStarknetMessaging.sol";
 /**
    @title Starklane bridge contract.
  */
-contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEvents {
+contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEvents, StarklaneEscrow {
 
     /**
       @notice Initializes the implementation, only callable once.
@@ -52,7 +53,7 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEvents {
        for the bridge as operator.
 
        @param salt A salt used to generate the request hash.
-       @param contractAddress Address of the token contract.
+       @param collection Address of the collection contract.
        @param toL2Address New owner address on Starknet.
        @param tokenIds Ids of the token to transfer. At least 1 token is required.
        @param tokenValues Values (amount) for each token. Applies for ERC1155 only.
@@ -61,7 +62,7 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEvents {
     */
     function depositTokens(
         uint256 salt,
-        address contractAddress,
+        address collection,
         snaddress toL2Address,
         uint256[] calldata tokenIds,
         uint256[] calldata tokenValues
@@ -69,29 +70,29 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEvents {
         external
         payable
     {
-        require(contractAddress > address(0), "Bad contract L1 address.");
+        require(collection > address(0), "Bad contract L1 address.");
         require(salt != 0, "Request salt must be greater that 0.");
         require(tokenIds.length > 0, "At least one token must be bridged.");
 
-        CollectionType intf = TokenUtil.detectInterface(contractAddress);
-        if (intf == CollectionType.ERC1155) {
+        CollectionType ctype = TokenUtil.detectInterface(collection);
+        if (ctype == CollectionType.ERC1155) {
             revert("ERC1155: not supported yet, work in progress.");
         }
 
         Request memory req;
 
-        req.header = Protocol.requestHeaderV1(intf);
-        req.hash = Protocol.requestHash(salt, contractAddress, toL2Address, tokenIds);
-        req.contractL1Address = contractAddress;
-        req.contractL2Address = _l1ToL2Addresses[contractAddress];
+        req.header = Protocol.requestHeaderV1(ctype);
+        req.hash = Protocol.requestHash(salt, collection, toL2Address, tokenIds);
+        req.contractL1Address = collection;
+        req.contractL2Address = _l1ToL2Addresses[collection];
 
-        if (intf == CollectionType.ERC721) {
+        if (ctype == CollectionType.ERC721) {
             (req.name, req.symbol, req.tokenURIs) = TokenUtil.erc721Metadata(
-                contractAddress,
+                collection,
                 tokenIds
             );
         } else {
-            (req.uri) = TokenUtil.erc1155Metadata(contractAddress);
+            (req.uri) = TokenUtil.erc1155Metadata(collection);
         }
 
         req.ownerL1Address = _msgSender();

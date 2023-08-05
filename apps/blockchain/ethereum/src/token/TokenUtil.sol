@@ -25,19 +25,19 @@ library TokenUtil {
     /**
        @notice Detects the token contract interface.
 
-       @param contractAddress Address of the contract to be verified.
+       @param collection Address of the contract to be verified.
 
        @return CollectionType.
      */
     function detectInterface(
-        address contractAddress
+        address collection
     )
         internal
         view
         returns (CollectionType)
     {
         bool supportsERC721 = ERC165Checker.supportsInterface(
-            contractAddress,
+            collection,
             type(IERC721).interfaceId
         );
 
@@ -46,7 +46,7 @@ library TokenUtil {
         }
 
         bool supportsERC1155 = ERC165Checker.supportsInterface(
-            contractAddress,
+            collection,
             type(IERC1155).interfaceId
         );
 
@@ -60,13 +60,13 @@ library TokenUtil {
     /**
        @notice Retrieves metadata from ERC721 token, if it supports it.
 
-       @param contractAddress Address of the ERC721 contract.
+       @param collection Address of the ERC721 contract.
        @param tokenIds Ids of the tokens to get tokenURI from.
 
        @return (name, symbol, tokenURIs).
      */
     function erc721Metadata(
-        address contractAddress,
+        address collection,
         uint256[] memory tokenIds
     )
         internal
@@ -74,7 +74,7 @@ library TokenUtil {
         returns (string memory, string memory, string[] memory)
     {
         bool supportsMetadata = ERC165Checker.supportsInterface(
-            contractAddress,
+            collection,
             type(IERC721Metadata).interfaceId
         );
         
@@ -82,7 +82,7 @@ library TokenUtil {
             return ("", "", new string[](0));
         }
 
-        IERC721Metadata c = IERC721Metadata(contractAddress);
+        IERC721Metadata c = IERC721Metadata(collection);
 
         string[] memory URIs = new string[](tokenIds.length);
 
@@ -96,19 +96,19 @@ library TokenUtil {
     /**
        @notice Retrieves metadata from ERC1155, if it supports it.
 
-       @param contractAddress Address of the ERC1155 contract.
+       @param collection Address of the ERC1155 contract.
 
        @return baseURI.
      */
     function erc1155Metadata(
-        address contractAddress
+        address collection
     )
         internal
         view
         returns (string memory)
     {
         bool supportsMetadata = ERC165Checker.supportsInterface(
-            contractAddress,
+            collection,
             type(IERC1155MetadataURI).interfaceId
         );
         
@@ -119,7 +119,7 @@ library TokenUtil {
             // and extract the constant part? All tokens are supposed to have
             // the same base address, only replacing the `{id}`. If it's the case,
             // we can take the uri of the first token, and return it...
-            //return IERC1155MetadataURI(contractAddress).uri(WhichTokenId?);
+            //return IERC1155MetadataURI(collection).uri(WhichTokenId?);
             return "TODO";
         }
 
