@@ -31,9 +31,6 @@ contract StarklaneState is Ownable {
     // Mapping of the contract address, to the mapping (token_id, depositor address).
     mapping(address => mapping(uint256 => address)) _escrow;
 
-    // Mapping for implementations initialization.
-    mapping(address implementation => bool initialized) _initializedImpls;
-
     /*
      * Retrieves info about Starklane L2 mapping.
      */

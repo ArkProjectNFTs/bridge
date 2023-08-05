@@ -82,7 +82,7 @@ contract ERC721Bridgeable is ERC721, UUPSOwnableProxied, IERC721Bridgeable {
      */
     function _baseURI()
         internal
-        view
+        pure
         override
         returns (string memory) {
         return "";

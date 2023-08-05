@@ -7,25 +7,21 @@ import "./Protocol.sol";
 import "./ERC721Bridgeable.sol";
 import "./State.sol";
 import "./Events.sol";
+import "./UUPSProxied.sol";
 
 import "starknet/IStarknetMessaging.sol";
-import "openzeppelin-contracts/contracts/access/Ownable.sol";
-import "openzeppelin-contracts/contracts/proxy/utils/UUPSUpgradeable.sol";
 
 /*
  * Starklane bridge contract.
  */
-contract Starklane is Ownable, StarklaneState, StarklaneEvents, UUPSUpgradeable {
+contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEvents {
 
     /*
      * Initializes Starklane, only callable once.
      */
     function initialize(bytes calldata data)
-        public {
-
-        address impl = _getImplementation();
-        require(!_initializedImpls[impl], "Implementation already initialized.");
-        _initializedImpls[impl] = true;
+        public
+        onlyInit {
 
         (
             address owner,
@@ -44,14 +40,6 @@ contract Starklane is Ownable, StarklaneState, StarklaneEvents, UUPSUpgradeable 
         setStarklaneL2Address(Cairo.snaddressWrap(starklaneL2Address));
         setStarklaneL2Selector(Cairo.felt252Wrap(starklaneL2Selector));
     }
-
-    /*
-     * Only owner should be able to upgrade.
-     */
-    function _authorizeUpgrade(address)
-        internal
-        override
-        onlyOwner { }
 
     /*
      * TODO: check what's better for the UX.
@@ -86,21 +74,4 @@ contract Starklane is Ownable, StarklaneState, StarklaneEvents, UUPSUpgradeable 
 
     }
 
-    /*
-     * Ensures unsupported function is directly reverted.
-     */
-    fallback()
-        external
-        payable {
-        revert("unsupported");
-    }
-
-    /*
-     * Ensures no ether is received without a function call.
-     */
-    receive()
-        external
-        payable { 
-        revert("Kass does not accept assets");
-    }
 }
