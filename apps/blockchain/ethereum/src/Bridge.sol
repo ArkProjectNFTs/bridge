@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 
 import "./sn/Cairo.sol";
 import "./token/ERC721Bridgeable.sol";
+import "./token/TokenUtil.sol";
 import "./Protocol.sol";
 import "./State.sol";
 import "./Events.sol";
@@ -16,7 +17,7 @@ import "starknet/IStarknetMessaging.sol";
  */
 contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEvents {
 
-    /*
+    /**
       @notice Initializes the implementation, only callable once.
 
       @param data Data to init the implementation.
@@ -27,7 +28,6 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEvents {
         public
         onlyInit
     {
-
         (
             address owner,
             IStarknetMessaging starknetCoreAddress,
@@ -58,23 +58,23 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEvents {
        @param tokenValues Values (amount) for each token. Applies for ERC1155 only.
        If empty, this is like providing the value `1` for each token. If
        not empty, the length must match the `tokenIds` length.
-       @param tokenURIs URIs for each token. Applies for ERC721 only.
-       Can be empty if the contract is using a baseURI combined with token id.
-       If not empty, the length must match the `tokenIds` length.
     */
     function depositTokens(
         uint256 salt,
         address contractAddress,
         felt252 toL2Address,
         uint256[] calldata tokenIds,
-        uint256[] calldata tokenValues,
-        string[] calldata tokenURIs
+        uint256[] calldata tokenValues
     )
         external
         payable
     {
+        TokenContractInterface intf = TokenUtil.detectInterface(contractAddress);
+        require(
+            intf != TokenContractInterface.OTHER,
+            "Only ERC721 and ERC1155 are supported."
+        );
         
-
     }
 
     /**
