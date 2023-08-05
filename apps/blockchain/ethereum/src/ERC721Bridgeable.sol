@@ -29,39 +29,6 @@ contract ERC721Bridgeable is ERC721, UUPSOwnableProxied, IERC721Bridgeable {
         ERC721("", "")
     { }
 
-    //
-    function testMintRange(address to, uint256 tokenIdStart, uint256 tokenIdEnd)
-        external {
-
-        require(tokenIdStart < tokenIdEnd, "Bad range");
-        uint256 id = tokenIdStart;
-        for (id; id <= tokenIdEnd; id++) {
-            _mint(to, id);
-        }
-    }
-
-    /*
-     * In this implementation, the owner is the bridge by default. So `onlyOwner`
-     * is enough.
-     */
-    function mintFromBridge(address to, uint256 tokenId)
-        public
-        onlyOwner {
-
-        _mint(to, tokenId);
-    }
-
-    /*
-     * In this implementation, the owner is the bridge by default. So `onlyOwner`
-     * is enough.
-     */
-    function burnFromBridge(uint256 id)
-        public
-        onlyOwner {
-
-        _burn(id);
-    }
-
     /*
      * Initializes the implementation.
      */
@@ -75,6 +42,41 @@ contract ERC721Bridgeable is ERC721, UUPSOwnableProxied, IERC721Bridgeable {
         _symbol = s;
 
         _transferOwnership(_msgSender());
+    }
+
+    /*
+     *
+     */
+    function testMintRange(address to, uint256 idStart, uint256 idEnd)
+        external {
+
+        require(idStart < idEnd, "Bad range");
+        uint256 id = idStart;
+        for (id; id <= idEnd; id++) {
+            _mint(to, id);
+        }
+    }
+
+    /*
+     * In this implementation, the owner is the bridge by default. So `onlyOwner`
+     * is enough.
+     */
+    function mintFromBridge(address to, uint256 id)
+        public
+        onlyOwner {
+
+        _mint(to, id);
+    }
+
+    /*
+     * In this implementation, the owner is the bridge by default. So `onlyOwner`
+     * is enough.
+     */
+    function burnFromBridge(uint256 id)
+        public
+        onlyOwner {
+
+        _burn(id);
     }
 
     /*
