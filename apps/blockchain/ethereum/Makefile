@@ -37,3 +37,16 @@ erc721_upgrade:
 	export ERC721_PROXY_ADDRESS=$(proxy) && \
 	forge script --broadcast --verify --rpc-url ${ETH_RPC_URL} script/ERC721.s.sol:Deploy
 
+# ERC1155Bridgeable deploy impl + proxy.
+erc1155_deploy:
+	export ERC1155_PROXY_ADDRESS=0x0000000000000000000000000000000000000000 && \
+	forge script --broadcast --verify --rpc-url ${ETH_RPC_URL} script/ERC1155.s.sol:Deploy
+
+# ERC1155Bridgeable upgrade.
+erc1155_upgrade:
+	@printf "$(bold)Ensure you don't forget the proxy argument:\n"
+	@echo "usage: make erc1155_upgrade config=.yourconfig.env proxy=0x1234"
+	@printf "$(sgr0)\n"
+	export ERC1155_PROXY_ADDRESS=$(proxy) && \
+	forge script --broadcast --verify --rpc-url ${ETH_RPC_URL} script/ERC1155.s.sol:Deploy
+
