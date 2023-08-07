@@ -146,7 +146,7 @@ contract BridgeTest is Test {
     function test_withdrawTokensERC721QuickWithdrawDeploy() public {
         // Build the request and compute it's "would be" message hash.
         felt252 header = Protocol.requestHeaderV1(CollectionType.ERC721, false, true);
-        Request memory req = buildRequestDummy(header, 888);
+        Request memory req = buildRequestDeploy(header, 888, bob);
         uint256[] memory reqSerialized = Protocol.requestSerialize(req);
         bytes32 msgHash = computeMessageHashFromL2(reqSerialized);
 
@@ -158,10 +158,12 @@ contract BridgeTest is Test {
         IStarklane(bridge).withdrawTokens(reqSerialized);
     }
 
-    //
-    function buildRequestDummy(
+    // Build a request that should trigger a deploy of a new collection on L1.
+    function buildRequestDeploy(
         felt252 header,
-        uint256 id)
+        uint256 id,
+        address newOwner
+    )
         public
         pure
         returns (Request memory)
@@ -174,7 +176,7 @@ contract BridgeTest is Test {
             hash: Cairo.felt252Wrap(0x1),
             collectionL1: address(0x0),
             collectionL2: Cairo.snaddressWrap(0x123),
-            ownerL1: address(0x0),
+            ownerL1: newOwner,
             ownerL2: Cairo.snaddressWrap(0x789),
             name: "",
             symbol: "",
@@ -200,15 +202,13 @@ contract BridgeTest is Test {
         // To remove warning. Is there a better way?
         assertTrue(felt252.unwrap(starklaneL2Selector) > 0);
 
-        vm.prank(bridge);
         bytes32 msgHash = keccak256(
             abi.encodePacked(
                 snaddress.unwrap(starklaneL2Address),
-                uint256(uint160(address(this))),
+                uint256(uint160(bridge)),
                 request.length,
                 request)
         );
-        vm.stopPrank();
 
         return msgHash;
     }
