@@ -152,33 +152,10 @@ contract BridgeTest is Test {
 
         // The message must be simulated to come from the L2 indexer and registered
         // as QUICK message.
-        
+
         IStarklane(bridge).addMessageHashForQuick(uint256(msgHash));
 
-        /* vm.startPrank(alice); */
-        /* IERC721(erc721C1).setApprovalForAll(address(bridge), true); */
-        /* IStarklane(bridge).depositTokens{value: 30000}( */
-        /*     salt, */
-        /*     address(erc721C1), */
-        /*     to, */
-        /*     ids, */
-        /*     false */
-        /* ); */
-        /* vm.stopPrank(); */
-
-        /* uint256[] memory idsEscrowCheck = new uint256[](4); */
-        /* idsEscrowCheck[0] = 0; */
-        /* idsEscrowCheck[1] = 1; */
-        /* idsEscrowCheck[2] = 2; */
-        /* idsEscrowCheck[3] = 9; */
-
-        /* bool[] memory statuses = IStarklane(bridge).escrowStatuses(erc721C1, idsEscrowCheck); */
-        /* assertTrue(statuses[0]); */
-        /* assertFalse(statuses[1]); */
-        /* assertFalse(statuses[2]); */
-        /* assertTrue(statuses[3]); */
-
-        // TODO: test event emission.
+        IStarklane(bridge).withdrawTokens(reqSerialized);
     }
 
     //
@@ -220,6 +197,7 @@ contract BridgeTest is Test {
         (snaddress starklaneL2Address, felt252 starklaneL2Selector)
             = IStarklane(bridge).l2Info();
 
+        // To remove warning. Is there a better way?
         assertTrue(felt252.unwrap(starklaneL2Selector) > 0);
 
         vm.prank(bridge);
@@ -230,6 +208,7 @@ contract BridgeTest is Test {
                 request.length,
                 request)
         );
+        vm.stopPrank();
 
         return msgHash;
     }

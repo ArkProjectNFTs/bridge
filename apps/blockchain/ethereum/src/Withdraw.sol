@@ -34,6 +34,12 @@ contract StarklaneWithdraw is Ownable {
     mapping(bytes32 => uint256) _withdrawQuick;
 
     /**
+     */
+    event MessageHashAddedQuick(bytes32 msgHash);
+
+    event DebugMsg(bytes32 msgHash);
+
+    /**
        @notice Adds the hash of a message that can be consumed with the QUICK
        method.
 
@@ -54,6 +60,7 @@ contract StarklaneWithdraw is Ownable {
         );
 
         _withdrawQuick[hash] = QUICK_AVAILABLE;
+        emit MessageHashAddedQuick(hash);
     }
 
     /**
@@ -76,9 +83,11 @@ contract StarklaneWithdraw is Ownable {
                 request)
         );
 
+        emit DebugMsg(msgHash);
+
         require(
             _withdrawQuick[msgHash] == QUICK_AVAILABLE,
-            "Tokens from this request cannot be withdraw with the QUICK method."
+            "Tokens from this request cannot be withdrawn with the QUICK method."
         );
 
         _withdrawQuick[msgHash] = QUICK_DONE;
