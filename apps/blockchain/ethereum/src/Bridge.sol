@@ -63,7 +63,8 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEvents, Stark
         uint256 salt,
         address collectionL1,
         snaddress ownerL2,
-        uint256[] calldata ids
+        uint256[] calldata ids,
+        bool useWithdrawQuick
     )
         external
         payable
@@ -80,7 +81,7 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEvents, Stark
         Request memory req;
 
         // TODO: expose options like depositAutoBurn and withdrawQuick.
-        req.header = Protocol.requestHeaderV1(ctype, false, false);
+        req.header = Protocol.requestHeaderV1(ctype, false, useWithdrawQuick);
         req.hash = Protocol.requestHash(salt, collectionL1, ownerL2, ids);
         req.collectionL1 = collectionL1;
         req.collectionL2 = _l1ToL2Addresses[collectionL1];

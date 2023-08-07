@@ -62,7 +62,13 @@ contract BridgeTest is Test {
         uint256 salt = 0x1;
         snaddress to = Cairo.snaddressWrap(0x1);
 
-        IStarklane(bridge).depositTokens{value: 30000}(salt, address(erc721C1), to, ids);
+        IStarklane(bridge).depositTokens{value: 30000}(
+            salt,
+            address(erc721C1),
+            to,
+            ids,
+            false
+        );
     }
 
     //
@@ -74,7 +80,13 @@ contract BridgeTest is Test {
         uint256 salt = 0x1;
         snaddress to = Cairo.snaddressWrap(0x0);
 
-        IStarklane(bridge).depositTokens{value: 30000}(salt, address(erc721C1), to, ids);
+        IStarklane(bridge).depositTokens{value: 30000}(
+            salt,
+            address(erc721C1),
+            to,
+            ids,
+            false
+        );
     }
 
     //
@@ -84,7 +96,13 @@ contract BridgeTest is Test {
         uint256 salt = 0x0;
         snaddress to = Cairo.snaddressWrap(0x0);
 
-        IStarklane(bridge).depositTokens{value: 30000}(salt, address(erc721C1), to, ids);
+        IStarklane(bridge).depositTokens{value: 30000}(
+            salt,
+            address(erc721C1),
+            to,
+            ids,
+            false
+        );
     }
 
     //
@@ -100,7 +118,13 @@ contract BridgeTest is Test {
 
         vm.startPrank(alice);
         IERC721(erc721C1).setApprovalForAll(address(bridge), true);
-        IStarklane(bridge).depositTokens{value: 30000}(salt, address(erc721C1), to, ids);
+        IStarklane(bridge).depositTokens{value: 30000}(
+            salt,
+            address(erc721C1),
+            to,
+            ids,
+            false
+        );
         vm.stopPrank();
 
         uint256[] memory idsEscrowCheck = new uint256[](4);
@@ -117,4 +141,97 @@ contract BridgeTest is Test {
 
         // TODO: test event emission.
     }
+
+    // Test a withdraw QUICK that will trigger the deploy of a new collection on L1.
+    function test_withdrawTokensERC721QuickWithdrawDeploy() public {
+        // Build the request and compute it's "would be" message hash.
+        felt252 header = Protocol.requestHeaderV1(CollectionType.ERC721, false, true);
+        Request memory req = buildRequestDummy(header, 888);
+        uint256[] memory reqSerialized = Protocol.requestSerialize(req);
+        bytes32 msgHash = computeMessageHashFromL2(reqSerialized);
+
+        // The message must be simulated to come from the L2 indexer and registered
+        // as QUICK message.
+        
+        IStarklane(bridge).addMessageHashForQuick(uint256(msgHash));
+
+        /* vm.startPrank(alice); */
+        /* IERC721(erc721C1).setApprovalForAll(address(bridge), true); */
+        /* IStarklane(bridge).depositTokens{value: 30000}( */
+        /*     salt, */
+        /*     address(erc721C1), */
+        /*     to, */
+        /*     ids, */
+        /*     false */
+        /* ); */
+        /* vm.stopPrank(); */
+
+        /* uint256[] memory idsEscrowCheck = new uint256[](4); */
+        /* idsEscrowCheck[0] = 0; */
+        /* idsEscrowCheck[1] = 1; */
+        /* idsEscrowCheck[2] = 2; */
+        /* idsEscrowCheck[3] = 9; */
+
+        /* bool[] memory statuses = IStarklane(bridge).escrowStatuses(erc721C1, idsEscrowCheck); */
+        /* assertTrue(statuses[0]); */
+        /* assertFalse(statuses[1]); */
+        /* assertFalse(statuses[2]); */
+        /* assertTrue(statuses[3]); */
+
+        // TODO: test event emission.
+    }
+
+    //
+    function buildRequestDummy(
+        felt252 header,
+        uint256 id)
+        public
+        pure
+        returns (Request memory)
+    {
+        uint256[] memory ids = new uint256[](1);
+        ids[0] = id;
+
+        Request memory req = Request ({
+            header: header,
+            hash: Cairo.felt252Wrap(0x1),
+            collectionL1: address(0x0),
+            collectionL2: Cairo.snaddressWrap(0x123),
+            ownerL1: address(0x0),
+            ownerL2: Cairo.snaddressWrap(0x789),
+            name: "",
+            symbol: "",
+            uri: "ABCD",
+            tokenIds: ids,
+            tokenValues: new uint256[](0),
+            tokenURIs: new string[](0)
+            });
+
+        return req;
+    }
+
+    //
+    function computeMessageHashFromL2(
+        uint256[] memory request
+    )
+        public
+        returns (bytes32)
+    {
+        (snaddress starklaneL2Address, felt252 starklaneL2Selector)
+            = IStarklane(bridge).l2Info();
+
+        assertTrue(felt252.unwrap(starklaneL2Selector) > 0);
+
+        vm.prank(bridge);
+        bytes32 msgHash = keccak256(
+            abi.encodePacked(
+                snaddress.unwrap(starklaneL2Address),
+                uint256(uint160(address(this))),
+                request.length,
+                request)
+        );
+
+        return msgHash;
+    }
+
 }

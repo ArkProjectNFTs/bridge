@@ -35,7 +35,8 @@ contract StarknetMessagingLocal is StarknetMessaging {
         external
         payable
     {
-        // TODO: add guard for whitelisted sender? Or not needed for now.
+        // TODO: add guard for whitelisted sender? Or not needed for now as it's
+        // only used for local testing.
 
         bytes32 hash = bytes32(msgHash);
         emit AddedMessageHashFromL2(hash);
