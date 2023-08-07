@@ -63,15 +63,13 @@ contract StarklaneEscrow {
             uint256 id = ids[i];
 
             if (tokenType == CollectionType.ERC721) {
-                IERC721(collection).safeTransferFrom(from, to, id);
+                IERC721(collection).transferFrom(from, to, id);
             } else {
-                // TODO:
-                // We need here 3 calls.... 1) check the existence of token.
-                // 2) check the supply is exactly one.
-                // 3) transfert.
+                // TODO: check the supply is exactly one.
+                // (this is the low level call to verify if a contract has some function).
+                // (but it's better to check with supported interfaces? It's 2 calls instead
+                // of one where we control the fail.)
                 //(bool success, bytes memory data) = contractAddress.call("");
-                // but.. token can be minted again so... No sure it makes a lot of sense
-                // to bridge them.
                 IERC1155(collection).safeTransferFrom(from, to, id, 1, "");
             }
 
@@ -107,6 +105,8 @@ contract StarklaneEscrow {
         if (tokenType == CollectionType.ERC721) {
             IERC721(collection).safeTransferFrom(from, to, id);
         } else {
+            // TODO:
+            // Check here if the token supply is currently 0.
             IERC1155(collection).safeTransferFrom(from, to, id, 1, "");
         }
 

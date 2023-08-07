@@ -4,9 +4,8 @@ pragma solidity ^0.8.0;
 
 import "openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
-import "./ERC721Bridgeable.sol";
+import "./Deployer.sol";
 import "../sn/Cairo.sol";
-
 
 /**
    @title Collection manager to verify collection address matching and deploy them.
@@ -38,15 +37,32 @@ contract CollectionManager {
         internal
         returns (address)
     {
-        address impl = address(new ERC721Bridgeable());
-        
-        bytes memory dataInit = abi.encodeWithSelector(
-            ERC721Bridgeable.initialize.selector,
-            abi.encode(name, symbol)
-        );
+        address proxy = Deployer.deployERC721Bridgeable(name, symbol);
+        _l1ToL2Addresses[proxy] = collectionL2;
 
-        address proxy = address(new ERC1967Proxy(impl, dataInit));
+        // TODO: Emit event with reqHash.
 
+        return proxy;
+    }
+
+    /**
+       @notice Deploys ERC1155Bridgeable contracts.
+
+       @param uri URI with token placeholder.
+       @param collectionL2 The collection's address on L2.
+       @param reqHash Hash of the request.
+
+       @return Address of the ERC1155Bridgeable deployed (proxy address).
+    */
+    function _deployERC1155Bridgeable(
+        string memory uri,
+        snaddress collectionL2,
+        felt252 reqHash
+    )
+        internal
+        returns (address)
+    {
+        address proxy = Deployer.deployERC1155Bridgeable(uri);
         _l1ToL2Addresses[proxy] = collectionL2;
 
         // TODO: Emit event with reqHash.
