@@ -10,7 +10,7 @@ import "./token/TokenUtil.sol";
 /**
    @title Contract responsible of escrowing tokens.
 */
-contract StarklaneEscrow {
+contract StarklaneEscrow is Context {
 
     // Escrowed token.
     // Mapping (collectionAddres => (tokenId => depositor)).
@@ -44,25 +44,26 @@ contract StarklaneEscrow {
     /**
        @notice Deposits the given tokens into escrow.
 
-       @param tokenType The token type,
+       @param collectionType The token type,
        @param collection Token collection address.
-       @param from Owner depositing the tokens.
        @param ids Tokens to be deposited.
      */
     function _depositIntoEscrow(
-        CollectionType tokenType,
+        CollectionType collectionType,
         address collection,
-        address from,
         uint256[] memory ids
     )
         internal
     {
+        assert(ids.length > 0);
+
+        address from = msg.sender;
         address to = address(this);
 
         for (uint256 i = 0; i < ids.length; i++) {
             uint256 id = ids[i];
 
-            if (tokenType == CollectionType.ERC721) {
+            if (collectionType == CollectionType.ERC721) {
                 IERC721(collection).transferFrom(from, to, id);
             } else {
                 // TODO: check the supply is exactly one.
@@ -80,7 +81,7 @@ contract StarklaneEscrow {
     /**
        @notice Withdraw a token from escrow.
 
-       @param tokenType The token type,
+       @param collectionType The token type,
        @param collection Token collection address.
        @param to Owner withdrawing the token.
        @param id Token to be deposited.
@@ -88,7 +89,7 @@ contract StarklaneEscrow {
        @return True if the token was into escrow, false otherwise.
      */
     function _withdrawFromEscrow(
-        CollectionType tokenType,
+        CollectionType collectionType,
         address collection,
         address to,
         uint256 id
@@ -102,7 +103,7 @@ contract StarklaneEscrow {
 
         address from = address(this);
 
-        if (tokenType == CollectionType.ERC721) {
+        if (collectionType == CollectionType.ERC721) {
             IERC721(collection).safeTransferFrom(from, to, id);
         } else {
             // TODO:

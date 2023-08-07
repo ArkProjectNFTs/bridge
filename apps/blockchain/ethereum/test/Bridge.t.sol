@@ -56,6 +56,38 @@ contract BridgeTest is Test {
     }
 
     //
+    function testFail_invalidIds() public {
+        uint256[] memory ids = new uint256[](0);
+
+        uint256 salt = 0x1;
+        snaddress to = Cairo.snaddressWrap(0x1);
+
+        IStarklane(bridge).depositTokens{value: 30000}(salt, address(erc721C1), to, ids);
+    }
+
+    //
+    function testFail_invalidSalt() public {
+        uint256[] memory ids = new uint256[](2);
+        ids[0] = 0;
+        ids[1] = 9;
+
+        uint256 salt = 0x1;
+        snaddress to = Cairo.snaddressWrap(0x0);
+
+        IStarklane(bridge).depositTokens{value: 30000}(salt, address(erc721C1), to, ids);
+    }
+
+    //
+    function testFail_invalidL2Owner() public {
+        uint256[] memory ids = new uint256[](0);
+
+        uint256 salt = 0x0;
+        snaddress to = Cairo.snaddressWrap(0x0);
+
+        IStarklane(bridge).depositTokens{value: 30000}(salt, address(erc721C1), to, ids);
+    }
+
+    //
     function test_depositTokenERC721() public {
         IERC721MintRangeFree(erc721C1).mintRangeFree(alice, 0, 10);
 
@@ -82,5 +114,7 @@ contract BridgeTest is Test {
         assertFalse(statuses[1]);
         assertFalse(statuses[2]);
         assertTrue(statuses[3]);
+
+        // TODO: test event emission.
     }
 }

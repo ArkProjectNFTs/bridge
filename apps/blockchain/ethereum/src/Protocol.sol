@@ -30,10 +30,58 @@ struct Request {
 /**
    @title Library related to the protocol for bridging tokens.
 */
-    library Protocol {
+library Protocol {
 
-    uint256 private constant ERC721_MASK = 0x100;
-    uint256 private constant ERC1155_MASK = 0x200;
+    // Byte 0 of the header: Version.
+    uint256 private constant HEADER_V1 = 0x01;
+
+    // Byte 1 of the header: Collection type.
+    uint256 private constant COLLECTION_TYPE_MASK = (0xff << (8 * 1));
+    uint256 private constant ERC721_TYPE = (0x01 << (8 * 1));
+    uint256 private constant ERC1155_TYPE = (0x02 << (8 * 1));
+
+    // Byte 2 of the header: deposit config.
+    uint256 private constant DEPOSIT_AUTO_BURN = (0x01 << (8 * 2));
+
+    // Byte 3 of the header: withdraw config.
+    uint256 private constant WITHDRAW_QUICK = (0x01 << (8 * 3));
+
+    /**
+       @notice Verifies if the given header supports the withdraw QUICK.
+
+       @return True if withdraw QUICK is supported, false otherwise.
+    */
+    function canUseWithdrawQuick(
+        uint256 header
+    )
+        internal
+        pure
+        returns (bool)
+    {
+        return (header & WITHDRAW_QUICK) == WITHDRAW_QUICK;
+    }
+
+    /**
+       @notice Retrieves the collection type from the header.
+
+       @return Collection type found in the header.
+    */
+    function collectionTypeFromHeader(
+        uint256 header
+    )
+        internal
+        pure
+        returns (CollectionType)
+    {
+        uint256 ct = header & COLLECTION_TYPE_MASK;
+        if (ct == ERC721_TYPE) {
+            return CollectionType.ERC721;
+        } else if (ct == ERC1155_TYPE)  {
+            return CollectionType.ERC1155;
+        } else {
+            revert("Collection Type MASK is not supported.");
+        }
+    }
 
     /**
        @notice Computes the V1 header value.
@@ -41,22 +89,34 @@ struct Request {
        @dev Header is a felt252 (31 bits).
        Byte 0 is the version (0x1).
        Byte 1 is the contract interface (0x1 = ERC721, 0x2 = ERC1155).
+       Byte 2 is the deposit config.
+       Byte 3 is the withdraw config.
 
        @param ctype The collection type.
     */
     function requestHeaderV1(
-        CollectionType ctype
+        CollectionType ctype,
+        bool useDepositAutoBurn,
+        bool useWithdrawQuick
     )
         internal
         pure
         returns (felt252)
     {
-        uint256 h = 0x1;
+        uint256 h = HEADER_V1;
 
         if (ctype == CollectionType.ERC721) {
-            h |= ERC721_MASK;
+            h |= ERC721_TYPE;
         } else {
-            h |= ERC1155_MASK;
+            h |= ERC1155_TYPE;
+        }
+
+        if (useDepositAutoBurn) {
+            h |= DEPOSIT_AUTO_BURN;
+        }
+        
+        if (useWithdrawQuick) {
+            h |= WITHDRAW_QUICK;
         }
 
         return Cairo.felt252Wrap(h);

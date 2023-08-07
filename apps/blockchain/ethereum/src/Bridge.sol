@@ -10,6 +10,7 @@ import "./Protocol.sol";
 import "./State.sol";
 import "./Escrow.sol";
 import "./Events.sol";
+import "./Withdraw.sol";
 import "./UUPSProxied.sol";
 
 import "starknet/IStarknetMessaging.sol";
@@ -17,7 +18,7 @@ import "starknet/IStarknetMessaging.sol";
 /**
    @title Starklane bridge contract.
 */
-contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEvents, StarklaneEscrow, CollectionManager {
+contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEvents, StarklaneEscrow, StarklaneWithdraw, CollectionManager {
 
     /**
        @notice Initializes the implementation, only callable once.
@@ -78,12 +79,13 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEvents, Stark
 
         Request memory req;
 
-        req.header = Protocol.requestHeaderV1(ctype);
+        // TODO: expose options like depositAutoBurn and withdrawQuick.
+        req.header = Protocol.requestHeaderV1(ctype, false, false);
         req.hash = Protocol.requestHash(salt, collectionL1, ownerL2, ids);
         req.collectionL1 = collectionL1;
         req.collectionL2 = _l1ToL2Addresses[collectionL1];
 
-        address ownerL1 = _msgSender();
+        address ownerL1 = msg.sender;
         req.ownerL1 = ownerL1;
         req.ownerL2 = ownerL2;
 
@@ -96,7 +98,7 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEvents, Stark
             (req.uri) = TokenUtil.erc1155Metadata(collectionL1);
         }
 
-        _depositIntoEscrow(ctype, collectionL1, ownerL1, ids);
+        _depositIntoEscrow(ctype, collectionL1, ids);
 
         uint256[] memory payload = Protocol.requestSerialize(req);
 
@@ -110,34 +112,44 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEvents, Stark
     }
 
     /**
-       @notice Claims tokens received from L2.
+       @notice Withdraw tokens received from L2.
+
+       @param request Serialized request containing the tokens to be withdrawed. 
     */
-    function claimTokens(
-        uint256 fromAddress,
-        uint256[] calldata data
+    function withdrawTokens(
+        uint256[] calldata request
     )
         external
         payable
     {
+        // Header is always the first uint256 of the serialized request.
+        uint256 header = request[0];
 
-        Request memory req = Protocol.requestDeserialize(data, 0);
+        // Any error or permission fail in the message consumption will cause a revert.
+        // After message being consumed, it is considered legit and tokens can be withdrawn.
+        if (Protocol.canUseWithdrawQuick(header)) {
+            _consumeMessageQuick(_starklaneL2Address, request);
+        } else {
+            _consumeMessageStarknet(_starknetCoreAddress, _starklaneL2Address, request);
+        }
 
-        // 1. Verify the request content + the type of claim and if it's valid.
-        //    (quick claim, regular claim).
+        Request memory req = Protocol.requestDeserialize(request, 0);
 
         address collectionL1 = _verifyRequestAddresses(req.collectionL1, req.collectionL2);
 
-        // TODO: check for collection type to know which ERC is required...!
-        CollectionType ctype = CollectionType.ERC721;
+        CollectionType ctype = Protocol.collectionTypeFromHeader(header);
 
         if (collectionL1 == address(0x0)) {
-            // TODO: add if for ERC1155.
-            collectionL1 = _deployERC721Bridgeable(
-                req.name,
-                req.symbol,
-                req.collectionL2,
-                req.hash
-            );
+            if (ctype == CollectionType.ERC721) {
+                collectionL1 = _deployERC721Bridgeable(
+                    req.name,
+                    req.symbol,
+                    req.collectionL2,
+                    req.hash
+                );
+            } else {
+                // TODO ERC1155.
+            }
         }
 
         for (uint256 i = 0; i < req.tokenIds.length; i++) {
@@ -146,10 +158,10 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEvents, Stark
             bool wasEscrowed = _withdrawFromEscrow(ctype, collectionL1, req.ownerL1, id);
 
             if (!wasEscrowed) {
-                // TODO: perhaps, implement the same interface for ERC721 and ERC1155..
-                // As we only want to deal with UNIQ ones...!
-                // BridgeableToken !!
-                // Also, check what to do with URIs...!
+                // TODO: perhaps, implement the same interface for ERC721 and ERC1155
+                // As we only want to deal with ERC1155 token with value = 1.
+                // Also, check what to do with URIs. If the URI storage is supported
+                // or not for ERC721. If supported, we may need to mint with an URI.
                 IERC721Bridgeable(collectionL1).mintFromBridge(req.ownerL1, id);
             }
         }

@@ -66,6 +66,46 @@ contract ProtocolTest is Test {
     }
 
     //
+    function test_requestHeader() public {
+        felt252 header = Protocol.requestHeaderV1(
+            CollectionType.ERC721,
+            false,
+            false);
+        assertEq(
+            felt252.unwrap(header),
+            0x0101
+        );
+
+        header = Protocol.requestHeaderV1(
+            CollectionType.ERC1155,
+            false,
+            false);
+        assertEq(
+            felt252.unwrap(header),
+            0x0201
+        );
+
+        header = Protocol.requestHeaderV1(
+            CollectionType.ERC721,
+            true,
+            false);
+        assertEq(
+            felt252.unwrap(header),
+            0x010101
+        );
+
+        header = Protocol.requestHeaderV1(
+            CollectionType.ERC721,
+            true,
+            true);
+        assertEq(
+            felt252.unwrap(header),
+            0x01010101
+        );
+        assertTrue(Protocol.canUseWithdrawQuick(felt252.unwrap(header)));
+    }
+
+    //
     function test_requestHash() public {
         uint256[] memory ids = new uint256[](1);
         ids[0] = 88;
