@@ -12,125 +12,154 @@ type snaddress is uint256;
 //       USE ASSERT for all bound / offset checks.
 
 /*
- * Modulus used for computation in Starknet. This is the maximum value.
- *
- * https://github.com/starkware-libs/cairo/blob/08efd7158bf1ef012fa6b42b3429a398e1a75e26/crates/cairo-lang-runner/src/casm_run/mod.rs#L52
- *  2 ** 251 + 17 * 2 ** 192 + 1;
- */
+   Modulus used for computation in Starknet. This is the maximum value.
+ 
+   https://github.com/starkware-libs/cairo/blob/08efd7158bf1ef012fa6b42b3429a398e1a75e26/crates/cairo-lang-runner/src/casm_run/mod.rs#L52
+   2  251 + 17  2  192 + 1;
+*/
 uint256 constant SN_MODULUS =
     3618502788666131213697322783095070105623107215331596699973092056135872020481;
 
 /*
- * Cairo Short String are 31 characters long.
- *
- * TODO: check how UTF-8 may be supported.
- *       but at the moment, everything is
- *       packed at byte level.
- */
+   Cairo Short String are 31 characters long.
+ 
+   TODO: check how UTF-8 may be supported.
+   but at the moment, everything is
+   packed at byte level.
+*/
 uint256 constant CAIRO_STR_LEN = 31;
 
-/*
- * A wrapper to type felt252
- * to ensure readability and better
- * compatibility with Starknet.
- *
- * TODO: will add gas cost due to struct instanciation...
- * keep it for now as the readability would be very nice,
- * but type alias are not available yet...
- */
-/* struct Felt252 { */
-/*     uint256 inner; */
-/* } */
-
-/*
- * Adapter library to ensure compatibility with Cairo.
- *
- * Cairo works with felts (252 bits), so a felt fits into a uint256,
- * but a uint256 may overflow.
- * To convert a uint256 into a felt, the first 6 bits must be cleared.
- */
+/**
+   @title Adapter library to ensure compatibility with Cairo.
+ 
+   Cairo works with felts (252 bits), so a felt always fits into a single uint256,
+   but a uint256 may overflow.
+   To convert a uint256 into a felt, the first 6 bits must be cleared.
+*/
 library Cairo {
 
-    /*
-     * Verifies if the given uint256 can be considered
-     * as a felt252.
-     */
-    function isFelt252(uint256 val)
+    /**
+       @notice Verifies if the given uint256 can be considered
+       as a felt252.
+
+       @param val Value to be checked as a felt252.
+
+       @return True if the value can fit into a felt252, false otherwise.
+    */
+    function isFelt252(
+        uint256 val
+    )
         internal
         pure
-        returns (bool) {
-
+        returns (bool)
+    {
         return val < SN_MODULUS;
     }
 
-    /*
-     * Wraps an uint256 into a felt252.
-     * Ensures that the val can fit into a felt252.
-     *
-     * Require is used instead of assert as the uint256 may come from
-     * external user.
+    /**
+       @notice Wraps an uint256 into a felt252.
+       Ensures that the val can fit into a felt252.
+       
+       @param val Value to be wrapped.
+
+       @return felt252 with wrapped value.
+
+       @dev Reverts if val is too large for felt252.
      */
-    function felt252Wrap(uint256 val)
+    function felt252Wrap(
+        uint256 val
+    )
         internal
         pure
-        returns (felt252) {
-
+        returns (felt252)
+    {
         require(isFelt252(val), "Error wrapping uint256 into felt252.");
         return felt252.wrap(val);
     }
 
-    /*
-     * Wraps an uint256 into a snaddress.
-     * Ensures that the val can fit into a felt252.
-     *
-     * Require is used instead of assert as the uint256 may come from
-     * external user.
-     */
-    function snaddressWrap(uint256 val)
+    /**
+       @notice Wraps an uint256 into a snaddress.
+       Ensures that the val can fit into a felt252.
+
+       @param val Value to be wrapped.
+
+       @return snaddress with wrapped value.
+
+       @dev Reverts if val is too large for felt252.
+    */
+    function snaddressWrap(
+        uint256 val
+    )
         internal
         pure
-        returns (snaddress) {
-
+        returns (snaddress)
+    {
         require(isFelt252(val), "Error wrapping uint256 into snaddress.");
         return snaddress.wrap(val);
     }
 
-    /*
-     * Serializes the given uint256 as a felt252 (low and high parts),
-     * and returns increment that is applied to the
-     * offset.
-     */
-    function uint256Serialize(uint256 val, uint256[] memory buf, uint256 offset)
+    /**
+       @notice Serializes the given uint256 as a felt252 (low and high parts).
+
+       @param val Value to be serialized.
+       @param buf Buffer where serialized form is saved.
+       @param offset Offset in `buf` where serialization must start.
+
+       @return Offset increment applied to serialize the value.
+    */
+    function uint256Serialize(
+        uint256 val,
+        uint256[] memory buf,
+        uint256 offset
+    )
         internal
         pure
-        returns (uint256) {
-
+        returns (uint256)
+    {    
         buf[offset] = uint128(val);
         buf[offset + 1] = uint128(val >> 128);
         return 2;
     }
 
-    /*
-     * Deserializes a Cairo uint256 representation into solidity uint256.
-     */
-    function uint256Deserialize(uint256[] memory buf, uint256 offset)
+    /**
+       @notice Deserializes an uint256 from the given buffer.
+
+       @param buf Buffer where data is serialized.
+       @param offset Offset in `buf` where deserialization must start.
+
+       @return The deserialized value.
+    */
+    function uint256Deserialize(
+        uint256[] memory buf,
+        uint256 offset
+    )
         internal
         pure
-        returns (uint256) {
-
+        returns (uint256)
+    {
         // u256 in cairo is 2 felts long with low and high parts.
         require(offset + 1 < buf.length, "buffer too short to unpack u256.");
         return (buf[offset + 1] << 128) | uint128(buf[offset]);
     }
 
-    /*
-     * Serializes an array of uint256 as felt252 (low and high parts) array.
-     * Returns the increment applied to the offset.
-     */
-    function uint256ArraySerialize(uint256[] memory arr, uint256[] memory buf, uint256 offset)
+    /**
+       @notice Serializes an array of uint256.
+
+       @param arr Array to be serialized.
+       @param buf Buffer where serialized form is saved.
+       @param offset Offset in `buf` where serialization must start.
+
+       @return Offset increment applied to serialize the value.
+    */
+    function uint256ArraySerialize(
+        uint256[] memory arr,
+        uint256[] memory buf,
+        uint256 offset
+    )
         internal
         pure
-        returns (uint256) {
+        returns (uint256)
+    {
         uint256 _offset = offset;
 
         // Arrays always have their length first in Cairo.
@@ -144,15 +173,22 @@ library Cairo {
         return _offset - offset;
     }
 
-    /*
-     * Deserializes an array of uint256.
-     * Returns the offset increment and the uint256[].
-     */
-    function uint256ArrayDeserialize(uint256[] memory buf, uint256 offset)
+    /**
+       @notice Deserializes an array of uint256 from the given buffer.
+
+       @param buf Buffer where data is serialized.
+       @param offset Offset in `buf` where deserialization must start.
+
+       @return The offset increment applied to deserialize and the deserialized value.
+    */
+    function uint256ArrayDeserialize(
+        uint256[] memory buf,
+        uint256 offset
+    )
         internal
         pure
-        returns (uint256, uint256[] memory) {
-
+        returns (uint256, uint256[] memory)
+    {
         uint256 len = buf[offset++];
         uint256[] memory uints = new uint256[](len);
 
@@ -166,56 +202,44 @@ library Cairo {
         return ((len * 2) + 1, uints);
     }
 
-    /*
-     * Computes the lengths of the packed cairo string and add
-     * one uint256 for the encoded length itself.
-     *
-     * Packed cairo string is represented as uint256[] and the length
-     * is always preceding the array in serialization.
-     *
-     * This is cheaper than packing the string to get the length.
-     */
-    function shortStringSerializedLength(string memory str)
+    /**
+       @notice Computes the lengths of the packed cairo string.
+     
+       @dev Packed cairo string is represented as uint256[] and the length
+       is always preceding the array in serialization.
+       This is cheaper than packing the string to get the length.
+    */
+    function shortStringSerializedLength(
+        string memory str
+    )
         internal
         pure
-        returns (uint256) {
-
+        returns (uint256)
+    {
         // Even if the string is empty, we should return 1
         // as the serialization is expecting a uint256 as length of the Span<felt>.
         bytes memory strBytes = bytes(str);
         return ((strBytes.length + CAIRO_STR_LEN) / 32) + 1;
     }
 
-    /*
-     * Serializes an array of string as felt252 short strings.
-     * Returns the increment applied to the offset.
-     */
-    function shortStringArraySerialize(string[] memory arr, uint256[] memory buf, uint256 offset)
+    /**
+       @notice Serializes a string into a cairo short string.
+
+       @param str String to be serialized.
+       @param buf Buffer where serialized form is saved.
+       @param offset Offset in `buf` where serialization must start.
+
+       @return Offset increment applied to serialize the value.
+    */
+    function shortStringSerialize(
+        string memory str,
+        uint256[] memory buf,
+        uint256 offset
+    )
         internal
         pure
-        returns (uint256) {
-
-        uint256 _offset = offset;
-
-        // Arrays always have their length first in Cairo.
-        buf[_offset++] = arr.length;
-
-        for (uint256 i = 0; i < arr.length; i++) {
-            _offset += shortStringSerialize(arr[i], buf, _offset);
-        }
-
-        return _offset - offset;
-    }
-
-    /*
-     * Serializes the given string as a felt252 short string array,
-     * and returns increment that is applied to the offset.
-     */
-    function shortStringSerialize(string memory str, uint256[] memory buf, uint256 offset)
-        internal
-        pure
-        returns (uint256) {
-
+        returns (uint256)
+    {
         uint256[] memory packed = shortStringPack(str);
 
         if (packed.length == 0) {
@@ -232,18 +256,21 @@ library Cairo {
         }
     }
 
-    /*
-     * Packs a string into an array of uint256 (Cairo Short String -> felt).
-     *
-     * Cairo short strings are 31 chars long, so here we pack every
-     * 31 chars into a uint256 (representing a felt).
-     * To ensure there are not overflow, the first six bits are cleared.
-     */
-    function shortStringPack(string memory str)
+    /**
+       @notice Packs a string into an array of uint256 (Cairo Short String -> felt252).
+     
+       @dev Cairo short strings are 31 chars long, so here we pack every
+       31 chars into a uint256 (representing a felt).
+       To ensure there are no overflow of short string, the first byte is cleared
+       always cleared.
+    */
+    function shortStringPack(
+        string memory str
+    )
         internal
         pure
-        returns (uint256[] memory) {
-
+        returns (uint256[] memory)
+    {
         bytes memory strBytes = bytes(str);
         uint256 packedLen = (strBytes.length + CAIRO_STR_LEN) / 32;
 
@@ -271,15 +298,22 @@ library Cairo {
         return packedData;
     }
 
-    /*
-     * Deserializes a cairo short string into Solidity string.
-     * Returns the offset increment and the deserialized string.
-     */
-    function shortStringDeserialize(uint256[] memory buf, uint256 offset)
+    /**
+       @notice Deserializes a cairo short string from the given buffer.
+
+       @param buf Buffer where data is serialized.
+       @param offset Offset in `buf` where deserialization must start.
+
+       @return The offset increment applied to deserialize and the deserialized value.
+    */
+    function shortStringDeserialize(
+        uint256[] memory buf,
+        uint256 offset
+    )
         internal
         pure
-        returns (uint256, string memory) {
-
+        returns (uint256, string memory)
+    {
         uint256 len = buf[offset++];
         string memory s = shortStringUnpack(buf, offset, len);
 
@@ -287,15 +321,52 @@ library Cairo {
         return (len + 1, s);
     }
 
-    /*
-     * Deserializes an array of cairo short strings into Solidity string[].
-     * Returns the offset increment and the string[].
-     */
-    function shortStringArrayDeserialize(uint256[] memory buf, uint256 offset)
+    /**
+       @notice Serializes an array of strings as cairo array of short strings.
+
+       @param arr Array to be serialized.
+       @param buf Buffer where serialized form is saved.
+       @param offset Offset in `buf` where serialization must start.
+
+       @return Offset increment applied to serialize the value.
+    */
+    function shortStringArraySerialize(
+        string[] memory arr,
+        uint256[] memory buf,
+        uint256 offset
+    )
         internal
         pure
-        returns (uint256, string[] memory) {
+        returns (uint256)
+    {
+        uint256 _offset = offset;
 
+        // Arrays always have their length first in Cairo.
+        buf[_offset++] = arr.length;
+
+        for (uint256 i = 0; i < arr.length; i++) {
+            _offset += shortStringSerialize(arr[i], buf, _offset);
+        }
+
+        return _offset - offset;
+    }
+
+    /**
+       @notice Deserializes an array of short string from the given buffer.
+
+       @param buf Buffer where data is serialized.
+       @param offset Offset in `buf` where deserialization must start.
+
+       @return The offset increment applied to deserialize and the deserialized value.
+    */
+    function shortStringArrayDeserialize(
+        uint256[] memory buf,
+        uint256 offset
+    )
+        internal
+        pure
+        returns (uint256, string[] memory)
+    {
         uint256 _offset = offset;
 
         uint256 len = buf[_offset++];
@@ -314,14 +385,24 @@ library Cairo {
         return (_offset - offset, strs);
     }
 
-    /*
-     *
-     */
-    function shortStringUnpack(uint256[] memory buf, uint256 offset, uint256 len)
+    /**
+       @notice Unpacks a cairo short string into a string.
+
+       @param buf Buffer where the string is packed as cairo short string.
+       @param offset Offset where the unpack must start.
+       @param len Length of the string to unpack.
+
+       @return Unpacked string.
+    */
+    function shortStringUnpack(
+        uint256[] memory buf,
+        uint256 offset,
+        uint256 len
+    )
         internal
         pure
-        returns (string memory) {
-
+        returns (string memory)
+    {
         string memory s;
         for (uint256 i = offset; i < offset + len; i++) {
             s = string.concat(s, uint256AsciiToString(buf[i]));
@@ -330,14 +411,19 @@ library Cairo {
         return s;
     }
 
-    /*
-     *
-     */
-    function uint256AsciiToString(uint256 value)
+    /**
+       @notice Converts an uint256 containing ascii characters
+       as a string.
+
+       @param value String from ascii characters.
+    */
+    function uint256AsciiToString(
+        uint256 value
+    )
         internal
         pure
-        returns (string memory) {
-
+        returns (string memory)
+    {
         string memory s = new string(32);
         bytes memory byteString = bytes(s);
         uint256 notNullCharCount = 0;
