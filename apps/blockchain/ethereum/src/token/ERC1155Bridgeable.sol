@@ -48,7 +48,7 @@ contract ERC1155Bridgeable is ERC1155Supply, UUPSOwnableProxied, IERC1155Bridgea
        @param to The new owner.
        @param id The token type to mint.
        @param value Amount of the token.
-     */
+    */
     function mintFree(
         address to,
         uint256 id,

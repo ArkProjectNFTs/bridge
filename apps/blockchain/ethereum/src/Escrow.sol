@@ -65,6 +65,7 @@ contract StarklaneEscrow {
             if (tokenType == CollectionType.ERC721) {
                 IERC721(collection).safeTransferFrom(from, to, id);
             } else {
+                // TODO:
                 // We need here 3 calls.... 1) check the existence of token.
                 // 2) check the supply is exactly one.
                 // 3) transfert.

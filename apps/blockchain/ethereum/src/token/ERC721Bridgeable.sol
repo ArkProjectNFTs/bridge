@@ -112,7 +112,7 @@ contract ERC721Bridgeable is ERC721, UUPSOwnableProxied, IERC721Bridgeable {
        @dev `name()` must be overriden as the underlying value
        is private, then not accessible for this contract (which extends
        the base ERC721 contract).
-     */
+    */
     function name()
         public
         view

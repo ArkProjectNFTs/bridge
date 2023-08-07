@@ -30,7 +30,7 @@ struct Request {
 /**
    @title Library related to the protocol for bridging tokens.
 */
-library Protocol {
+    library Protocol {
 
     uint256 private constant ERC721_MASK = 0x100;
     uint256 private constant ERC1155_MASK = 0x200;
@@ -43,7 +43,7 @@ library Protocol {
        Byte 1 is the contract interface (0x1 = ERC721, 0x2 = ERC1155).
 
        @param ctype The collection type.
-     */
+    */
     function requestHeaderV1(
         CollectionType ctype
     )
@@ -71,7 +71,7 @@ library Protocol {
        @param tokenIds List of token ids to be transfered.
 
        @return Request hash.
-     */
+    */
     function requestHash(
         uint256 salt,
         address collection,

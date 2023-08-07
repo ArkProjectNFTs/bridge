@@ -16,14 +16,14 @@ import "starknet/IStarknetMessaging.sol";
 
 /**
    @title Starklane bridge contract.
- */
+*/
 contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEvents, StarklaneEscrow, CollectionManager {
 
     /**
-      @notice Initializes the implementation, only callable once.
+       @notice Initializes the implementation, only callable once.
 
-      @param data Data to init the implementation.
-     */
+       @param data Data to init the implementation.
+    */
     function initialize(
         bytes calldata data
     )
@@ -111,7 +111,7 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEvents, Stark
 
     /**
        @notice Claims tokens received from L2.
-     */
+    */
     function claimTokens(
         uint256 fromAddress,
         uint256[] calldata data

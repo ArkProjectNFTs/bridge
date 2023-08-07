@@ -102,5 +102,5 @@ contract CollectionManager {
         revert("Error verifying addresses mapping.");
     }
 
-
 }
+
