@@ -7,7 +7,7 @@ use starklane::token::erc721::{
 };
 use starklane::token::erc721;
 use starklane::token::erc721::erc721_bridgeable;
-use starklane::protocol::BridgeRequest;
+use starklane::protocol::Request;
 
 use starklane::string::LongString;
 
@@ -40,7 +40,7 @@ fn test_bad_request_addresses() {
 
     let mut tokens_to_bridge: Array<TokenInfo> = ArrayTrait::new();
 
-    let req = BridgeRequest {
+    let req = Request {
         header: 1,
         req_hash: 123,
         collection_l1_address: 0,
@@ -78,7 +78,7 @@ fn bridge_request_from_l1() {
     let mut tokens_to_bridge: Array<TokenInfo> = ArrayTrait::new();
     tokens_to_bridge.append(TokenInfo { token_id: TOKEN_ID, token_uri: TOKEN_URI.into(),  });
 
-    let req = BridgeRequest {
+    let req = Request {
         header: 1,
         req_hash: 123,
         collection_l1_address: 0x11cc,
@@ -114,7 +114,7 @@ fn bridge_request_from_l1() {
     tokens_to_bridge_new
         .append(TokenInfo { token_id: NEW_TOKEN_ID, token_uri: NEW_TOKEN_URI.into(),  });
 
-    let req_new = BridgeRequest {
+    let req_new = Request {
         header: 1,
         req_hash: 123,
         collection_l1_address: 0x11cc,

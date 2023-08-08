@@ -21,6 +21,8 @@ contract CollectionManager {
     /**
        @notice A collection has been deployed due to the
        first token being bridged from L2.
+
+       TODO: add the name and symbol here?
      */
     event CollectionDeployedFromL2(
         uint256 indexed reqHash,

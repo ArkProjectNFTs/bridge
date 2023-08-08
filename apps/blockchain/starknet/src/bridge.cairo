@@ -10,19 +10,19 @@
 ///! being bridged.
 
 use starknet::{ContractAddress, ClassHash};
-use starklane::protocol::BridgeRequest;
+use starklane::protocol::Request;
 
 #[starknet::interface]
 trait IBridge<T> {
     //fn on_l1_message(ref self: T) -> ContractAddress;
-    fn on_l1_message(ref self: T, req: BridgeRequest) -> ContractAddress;
+    fn on_l1_message(ref self: T, req: Request) -> ContractAddress;
 
     fn deposit_tokens(
         ref self: T,
-        req_hash: felt252,
-        collection_l2_address: ContractAddress,
-        owner_l1_address: felt252,
-        tokens_ids: Span<u256>
+        hash: felt252,
+        collection_l2: ContractAddress,
+        owner_l1: felt252,
+        token_ids: Span<u256>
     );
 
     fn set_bridge_l1_addr(ref self: T, address: felt252);
@@ -50,7 +50,7 @@ mod bridge {
     use starknet::contract_address::ContractAddressZeroable;
 
     use starklane::string::LongString;
-    use starklane::protocol::BridgeRequest;
+    use starklane::protocol::Request;
     use starklane::protocol::deploy;
     use starklane::token::erc721::{
         TokenInfo, IERC721BridgeableDispatcher, IERC721BridgeableDispatcherTrait
@@ -184,13 +184,13 @@ mod bridge {
         ref self: ContractState,
         from_address: felt252,
         payload_len: felt252,
-        req: BridgeRequest) {
+        req: Request) {
         // TODO: ensure it's the L1 bridge talking.
         super::IBridge::on_l1_message(ref self, req);
     }
 
     #[l1_handler]
-    fn deposit_from_l1(ref self: ContractState, from_address: felt252, req: BridgeRequest) {
+    fn deposit_from_l1(ref self: ContractState, from_address: felt252, req: Request) {
         // TODO: ensure it's the L1 bridge talking.
         super::IBridge::on_l1_message(ref self, req);
     }
@@ -236,47 +236,44 @@ mod bridge {
         ///
         /// TODO: Returns the contract address for testing purposes. Need to be revised.
         /// TODO: switch this to INTERNAL...!
-        fn on_l1_message(ref self: ContractState, req: BridgeRequest) -> ContractAddress {
+        fn on_l1_message(ref self: ContractState, req: Request) -> ContractAddress {
             // TODO: check header version + len?
             // Length in header may be useless, only a version to start
             // to ensure we can upgrade both side without conflict.
 
             // TODO: add a global request verificator! (no owner addr to 0, at least 1 token, etc...)
 
-            let collection_l2_address = ensure_collection_deployment(ref self, @req);
+            let collection_l2 = ensure_collection_deployment(ref self, @req);
             let collection = IERC721BridgeableDispatcher {
-                contract_address: collection_l2_address
+                contract_address: collection_l2
             };
 
             let mut i = 0;
             loop {
-                if i == req.tokens.len() {
+                if i == req.token_ids.len() {
                     break ();
                 }
 
-                let token: TokenInfo = *req.tokens[i];
-                let token_id = token.token_id;
-                let token_uri = token.token_uri;
+                let token_id = *req.token_ids[i];
+                let token_uri = *req.token_URIs[i];
 
-                let to = req.owner_l2_address;
+                let to = req.owner_l2;
                 let from = starknet::get_contract_address();
 
-                let is_escrowed = !self.escrow.read((collection_l2_address, token_id)).is_zero();
+                let is_escrowed = !self.escrow.read((collection_l2, token_id)).is_zero();
 
                 if is_escrowed {
                     collection.transfer_from(from, to, token_id);
-                    self.emit(TestEvent2 { type_1: 0x11, l2_addr: collection_l2_address });
-                // TODO: emit event.
+                    // TODO: emit event.
                 } else {
                     collection.permissioned_mint(to, token_id, token_uri);
-                    self.emit(TestEvent2 { type_1: 0x22, l2_addr: collection_l2_address });
-                // TODO: emit event.
+                    // TODO: emit event.
                 }
 
                 i += 1;
             };
 
-            collection_l2_address
+            collection_l2
         }
 
         /// Deposits tokens to be bridged on the L1.
@@ -289,36 +286,36 @@ mod bridge {
         /// TODO: The return type may be omitted, it's for debug for now.
         fn deposit_tokens(
             ref self: ContractState,
-            req_hash: felt252,
-            collection_l2_address: ContractAddress,
-            owner_l1_address: felt252,
-            tokens_ids: Span<u256>
+            hash: felt252,
+            collection_l2: ContractAddress,
+            owner_l1: felt252,
+            token_ids: Span<u256>
         ) {
             // TODO: is that correct? The deposit_tokens is called from user's account contract?
             let from = starknet::get_caller_address();
             let to = starknet::get_contract_address();
             let collection = IERC721BridgeableDispatcher {
-                contract_address: collection_l2_address
+                contract_address: collection_l2
             };
 
-            let collection_name = collection.name();
-            let collection_symbol = collection.symbol();
+            let name = collection.name();
+            let symbol = collection.symbol();
 
-            let mut tokens = ArrayTrait::<TokenInfo>::new();
+            let mut token_URIs = ArrayTrait::<LongString>::new();
             let mut i = 0;
             loop {
-                if i == tokens_ids.len() {
+                if i == token_ids.len() {
                     break ();
                 }
 
                 // TODO: Will revert if the approval missing. Do we need to check
                 // the approval explicitely? Or it's fine like this?
-                let token_id = *tokens_ids[i];
+                let token_id = *token_ids[i];
                 collection.transfer_from(from, to, token_id);
-                self.escrow.write((collection_l2_address, token_id), from);
+                self.escrow.write((collection_l2, token_id), from);
 
                 let token_uri =
-                    match erc721::token_uri_from_contract_call(collection_l2_address, token_id) {
+                    match erc721::token_uri_from_contract_call(collection_l2, token_id) {
                     Option::Some(uri) => uri,
                     Option::None(_) => {
                         // TODO: Token URI missing for the token...? Revert? Skip?
@@ -326,26 +323,27 @@ mod bridge {
                     }
                 };
 
-                tokens.append(TokenInfo { token_id, token_uri,  });
+                token_URIs.append(token_uri);
 
                 i += 1;
             };
 
-            let collection_l1_address = self.l2_to_l1_addresses.read(collection_l2_address);
+            let collection_l1 = self.l2_to_l1_addresses.read(collection_l2);
 
-            let req = BridgeRequest {
+            let req = Request {
                 // TODO: define the header content.
                 header: 0x222,
-                req_hash,
-                collection_l1_address,
-                collection_l2_address,
-                collection_name,
-                collection_symbol,
-                // TODO: to be defined with interfaces detection.
-                collection_contract_type: 'ERC721',
-                owner_l1_address,
-                owner_l2_address: from,
-                tokens: tokens.span(),
+                hash,
+                collection_l1,
+                collection_l2,
+                name,
+                symbol,
+                uri: ''.into(),
+                owner_l1,
+                owner_l2: from,
+                token_ids: token_ids,
+                token_values: ArrayTrait::<u256>::new().span(),
+                token_URIs: token_URIs.span(),
             };
 
             let mut req_buf: Array<felt252> = ArrayTrait::new();
@@ -355,7 +353,10 @@ mod bridge {
 
             // TODO: we can match the error to emit an event in case of error and an event in case
             // of success.
-            starknet::send_message_to_l1_syscall(self.bridge_l1_address.read(), req_buf.span(), )
+            starknet::send_message_to_l1_syscall(
+                self.bridge_l1_address.read(),
+                req_buf.span(),
+            )
                 .unwrap_syscall();
         }
 
@@ -445,38 +446,38 @@ mod bridge {
     ///
     /// * `req` - Request for bridging assets.
     fn ensure_collection_deployment(
-        ref self: ContractState, req: @BridgeRequest
+        ref self: ContractState, req: @Request
     ) -> ContractAddress {
-        let collection_l2_addr = verify_request_mapping_addresses(
-            @self, *req.collection_l1_address, *req.collection_l2_address
+        let collection_l2 = verify_request_mapping_addresses(
+            @self, *req.collection_l1, *req.collection_l2
         );
 
-        if !collection_l2_addr.is_zero() {
-            return collection_l2_addr;
+        if !collection_l2.is_zero() {
+            return collection_l2;
         }
 
         // TODO: check if pedersen if strong enough here, or do we need poseidon on
         // all the request? (which can be nice, in order to include the req_hash)
-        let salt = pedersen(*req.collection_l1_address, *req.owner_l1_address);
+        let salt = pedersen(*req.collection_l1, *req.owner_l1);
 
         let l2_addr_from_deploy = deploy::deploy_erc721_bridgeable(
             self.erc721_bridgeable_class.read(),
             salt,
-            *req.collection_name,
-            *req.collection_symbol,
+            *req.name,
+            *req.symbol,
             starknet::get_contract_address(),
         );
 
-        self.l1_to_l2_addresses.write(*req.collection_l1_address, l2_addr_from_deploy);
-        self.l2_to_l1_addresses.write(l2_addr_from_deploy, *req.collection_l1_address);
+        self.l1_to_l2_addresses.write(*req.collection_l1, l2_addr_from_deploy);
+        self.l2_to_l1_addresses.write(l2_addr_from_deploy, *req.collection_l1);
 
         self
             .emit(
                 CollectionDeployedFromL1 {
-                    l1_addr: *req.collection_l1_address,
+                    l1_addr: *req.collection_l1,
                     l2_addr: l2_addr_from_deploy,
-                    name: *req.collection_name,
-                    symbol: *req.collection_symbol
+                    name: *req.name,
+                    symbol: *req.symbol
                 }
             );
 

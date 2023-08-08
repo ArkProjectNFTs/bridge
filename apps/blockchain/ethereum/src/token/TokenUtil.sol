@@ -84,6 +84,11 @@ library TokenUtil {
 
         IERC721Metadata c = IERC721Metadata(collection);
 
+        // TODO: check how the URI must be handled.
+        // a base URI is already present, we can ignore individual URI?
+        // Or, each token URI must be bridged and then the owner of the collection
+        // can decide what to do?
+
         string[] memory URIs = new string[](tokenIds.length);
 
         for (uint256 i = 0; i < tokenIds.length; i++) {
