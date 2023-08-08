@@ -39,7 +39,7 @@ contract Deploy is Script {
         address proxyAddress = config.starklaneL1ProxyAddress;
 
         // Depending on the configuration, the proxy is also deployed.
-        // If already deployed, only the upgrade and call to initialize function.
+        // If already deployed, only upgrade and call to initialize function.
         if (proxyAddress == address(0x0)) {
             proxyAddress = address(new ERC1967Proxy(impl, dataInit));
         } else {
