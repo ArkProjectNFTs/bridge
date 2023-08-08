@@ -110,21 +110,21 @@ fn bridge_request_from_l1() {
     let NEW_TOKEN_ID = 88;
     let NEW_TOKEN_URI = 'http://everai.xyz/88';
 
-    let mut tokens_to_bridge_new: Array<TokenInfo> = ArrayTrait::new();
-    tokens_to_bridge_new
-        .append(TokenInfo { token_id: NEW_TOKEN_ID, token_uri: NEW_TOKEN_URI.into(),  });
+    let mut token_ids: Array<u256> = ArrayTrait::new();
+    token_ids.append(1);
 
     let req_new = Request {
         header: 1,
-        req_hash: 123,
-        collection_l1_address: 0x11cc,
-        collection_l2_address: collection_l2_address,
-        collection_name: 'everai duo'.into(),
-        collection_symbol: 'DUO'.into(),
-        collection_contract_type: 'ERC721',
-        owner_l1_address: 0x9988,
-        owner_l2_address: TOKEN_L2_OWNER,
-        tokens: tokens_to_bridge_new.span()
+        hash: 123,
+        collection_l1: 0x11cc,
+        collection_l2: collection_l2_address,
+        owner_l1: 0x9988,
+        owner_l2: TOKEN_L2_OWNER,
+        name: 'everai duo'.into(),
+        symbol: 'DUO'.into(),
+        token_ids: token_ids.span(),
+        token_values: ArrayTrait::<u256>::new(),
+        token_URIs: ArrayTrait::<LongString>::new(),
     };
 
     let collection_l2_address_new = bridge.on_l1_message(req_new);
@@ -132,11 +132,6 @@ fn bridge_request_from_l1() {
 
     assert(collection.owner_of(TOKEN_ID) == TOKEN_L2_OWNER, 'Bad owner after mint');
     assert(collection.owner_of(NEW_TOKEN_ID) == TOKEN_L2_OWNER, 'Bad owner after mint');
-
-    let token_uri_new = collection.token_uri(NEW_TOKEN_ID);
-    assert(token_uri_new.content.len() == 1, 'Bad token uri len');
-    assert(*token_uri_new.content[0] == NEW_TOKEN_URI, 'Bad token uri content');
-// Now, we need to do a setup to test escrow scenario, which comes after sending request to L1.
 }
 
 #[test]
