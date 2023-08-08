@@ -9,8 +9,7 @@ import "./token/CollectionManager.sol";
 import "./Protocol.sol";
 import "./State.sol";
 import "./Escrow.sol";
-import "./Events.sol";
-import "./Withdraw.sol";
+import "./Messaging.sol";
 import "./UUPSProxied.sol";
 
 import "starknet/IStarknetMessaging.sol";
@@ -18,7 +17,25 @@ import "starknet/IStarknetMessaging.sol";
 /**
    @title Starklane bridge contract.
 */
-contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEvents, StarklaneEscrow, StarklaneWithdraw, CollectionManager {
+contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEscrow, StarklaneMessaging, CollectionManager {
+
+    /**
+       @notice Request initiated on L1.
+    */
+    event DepositRequestInitiated(
+        uint256 indexed hash,
+        uint256 block_timestamp,
+        uint256[] reqContent
+    );
+
+    /**
+       @notice Request initiated on L1.
+    */
+    event WithdrawRequestCompleted(
+        uint256 indexed hash,
+        uint256 block_timestamp,
+        uint256[] reqContent
+    );
 
     /**
        @notice Initializes the implementation, only callable once.
@@ -80,7 +97,9 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEvents, Stark
 
         Request memory req;
 
-        // TODO: expose options like depositAutoBurn and withdrawQuick.
+        // The withdrawQuick is only available for request originated from
+        // Starknet side as the withdraw on starknet is automatically done
+        // by the sequencer.
         req.header = Protocol.requestHeaderV1(ctype, useAutoBurn, false);
         req.hash = Protocol.requestHash(salt, collectionL1, ownerL2, ids);
         req.collectionL1 = collectionL1;
@@ -109,7 +128,7 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEvents, Stark
             payload
         );
 
-        // Emit event.
+        emit DepositRequestInitiated(felt252.unwrap(req.hash), block.timestamp, payload);
     }
 
     /**
@@ -169,6 +188,8 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEvents, Stark
                 IERC721Bridgeable(collectionL1).mintFromBridge(req.ownerL1, id);
             }
         }
+
+        emit WithdrawRequestCompleted(felt252.unwrap(req.hash), block.timestamp, request);
 
         return collectionL1;
     }

@@ -25,7 +25,7 @@ uint256 constant QUICK_WITHDRAWN = 0x02;
 
    For this reason, we use here a enum-like to ensure the correct state of the message.
 */
-contract StarklaneWithdraw is Ownable {
+contract StarklaneMessaging is Ownable {
 
     // Messages sent directly from L2 indexer, that can be withdrawn with
     // the QUICK method.
