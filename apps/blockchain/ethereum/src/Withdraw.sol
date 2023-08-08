@@ -11,8 +11,8 @@ import "./sn/Cairo.sol";
 uint256 constant QUICK_NONE = 0x00;
 // When set to QUICK_AVAILABLE, tokens can be withdrawn.
 uint256 constant QUICK_AVAILABLE = 0x01;
-// When set to QUICK_DONE, token were withdrawn.
-uint256 constant QUICK_DONE = 0x02;
+// When set to QUICK_WITHDRAWN, token were withdrawn.
+uint256 constant QUICK_WITHDRAWN = 0x02;
 
 /**
    @title Contract responsible of withdrawing token from messaging.
@@ -37,8 +37,6 @@ contract StarklaneWithdraw is Ownable {
      */
     event MessageHashAddedQuick(bytes32 msgHash);
 
-    event DebugMsg(bytes32 msgHash);
-
     /**
        @notice Adds the hash of a message that can be consumed with the QUICK
        method.
@@ -56,7 +54,7 @@ contract StarklaneWithdraw is Ownable {
 
         require(
             _withdrawQuick[hash] == QUICK_NONE,
-            "QUICK_NONE expected to register a new message."
+            "QUICK_NONE is expected to register a new message."
         );
 
         _withdrawQuick[hash] = QUICK_AVAILABLE;
@@ -83,14 +81,15 @@ contract StarklaneWithdraw is Ownable {
                 request)
         );
 
-        emit DebugMsg(msgHash);
+        uint256 quickStatus = _withdrawQuick[msgHash];
 
-        require(
-            _withdrawQuick[msgHash] == QUICK_AVAILABLE,
-            "Tokens from this request cannot be withdrawn with the QUICK method."
-        );
+        if (quickStatus == QUICK_NONE) {
+            revert("Tokens from this request cannot be withdrawn with the QUICK method.");
+        } else if (quickStatus == QUICK_WITHDRAWN) {
+            revert("Tokens from this request were already withdrawn.");
+        }
 
-        _withdrawQuick[msgHash] = QUICK_DONE;
+        _withdrawQuick[msgHash] = QUICK_WITHDRAWN;
     }
 
     /**
@@ -117,7 +116,7 @@ contract StarklaneWithdraw is Ownable {
         // starknet method is denied.
         require(
             _withdrawQuick[msgHash] == QUICK_NONE,
-            "Tokens from this request cannot be withdraw with the STARKNET method."
+            "Tokens from this request cannot be withdrawn with the STARKNET method."
         );
     }
 

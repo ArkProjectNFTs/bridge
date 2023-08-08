@@ -19,6 +19,17 @@ contract CollectionManager {
     mapping(address => snaddress) _l1ToL2Addresses;
 
     /**
+       @notice A collection has been deployed due to the
+       first token being bridged from L2.
+     */
+    event CollectionDeployedFromL2(
+        uint256 indexed reqHash,
+        uint256 block_timestamp,
+        address l1Address,
+        uint256 l2Address
+    );
+
+    /**
        @notice Deploys ERC721Bridgeable contracts.
 
        @param name Descriptive name of the collection.
@@ -40,7 +51,12 @@ contract CollectionManager {
         address proxy = Deployer.deployERC721Bridgeable(name, symbol);
         _l1ToL2Addresses[proxy] = collectionL2;
 
-        // TODO: Emit event with reqHash.
+        emit CollectionDeployedFromL2(
+            felt252.unwrap(reqHash),
+            block.timestamp,
+            proxy,
+            snaddress.unwrap(collectionL2)
+        );
 
         return proxy;
     }
@@ -65,7 +81,12 @@ contract CollectionManager {
         address proxy = Deployer.deployERC1155Bridgeable(uri);
         _l1ToL2Addresses[proxy] = collectionL2;
 
-        // TODO: Emit event with reqHash.
+        emit CollectionDeployedFromL2(
+            felt252.unwrap(reqHash),
+            block.timestamp,
+            proxy,
+            snaddress.unwrap(collectionL2)
+        );
 
         return proxy;
     }

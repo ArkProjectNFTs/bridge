@@ -9,6 +9,7 @@ import "../src/IStarklane.sol";
 import "../src/Bridge.sol";
 import "../src/sn/Cairo.sol";
 import "../src/sn/StarknetMessagingLocal.sol";
+import "../src/sn/IStarknetMessagingLocal.sol";
 import "../src/token/Deployer.sol";
 import "../src/token/TokenUtil.sol";
 
@@ -24,6 +25,7 @@ contract BridgeTest is Test {
     address bridge;
     address erc721C1;
     address erc1155C1;
+    address snCore;
 
     address payable internal alice;
     address payable internal bob;
@@ -38,7 +40,7 @@ contract BridgeTest is Test {
         // "Regular" collections, not controlled by the bridge.
         erc721C1 = address(new ERC721MintFree("name 1", "S1"));
 
-        address snCoreAddress = address(new StarknetMessagingLocal());
+        snCore = address(new StarknetMessagingLocal());
 
         address impl = address(new Starklane());
         
@@ -46,7 +48,7 @@ contract BridgeTest is Test {
             Starklane.initialize.selector,
             abi.encode(
                 address(this),
-                snCoreAddress,
+                snCore,
                 0x1,
                 0x2
             )
@@ -154,7 +156,35 @@ contract BridgeTest is Test {
         // as QUICK message.
 
         IStarklane(bridge).addMessageHashForQuick(uint256(msgHash));
+        address collection = IStarklane(bridge).withdrawTokens(reqSerialized);
 
+        // TODO: add verification of event emission.
+
+        assertEq(IERC721(collection).ownerOf(888), bob);
+
+        vm.expectRevert(bytes("Tokens from this request were already withdrawn."));
+        IStarklane(bridge).withdrawTokens(reqSerialized);
+    }
+
+    // Test a withdraw STARKNET that will trigger the deploy of a new collection on L1.
+    function test_withdrawTokensERC721StarknetWithdrawDeploy() public {
+        // Build the request and compute it's "would be" message hash.
+        felt252 header = Protocol.requestHeaderV1(CollectionType.ERC721, false, false);
+        Request memory req = buildRequestDeploy(header, 888, bob);
+        uint256[] memory reqSerialized = Protocol.requestSerialize(req);
+        bytes32 msgHash = computeMessageHashFromL2(reqSerialized);
+
+        // The message must be simulated to come from starknet verifier contract
+        // on L1 and pushed to starknet core.
+        IStarknetMessagingLocal(snCore).addMessageHashFromL2(uint256(msgHash));
+        address collection = IStarklane(bridge).withdrawTokens(reqSerialized);
+
+        // TODO: add verification of event emission.
+
+        assertEq(IERC721(collection).ownerOf(888), bob);
+
+        // Error message from Starknet Core expected.
+        vm.expectRevert(bytes("INVALID_MESSAGE_TO_CONSUME"));
         IStarklane(bridge).withdrawTokens(reqSerialized);
     }
 

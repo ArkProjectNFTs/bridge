@@ -5,17 +5,6 @@ pragma solidity ^0.8.0;
 contract StarklaneEvents {
 
     /* /\* */
-    /*  * Emitted when a collection is deployed due to the */
-    /*  * first token being bridged from L2. */
-    /*  *\/ */
-    /* event CollectionDeployedFromL2( */
-    /*     uint256 indexed reqHash, */
-    /*     uint256 block_timestamp, */
-    /*     address l1Address, */
-    /*     uint256 l2Address */
-    /* ); */
-
-    /* /\* */
     /*  * Emitted when a bridge request is claimed by a user. */
     /*  *\/ */
     /* event BridgeRequestClaimed( */

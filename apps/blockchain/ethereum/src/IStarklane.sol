@@ -16,14 +16,14 @@ interface IStarklane {
        @param collectionL1 Address of the collection contract.
        @param ownerL2 New owner address on Starknet.
        @param ids Ids of the token to transfer. At least 1 token is required.
-       @param useWithdrawQuick If the quick withdraw method is selected.
+       @param useAutoBurn If true, ensures the token is burnt after being bridged.
     */
     function depositTokens(
         uint256 salt,
         address collectionL1,
         snaddress ownerL2,
         uint256[] calldata ids,
-        bool useWithdrawQuick
+        bool useAutoBurn
     )
         external
         payable;
@@ -37,7 +37,8 @@ interface IStarklane {
         uint256[] calldata request
     )
         external
-        payable;
+        payable
+        returns (address);
 
     /**
        @notice Adds the hash of a message that can be consumed with the QUICK

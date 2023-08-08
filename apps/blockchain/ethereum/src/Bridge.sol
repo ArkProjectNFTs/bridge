@@ -64,7 +64,7 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEvents, Stark
         address collectionL1,
         snaddress ownerL2,
         uint256[] calldata ids,
-        bool useWithdrawQuick
+        bool useAutoBurn
     )
         external
         payable
@@ -81,7 +81,7 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEvents, Stark
         Request memory req;
 
         // TODO: expose options like depositAutoBurn and withdrawQuick.
-        req.header = Protocol.requestHeaderV1(ctype, false, useWithdrawQuick);
+        req.header = Protocol.requestHeaderV1(ctype, useAutoBurn, false);
         req.hash = Protocol.requestHash(salt, collectionL1, ownerL2, ids);
         req.collectionL1 = collectionL1;
         req.collectionL2 = _l1ToL2Addresses[collectionL1];
@@ -116,12 +116,15 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEvents, Stark
        @notice Withdraw tokens received from L2.
 
        @param request Serialized request containing the tokens to be withdrawed. 
+
+       @return Address of the collection targetted by the request (or newly deployed).
     */
     function withdrawTokens(
         uint256[] calldata request
     )
         external
         payable
+        returns (address)
     {
         // Header is always the first uint256 of the serialized request.
         uint256 header = request[0];
@@ -166,6 +169,8 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEvents, Stark
                 IERC721Bridgeable(collectionL1).mintFromBridge(req.ownerL1, id);
             }
         }
+
+        return collectionL1;
     }
 
 }
