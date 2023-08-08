@@ -284,6 +284,7 @@ mod bridge {
         /// * `tokens_ids` - Tokens to be bridged on L1.
         ///
         /// TODO: The return type may be omitted, it's for debug for now.
+        /// TODO: add the useWithdrawQuick boolean + useAutoBurn on deposit too.
         fn deposit_tokens(
             ref self: ContractState,
             hash: felt252,
