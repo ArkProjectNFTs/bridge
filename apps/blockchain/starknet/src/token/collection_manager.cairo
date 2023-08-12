@@ -3,7 +3,10 @@ use traits::Into;
 use array::{ArrayTrait, SpanTrait};
 use result::ResultTrait;
 use option::OptionTrait;
-use starknet::{ContractAddress, ClassHash};
+use zeroable::Zeroable;
+use starknet::{ContractAddress, ClassHash, EthAddress};
+use starknet::contract_address::ContractAddressZeroable;
+use starknet::eth_address::EthAddressZeroable;
 use starklane::string::{LongString, SpanFeltSerializedTryIntoLongString};
 
 /// Returns a new URI after a call to
@@ -19,7 +22,7 @@ use starklane::string::{LongString, SpanFeltSerializedTryIntoLongString};
 /// * `collection_address` - Collection address of the collection.
 /// * `token_id` - Token id.
 fn token_uri_from_contract_call(
-    collection_address: ContractAddress, token_id: u256, 
+    collection_address: ContractAddress, token_id: u256,
 ) -> Option<LongString> {
     // TODO: add the interface detection when the standard is out.
 
@@ -40,7 +43,7 @@ fn token_uri_from_contract_call(
         Result::Ok(span) => SpanFeltSerializedTryIntoLongString::try_into(span),
         Result::Err(e) => {
             match starknet::call_contract_syscall(
-                collection_address, tokenUri_selector, calldata, 
+                collection_address, tokenUri_selector, calldata,
             ) {
                 Result::Ok(span) => SpanFeltSerializedTryIntoLongString::try_into(span),
                 Result::Err(e) => {
@@ -83,3 +86,44 @@ fn deploy_erc721_bridgeable(
     }
 }
 
+/// Returns the contract address of the collection on starknet.
+/// If the collection is already mapped, the address is returned,
+/// 0x0 otherwise meaning that a collection must be deployed.
+///
+/// # Arguments
+///
+/// * `l1_req` - Contract address on L1 value into the request.
+/// * `l2_req` - Contract address on L2 value into the request.
+/// * `l1_bridge` - Contract address on L1 in the bridge storage.
+/// * `l2_bridge` - Contract address on L2 in the bridge storage.
+fn verify_collection_address(
+    l1_req: EthAddress,
+    l2_req: ContractAddress,
+    l1_bridge: EthAddress,
+    l2_bridge: ContractAddress,
+) -> ContractAddress {
+
+    // L1 address must always be set as we receive the request from L1.
+    if l1_req.is_zero() {
+        panic_with_felt252('L1 address cannot be 0');
+    }
+
+    // L1 address is present in the request and L2 address is not.
+    if l2_req.is_zero() {
+        if l2_bridge.is_zero() {
+            // It's the first token of the collection to be bridged.
+            return ContractAddressZeroable::zero();
+        }
+    } else {
+        // L1 address is present, and L2 address too.
+        if l2_bridge != l2_req {
+            panic_with_felt252('Invalid collection L2 address');
+        }
+
+        if l1_bridge != l1_req {
+            panic_with_felt252('Invalid collection L1 address');
+        }
+    }
+
+    l2_bridge
+}
