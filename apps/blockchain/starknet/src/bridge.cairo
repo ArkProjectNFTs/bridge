@@ -11,7 +11,7 @@ mod starklane {
     use starknet::contract_address::ContractAddressZeroable;
     use starknet::eth_address::EthAddressZeroable;
 
-    use starklane::interfaces::IStarklane;
+    use starklane::interfaces::{IStarklane, IUpgradeable};
     use starklane::string::LongString;
     use starklane::request::{
         Request,
@@ -111,6 +111,7 @@ mod starklane {
         assert(self.bridge_l1_address.read().into() == from_address,
                'Invalid L1 msg sender');
 
+        // TODO: recompute HASH to ensure data are not altered.
         // TODO: Validate all fields the request (cf. FSM).
 
         let collection_l2 = ensure_erc721_deployment(ref self, @req);
@@ -153,6 +154,21 @@ mod starklane {
             // TODO: check if we do need to have the whole request each time..
             req_content: buf.span()
         });
+    }
+
+    #[external(v0)]
+    impl BridgeUpgradeImpl of IUpgradeable<ContractState> {
+        fn upgrade(ref self: ContractState, class_hash: ClassHash) {
+            assert(
+                starknet::get_caller_address() == self.bridge_admin.read(),
+                'Unauthorized replace class'
+            );
+
+            match starknet::replace_class_syscall(class_hash) {
+                Result::Ok(_) => (), // emit event
+                Result::Err(revert_reason) => panic(revert_reason),
+            };
+        }
     }
 
     #[external(v0)]
