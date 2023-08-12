@@ -6,7 +6,7 @@ use option::OptionTrait;
 use array::{ArrayTrait, SpanTrait};
 use starknet::{ContractAddress, EthAddress};
 use poseidon::poseidon_hash_span;
-use keccak::keccak_u256s_be_inputs;
+use keccak::{keccak_u256s_be_inputs, keccak_u256s_le_inputs};
 
 use starklane::token::collection_manager::CollectionType;
 use starklane::string::LongString;
@@ -152,8 +152,11 @@ fn compute_request_hash(
 ) -> u256 {
     let c_felt: felt252 = collection.into();
     let mut buf: Array<u256> = array![salt.into(), c_felt.into(), to_l1_address.address.into()];
-    let mut i: usize = 1;
 
+    // Don't add the length of the array because we use abi.encodePacked,
+    // where arrays are encoded without length.
+
+    let mut i: usize = 0;
     loop {
         if i == token_ids.len() {
             break ();
@@ -164,9 +167,13 @@ fn compute_request_hash(
     };
 
     let mut span = buf.span();
-    // TODO: check to not clear the first byte and change the
-    // hash to u256 instead.
-    keccak_u256s_be_inputs(span)
+    let hash = keccak_u256s_be_inputs(span);
+
+    // Ensure keccak endianness compatibility.
+    u256 {
+        low: integer::u128_byte_reverse(hash.high),
+        high: integer::u128_byte_reverse(hash.low)
+    }
 }
 
 
@@ -268,10 +275,10 @@ mod tests {
 
     #[test]
     fn compute_request_hash_test() {
-        let salt = 0xaa;
-        let collection = starknet::contract_address_const::<0x11>();
-        let to_l1_address: EthAddress = 0x22.try_into().unwrap();
-        let ids: Array<u256> = array![1, 2];
+        let salt = 123;
+        let collection = starknet::contract_address_const::<0>();
+        let to_l1_address: EthAddress = 1.try_into().unwrap();
+        let ids: Array<u256> = array![88];
 
         let class_hash = declare('contract_req_test');
         let prepared = PreparedContract {
@@ -289,7 +296,8 @@ mod tests {
             ids.span()
         );
 
-        hash.print();
+        assert(hash == 0xbb7ca67ee263bd2bb68dc88b530300222a3700bceca4e537079047fff89a0402_u256,
+               'Invalid req hash');
     }
 
     /// Should deserialize from buffer.

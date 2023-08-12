@@ -145,7 +145,7 @@ library Protocol {
         bytes32 hash = keccak256(
             abi.encodePacked(
                 salt,
-                collection,
+                uint256(uint160(collection)),
                 snaddress.unwrap(toL2Address),
                 tokenIds
             )
