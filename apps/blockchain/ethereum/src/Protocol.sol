@@ -145,6 +145,8 @@ library Protocol {
         bytes32 hash = keccak256(
             abi.encodePacked(
                 salt,
+                // Cairo uses felts, which are converted into u256 to compute keccak.
+                // As we use abi.encodePacked, we want the address to also be 32 bytes long.
                 uint256(uint160(collection)),
                 snaddress.unwrap(toL2Address),
                 tokenIds

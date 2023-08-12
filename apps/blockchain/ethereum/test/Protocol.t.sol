@@ -119,7 +119,7 @@ contract ProtocolTest is Test {
 
         assertEq(
             hash,
-            0x7284aebe52e7140a6922182249b906caf91e5ec86fc5b380a39e54edfa85c118
+            0xbb7ca67ee263bd2bb68dc88b530300222a3700bceca4e537079047fff89a0402
         );
     }
 
