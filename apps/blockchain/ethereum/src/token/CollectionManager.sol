@@ -45,7 +45,7 @@ contract CollectionManager {
         string memory name,
         string memory symbol,
         snaddress collectionL2,
-        felt252 reqHash
+        uint256 reqHash
     )
         internal
         returns (address)
@@ -54,7 +54,7 @@ contract CollectionManager {
         _l1ToL2Addresses[proxy] = collectionL2;
 
         emit CollectionDeployedFromL2(
-            felt252.unwrap(reqHash),
+            reqHash,
             block.timestamp,
             proxy,
             snaddress.unwrap(collectionL2)
@@ -75,7 +75,7 @@ contract CollectionManager {
     function _deployERC1155Bridgeable(
         string memory uri,
         snaddress collectionL2,
-        felt252 reqHash
+        uint256 reqHash
     )
         internal
         returns (address)
@@ -84,7 +84,7 @@ contract CollectionManager {
         _l1ToL2Addresses[proxy] = collectionL2;
 
         emit CollectionDeployedFromL2(
-            felt252.unwrap(reqHash),
+            reqHash,
             block.timestamp,
             proxy,
             snaddress.unwrap(collectionL2)

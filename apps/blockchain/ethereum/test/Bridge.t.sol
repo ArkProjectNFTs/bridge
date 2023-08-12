@@ -203,7 +203,7 @@ contract BridgeTest is Test {
 
         Request memory req = Request ({
             header: header,
-            hash: Cairo.felt252Wrap(0x1),
+            hash: 0x1,
             collectionL1: address(0x0),
             collectionL2: Cairo.snaddressWrap(0x123),
             ownerL1: newOwner,

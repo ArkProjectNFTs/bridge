@@ -10,7 +10,7 @@ import "./token/TokenUtil.sol";
 */
 struct Request {
     felt252 header;
-    felt252 hash;
+    uint256 hash;
 
     address collectionL1;
     snaddress collectionL2;
@@ -140,7 +140,7 @@ library Protocol {
     )
         internal
         pure
-        returns (felt252)
+        returns (uint256)
     {
         bytes32 hash = keccak256(
             abi.encodePacked(
@@ -151,8 +151,7 @@ library Protocol {
             )
         );
 
-        uint256 hashUint = uint256(hash) & (type(uint256).max >> 8);
-        return Cairo.felt252Wrap(hashUint);
+        return uint256(hash);
     }
 
     /**
@@ -210,7 +209,7 @@ library Protocol {
 
         // Constant length part of the request.
         buf[0] = felt252.unwrap(req.header);
-        buf[1] = felt252.unwrap(req.hash);
+        buf[1] = req.hash;
 
         buf[2] = uint256(uint160(req.collectionL1));
         buf[3] = snaddress.unwrap(req.collectionL2);
@@ -250,7 +249,7 @@ library Protocol {
         Request memory req;
 
         req.header = Cairo.felt252Wrap(buf[offset++]);
-        req.hash = Cairo.felt252Wrap(buf[offset++]);
+        req.hash = buf[offset++];
 
         req.collectionL1 = address(uint160(buf[offset++]));
         req.collectionL2 = Cairo.snaddressWrap(buf[offset++]);

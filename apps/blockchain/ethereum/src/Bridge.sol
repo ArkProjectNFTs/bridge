@@ -131,7 +131,7 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEscrow, Stark
             payload
         );
 
-        emit DepositRequestInitiated(felt252.unwrap(req.hash), block.timestamp, payload);
+        emit DepositRequestInitiated(req.hash, block.timestamp, payload);
     }
 
     /**
@@ -192,7 +192,7 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEscrow, Stark
             }
         }
 
-        emit WithdrawRequestCompleted(felt252.unwrap(req.hash), block.timestamp, request);
+        emit WithdrawRequestCompleted(req.hash, block.timestamp, request);
 
         return collectionL1;
     }

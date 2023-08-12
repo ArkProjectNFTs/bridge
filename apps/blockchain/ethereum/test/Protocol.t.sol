@@ -20,7 +20,7 @@ contract ProtocolTest is Test {
 
         Request memory req = Request ({
             header: Cairo.felt252Wrap(0x1),
-            hash: Cairo.felt252Wrap(0x1),
+            hash: 0x1,
             collectionL1: address(0x0),
             collectionL2: Cairo.snaddressWrap(0x123),
             ownerL1: address(0x0),
@@ -49,7 +49,7 @@ contract ProtocolTest is Test {
 
         Request memory req = Request ({
             header: Cairo.felt252Wrap(0x1),
-            hash: Cairo.felt252Wrap(0x1),
+            hash: 0x1,
             collectionL1: address(0x0),
             collectionL2: Cairo.snaddressWrap(0x123),
             ownerL1: address(0x0),
@@ -110,7 +110,7 @@ contract ProtocolTest is Test {
         uint256[] memory ids = new uint256[](1);
         ids[0] = 88;
 
-        felt252 hash = Protocol.requestHash(
+        uint256 hash = Protocol.requestHash(
             123,
             0x0000000000000000000000000000000000000000,
             Cairo.snaddressWrap(0x1),
@@ -118,8 +118,8 @@ contract ProtocolTest is Test {
         );
 
         assertEq(
-            felt252.unwrap(hash),
-            0x0084aebe52e7140a6922182249b906caf91e5ec86fc5b380a39e54edfa85c118
+            hash,
+            0x7284aebe52e7140a6922182249b906caf91e5ec86fc5b380a39e54edfa85c118
         );
     }
 
@@ -179,7 +179,7 @@ contract ProtocolTest is Test {
         Request memory req = Protocol.requestDeserialize(data, 0);
 
         assertEq(felt252.unwrap(req.header), 0x1);
-        assertEq(felt252.unwrap(req.hash), 0x1);
+        assertEq(req.hash, 0x1);
         assertEq(req.collectionL1, address(0x0));
         assertEq(snaddress.unwrap(req.collectionL2), 0x123);
         assertEq(req.ownerL1, address(0x0));
