@@ -102,6 +102,9 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEscrow, Stark
         // by the sequencer.
         req.header = Protocol.requestHeaderV1(ctype, useAutoBurn, false);
         req.hash = Protocol.requestHash(salt, collectionL1, ownerL2, ids);
+        // TODO: store request hash in storage to avoid replay attack.
+        //       or can it be safe to use block timestamp? Not sure as
+        //       several tx may have the exact same block.
         req.collectionL1 = collectionL1;
         req.collectionL2 = _l1ToL2Addresses[collectionL1];
 

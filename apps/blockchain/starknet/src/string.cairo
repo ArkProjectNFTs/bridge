@@ -1,19 +1,34 @@
 ///! An opiniated string implementation, waiting
 ///! the long string being supported by Cairo natively.
 ///!
+///! Max size = 256 felts for now.
+///!
 ///! Can be tracked here: https://github.com/orgs/starkware-libs/projects/1/views/1
+///!
+///! LongString storage is manually handled for now.
+///! In fact, the new implementation of Store implies a fixed size.
+///! https://github.com/starkware-libs/cairo/blob/v2.1.0/corelib/src/starknet/storage_access.cairo#L64
+///!
+///! For this reason, the long strings are handled directly
+///! with storage system calls.
+///!
+///! IMPORTANT: this code will be removed once long string are supported.
 
-use debug::PrintTrait;
 use serde::Serde;
 use array::{ArrayTrait, SpanTrait};
 use integer::{U8IntoFelt252, U32IntoFelt252, Felt252TryIntoU32};
-
+use poseidon::poseidon_hash_span;
 use traits::{Into, TryInto};
 use option::OptionTrait;
-use starknet::{ContractAddress, SyscallResult, StorageAccess, StorageBaseAddress};
+use starknet::{ContractAddress, SyscallResultTrait};
+
+const LONG_STRING_BASE_KEY: felt252 = 'long string storage';
+
+// Must remain equal to 0 for now.
+const ADDRESS_DOMAIN: u32 = 0;
 
 /// LongString represented internally as a list of short string.
-#[derive(Copy, Drop)]
+#[derive(Copy, Drop, Serde)]
 struct LongString {
     // Span of felt252 (short string) to be concatenated
     // to have the complete long string.
@@ -22,111 +37,78 @@ struct LongString {
     content: Span<felt252>,
 }
 
-/// Serde implementation for LongString.
-impl LongStringSerde of serde::Serde<LongString> {
-    ///
-    fn serialize(self: @LongString, ref output: Array<felt252>) {
-        // We don't need to add the length, as the Serde
-        // for Span already add the length as the first
-        // element of the array.
-        self.content.serialize(ref output);
+/// Shortcut to access length.
+#[generate_trait]
+impl LongStringLen of LongStringLenTrait {
+    fn len(self: LongString) -> usize {
+        self.content.len()
     }
 
-    ///
-    fn deserialize(ref serialized: Span<felt252>) -> Option<LongString> {
-        // Same here, deserializing the Span gives us the len.
-        let content = Serde::<Span<felt252>>::deserialize(ref serialized)?;
-        Option::Some(LongString { content,  })
+    fn empty(self: LongString) -> bool {
+        self.content.len() == 0
     }
 }
 
-/// StorageAccess implementation for LongString.
-impl LongStringStorageAccess of starknet::StorageAccess<LongString> {
-    ///
-    fn read(
-        address_domain: u32, base: starknet::StorageBaseAddress
-    ) -> SyscallResult::<LongString> {
-        let len = StorageAccess::<u32>::read(address_domain, base)?;
-
-        let mut content: Array<felt252> = ArrayTrait::new();
-        let mut offset: u8 = 1;
-        loop {
-            if offset.into() == len + 1 {
-                break ();
-            }
-
-            match starknet::storage_read_syscall(
-                address_domain, starknet::storage_address_from_base_and_offset(base, offset)
-            ) {
-                Result::Ok(r) => content.append(r),
-                Result::Err(e) => panic(e)
-            };
-
-            offset += 1;
-        };
-
-        SyscallResult::Ok(LongString { content: content.span(),  })
+#[generate_trait]
+impl LongStringSnapLen of LongStringSnapLenTrait {
+    fn len(self: @LongString) -> usize {
+        (*self).content.len()
     }
 
-    ///
-    fn write(
-        address_domain: u32, base: StorageBaseAddress, value: LongString
-    ) -> SyscallResult::<()> {
-        StorageAccess::<u32>::write(address_domain, base, value.content.len())?;
-
-        let mut offset: u8 = 1;
-
-        loop {
-            if offset.into() == value.content.len() + 1 {
-                break ();
-            }
-
-            let index = offset - 1;
-            let ll_chunk = value.content[index.into()];
-
-            match starknet::storage_write_syscall(
-                address_domain,
-                starknet::storage_address_from_base_and_offset(base, offset),
-                *ll_chunk
-            ) {
-                Result::Ok(r) => r,
-                Result::Err(e) => panic(e),
-            }
-
-            offset += 1;
-        };
-
-        SyscallResult::Ok(())
-    }
-
-    ///
-    fn read_at_offset_internal(
-        address_domain: u32, base: StorageBaseAddress, offset: u8
-    ) -> SyscallResult<LongString> {
-        LongStringStorageAccess::read_at_offset_internal(address_domain, base, offset)
-    }
-
-    ///
-    fn write_at_offset_internal(
-        address_domain: u32, base: StorageBaseAddress, offset: u8, value: LongString
-    ) -> SyscallResult<()> {
-        LongStringStorageAccess::write_at_offset_internal(address_domain, base, offset, value)
-    }
-
-    ///
-    fn size_internal(value: LongString) -> u8 {
-        value.content.len().try_into().unwrap() + 1_u8
+    fn empty(self: @LongString) -> bool {
+        (*self).content.len() == 0
     }
 }
 
-/// LegacyHash implementation for LongString.
-impl LongStringLegacyHash of hash::LegacyHash<LongString> {
-    ///
-    fn hash(state: felt252, value: LongString) -> felt252 {
-        let mut buf: Array<felt252> = ArrayTrait::new();
-        value.serialize(ref buf);
-        let k = poseidon::poseidon_hash_span(buf.span());
-        hash::LegacyHash::hash(state, k)
+/// Shortcode to access index in long string.
+impl LongStringIndexView of IndexView<LongString, usize, @felt252> {
+    #[inline(always)]
+    fn index(self: @LongString, index: usize) -> @felt252 {
+        (*self).content.at(index)
+    }
+}
+
+/// PartialEq.
+impl LongStringPartialEq of PartialEq<LongString> {
+
+    fn eq(lhs: @LongString, rhs: @LongString) -> bool {
+
+        if lhs.len() != rhs.len() {
+            return false;
+        }
+
+        let mut i = 0;
+        loop {
+            if i == lhs.len().into() {
+                break true;
+            }
+
+            if lhs[i] != rhs[i] {
+                break false;
+            }
+
+            i += 1;
+        }
+    }
+
+    fn ne(lhs: @LongString, rhs: @LongString) -> bool {
+
+        if lhs.len() != rhs.len() {
+            return true;
+        }
+
+        let mut i = 0;
+        loop {
+            if i == lhs.len().into() {
+                break false;
+            }
+
+            if lhs[i] != rhs[i] {
+                break true;
+            }
+
+            i += 1;
+        }
     }
 }
 
@@ -195,6 +177,127 @@ impl SpanFeltSerializedTryIntoLongString of TryInto<Span<felt252>, LongString> {
     }
 }
 
+/// Reads a long string from the storage for the given keys.
+fn long_string_storage_read(key1: felt252, key2: felt252) -> LongString {
+    let key = array![LONG_STRING_BASE_KEY, key1, key2];
+
+    let base = starknet::storage_base_address_from_felt252(
+        poseidon_hash_span(key.span())
+    );
+
+    let mut offset = 0;
+
+    // We must first read the length to iterate over the offsets.
+    let length: felt252 = starknet::storage_read_syscall(
+        ADDRESS_DOMAIN,
+        starknet::storage_address_from_base_and_offset(base, offset)
+    )
+        .unwrap_syscall();
+
+    offset += 1;
+
+    let mut value = array![length];
+
+    loop {
+        // -1 as the first offset was the length, already processed.
+        if length == offset.into() - 1 {
+            break ();
+        }
+
+        value
+            .append(
+                starknet::storage_read_syscall(
+                    ADDRESS_DOMAIN,
+                    starknet::storage_address_from_base_and_offset(base, offset)
+                )
+                    .unwrap_syscall()
+            );
+
+        offset += 1;
+    };
+
+    let mut vspan = value.span();
+    Serde::<LongString>::deserialize(ref vspan).unwrap()
+}
+
+/// Writes a long string in the storage for the given keys.
+fn long_string_storage_write(key1: felt252, key2: felt252, value: LongString) {
+    let key = array![LONG_STRING_BASE_KEY, key1, key2];
+
+    let base = starknet::storage_base_address_from_felt252(
+        poseidon_hash_span(key.span())
+    );
+
+    let mut offset = 0;
+
+    // At offset 0, we always have the length, as it's how
+    // a span is serialized.
+    let mut buf = array![];
+    value.serialize(ref buf);
+
+    loop {
+        match buf.pop_front() {
+            Option::Some(v) => {
+                starknet::storage_write_syscall(
+                    ADDRESS_DOMAIN,
+                    starknet::storage_address_from_base_and_offset(base, offset),
+                    v
+                );
+                offset += 1
+            },
+            Option::None(_) => {
+                break ();
+            },
+        };
+    };
+}
+
+
+// ** TESTING **
+
+
+/// Tests contracts. Must be out of #[cfg(test)] as they are not declarable using
+/// declare cheatcode of starknet foundry if under test config.
+/// Also, we can't declare them as deploy syscall is not allowed in test (yet?).
+#[starknet::interface]
+trait IContract1<T> {
+    fn get_ll(self: @T) -> LongString;
+    fn set_ll(ref self: T, ll: LongString);
+
+    fn get_ll_value(self: @T, key: u256) -> LongString;
+    fn set_ll_value(ref self: T, key: u256, value: LongString);
+}
+
+#[starknet::contract]
+mod contract_ll_test {
+    use super::{LongString, IContract1, long_string_storage_read, long_string_storage_write};
+    use traits::Into;
+
+    #[storage]
+    struct Storage {
+
+    }
+
+    #[external(v0)]
+    impl Contract1Impl of IContract1<ContractState> {
+        fn get_ll(self: @ContractState) -> LongString {
+            long_string_storage_read(0, 1)
+        }
+
+        fn set_ll(ref self: ContractState, ll: LongString) {
+            long_string_storage_write(0, 1, ll)
+        }
+
+        fn get_ll_value(self: @ContractState, key: u256) -> LongString {
+            long_string_storage_read(key.low.into(), key.high.into())
+        }
+
+        fn set_ll_value(ref self: ContractState, key: u256, value: LongString) {
+            long_string_storage_write(key.low.into(), key.high.into(), value)
+        }
+    }
+}
+
 ///
 #[cfg(test)]
 mod tests {
@@ -204,69 +307,24 @@ mod tests {
     use traits::{Into, TryInto};
     use option::OptionTrait;
     use result::ResultTrait;
-    use super::{LongString, LongStringSerde, ArrayIntoLongString, SpanFeltTryIntoLongString};
+    use super::{
+        LongString, LongStringLenTrait, LongStringIndexView, LongStringSerde, ArrayIntoLongString, SpanFeltTryIntoLongString,
+        long_string_storage_write, long_string_storage_read, IContract1,
+        IContract1Dispatcher, IContract1DispatcherTrait
+    };
 
-    #[starknet::interface]
-    trait IContract1<T> {
-        fn get_ll(self: @T) -> LongString;
-        fn set_ll(ref self: T, ll: LongString);
+    use snforge_std::{declare, deploy, PreparedContract};
 
-        fn get_ll_value(self: @T, key: u256) -> LongString;
-        fn set_ll_value(ref self: T, key: u256, value: LongString);
-
-        fn get_ll_key(self: @T, key: LongString) -> felt252;
-        fn set_ll_key(ref self: T, key: LongString, value: felt252);
-    }
-
-    #[starknet::contract]
-    mod contract1 {
-        use super::{LongString, IContract1};
-
-        #[storage]
-        struct Storage {
-            ll: LongString,
-            uris: LegacyMap<u256, LongString>,
-            strs: LegacyMap<LongString, felt252>,
-        }
-
-        #[external(v0)]
-        impl Contract1 of IContract1<ContractState> {
-            fn get_ll(self: @ContractState) -> LongString {
-                self.ll.read()
-            }
-
-            fn set_ll(ref self: ContractState, ll: LongString) {
-                self.ll.write(ll);
-            }
-
-            fn get_ll_value(self: @ContractState, key: u256) -> LongString {
-                self.uris.read(key)
-            }
-
-            fn set_ll_value(ref self: ContractState, key: u256, value: LongString) {
-                self.uris.write(key, value);
-            }
-
-            fn get_ll_key(self: @ContractState, key: LongString) -> felt252 {
-                self.strs.read(key)
-            }
-
-            fn set_ll_key(ref self: ContractState, key: LongString, value: felt252) {
-                self.strs.write(key, value)
-            }
-        }
-    }
-
-    ///
+    /// TODO: Can't use starknet foundry here as test contracts are not yet supported.
     fn deploy_contract1() -> IContract1Dispatcher {
-        let mut calldata: Array<felt252> = ArrayTrait::new();
+        let class_hash = declare('contract_ll_test');
+        let prepared = PreparedContract {
+            class_hash: class_hash,
+            constructor_calldata: @array![]
+        };
 
-        let (addr, _) = starknet::deploy_syscall(
-            contract1::TEST_CLASS_HASH.try_into().unwrap(), 0, calldata.span(), false
-        )
-            .expect('contract1 deploy failed');
-
-        IContract1Dispatcher { contract_address: addr }
+        let contract_address = deploy(prepared).unwrap();
+        IContract1Dispatcher { contract_address }
     }
 
     /// Should correctly get LongString from storage.
@@ -275,44 +333,44 @@ mod tests {
     fn from_storage() {
         let c1: IContract1Dispatcher = deploy_contract1();
 
+        let empty: LongString = array![].into();
+        c1.set_ll(empty);
+        let mut ll = c1.get_ll();
+        assert(ll.len() == 0, 'bad empty storage');
+
         c1.set_ll('salut'.into());
+        ll = c1.get_ll();
+        assert(ll.len() == 1, 'bad len from storage');
+        assert(*ll[0] == 'salut', 'bad content from storage');
 
-        let ll = c1.get_ll();
-        assert(ll.content.len() == 1, 'bad len from storage');
-        assert(*ll.content[0] == 'salut', 'bad content from storage');
+        let token1 = 223_u256;
+        let token2 = 99988_u256;
+        c1.set_ll_value(token1, 'token1'.into());
+        c1.set_ll_value(token2, 'token2'.into());
+
+        let ll1 = c1.get_ll_value(token1);
+        assert(ll1.len() == 1, 'bad ll1 len');
+        assert(*ll1[0] == 'token1', 'bad ll1 content');
+
+        let ll2 = c1.get_ll_value(token2);
+        assert(ll2.len() == 1, 'bad ll2 len');
+        assert(*ll2[0] == 'token2', 'bad ll2 content');
+
+        assert(1 == 1, 'aaa');
     }
 
-    /// Should correctly get LongString as a value of storage legacymap.
+    /// Should init a LongString from Span<felt252>.
     #[test]
     #[available_gas(2000000000)]
-    fn from_storage_value_hashmap() {
-        let c1: IContract1Dispatcher = deploy_contract1();
+    fn partial_eq() {
+        let l1: LongString = 'abcd'.into();
+        let l2: LongString = 'abcd'.into();
+        let l3: LongString = 'edfe'.into();
+        let l4: LongString = '1102832'.into();
 
-        c1.set_ll_value(1_u256, 'salut'.into());
-
-        let ll = c1.get_ll_value(1_u256);
-        assert(ll.content.len() == 1, 'bad len from storage');
-        assert(*ll.content[0] == 'salut', 'bad content from storage');
-
-        let ll = c1.get_ll_value(2_u256);
-        assert(ll.content.len() == 0, 'bad len 0 expected');
-    }
-
-    /// Should correctly get LongString as a key of storage legacymap.
-    #[test]
-    #[available_gas(2000000000)]
-    fn from_storage_key_hashmap() {
-        let c1: IContract1Dispatcher = deploy_contract1();
-
-        let ll = 'salut'.into();
-
-        c1.set_ll_key(ll, 1234);
-
-        let f = c1.get_ll_key(ll);
-        assert(f == 1234, 'bad felt from ll value');
-
-        let f = c1.get_ll_key('blou'.into());
-        assert(f == 0, 'bad felt 0 expected');
+        assert(l1 == l2, 'bad eq');
+        assert(l1 != l3, 'bad ne same len');
+        assert(l1 != l3, 'bad ne diff len');
     }
 
     /// Should init a LongString from felt252.
@@ -320,54 +378,52 @@ mod tests {
     #[available_gas(2000000000)]
     fn from_felt252() {
         let u1: LongString = 'https:...'.into();
-        assert(u1.content.len() == 1, 'll len');
-        assert(*u1.content[0] == 'https:...', 'content 0');
+        assert(u1.len() == 1, 'll len');
+        assert(*u1[0] == 'https:...', 'content 0');
     }
 
     /// Should init a LongString from Array<felt252>.
     #[test]
     #[available_gas(2000000000)]
     fn from_array_felt252() {
-        let mut content = ArrayTrait::<felt252>::new();
-        content.append('ipfs://bafybeigdyrzt5sfp7udm7h');
-        content.append('u76uh7y26nf3efuylqabf3oclgtqy5');
-        content.append('5fbzdi');
+        let content = array![
+            'ipfs://bafybeigdyrzt5sfp7udm7h',
+            'u76uh7y26nf3efuylqabf3oclgtqy5',
+            '5fbzdi'
+        ];
 
         let u1: LongString = content.into();
-        assert(u1.content.len() == 3, 'll len');
-        assert(*u1.content[0] == 'ipfs://bafybeigdyrzt5sfp7udm7h', 'content 0');
-        assert(*u1.content[1] == 'u76uh7y26nf3efuylqabf3oclgtqy5', 'content 1');
-        assert(*u1.content[2] == '5fbzdi', 'content 2');
+        assert(u1.len() == 3, 'll len');
+        assert(*u1[0] == 'ipfs://bafybeigdyrzt5sfp7udm7h', 'content 0');
+        assert(*u1[1] == 'u76uh7y26nf3efuylqabf3oclgtqy5', 'content 1');
+        assert(*u1[2] == '5fbzdi', 'content 2');
 
-        let mut content_empty = ArrayTrait::<felt252>::new();
+        let mut content_empty = array![];
 
         let u2: LongString = content_empty.into();
-        assert(u2.content.len() == 0, 'll len');
+        assert(u2.len() == 0, 'll len');
     }
 
     /// Should init a LongString from Span<felt252>.
     #[test]
     #[available_gas(2000000000)]
     fn from_span_felt252() {
-        let mut a: Array<felt252> = ArrayTrait::new();
-        a.append('https:...');
+        let mut a: Array<felt252> = array!['https:...'];
 
         let u1: LongString = (a.span()).try_into().unwrap();
-        assert(u1.content.len() == 1, 'll len');
-        assert(*u1.content[0] == 'https:...', 'content 0');
+        assert(u1.len() == 1, 'll len');
+        assert(*u1[0] == 'https:...', 'content 0');
     }
 
     /// Should serialize a LongString.
     #[test]
     #[available_gas(2000000000)]
     fn serialize() {
-        let mut content = ArrayTrait::<felt252>::new();
-        content.append('hello');
-        content.append('world');
+        let mut content = array!['hello', 'world'];
 
         let u1: LongString = content.into();
 
-        let mut buf = ArrayTrait::<felt252>::new();
+        let mut buf = array![];
         u1.serialize(ref buf);
 
         assert(buf.len() == 3, 'Serialized buf len');
@@ -381,17 +437,13 @@ mod tests {
     #[test]
     #[available_gas(2000000000)]
     fn deserialize() {
-        let mut buf = ArrayTrait::<felt252>::new();
-        buf.append(2);
-        buf.append('hello');
-        buf.append('world');
+        let mut buf = array![2, 'hello', 'world'];
 
         let mut sp = buf.span();
 
         let ll = Serde::<LongString>::deserialize(ref sp).unwrap();
-        assert(ll.content.len() == 2, 'Bad deserialized len');
-        assert(*ll.content[0] == 'hello', 'Expected item 0');
-        assert(*ll.content[1] == 'world', 'Expected item 1');
+        assert(ll.len() == 2, 'Bad deserialized len');
+        assert(*ll[0] == 'hello', 'Expected item 0');
+        assert(*ll[1] == 'world', 'Expected item 1');
     }
 }
-

@@ -1,0 +1,14 @@
+[package]
+name = "starklane"
+version = "1.0.0"
+
+[cairo]
+sierra-replace-ids = true
+
+[dependencies]
+starknet = ">=2.0.0-rc6"
+
+[[target.starknet-contract]]
+sierra = true
+
+[lib]

@@ -1,14 +1,13 @@
 [package]
 name = "starklane"
-version = "1.0.0"
-
-[cairo]
-sierra-replace-ids = true
+version = "0.1.0"
 
 [dependencies]
-starknet = ">=2.0.0-rc6"
+starknet = ">=2.1.0"
+snforge_std = { path = "../../../../../starknet/starknet-foundry/snforge_std/" }
 
 [[target.starknet-contract]]
 sierra = true
+casm = true
 
 [lib]
