@@ -13,7 +13,12 @@ mod starklane {
 
     use starklane::interfaces::IStarklane;
     use starklane::string::LongString;
-    use starklane::request::{Request, compute_request_header_v1, compute_request_hash};
+    use starklane::request::{
+        Request,
+        compute_request_header_v1,
+        compute_request_hash,
+        collection_type_from_header,
+    };
     use starklane::token::{
         interfaces::{IERC721Dispatcher, IERC721DispatcherTrait,
                      IERC721BridgeableDispatcher, IERC721BridgeableDispatcherTrait},
@@ -62,10 +67,18 @@ mod starklane {
     enum Event {
         DepositRequestInitiated: DepositRequestInitiated,
         CollectionDeployedFromL1: CollectionDeployedFromL1,
+        WithdrawRequestCompleted: WithdrawRequestCompleted,
     }
 
     #[derive(Drop, starknet::Event)]
     struct DepositRequestInitiated {
+        hash: u256,
+        block_timestamp: u64,
+        req_content: Span<felt252>
+    }
+
+    #[derive(Drop, starknet::Event)]
+    struct WithdrawRequestCompleted {
         hash: u256,
         block_timestamp: u64,
         req_content: Span<felt252>
@@ -80,13 +93,66 @@ mod starklane {
     }
 
     /// Process message from L1 to withdraw token.
+    ///
+    /// # Arguments
+    ///
+    /// `from_address` - L1 sender address, must be Starklane L1.
+    /// `req` - The request containing tokens to bridge.
+    ///
+    /// TODO: isn't better to receive a raw Span<felt252>
+    /// to be more flexible? And the first felt25 being the header
+    /// defines how the deserialization takes place?
     #[l1_handler]
     fn withdraw_auto_from_l1(
         ref self: ContractState,
         from_address: felt252,
         req: Request
     ) {
+        assert(self.bridge_l1_address.read().into() == from_address,
+               'Invalid L1 msg sender');
 
+        // TODO: Validate all fields the request (cf. FSM).
+
+        let collection_l2 = ensure_erc721_deployment(ref self, @req);
+
+        let ctype = collection_type_from_header(req.header);
+        // TODO: check CollectionType to support ERC1155 + metadata.
+
+        let mut i = 0;
+        loop {
+            if i == req.ids.len() {
+                break ();
+            }
+
+            let token_id = *req.ids[i];
+
+            let to = req.owner_l2;
+            let from = starknet::get_contract_address();
+
+            let is_escrowed = !self.escrow.read((collection_l2, token_id)).is_zero();
+
+            if is_escrowed {
+                IERC721Dispatcher { contract_address: collection_l2 }
+                .transfer_from(from, to, token_id);
+            } else {
+                IERC721BridgeableDispatcher { contract_address: collection_l2 }
+                .mint_from_bridge(to, token_id);
+            }
+
+            i += 1;
+        };
+
+        // We have to serialize the request again to emit the event..
+        // The serialization has a high cost.
+        let mut buf = array![];
+        req.serialize(ref buf);
+
+        self.emit(WithdrawRequestCompleted {
+            hash: req.hash,
+            block_timestamp: starknet::info::get_block_timestamp(),
+            // TODO: check if we do need to have the whole request each time..
+            req_content: buf.span()
+        });
     }
 
     #[external(v0)]
@@ -241,8 +307,8 @@ mod starklane {
         let l2_req: ContractAddress = *req.collection_l2;
 
         let collection_l2 = verify_collection_address(
-            *req.collection_l1,
-            *req.collection_l2,
+            l1_req,
+            l2_req,
             self.l2_to_l1_addresses.read(l2_req),
             self.l1_to_l2_addresses.read(l1_req.into()),
         );
