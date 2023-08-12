@@ -9,6 +9,12 @@ use starknet::contract_address::ContractAddressZeroable;
 use starknet::eth_address::EthAddressZeroable;
 use starklane::string::{LongString, SpanFeltSerializedTryIntoLongString};
 
+#[derive(Drop, PartialEq)]
+enum CollectionType {
+    ERC721: (),
+    ERC1155: (),
+}
+
 /// Returns a new URI after a call to
 /// the contract expected to support ERC721 metadata.
 ///
