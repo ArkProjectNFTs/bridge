@@ -110,7 +110,7 @@ fn collection_type_from_header(header: felt252) -> CollectionType {
 /// * `ctype` - Collection type.
 /// * `use_deposit_burn_auto` - Enables burn auto in the header.
 /// * `use_withdraw_auto` - Enables withdraw auto in the header.
-fn request_header_v1(
+fn compute_request_header_v1(
     ctype: CollectionType,
     use_deposit_burn_auto: bool,
     use_withdraw_auto: bool,
@@ -229,7 +229,7 @@ mod tests {
     use super::{
         Request, WITHDRAW_AUTO, DEPOSIT_AUTO_BURN, ERC721_TYPE, ERC1155_TYPE,
         can_use_withdraw_auto, collection_type_from_header,
-        request_header_v1, compute_request_hash,
+        compute_request_header_v1, compute_request_hash,
         contract_req_test, IContractRequestDispatcher, IContractRequestDispatcherTrait,
     };
 
@@ -265,7 +265,7 @@ mod tests {
 
     #[test]
     fn request_header_v1_test() {
-        let h = request_header_v1(CollectionType::ERC721, false, false);
+        let h = compute_request_header_v1(CollectionType::ERC721, false, false);
         assert(collection_type_from_header(h) == CollectionType::ERC721, 'Invalid ERC721 CT');
         assert(!can_use_withdraw_auto(h), 'Withdraw auto fail');
 

@@ -8,11 +8,70 @@ use starknet::{ContractAddress, ClassHash, EthAddress};
 use starknet::contract_address::ContractAddressZeroable;
 use starknet::eth_address::EthAddressZeroable;
 use starklane::string::{LongString, SpanFeltSerializedTryIntoLongString};
+use super::interfaces::{IERC721Dispatcher, IERC721DispatcherTrait};
 
 #[derive(Drop, PartialEq)]
 enum CollectionType {
     ERC721: (),
     ERC1155: (),
+}
+
+#[derive(Drop)]
+struct ERC721Metadata {
+    name: LongString,
+    symbol: LongString,
+    base_uri: LongString,
+    uris: Span<LongString>,
+}
+
+/// Extracts metadata of the given ERC721 contract.
+///
+/// # Arguments
+///
+/// * `erc721` - Dispatcher of ERC721 contract.
+/// * `token_ids` - An optional list of token to extract individual URI.
+fn erc721_metadata(
+    contract_address: ContractAddress,
+    token_ids: Option<Span<u256>>
+) -> Option<ERC721Metadata> {
+    let erc721 = IERC721Dispatcher { contract_address };
+
+    let uris = match token_ids {
+        Option::Some(ids) => {
+            let mut out_uris = array![];
+            let mut i = 0_usize;
+            loop {
+                if i == ids.len() {
+                    break ();
+                }
+
+                let token_id = *ids[i];
+                let token_uri =
+                    match token_uri_from_contract_call(erc721.contract_address, token_id) {
+                        Option::Some(uri) => uri,
+                        Option::None => ''.into(),
+                    };
+
+                out_uris.append(token_uri);
+
+                i += 1;
+            };
+
+            out_uris.span()
+        },
+        Option::None => {
+            array![].span()
+        }
+    };
+
+    Option::Some(
+        ERC721Metadata {
+            name: erc721.name(),
+            symbol: erc721.symbol(),
+            base_uri: ''.into(),
+            uris
+        }
+    )
 }
 
 /// Returns a new URI after a call to
@@ -28,7 +87,8 @@ enum CollectionType {
 /// * `collection_address` - Collection address of the collection.
 /// * `token_id` - Token id.
 fn token_uri_from_contract_call(
-    collection_address: ContractAddress, token_id: u256,
+    collection_address: ContractAddress,
+    token_id: u256,
 ) -> Option<LongString> {
     // TODO: add the interface detection when the standard is out.
 
