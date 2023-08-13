@@ -97,8 +97,12 @@ TODO: May we consider separating a `burn` and `burn-auto`? To allow the same tra
 A `request` is identified by a `hash`. This hash is derived from the content of the request (token ids, owners, etc..), but also depends on a salt provided by the originator of the transaction. This salt is here because as some tokens may be in escrow, they can be bridge several time, in several directions. So the request may have the exact same content as a previous request. To ensure uniqueness of each request, this salt is used. An any attempt to replay a request with the same salt is denied.
 The hash computation includes only one collection address, the collection address on the chain where tokens are deposited. This ensures uniqueness between chains without having to consult an external database.
 
+# FSM
+
+You can find a first representation of the FMS on this [figma](https://www.figma.com/file/esIDAZS1UySOAtq7hMa5xQ/FSM-For-Starklane---L1---L2?type=whiteboard&node-id=0-1&t=LqPt9ELDlcVdz29t-0).
+We're currently reviewing and we will detail more some steps to ensure a better preparation for the audit and easier for someone to dive into the project.
+
 # TODOs
-- [ ] Add link to figma FSM.
 - [ ] Review linear / github issue.
 - [ ] Add forge binary with l2_handler_caller for CI (waiting the PR to be merged).
 - [ ] Rework ethereum to optimize size of contrat.
