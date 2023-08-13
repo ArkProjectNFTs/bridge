@@ -3,6 +3,11 @@
 
 # ... I need to code the starknet foundry broadcasting. <3
 
+# We can use script to log properly with colors in output files.
+#	script -q -c "starkli declare $(contract) ${priv_key}" ${logfile}
+# but we need to disable this when katana is used. To avoid too much logs on dev.
+# mostly done for testnet and mainnet to avoid losing addresses.
+
 CLEAN_CONFIG:=$(shell rm -f .env)
 COPY_CONFIG:=$(shell cp $(config) .env)
 
@@ -15,6 +20,9 @@ normal := "\\033[0m"
 
 bridge_class_hash := $(shell starkli class-hash target/dev/starklane_bridge.sierra.json)
 erc721b_class_hash := $(shell starkli class-hash target/dev/starklane_erc721_bridgeable.sierra.json)
+
+timestamp = $(shell date "+%d-%m-%Y_%H-%M-%S")
+logfile = logs/${timestamp}.txt
 
 # If a keystore is passed instead of a private key -> ask for the password.
 ifndef STARKNET_KEYSTORE
