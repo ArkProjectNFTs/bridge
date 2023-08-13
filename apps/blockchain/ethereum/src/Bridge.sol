@@ -14,6 +14,9 @@ import "./UUPSProxied.sol";
 
 import "starknet/IStarknetMessaging.sol";
 
+error NotSupportedYetError();
+error CollectionMappingError();
+
 /**
    @title Starklane bridge contract.
 */
@@ -86,13 +89,9 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEscrow, Stark
         external
         payable
     {
-        require(collectionL1 > address(0), "Bad contract L1 address.");
-        require(salt != 0, "Request salt must be greater that 0.");
-        require(ids.length > 0, "At least one token must be bridged.");
-
         CollectionType ctype = TokenUtil.detectInterface(collectionL1);
         if (ctype == CollectionType.ERC1155) {
-            revert("ERC1155: not supported yet, work in progress.");
+            revert NotSupportedYetError();
         }
 
         Request memory req;
@@ -108,12 +107,11 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEscrow, Stark
         req.collectionL1 = collectionL1;
         req.collectionL2 = _l1ToL2Addresses[collectionL1];
 
-        address ownerL1 = msg.sender;
-        req.ownerL1 = ownerL1;
+        req.ownerL1 = msg.sender;
         req.ownerL2 = ownerL2;
 
         if (ctype == CollectionType.ERC721) {
-            (req.name, req.symbol, req.tokenURIs) = TokenUtil.erc721Metadata(
+            (req.name, req.symbol) = TokenUtil.erc721Metadata(
                 collectionL1,
                 ids
             );
@@ -122,6 +120,8 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEscrow, Stark
         }
 
         _depositIntoEscrow(ctype, collectionL1, ids);
+
+        req.tokenIds = ids;
 
         uint256[] memory payload = Protocol.requestSerialize(req);
 

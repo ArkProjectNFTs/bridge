@@ -14,6 +14,9 @@ uint256 constant QUICK_AVAILABLE = 0x01;
 // When set to QUICK_WITHDRAWN, token were withdrawn.
 uint256 constant QUICK_WITHDRAWN = 0x02;
 
+error WithdrawMethodError();
+error WithdrawAlreadyError();
+
 /**
    @title Contract responsible of withdrawing token from messaging.
 
@@ -52,10 +55,9 @@ contract StarklaneMessaging is Ownable {
     {
         bytes32 hash = bytes32(msgHash);
 
-        require(
-            _withdrawQuick[hash] == QUICK_NONE,
-            "QUICK_NONE is expected to register a new message."
-        );
+        if (_withdrawQuick[hash] != QUICK_NONE) {
+            revert WithdrawMethodError();
+        }
 
         _withdrawQuick[hash] = QUICK_AVAILABLE;
         emit MessageHashAddedQuick(hash);
@@ -84,9 +86,9 @@ contract StarklaneMessaging is Ownable {
         uint256 quickStatus = _withdrawQuick[msgHash];
 
         if (quickStatus == QUICK_NONE) {
-            revert("Tokens from this request cannot be withdrawn with the QUICK method.");
+            revert WithdrawMethodError();
         } else if (quickStatus == QUICK_WITHDRAWN) {
-            revert("Tokens from this request were already withdrawn.");
+            revert WithdrawAlreadyError();
         }
 
         _withdrawQuick[msgHash] = QUICK_WITHDRAWN;
@@ -114,10 +116,9 @@ contract StarklaneMessaging is Ownable {
 
         // If the message were configured to be withdrawn with QUICK method,
         // starknet method is denied.
-        require(
-            _withdrawQuick[msgHash] == QUICK_NONE,
-            "Tokens from this request cannot be withdrawn with the STARKNET method."
-        );
+        if (_withdrawQuick[msgHash] != QUICK_NONE) {
+            revert WithdrawMethodError();
+        }
     }
 
 

@@ -129,19 +129,7 @@ contract BridgeTest is Test {
         );
         vm.stopPrank();
 
-        uint256[] memory idsEscrowCheck = new uint256[](4);
-        idsEscrowCheck[0] = 0;
-        idsEscrowCheck[1] = 1;
-        idsEscrowCheck[2] = 2;
-        idsEscrowCheck[3] = 9;
-
-        bool[] memory statuses = IStarklane(bridge).escrowStatuses(erc721C1, idsEscrowCheck);
-        assertTrue(statuses[0]);
-        assertFalse(statuses[1]);
-        assertFalse(statuses[2]);
-        assertTrue(statuses[3]);
-
-        // TODO: test event emission.
+        // TODO: test event emission to verify the request.
     }
 
     // Test a withdraw QUICK that will trigger the deploy of a new collection on L1.
@@ -162,7 +150,7 @@ contract BridgeTest is Test {
 
         assertEq(IERC721(collection).ownerOf(888), bob);
 
-        vm.expectRevert(bytes("Tokens from this request were already withdrawn."));
+        vm.expectRevert();
         IStarklane(bridge).withdrawTokens(reqSerialized);
     }
 

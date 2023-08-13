@@ -26,7 +26,7 @@ contract CairoTest is Test {
         uint256 v = 1;
         assertTrue(felt252.unwrap(f) == v);
 
-        vm.expectRevert(bytes("Error wrapping uint256 into felt252."));
+        vm.expectRevert();
         Cairo.felt252Wrap(type(uint256).max);
     }
 
@@ -36,7 +36,7 @@ contract CairoTest is Test {
         uint256 v = 1;
         assertTrue(snaddress.unwrap(a) == v);
 
-        vm.expectRevert(bytes("Error wrapping uint256 into snaddress."));
+        vm.expectRevert();
         Cairo.snaddressWrap(type(uint256).max);
     }
 

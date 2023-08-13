@@ -17,7 +17,7 @@ contract Deploy is Script {
 
     function run() public {
         Config memory config = Utils.loadConfig();
-        
+
         vm.startBroadcast(config.deployerPrivateKey);
 
         address snCoreAddress = config.starknetCoreAddress;
@@ -26,7 +26,7 @@ contract Deploy is Script {
         }
 
         address impl = address(new Starklane());
-        
+
         bytes memory dataInit = abi.encodeWithSelector(
             Starklane.initialize.selector,
             abi.encode(
@@ -62,16 +62,16 @@ contract Deposit is Script {
 
     function run() public {
         Config memory config = Utils.loadConfig();
-        
+
         vm.startBroadcast(config.deployerPrivateKey);
 
         address proxyAddress = config.starklaneL1ProxyAddress;
 
         uint256[] memory ids = new uint256[](2);
-        ids[0] = 1;
-        ids[1] = 2;
+        ids[0] = 4;
+        ids[1] = 5;
 
-        Starklane(payable(proxyAddress)).depositTokens{value: 40000}(
+        Starklane(payable(proxyAddress)).depositTokens{value: 50000}(
             0x112233,
             0x9156d2D0aad192859888919Cb91c1270BF21D881,
             Cairo.snaddressWrap(0x01024e16519da35d35b0637c32d0611cc36b724f69cdea25e8007cd6a7cffa51),

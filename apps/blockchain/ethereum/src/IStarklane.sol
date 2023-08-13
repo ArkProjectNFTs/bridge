@@ -58,11 +58,4 @@ interface IStarklane {
         external
         returns (snaddress, felt252);
 
-    //
-    function escrowStatuses(
-        address collection,
-        uint256[] calldata ids
-    )
-        external
-        returns (bool[] memory);
 }

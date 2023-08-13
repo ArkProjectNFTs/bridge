@@ -71,7 +71,7 @@ library TokenUtil {
     )
         internal
         view
-        returns (string memory, string memory, string[] memory)
+        returns (string memory, string memory)
     {
         bool supportsMetadata = ERC165Checker.supportsInterface(
             collection,
@@ -79,7 +79,7 @@ library TokenUtil {
         );
         
         if (!supportsMetadata) {
-            return ("", "", new string[](0));
+            return ("", "");
         }
 
         IERC721Metadata c = IERC721Metadata(collection);
@@ -89,13 +89,13 @@ library TokenUtil {
         // Or, each token URI must be bridged and then the owner of the collection
         // can decide what to do?
 
-        string[] memory URIs = new string[](tokenIds.length);
+        /* string[] memory URIs = new string[](tokenIds.length); */
 
-        for (uint256 i = 0; i < tokenIds.length; i++) {
-            URIs[i] = c.tokenURI(tokenIds[i]);
-        }
+        /* for (uint256 i = 0; i < tokenIds.length; i++) { */
+        /*     URIs[i] = c.tokenURI(tokenIds[i]); */
+        /* } */
 
-        return (c.name(), c.symbol(), URIs);
+        return (c.name(), c.symbol());
     }
 
     /**
@@ -112,21 +112,22 @@ library TokenUtil {
         view
         returns (string memory)
     {
-        bool supportsMetadata = ERC165Checker.supportsInterface(
-            collection,
-            type(IERC1155MetadataURI).interfaceId
-        );
+        return "";
+        /* bool supportsMetadata = ERC165Checker.supportsInterface( */
+        /*     collection, */
+        /*     type(IERC1155MetadataURI).interfaceId */
+        /* ); */
         
-        if (!supportsMetadata) {
-            return "";
-        } else {
-            // TODO: ideally, we should get one URI of a token,
-            // and extract the constant part? All tokens are supposed to have
-            // the same base address, only replacing the `{id}`. If it's the case,
-            // we can take the uri of the first token, and return it...
-            //return IERC1155MetadataURI(collection).uri(WhichTokenId?);
-            return "TODO";
-        }
+        /* if (!supportsMetadata) { */
+        /*     return ""; */
+        /* } else { */
+        /*     // TODO: ideally, we should get one URI of a token, */
+        /*     // and extract the constant part? All tokens are supposed to have */
+        /*     // the same base address, only replacing the `{id}`. If it's the case, */
+        /*     // we can take the uri of the first token, and return it... */
+        /*     //return IERC1155MetadataURI(collection).uri(WhichTokenId?); */
+        /*     return "TODO"; */
+        /* } */
 
     }    
 }

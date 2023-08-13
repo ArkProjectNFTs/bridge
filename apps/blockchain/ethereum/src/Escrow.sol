@@ -17,31 +17,6 @@ contract StarklaneEscrow is Context {
     mapping(address => mapping(uint256 => address)) _escrow;
 
     /**
-       @notice Gathers the escrow status for each token.
-
-       @param collection Token collection address.
-       @param ids Tokens to be checked.
-
-       @return Array of bools (true if escrowed, false otherwise).
-    */
-    function escrowStatuses(
-        address collection,
-        uint256[] calldata ids
-    )
-        external
-        view
-        returns (bool[] memory)
-    {
-        bool[] memory res = new bool[](ids.length);
-
-        for (uint256 i = 0; i < ids.length; i++) {
-            res[i] = _isEscrowed(collection, ids[i]);
-        }
-
-        return res;
-    }
-
-    /**
        @notice Deposits the given tokens into escrow.
 
        @param collectionType The token type,
@@ -57,24 +32,21 @@ contract StarklaneEscrow is Context {
     {
         assert(ids.length > 0);
 
-        address from = msg.sender;
-        address to = address(this);
-
         for (uint256 i = 0; i < ids.length; i++) {
             uint256 id = ids[i];
 
             if (collectionType == CollectionType.ERC721) {
-                IERC721(collection).transferFrom(from, to, id);
+                IERC721(collection).transferFrom(msg.sender, address(this), id);
             } else {
                 // TODO: check the supply is exactly one.
                 // (this is the low level call to verify if a contract has some function).
                 // (but it's better to check with supported interfaces? It's 2 calls instead
                 // of one where we control the fail.)
                 //(bool success, bytes memory data) = contractAddress.call("");
-                IERC1155(collection).safeTransferFrom(from, to, id, 1, "");
+                IERC1155(collection).safeTransferFrom(msg.sender, address(this), id, 1, "");
             }
 
-            _escrow[collection][id] = from;
+            _escrow[collection][id] = msg.sender;
         }
     }
 

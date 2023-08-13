@@ -29,6 +29,8 @@ uint256 constant SN_MODULUS =
 */
 uint256 constant CAIRO_STR_LEN = 31;
 
+error CairoWrapError();
+
 /**
    @title Adapter library to ensure compatibility with Cairo.
  
@@ -73,7 +75,10 @@ library Cairo {
         pure
         returns (felt252)
     {
-        require(isFelt252(val), "Error wrapping uint256 into felt252.");
+        if (!isFelt252(val)) {
+            revert CairoWrapError();
+        }
+
         return felt252.wrap(val);
     }
 
@@ -94,7 +99,10 @@ library Cairo {
         pure
         returns (snaddress)
     {
-        require(isFelt252(val), "Error wrapping uint256 into snaddress.");
+        if (!isFelt252(val)) {
+            revert CairoWrapError();
+        }
+
         return snaddress.wrap(val);
     }
 
@@ -138,7 +146,6 @@ library Cairo {
         returns (uint256)
     {
         // u256 in cairo is 2 felts long with low and high parts.
-        require(offset + 1 < buf.length, "buffer too short to unpack u256.");
         return (buf[offset + 1] << 128) | uint128(buf[offset]);
     }
 

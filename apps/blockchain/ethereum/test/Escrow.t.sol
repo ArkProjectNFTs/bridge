@@ -49,18 +49,6 @@ contract EscrowTest is Test {
 
         vm.prank(alice);
         escrow.depositIntoEscrow(CollectionType.ERC721, erc721, ids);
-
-        uint256[] memory idsEscrowCheck = new uint256[](4);
-        idsEscrowCheck[0] = 0;
-        idsEscrowCheck[1] = 5;
-        idsEscrowCheck[2] = 8;
-        idsEscrowCheck[3] = 9;
-
-        bool[] memory statuses = escrow.escrowStatuses(erc721, idsEscrowCheck);
-        assertFalse(statuses[0]);
-        assertTrue(statuses[1]);
-        assertTrue(statuses[2]);
-        assertFalse(statuses[3]);
     }
 
     //
@@ -82,14 +70,6 @@ contract EscrowTest is Test {
         bool wasInEscrow = escrow.withdrawFromEscrow(CollectionType.ERC721, erc721, bob, 5);
         assertTrue(wasInEscrow);
         vm.stopPrank();
-
-        uint256[] memory idsEscrowCheck = new uint256[](2);
-        idsEscrowCheck[0] = 5;
-        idsEscrowCheck[1] = 8;
-
-        bool[] memory statuses = escrow.escrowStatuses(erc721, idsEscrowCheck);
-        assertFalse(statuses[0]);
-        assertTrue(statuses[1]);
 
         assertEq(IERC721(erc721).ownerOf(5), bob);
     }

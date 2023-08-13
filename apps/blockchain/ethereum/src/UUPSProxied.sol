@@ -16,7 +16,7 @@ contract UUPSOwnableProxied is Ownable, UUPSUpgradeable {
     // onlyInit
     modifier onlyInit() {
         address impl = _getImplementation();
-        require(!_initializedImpls[impl], "Implementation already initialized.");
+        require(!_initializedImpls[impl], "Already init");
         _initializedImpls[impl] = true;
 
         _;
@@ -40,7 +40,7 @@ contract UUPSOwnableProxied is Ownable, UUPSUpgradeable {
         external
         payable
         {
-            revert("Unsupported function.");
+            revert("NOT SUP");
         }
 
     /**
@@ -50,7 +50,7 @@ contract UUPSOwnableProxied is Ownable, UUPSUpgradeable {
         external
         payable
         {
-            revert("Can't receive Ether directly.");
+            revert("NO ETH");
         }
 }
 
