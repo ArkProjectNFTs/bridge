@@ -2,21 +2,24 @@
 
 Starklane, bridge for NTFs.
 
-## Upgradeability
+## Dev
 
-On ethereum, Starklane uses a [Transparent Upgradable Proxy](https://docs.openzeppelin.com/contracts/4.x/api/proxy#transparent_proxy)
-associated with it's auxiliary `ProxyAdmin` contract (which is Ownable).
+First, create a `.yourname.env` file copying the content from `.env.anvil`.
+This file will remain ignored by git, and you can put there your credentials
+to interact with the network.
 
-`Proxy` = The main proxy targetted by users, called by the front-end etc...
-`ProxyAdmin` = auxiliary contract to execute admin tasks on the `Proxy`.
+Then, you can use the Makefile to operate. Most of variables are taken from
+the environment file.
 
-This pattern is used for:
-1. The bridge contract itself, to be upgradable.
-2. The ERC721Bridgeable, which makes possible for collection owner to get full control on their collection back.
+`make erc721_deploy config=.yourname.env`
+`make starklane_deploy config=.yourname.env`
 
-What can be changed with this configuration:
+...
 
-* The `ProxyAdmin` is `Ownable`, then ownership can be changed with a `transferOwnership` call.
-* The `ProxyAdmin` is the only contract that can call `upgradeTo` to change the `Proxy` implementation address.
 
+## TODO
+
+Bridge bytecode is too big. We need to reduce code size.
+Also, what can be a solution to deploy an ERC721 without embedding it
+into out code?
 

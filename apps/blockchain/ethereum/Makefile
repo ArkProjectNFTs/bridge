@@ -11,6 +11,14 @@ sgr0 := $(shell tput sgr0)
 
 # TODO: for upgrades, check how to force proxy arg.
 
+# Starklane deposit tokens
+starklane_deposit:
+	@printf "$(bold)Ensure you don't forget the proxy argument:\n"
+	@echo "usage: make starklane_deposit config=.yourconfig.env proxy=0x1234"
+	@printf "$(sgr0)\n"
+	export STARKLANE_L1_PROXY_ADDRESS=$(proxy) && \
+	forge script --broadcast --verify --rpc-url ${ETH_RPC_URL} --sender ${ACCOUNT_ADDRESS} script/Starklane.s.sol:Deposit
+
 # Starklane deploy impl + proxy.
 starklane_deploy:
 	export STARKLANE_L1_PROXY_ADDRESS=0x0000000000000000000000000000000000000000 && \
