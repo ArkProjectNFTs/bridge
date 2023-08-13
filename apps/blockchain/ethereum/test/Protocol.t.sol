@@ -30,7 +30,8 @@ contract ProtocolTest is Test {
             uri: "ABCD",
             tokenIds: ids,
             tokenValues: new uint256[](0),
-            tokenURIs: new string[](0)
+            tokenURIs: new string[](0),
+            newOwners: new uint256[](0)
             });
 
         return req;
@@ -47,6 +48,9 @@ contract ProtocolTest is Test {
         string[] memory uris = new string[](1);
         uris[0] = "abcd";
 
+        uint256[] memory newOwners = new uint256[](1);
+        values[0] = 0x123;
+
         Request memory req = Request ({
             header: Cairo.felt252Wrap(0x1),
             hash: 0x1,
@@ -59,7 +63,8 @@ contract ProtocolTest is Test {
             uri: "ABCD",
             tokenIds: ids,
             tokenValues: values,
-            tokenURIs: uris
+            tokenURIs: uris,
+            newOwners: newOwners
             });
 
         return req;
@@ -127,11 +132,11 @@ contract ProtocolTest is Test {
     function test_requestSerializedLength() public {
         Request memory req = buildRequestDummy();
         uint256 len = Protocol.requestSerializedLength(req);
-        assertEq(len, 15);
+        assertEq(len, 16);
 
         Request memory reqFull = buildRequestDummyFull();
         uint256 lenFull = Protocol.requestSerializedLength(reqFull);
-        assertEq(lenFull, 22);
+        assertEq(lenFull, 25);
     }
 
     //
@@ -155,11 +160,12 @@ contract ProtocolTest is Test {
         assertEq(buf[12], 0);
         assertEq(buf[13], 0);
         assertEq(buf[14], 0);
+        assertEq(buf[15], 0);
     }
 
     //
     function test_requestDeserialize() public {
-        uint256[] memory data = new uint256[](15);
+        uint256[] memory data = new uint256[](16);
         data[0] = 0x1;
         data[1] = 0x1;
         data[2] = 0x0;
@@ -175,6 +181,7 @@ contract ProtocolTest is Test {
         data[12] = 0;
         data[13] = 0;
         data[14] = 0;
+        data[15] = 0;
 
         Request memory req = Protocol.requestDeserialize(data, 0);
 
@@ -191,6 +198,7 @@ contract ProtocolTest is Test {
         assertEq(req.tokenIds[0], 1);
         assertEq(req.tokenValues.length, 0);
         assertEq(req.tokenURIs.length, 0);
+        assertEq(req.newOwners.length, 0);
     }
 
 

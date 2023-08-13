@@ -213,7 +213,8 @@ contract BridgeTest is Test {
             uri: "ABCD",
             tokenIds: ids,
             tokenValues: new uint256[](0),
-            tokenURIs: new string[](0)
+            tokenURIs: new string[](0),
+            newOwners: new uint256[](0)
             });
 
         return req;

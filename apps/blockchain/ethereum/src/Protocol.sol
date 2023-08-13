@@ -25,6 +25,7 @@ struct Request {
     uint256[] tokenIds;
     uint256[] tokenValues;
     string[] tokenURIs;
+    uint256[] newOwners;
 }
 
 /**
@@ -181,6 +182,7 @@ library Protocol {
         // For uint256, we can pre-compute it as a uint256 is 2 felts long.
         len += (req.tokenIds.length * 2) + 1;
         len += (req.tokenValues.length * 2) + 1;
+        len += (req.newOwners.length * 2) + 1;
 
         // For strings, we must iterate on the array to know the length of each string.
         // We start by adding the length of the tokenURIs array.
@@ -228,6 +230,7 @@ library Protocol {
         offset += Cairo.uint256ArraySerialize(req.tokenIds, buf, offset);
         offset += Cairo.uint256ArraySerialize(req.tokenValues, buf, offset);
         offset += Cairo.shortStringArraySerialize(req.tokenURIs, buf, offset);
+        offset += Cairo.uint256ArraySerialize(req.newOwners, buf, offset);
 
         return buf;
     }
@@ -277,6 +280,9 @@ library Protocol {
         offset += inc;
 
         (inc, req.tokenURIs) = Cairo.shortStringArrayDeserialize(buf, offset);
+        offset += inc;
+
+        (inc, req.newOwners) = Cairo.uint256ArrayDeserialize(buf, offset);
         offset += inc;
 
         return req;
