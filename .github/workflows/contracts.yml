@@ -21,6 +21,8 @@ jobs:
         with:
           scarb-version: "0.6.0"
       - run: scarb build
+        working-directory: apps/blockchain/starknet
+
 
   test-ethereum-contracts:
     strategy:
