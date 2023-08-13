@@ -23,8 +23,8 @@ contract Deploy is Script {
         bytes memory dataInit = abi.encodeWithSelector(
             ERC721Bridgeable.initialize.selector,
             abi.encode(
-                "test token",
-                "TTT"
+                "glihm_123",
+                "GLM_123"
             )
         );
 

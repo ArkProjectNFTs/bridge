@@ -5,6 +5,7 @@ import "forge-std/Script.sol";
 
 import "./Utils.sol";
 import "src/Bridge.sol";
+import "src/sn/Cairo.sol";
 import "src/sn/StarknetMessagingLocal.sol";
 import "src/token/ERC721Bridgeable.sol";
 
@@ -53,5 +54,31 @@ contract Deploy is Script {
         vm.serializeString(json, "impl_address", vm.toString(impl));
         vm.serializeString(json, "sncore_address", vm.toString(snCoreAddress));
         Utils.writeJson(json, "starklane_deploy.json");
+    }
+}
+
+contract Deposit is Script {
+    function setUp() public {}
+
+    function run() public {
+        Config memory config = Utils.loadConfig();
+        
+        vm.startBroadcast(config.deployerPrivateKey);
+
+        address proxyAddress = config.starklaneL1ProxyAddress;
+
+        uint256[] memory ids = new uint256[](2);
+        ids[0] = 1;
+        ids[1] = 2;
+
+        Starklane(payable(proxyAddress)).depositTokens{value: 40000}(
+            0x112233,
+            0x9156d2D0aad192859888919Cb91c1270BF21D881,
+            Cairo.snaddressWrap(0x01024e16519da35d35b0637c32d0611cc36b724f69cdea25e8007cd6a7cffa51),
+            ids,
+            false
+        );
+
+        vm.stopBroadcast();
     }
 }
