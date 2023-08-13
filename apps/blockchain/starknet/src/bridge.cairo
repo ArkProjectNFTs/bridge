@@ -224,6 +224,8 @@ mod bridge {
             use_withdraw_auto: bool,
             use_deposit_burn_auto: bool,
         ) {
+            assert(!self.bridge_l1_address.read().is_zero(), 'Bridge is not open');
+
             // TODO: we may have the "from" into the params, to allow an operator
             // to deposit token for a user.
             // This can open more possibilities.
