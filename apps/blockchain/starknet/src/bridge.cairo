@@ -1,5 +1,5 @@
 #[starknet::contract]
-mod starklane {
+mod bridge {
     use array::{ArrayTrait, SpanTrait};
     use traits::{Into, TryInto};
     use zeroable::Zeroable;

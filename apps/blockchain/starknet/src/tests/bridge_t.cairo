@@ -33,7 +33,7 @@ mod tests {
         calldata.append(bridge_l1_address.into());
         calldata.append(erc721_bridgeable_class.into());
 
-        let class_hash = declare('starklane');
+        let class_hash = declare('bridge');
         let prepared = PreparedContract {
             class_hash: class_hash,
             constructor_calldata: @calldata
