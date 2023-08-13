@@ -171,8 +171,8 @@ library Protocol {
         pure
         returns (uint256)
     {
-        // Constant length part of the request is always 6 uint256 long.
-        uint256 len = 6;
+        // Constant length part of the request is always 7 uint256 long.
+        uint256 len = 7;
 
         len += Cairo.shortStringSerializedLength(req.name);
         len += Cairo.shortStringSerializedLength(req.symbol);
@@ -213,16 +213,17 @@ library Protocol {
 
         // Constant length part of the request.
         buf[0] = felt252.unwrap(req.header);
-        buf[1] = req.hash;
+        buf[1] = uint128(req.hash);
+        buf[2] = uint128(req.hash >> 128);
 
-        buf[2] = uint256(uint160(req.collectionL1));
-        buf[3] = snaddress.unwrap(req.collectionL2);
+        buf[3] = uint256(uint160(req.collectionL1));
+        buf[4] = snaddress.unwrap(req.collectionL2);
 
-        buf[4] = uint256(uint160(req.ownerL1));
-        buf[5] = snaddress.unwrap(req.ownerL2);
+        buf[5] = uint256(uint160(req.ownerL1));
+        buf[6] = snaddress.unwrap(req.ownerL2);
 
         // Variable length part of the request.
-        uint256 offset = 6;
+        uint256 offset = 7;
         offset += Cairo.shortStringSerialize(req.name, buf, offset);
         offset += Cairo.shortStringSerialize(req.symbol, buf, offset);
         offset += Cairo.shortStringSerialize(req.uri, buf, offset);
@@ -254,7 +255,8 @@ library Protocol {
         Request memory req;
 
         req.header = Cairo.felt252Wrap(buf[offset++]);
-        req.hash = buf[offset++];
+        req.hash = Cairo.uint256Deserialize(buf, offset);
+        offset += 2;
 
         req.collectionL1 = address(uint160(buf[offset++]));
         req.collectionL2 = Cairo.snaddressWrap(buf[offset++]);

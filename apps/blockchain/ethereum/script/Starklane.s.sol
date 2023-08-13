@@ -68,8 +68,8 @@ contract Deposit is Script {
         address proxyAddress = config.starklaneL1ProxyAddress;
 
         uint256[] memory ids = new uint256[](2);
-        ids[0] = 4;
-        ids[1] = 5;
+        ids[0] = 23;
+        ids[1] = 24;
 
         Starklane(payable(proxyAddress)).depositTokens{value: 50000}(
             0x112233,

@@ -132,11 +132,11 @@ contract ProtocolTest is Test {
     function test_requestSerializedLength() public {
         Request memory req = buildRequestDummy();
         uint256 len = Protocol.requestSerializedLength(req);
-        assertEq(len, 16);
+        assertEq(len, 17);
 
         Request memory reqFull = buildRequestDummyFull();
         uint256 lenFull = Protocol.requestSerializedLength(reqFull);
-        assertEq(lenFull, 25);
+        assertEq(lenFull, 26);
     }
 
     //
@@ -148,40 +148,42 @@ contract ProtocolTest is Test {
         assertEq(buf[0], 0x1);
         assertEq(buf[1], 0x1);
         assertEq(buf[2], 0x0);
-        assertEq(buf[3], 0x123);
-        assertEq(buf[4], 0x0);
-        assertEq(buf[5], 0x789);
-        assertEq(buf[6], 0);
+        assertEq(buf[3], 0x0);
+        assertEq(buf[4], 0x123);
+        assertEq(buf[5], 0x0);
+        assertEq(buf[6], 0x789);
         assertEq(buf[7], 0);
-        assertEq(buf[8], 1);
-        assertEq(buf[9], 0x0041424344000000000000000000000000000000000000000000000000000000);
-        assertEq(buf[10], 1);
+        assertEq(buf[8], 0);
+        assertEq(buf[9], 1);
+        assertEq(buf[10], 0x0041424344000000000000000000000000000000000000000000000000000000);
         assertEq(buf[11], 1);
-        assertEq(buf[12], 0);
+        assertEq(buf[12], 1);
         assertEq(buf[13], 0);
         assertEq(buf[14], 0);
         assertEq(buf[15], 0);
+        assertEq(buf[16], 0);
     }
 
     //
     function test_requestDeserialize() public {
-        uint256[] memory data = new uint256[](16);
+        uint256[] memory data = new uint256[](17);
         data[0] = 0x1;
         data[1] = 0x1;
         data[2] = 0x0;
-        data[3] = 0x123;
-        data[4] = 0x0;
-        data[5] = 0x789;
-        data[6] = 0;
+        data[3] = 0x0;
+        data[4] = 0x123;
+        data[5] = 0x0;
+        data[6] = 0x789;
         data[7] = 0;
-        data[8] = 1;
-        data[9] = 0x0041424344000000000000000000000000000000000000000000000000000000;
-        data[10] = 1;
+        data[8] = 0;
+        data[9] = 1;
+        data[10] = 0x0041424344000000000000000000000000000000000000000000000000000000;
         data[11] = 1;
-        data[12] = 0;
+        data[12] = 1;
         data[13] = 0;
         data[14] = 0;
         data[15] = 0;
+        data[16] = 0;
 
         Request memory req = Protocol.requestDeserialize(data, 0);
 
