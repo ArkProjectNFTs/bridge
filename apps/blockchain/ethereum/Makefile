@@ -19,6 +19,14 @@ starklane_deposit:
 	export STARKLANE_L1_PROXY_ADDRESS=$(proxy) && \
 	forge script --broadcast --verify --rpc-url ${ETH_RPC_URL} --sender ${ACCOUNT_ADDRESS} script/Starklane.s.sol:Deposit
 
+# Starklane withdraw tokens
+starklane_withdraw:
+	@printf "$(bold)Ensure you don't forget the proxy argument:\n"
+	@echo "usage: make starklane_withdraw config=.yourconfig.env proxy=0x1234"
+	@printf "$(sgr0)\n"
+	export STARKLANE_L1_PROXY_ADDRESS=$(proxy) && \
+	forge script --broadcast --verify --rpc-url ${ETH_RPC_URL} --sender ${ACCOUNT_ADDRESS} script/Starklane.s.sol:WithdrawSN
+
 # Starklane deploy impl + proxy.
 starklane_deploy:
 	export STARKLANE_L1_PROXY_ADDRESS=0x0000000000000000000000000000000000000000 && \

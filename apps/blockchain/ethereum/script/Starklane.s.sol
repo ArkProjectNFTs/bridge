@@ -82,3 +82,42 @@ contract Deposit is Script {
         vm.stopBroadcast();
     }
 }
+
+contract WithdrawSN is Script {
+    function setUp() public {}
+
+    function run() public {
+        Config memory config = Utils.loadConfig();
+
+        vm.startBroadcast(config.deployerPrivateKey);
+
+        address proxyAddress = config.starklaneL1ProxyAddress;
+
+        uint256[] memory buf = new uint256[](21);
+        buf[0] = 257;
+        buf[1] = 157109796990335246573763232927628717774;
+        buf[2] = 36809199904600870044403989700573533027;
+        buf[3] = 0;
+        buf[4] = 1530138567501442454218839542491331524400566329265365463560792648116878965926;
+        buf[5] = 1260237688642687788759567135567789255041174512757;
+        buf[6] = 456385480641843693338102106303024284830032106430299072071775148436454636113;
+        buf[7] = 1;
+        buf[8] = 113715322580273;
+        buf[9] = 1;
+        buf[10] = 1196182833;
+        buf[11] = 1;
+        buf[12] = 0;
+        buf[13] = 1;
+        buf[14] = 20;
+        buf[15] = 0;
+        buf[16] = 0;
+        buf[17] = 1;
+        buf[18] = 1;
+        buf[19] = 0;
+        buf[20] = 0;
+
+        Starklane(payable(proxyAddress)).withdrawTokens(buf);
+
+        vm.stopBroadcast();
+    }
+}
