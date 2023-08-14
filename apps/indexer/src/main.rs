@@ -45,7 +45,7 @@ async fn main() -> Result<()> {
     let eth_indexer = EthereumIndexer::new(config.ethereum.clone())
         .expect("Ethereum indexer couldn't be created");
 
-    let sn_indexer = StarknetIndexer::new(config.starknet.clone())
+    let sn_indexer = StarknetIndexer::new(config.starknet.clone()).await
         .expect("Starknet indexer couldn't be created");
 
     // If requested -> start API to serve data from the store.

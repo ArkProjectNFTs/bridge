@@ -1,5 +1,7 @@
 use anyhow::Result;
 use starknet::{
+    macros::felt,
+    accounts::Call,
     core::{types::{FieldElement, BlockId, BlockTag}},
 };
 
@@ -20,8 +22,12 @@ pub struct StarknetIndexer {
 
 impl StarknetIndexer {
     ///
-    pub fn new(config: ChainConfig) -> Result<StarknetIndexer> {
-        let client = StarknetClient::new(&config.rpc_url, &config.private_key)?;
+    pub async fn new(config: ChainConfig) -> Result<StarknetIndexer> {
+        let client = StarknetClient::new(
+            &config.rpc_url,
+            &config.account_address,
+            &config.account_private_key
+        ).await?;
 
         Ok(StarknetIndexer {
             client,

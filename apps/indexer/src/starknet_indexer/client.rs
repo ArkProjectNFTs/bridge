@@ -1,6 +1,8 @@
 use anyhow::Result;
+use std::sync::Arc;
 use starknet::{
     core::{types::*, types::FieldElement},
+    accounts::{Account, Call, SingleOwnerAccount},
     providers::{
         jsonrpc::HttpTransport, AnyProvider, JsonRpcClient, Provider,
     },
@@ -13,8 +15,10 @@ use crate::bridge_request::BridgeRequest;
 ///
 pub struct StarknetClient {
     rpc_url: String,
+    chain_id: FieldElement,
     provider: AnyProvider,
     wallet: Option<LocalWallet>,
+    account_address: Option<FieldElement>,
 }
 
 impl From<EmittedEvent> for BridgeRequest {
@@ -26,19 +30,30 @@ impl From<EmittedEvent> for BridgeRequest {
 
 impl StarknetClient {
     ///
-    pub fn new(
+    pub async fn new(
         rpc_url: &str,
-        private_key: &Option<String>
+        account_address: &Option<String>,
+        private_key: &Option<String>,
     ) -> Result<StarknetClient> {
         let rpc_url_str = rpc_url.to_string();
         let rpc_url = Url::parse(rpc_url)?;
         let provider = AnyProvider::JsonRpcHttp(
             JsonRpcClient::new(HttpTransport::new(rpc_url)));
 
+        let wallet = StarknetClient::wallet_from_private_key(&private_key);
+        let chain_id = provider.chain_id().await?;
+        let account_address = if let Some(pk) = account_address {
+            Some(FieldElement::from_hex_be(&pk)?)
+        } else {
+            None
+        };
+
         Ok(StarknetClient {
             rpc_url: rpc_url_str,
             provider,
-            wallet: StarknetClient::wallet_from_private_key(&private_key),
+            wallet,
+            account_address,
+            chain_id,
         })
     }
 
@@ -83,7 +98,7 @@ impl StarknetClient {
         Ok(events)
     }
 
-    ///
+    /// Returns a local wallet from a private key, if provided.
     fn wallet_from_private_key(private_key: &Option<String>) -> Option<LocalWallet> {
         if let Some(pk) = private_key {
             let private_key = match FieldElement::from_hex_be(&pk) {
@@ -93,7 +108,6 @@ impl StarknetClient {
                     return None;
                 }
             };
-
             let key = SigningKey::from_secret_scalar(private_key);
             return Some(LocalWallet::from_signing_key(key));
         } else {
@@ -101,4 +115,44 @@ impl StarknetClient {
         }
     }
 
+    ///
+    pub async fn invoke_tx(&self, calls: Vec<Call>) -> Result<()> {
+
+        let signer = match &self.wallet {
+            Some(w) => Arc::new(w),
+            None => anyhow::bail!("A private key is required to send transaction on starknet!"),
+        };
+
+        let account_address = match self.account_address {
+            Some(a) => a,
+            None => anyhow::bail!("An account address is required to send transaction on starknet!"),
+        };
+
+        let mut account =
+            SingleOwnerAccount::new(
+                &self.provider,
+                signer,
+                account_address,
+                self.chain_id
+            );
+
+        account.set_block_id(BlockId::Tag(BlockTag::Pending));
+
+        let execution = account.execute(calls).fee_estimate_multiplier(1.5f64);
+        let estimated_fee = (execution.estimate_fee().await?.overall_fee) * 3 / 2;
+        let tx = execution.max_fee(estimated_fee.into()).send().await?;
+
+        println!("InvokeTX: {:?}", tx);
+
+        Ok(())
+    }
+
+    /* Example of a call with invoke:
+        let call = Call {
+            to: felt!("0x006e31821066d2146a8efd816e915245db7624379ca5f3d179dddd0d3e09d647"),
+            selector: felt!("0x03552df12bdc6089cf963c40c4cf56fbfd4bd14680c244d1c5494c2790f1ea5c"),
+            calldata: vec![felt!("1"), felt!("0")],
+        };
+        self.client.invoke_tx(vec![call]).await;
+     */
 }
