@@ -66,7 +66,7 @@ async fn main() -> Result<()> {
 
     // // ****SN EVENTS****
     // let sn_bridge_addr = felt!("0x0348c73fe84aef749add99dddccda56bee301c45b8e29a6f01db59a752b4f711");
-    // let sn_rpc = "https://starknet-goerli.g.alchemy.com/v2/wMpF8vGBxupzy10brUQ1yyc71dIPmtap";
+    // let sn_rpc = "";
     // let sn_client = StarknetClient::new(sn_rpc).expect("Can't init sn client");
 
     // let from_block = BlockId::Number(1);
@@ -82,7 +82,7 @@ async fn main() -> Result<()> {
     // let addr_str = "0x7F435bC17d2eD2954142449b4BD71D151cDFb141";
     // let addr: Address = Address::parse_checksummed(addr_str, None).unwrap();
 
-    // let rpc_url = "https://goerli.infura.io/v3/d8088a2c561f4641bcc0f788e631804b";
+    // let rpc_url = "";
     // let eth_client = EthereumClient::new(rpc_url).expect("Can't init eth client");
 
     // let eth_logs = eth_client.fetch_logs("0x89440", "0x9021bf", addr).await?;
