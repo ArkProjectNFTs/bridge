@@ -1,15 +1,21 @@
 use anyhow::Result;
 use starknet::{
-    macros::felt,
-    core::{chain_id, types::*},
+    core::{types::*, types::FieldElement},
     providers::{
-        jsonrpc::HttpTransport, AnyProvider, JsonRpcClient, Provider, ProviderError,
-        SequencerGatewayProvider,
+        jsonrpc::HttpTransport, AnyProvider, JsonRpcClient, Provider,
     },
+    signers::{LocalWallet, SigningKey},
 };
 use url::Url;
 
-use crate::bridge_request::{BridgeRequest};
+use crate::bridge_request::BridgeRequest;
+
+///
+pub struct StarknetClient {
+    rpc_url: String,
+    provider: AnyProvider,
+    wallet: Option<LocalWallet>,
+}
 
 impl From<EmittedEvent> for BridgeRequest {
     ///
@@ -18,15 +24,12 @@ impl From<EmittedEvent> for BridgeRequest {
     }
 }
 
-///
-pub struct StarknetClient {
-    rpc_url: String,
-    provider: AnyProvider,
-}
-
 impl StarknetClient {
     ///
-    pub fn new(rpc_url: &str) -> Result<StarknetClient> {
+    pub fn new(
+        rpc_url: &str,
+        private_key: &Option<String>
+    ) -> Result<StarknetClient> {
         let rpc_url_str = rpc_url.to_string();
         let rpc_url = Url::parse(rpc_url)?;
         let provider = AnyProvider::JsonRpcHttp(
@@ -35,6 +38,7 @@ impl StarknetClient {
         Ok(StarknetClient {
             rpc_url: rpc_url_str,
             provider,
+            wallet: StarknetClient::wallet_from_private_key(&private_key),
         })
     }
 
@@ -77,6 +81,24 @@ impl StarknetClient {
         }
 
         Ok(events)
+    }
+
+    ///
+    fn wallet_from_private_key(private_key: &Option<String>) -> Option<LocalWallet> {
+        if let Some(pk) = private_key {
+            let private_key = match FieldElement::from_hex_be(&pk) {
+                Ok(p) => p,
+                Err(e) => {
+                    println!("Error importing private key: {:?}", e);
+                    return None;
+                }
+            };
+
+            let key = SigningKey::from_secret_scalar(private_key);
+            return Some(LocalWallet::from_signing_key(key));
+        } else {
+            return None;
+        }
     }
 
 }

@@ -1,15 +1,12 @@
 use anyhow::Result;
 use starknet::{
-    macros::felt,
     core::{types::{FieldElement, BlockId, BlockTag}},
 };
 
-use crate::storage::store::{BridgeRequestStore};
-use crate::events::starknet::{StarknetClient};
+use super::client::StarknetClient;
 
-use super::config::ChainConfig;
-
-use crate::bridge_request::{BridgeRequest};
+use crate::storage::store::BridgeRequestStore;
+use crate::config::ChainConfig;
 
 use tokio::time::{self, Duration};
 use std::sync::Arc;
@@ -24,7 +21,7 @@ pub struct StarknetIndexer {
 impl StarknetIndexer {
     ///
     pub fn new(config: ChainConfig) -> Result<StarknetIndexer> {
-        let client = StarknetClient::new(&config.rpc_url)?;
+        let client = StarknetClient::new(&config.rpc_url, &config.private_key)?;
 
         Ok(StarknetIndexer {
             client,

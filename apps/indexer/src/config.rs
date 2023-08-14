@@ -13,6 +13,7 @@ pub struct ChainConfig {
     pub to_block: Option<String>,
     pub address: String,
     pub fetch_interval: u64,
+    pub private_key: Option<String>,
 }
 
 ///

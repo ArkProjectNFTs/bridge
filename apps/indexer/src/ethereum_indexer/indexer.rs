@@ -1,12 +1,10 @@
 use anyhow::Result;
 use alloy_primitives::Address;
 
-use crate::storage::store::{BridgeRequestStore};
-use crate::events::ethereum::{EthereumClient};
+use crate::storage::store::BridgeRequestStore;
+use crate::config::ChainConfig;
 
-use super::config::ChainConfig;
-
-use crate::bridge_request::{BridgeRequest};
+use super::client::EthereumClient;
 
 use tokio::time::{self, Duration};
 use std::sync::Arc;

@@ -1,30 +1,19 @@
-use alloy_primitives::{address, Address, U256, keccak256};
 use anyhow::Result;
 
 pub mod bridge_request;
 pub mod storage;
-pub mod events;
-pub mod indexing;
 pub mod utils;
+pub mod config;
+pub mod starknet_indexer;
+pub mod ethereum_indexer;
 
 use bridge_request::{BridgeRequest, BridgeRequestStatus, StatusChange};
-use storage::{mongo::request_store::MongoRequestStore, store::BridgeRequestStore};
-use std::time::SystemTime;
-use events::{
-    ethereum::EthereumClient,
-    starknet::StarknetClient,
-};
+use storage::{mongo::request_store::MongoRequestStore};
 
-use indexing::{
-    ethereum::EthereumIndexer,
-    starknet::StarknetIndexer,
-    config::StarklaneIndexerConfig,
-};
+use ethereum_indexer::EthereumIndexer;
+use starknet_indexer::StarknetIndexer;
 
-use starknet::{
-    macros::felt,
-    core::{types::{BlockId, BlockTag}},
-};
+use crate::config::StarklaneIndexerConfig;
 
 use clap::Parser;
 use std::sync::Arc;
@@ -72,7 +61,7 @@ async fn main() -> Result<()> {
     println!("waiting...");
     // Wait for tasks to complete
 
-    let (eth_res, sn_res) = tokio::join!(eth_handle, sn_handle);
+    let (_eth_res, _sn_res) = tokio::join!(eth_handle, sn_handle);
 
 
     // // ****SN EVENTS****
