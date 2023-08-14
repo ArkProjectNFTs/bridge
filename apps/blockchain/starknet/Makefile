@@ -21,6 +21,9 @@ normal := "\\033[0m"
 bridge_class_hash := $(shell starkli class-hash target/dev/starklane_bridge.sierra.json)
 erc721b_class_hash := $(shell starkli class-hash target/dev/starklane_erc721_bridgeable.sierra.json)
 
+bridge_addr := 0x04379e472430818f2fe26f25eb1fb3f6dfa54250f90ee93bb3f839028cf80a21
+erc721_addr := 0x006e31821066d2146a8efd816e915245db7624379ca5f3d179dddd0d3e09d647
+
 timestamp = $(shell date "+%d-%m-%Y_%H-%M-%S")
 logfile = logs/${timestamp}.txt
 
@@ -64,3 +67,18 @@ erc721b_deploy:
 	@echo "${shiny}usage: make erc721b_deploy config=.yourconfig.env name=abcd symbol=SYM bridge=0x...\n${normal}"
 	starkli deploy ${erc721b_class_hash} 1 str:$(name) 1 str:$(symbol) $(bridge) ${ADMIN_ACCOUNT_ADDR} ${priv_key}
 
+# Starklane local setup.
+# Use a salt to ensure fixed addresses waiting for starkli address book.
+starklane_local_setup:
+	# Declaring contracts
+	starkli declare ./target/dev/starklane_erc721_bridgeable.sierra.json ${priv_key}
+	starkli declare ./target/dev/starklane_bridge.sierra.json ${priv_key}
+	# Deploying contracts
+	starkli deploy --salt 0x1234 ${bridge_class_hash} "${ADMIN_ACCOUNT_ADDR}" "${BRIDGE_L1_ADDRESS}" ${erc721b_class_hash} ${priv_key}
+	starkli deploy --salt 0x8822 ${erc721b_class_hash} 1 str:collection_2 1 str:C2 ${bridge_addr} ${ADMIN_ACCOUNT_ADDR} ${priv_key}
+	# Minting and set approval for transfer
+	starkli invoke ${erc721_addr} mint_range_free ${ADMIN_ACCOUNT_ADDR} u256:0 u256:100 ${priv_key}
+	starkli invoke ${erc721_addr} set_approval_for_all ${bridge_addr} 1 ${priv_key}
+	# Deposit tokens
+	$(eval salt=$(shell date +%s%N))
+	starkli invoke ${bridge_addr} deposit_tokens ${salt} ${erc721_addr} ${ETH_ACCOUNT} 2 u256:1 u256:2 0 0 ${priv_key}
