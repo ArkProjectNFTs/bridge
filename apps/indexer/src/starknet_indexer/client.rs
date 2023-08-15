@@ -104,7 +104,7 @@ impl StarknetClient {
             let private_key = match FieldElement::from_hex_be(&pk) {
                 Ok(p) => p,
                 Err(e) => {
-                    println!("Error importing private key: {:?}", e);
+                    log::error!("Error importing private key: {:?}", e);
                     return None;
                 }
             };
@@ -142,7 +142,7 @@ impl StarknetClient {
         let estimated_fee = (execution.estimate_fee().await?.overall_fee) * 3 / 2;
         let tx = execution.max_fee(estimated_fee.into()).send().await?;
 
-        println!("InvokeTX: {:?}", tx);
+        //println!("InvokeTX: {:?}", tx);
 
         Ok(())
     }

@@ -1,4 +1,14 @@
+///!
+///!
+
 use anyhow::Result;
+use clap::Parser;
+use std::sync::Arc;
+
+use storage::{mongo::MongoStore};
+use ethereum_indexer::EthereumIndexer;
+use starknet_indexer::StarknetIndexer;
+use crate::config::StarklaneIndexerConfig;
 
 pub mod storage;
 pub mod utils;
@@ -6,15 +16,6 @@ pub mod config;
 pub mod starknet_indexer;
 pub mod ethereum_indexer;
 
-use storage::{mongo::MongoStore};
-
-use ethereum_indexer::EthereumIndexer;
-use starknet_indexer::StarknetIndexer;
-
-use crate::config::StarklaneIndexerConfig;
-
-use clap::Parser;
-use std::sync::Arc;
 
 
 #[derive(Parser, Debug)]
@@ -29,6 +30,7 @@ struct Args {
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    env_logger::init();
 
     let args = Args::parse();
     let config = StarklaneIndexerConfig::from_file(&args.config_file)
@@ -50,8 +52,8 @@ async fn main() -> Result<()> {
 
     let eth_handle = tokio::spawn(async move {
         match eth_indexer.start::<MongoStore>(eth_store).await {
-            Ok(()) => println!("Normal termination of eth indexer after indexing requested blocks."),
-            Err(e) => println!("Error during eth indexer loop: {:?}", e),
+            Ok(()) => log::info!("Normal termination of eth indexer after indexing requested blocks."),
+            Err(e) => log::error!("Error during eth indexer loop: {:?}", e),
         }
     });
 
@@ -59,9 +61,7 @@ async fn main() -> Result<()> {
         //sn_indexer.start::<MongoStore>(sn_store).await;
     });
 
-    println!("waiting...");
     // Wait for tasks to complete
-
     let (_eth_res, _sn_res) = tokio::join!(eth_handle, sn_handle);
 
     Ok(())

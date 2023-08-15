@@ -57,7 +57,7 @@ impl StarknetIndexer {
                 addr).await;
 
             if let Ok(events) = maybe_sn_events {
-                println!("{:?}", events);
+                log::debug!("{:?}", events);
                 // identify the events + register data in the db store.
 
                 // TODO: we want to have a store transaction for each block.
@@ -68,7 +68,7 @@ impl StarknetIndexer {
                 //
                 // To identify block, the log entry have a block_number field.
             } else {
-                println!("Error at getting starknet events...! {:?}", maybe_sn_events);
+                log::error!("Error at getting starknet events...! {:?}", maybe_sn_events);
             }
 
             time::sleep(Duration::from_secs(self.config.fetch_interval)).await;

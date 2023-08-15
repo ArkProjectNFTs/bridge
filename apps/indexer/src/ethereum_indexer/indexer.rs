@@ -63,7 +63,9 @@ impl EthereumIndexer {
             // a lot's of events to monitor.
             match self.client.fetch_logs(from_u64, to_u64).await {
                 Ok(logs) => {
-                    println!("\nEth fetching blocks {} - {} ({} logs)", from_u64, to_u64, logs.len());
+                    let n_logs = logs.len();
+                    log::info!("\nEth fetching blocks {} - {} ({} logs)", from_u64, to_u64, n_logs);
+
                     for l in logs {
                         match events::get_store_data(l)? {
                             (Some(r), Some(e)) => {
@@ -74,31 +76,33 @@ impl EthereumIndexer {
                                     from_u64 = e.block_number;
                                 }
                             },
-                            _ => println!("Request/Event not handled"),
+                            _ => log::warn!("Event emitted by Starklane possibly is not handled"),
                         };
                     }
 
-                    // To ensure those blocks are not fetched anymore,
-                    // as the get_logs range includes the from_block value.
-                    from_u64 += 1;
+                    if n_logs > 0 {
+                        // To ensure those blocks are not fetched anymore,
+                        // as the get_logs range includes the from_block value.
+                        from_u64 += 1;
 
-                    // We want to continue polling the head of the chain if the
-                    // to_block is set to "latest" in the config.
-                    if to_block_was_latest {
-                        to_u64 = self.client.get_block_number().await;
-                        if from_u64 > to_u64 {
-                            // More consistent to always have from and to equal,
-                            // or to > from.
-                            to_u64 = from_u64;
-                        }
-                    } else {
-                        // We stop at the block number in the configuration.
-                        if from_u64 > to_u64 {
-                            return Ok(())
+                        // We want to continue polling the head of the chain if the
+                        // to_block is set to "latest" in the config.
+                        if to_block_was_latest {
+                            to_u64 = self.client.get_block_number().await;
+                            if from_u64 > to_u64 {
+                                // More consistent to always have from and to equal,
+                                // or to > from.
+                                to_u64 = from_u64;
+                            }
+                        } else {
+                            // We stop at the block number in the configuration.
+                            if from_u64 > to_u64 {
+                                return Ok(())
+                            }
                         }
                     }
                 },
-                Err(e) => println!("Error at getting eth logs {:?}", e)
+                Err(e) => log::error!("Error at getting eth logs {:?}", e)
             };
 
             time::sleep(Duration::from_secs(self.config.fetch_interval)).await;
