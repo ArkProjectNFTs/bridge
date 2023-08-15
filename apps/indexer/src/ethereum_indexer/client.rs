@@ -11,6 +11,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::{json};
 use k256::ecdsa::SigningKey;
 use std::str::FromStr;
+use std::sync::Arc;
 
 use crate::utils;
 
@@ -29,13 +30,17 @@ pub struct EthereumClient {
 
 impl EthereumClient {
     ///
-    pub fn new(rpc_url: &str, private_key: &Option<String>) -> Result<EthereumClient> {
+    pub async fn new(rpc_url: &str, private_key: &Option<String>) -> Result<EthereumClient> {
 
         let provider = Provider::<Http>::try_from(rpc_url)?;
 
+        let chain_id = provider.get_chainid().await.unwrap();
+
         let provider_signer = if let Some(pk) = private_key {
-            let wallet: LocalWallet = pk.parse::<LocalWallet>()?;
-            Some(SignerMiddleware::new(provider.clone(), wallet.clone()))
+            let wallet: LocalWallet = pk.parse::<LocalWallet>()?.with_chain_id(chain_id.as_u32());
+            Some(SignerMiddleware::new(
+                provider.clone(),
+                wallet.clone()))
         } else {
             None
         };
@@ -103,6 +108,28 @@ impl EthereumClient {
         }
 
         Ok(logs)
+    }
+
+    ///
+    pub async fn send_test(&self) -> Result<()> {
+
+        abigen!(
+            Erc721B,
+            "./Erc721B_ABI.json",
+            event_derives(serde::Deserialize, serde::Serialize)
+        );
+
+        let from = Address::from_str("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266").unwrap();
+        let to = Address::from_str("0x70997970C51812dc3A010C7d01b50e0d17dc79C8").unwrap();
+
+        let contract = Erc721B::new(
+            Address::from_str("0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9").unwrap(),
+            Arc::new(self.provider_signer.clone().expect("Signer provider required to send tx")));
+
+        let tx = contract.transfer_from(from, to, U256::from(6)).send().await?.await?;
+        println!("Transaction Receipt: {}", serde_json::to_string(&tx)?);
+
+        Ok(())
     }
 
 }

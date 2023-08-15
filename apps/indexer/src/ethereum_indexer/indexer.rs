@@ -18,8 +18,8 @@ pub struct EthereumIndexer {
 
 impl EthereumIndexer {
     ///
-    pub fn new(config: ChainConfig) -> Result<EthereumIndexer> {
-        let client = EthereumClient::new(&config.rpc_url, &config.account_private_key)?;
+    pub async fn new(config: ChainConfig) -> Result<EthereumIndexer> {
+        let client = EthereumClient::new(&config.rpc_url, &config.account_private_key).await?;
 
         Ok(EthereumIndexer {
             client,
@@ -38,6 +38,8 @@ impl EthereumIndexer {
         } else {
             "latest"
         };
+
+        self.client.send_test().await.expect("Can't send tx");
 
         loop {
             let maybe_eth_logs = self.client.fetch_logs(

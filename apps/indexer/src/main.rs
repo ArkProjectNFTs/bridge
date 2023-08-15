@@ -42,7 +42,7 @@ async fn main() -> Result<()> {
     let eth_store = Arc::clone(&mongo_store);
     let sn_store = Arc::clone(&mongo_store);
 
-    let eth_indexer = EthereumIndexer::new(config.ethereum.clone())
+    let eth_indexer = EthereumIndexer::new(config.ethereum.clone()).await
         .expect("Ethereum indexer couldn't be created");
 
     let sn_indexer = StarknetIndexer::new(config.starknet.clone()).await
