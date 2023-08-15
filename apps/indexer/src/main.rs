@@ -49,7 +49,7 @@ async fn main() -> Result<()> {
     // If requested -> start API to serve data from the store.
 
     let eth_handle = tokio::spawn(async move {
-        eth_indexer.start::<MongoStore>(eth_store).await;
+        let _ = eth_indexer.start::<MongoStore>(eth_store).await;
     });
 
     let sn_handle = tokio::spawn(async move {

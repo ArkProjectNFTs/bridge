@@ -33,7 +33,7 @@ impl EthereumIndexer {
     }
 
     ///
-    pub async fn start<T: RequestStore + EventStore>(&self, store: Arc<T>) {
+    pub async fn start<T: RequestStore + EventStore>(&self, store: Arc<T>) -> Result<()> {
 
         let to_block = if let Some(to) = &self.config.to_block {
             &to
@@ -42,28 +42,31 @@ impl EthereumIndexer {
         };
 
         loop {
+
+            // TODO: verify if the block is not already fetched and processed.
+
             let maybe_eth_logs = self.client.fetch_logs(
                 &self.config.from_block,
                 to_block
             ).await;
 
             if let Ok(logs) = maybe_eth_logs {
-                //println!("Eth logs {:?}", logs);
+
+                let mut last_fetched_block: u64 = 0;
 
                 for l in logs {
                     println!("\nEth log {:?}", l);
-                    let data = events::get_store_data(l);
-                    if data.is_err() {
-                        // todo: log error.
-                        continue;
-                    }
-
-                    match data.unwrap() {
+                    match events::get_store_data(l)? {
                         (Some(r), Some(e)) => {
-                            println!("r: {:?} // e: {:?}", r, e);
+                            // Save data.
+
+                            if e.block_number > last_fetched_block {
+                                last_fetched_block = e.block_number;
+                            }
                         },
                         _ => println!("Request/Event not handled"),
-                    };
+                    }
+
                 }
                 // self.client.send_test().await.expect("Can't send tx");
 
