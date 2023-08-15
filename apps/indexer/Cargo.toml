@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0"
-alloy-primitives = { git = "https://github.com/alloy-rs/core/", default-features = false }
+ethers = "2.0.8"
 async-trait = "0.1.68"
 futures = "0.3.28"
 mongodb = "2.6.0"

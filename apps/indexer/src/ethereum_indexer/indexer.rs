@@ -1,5 +1,5 @@
 use anyhow::Result;
-use alloy_primitives::Address;
+use ethers::types::Address;
 
 use crate::storage::store::BridgeRequestStore;
 use crate::config::ChainConfig;
@@ -8,6 +8,7 @@ use super::client::EthereumClient;
 
 use tokio::time::{self, Duration};
 use std::sync::Arc;
+use std::str::FromStr;
 
 ///
 pub struct EthereumIndexer {
@@ -18,7 +19,7 @@ pub struct EthereumIndexer {
 impl EthereumIndexer {
     ///
     pub fn new(config: ChainConfig) -> Result<EthereumIndexer> {
-        let client = EthereumClient::new(&config.rpc_url)?;
+        let client = EthereumClient::new(&config.rpc_url, &config.account_private_key)?;
 
         Ok(EthereumIndexer {
             client,
@@ -28,7 +29,8 @@ impl EthereumIndexer {
 
     ///
     pub async fn start<T: BridgeRequestStore>(&self, store: Arc<T>) {
-        let addr: Address = Address::parse_checksummed(self.config.address.clone(), None)
+        //let addr: Address = Address::parse_checksummed(self.config.address.clone(), None)
+        let addr: Address = Address::from_str(&self.config.address)
             .expect("Ethereum address is invalid");
 
         let to_block = if let Some(to) = &self.config.to_block {
@@ -44,7 +46,7 @@ impl EthereumIndexer {
                 addr).await;
 
             if let Ok(logs) = maybe_eth_logs {
-                println!("{:?}", logs);
+                println!("Eth logs {:?}", logs);
                 // identify the logs + register data in the db store.
 
                 // TODO: we want to have a store transaction for each block.
