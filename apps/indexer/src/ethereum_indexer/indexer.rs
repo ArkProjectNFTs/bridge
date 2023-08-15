@@ -1,7 +1,7 @@
 use anyhow::Result;
 use ethers::types::Address;
 
-use crate::storage::store::{RequestStore};
+use crate::storage::store::{RequestStore, EventStore};
 use crate::config::ChainConfig;
 
 use super::client::EthereumClient;
@@ -33,7 +33,7 @@ impl EthereumIndexer {
     }
 
     ///
-    pub async fn start<T: RequestStore>(&self, store: Arc<T>) {
+    pub async fn start<T: RequestStore + EventStore>(&self, store: Arc<T>) {
 
         let to_block = if let Some(to) = &self.config.to_block {
             &to
@@ -52,11 +52,17 @@ impl EthereumIndexer {
 
                 for l in logs {
                     println!("\nEth log {:?}", l);
-                    match events::identify(l) {
-                        Ok(l_decoded) => {
-                            println!("Decoded event: {:?}", l_decoded);
+                    let data = events::get_store_data(l);
+                    if data.is_err() {
+                        // todo: log error.
+                        continue;
+                    }
+
+                    match data.unwrap() {
+                        (Some(r), Some(e)) => {
+                            println!("r: {:?} // e: {:?}", r, e);
                         },
-                        Err(e) => println!("Error at decoding event: {:?}", e),
+                        _ => println!("Request/Event not handled"),
                     };
                 }
                 // self.client.send_test().await.expect("Can't send tx");

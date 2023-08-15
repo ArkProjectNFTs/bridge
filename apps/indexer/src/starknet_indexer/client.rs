@@ -10,7 +10,7 @@ use starknet::{
 };
 use url::Url;
 
-use crate::storage::store::Request;
+use crate::storage::Request;
 
 ///
 pub struct StarknetClient {

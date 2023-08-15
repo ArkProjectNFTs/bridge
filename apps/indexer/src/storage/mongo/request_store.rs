@@ -1,12 +1,13 @@
 use anyhow::Result;
 use async_trait::async_trait;
 use futures::TryStreamExt;
-use mongodb::{bson::doc, options::ClientOptions, Client, Collection};
-use serde::{Deserialize, Serialize};
-use futures::StreamExt;
+use mongodb::bson::doc;
 
 use super::MongoStore;
-use crate::storage::store::{RequestStore, Request, Event, EventLabel};
+use crate::storage::{
+    Request,
+    store::RequestStore
+};
 
 #[async_trait]
 impl RequestStore for MongoStore {

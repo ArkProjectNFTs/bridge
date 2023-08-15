@@ -1,10 +1,12 @@
 use anyhow::Result;
-use serde::{Deserialize, Serialize};
-use mongodb::{bson::doc, options::ClientOptions, Client, Collection};
+use mongodb::{options::ClientOptions, Client, Collection};
 
-use crate::storage::store::{Request, Event, EventLabel, BlockIndex};
+use crate::storage::{
+    Request, Event, BlockIndex,
+};
 
-pub mod request_store;
+mod request_store;
+mod event_store;
 
 /// Mongo db abstraction.
 ///
