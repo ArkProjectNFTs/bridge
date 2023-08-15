@@ -2,18 +2,13 @@
 ///! will be merged, eth calls will be far better with more typing.
 ///!
 
-use anyhow::Result;
+use anyhow::{Result, anyhow};
 use ethers::types::{Address, Log, BlockNumber};
 use ethers::providers::{Provider, Http};
 use ethers::prelude::*;
-use reqwest::Client;
-use serde::{Deserialize, Serialize};
-use serde_json::{json};
 use k256::ecdsa::SigningKey;
 use std::str::FromStr;
 use std::sync::Arc;
-
-use crate::utils;
 
 abigen!(
     StarklaneBridge,
@@ -86,43 +81,35 @@ impl EthereumClient {
         StarklaneBridge::new(self.bridge_address.clone(), Arc::new(signer))
     }
 
+    ///
+    pub async fn get_block_number(&self) -> u64 {
+        self.provider.get_block_number()
+            .await
+            .expect("Can't fetch eth last block")
+            .try_into().expect("Not a valid u64 (to)")
+    }
+
     /// Fetches logs for the given block options.
     ///
     /// There is not pagination in ethereum, and no hard limit on block range.
     /// To avoid too large requests and error from RPC, only safe range of blocks
     /// are fetched. We then iterate on those ranges to fullfill the inital range requested.
     ///
-    /// TODO: rework needed, with the current implementation, if there are too much
-    /// logs in the block range, RAM maybe impacted.
-    pub async fn fetch_logs(
-        &self,
-        from_block: &str,
-        to_block: &str,
-    ) -> Result<Vec<Log>> {
-
-        let mut from_u64: u64 = match BlockNumber::from_str(from_block).expect("Invalid block number (from)") {
-            BlockNumber::Earliest => 0,
-            BlockNumber::Number(x) => x.try_into().expect("Not a valid u64 (from)"),
-            _ => anyhow::bail!("Invalid block number (from_block)"),
-        };
-
-        let to_u64: u64 = match BlockNumber::from_str(to_block).expect("Invalid block number (to)") {
-            BlockNumber::Latest => self.provider.get_block_number()
-                .await
-                .expect("Can't fetch eth last block")
-                .try_into().expect("Not a valid u64 (to)"),
-            BlockNumber::Number(x) => x.0[0],
-            _ => anyhow::bail!("Invalid block number (to_block)"),
-        };
-
-        let mut diff = to_u64 - from_u64;
+    /// Note: This version can be very RAM consuming, especially if the block range is very
+    /// big.
+    /// TODO: implement a `fetch_logs_safe` which is only fecthing a safe range limit,
+    /// and return the last block fetched (Result<(Vec<Log>, u64)>) to let the caller
+    /// iterate as it needs.
+    pub async fn fetch_logs(&self, from_block: u64, to_block: u64) -> Result<Vec<Log>> {
+        let mut from_block = from_block;
+        let mut diff = to_block - from_block;
 
         let mut logs: Vec<Log> = vec![];
 
         let filters = Filter {
             block_option: FilterBlockOption::Range {
-                from_block: Some(BlockNumber::Number(from_u64.into())),
-                to_block: Some(BlockNumber::Number((from_u64 + BLOCKS_MAX_RANGE - 1).into()))
+                from_block: Some(BlockNumber::Number(from_block.into())),
+                to_block: Some(BlockNumber::Number((from_block + BLOCKS_MAX_RANGE - 1).into()))
             },
             address: Some(ValueOrArray::Value(self.bridge_address.clone())),
             topics: Default::default(),
@@ -134,42 +121,13 @@ impl EthereumClient {
 
             if diff >= BLOCKS_MAX_RANGE {
                 diff -= BLOCKS_MAX_RANGE;
-                from_u64 += BLOCKS_MAX_RANGE;
+                from_block += BLOCKS_MAX_RANGE;
             } else {
                 break;
             }
         }
 
         Ok(logs)
-    }
-
-    ///
-    pub fn decode_log(&self, _log: Log) -> Result<()> {
-
-        // let from = Address::from_str("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266").unwrap();
-        // let to = Address::from_str("0x70997970C51812dc3A010C7d01b50e0d17dc79C8").unwrap();
-
-        // abigen!(
-        //     StarklaneBridge,
-        //     "./Starklane_ABI.json",
-        //     event_derives(serde::Deserialize, serde::Serialize)
-        // );
-
-
-        // let starklane_addr = Address::from_str("0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0").unwrap();
-        // let contract = StarklaneBridge::new(
-        //     starklane_addr,
-        //     Arc::new(self.provider_signer.clone().expect("Signer provider required to send tx")));
-
-        // match <DepositRequestInitiated as EthLogDecode>::decode_log(&log.into()) {
-        //     Ok(d) => println!("\n-----------> Decoded as DepositRequestInitiated {:?}", d),
-        //     Err(e) => println!("\n===*** Not DepositRequestInitiated"),
-        // };
-
-        // let tx = contract.transfer_from(from, to, U256::from(6)).send().await?.await?;
-        // println!("Transaction Receipt: {}", serde_json::to_string(&tx)?);
-
-        Ok(())
     }
 
 }

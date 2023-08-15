@@ -4,8 +4,7 @@ use ethers::abi::RawLog;
 
 use serde_json::{json, Value};
 
-use crate::utils::BridgeChain;
-use crate::storage::{Request, Event, EventLabel};
+use crate::storage::{Request, Event, EventLabel, BridgeChain};
 
 /// Event expected from the bridge.
 #[derive(Debug, PartialEq, Eq, EthEvent)]

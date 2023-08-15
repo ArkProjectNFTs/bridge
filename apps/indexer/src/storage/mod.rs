@@ -3,10 +3,27 @@
 ///! the traits in store.rs.
 
 use serde::{Deserialize, Serialize};
-use crate::utils::BridgeChain;
 
 pub mod mongo;
 pub mod store;
+
+///
+#[derive(Debug, Default, Serialize, Deserialize, Clone)]
+pub enum BridgeChain {
+    #[default]
+    Starknet,
+    Ethereum,
+}
+
+///
+impl ToString for BridgeChain {
+    fn to_string(&self) -> String {
+        match self {
+            BridgeChain::Starknet => String::from("sn"),
+            BridgeChain::Ethereum => String::from("eth"),
+        }
+    }
+}
 
 ///
 #[derive(Debug, Default, Serialize, Deserialize)]
@@ -29,7 +46,7 @@ pub struct CollectionContract {
 }
 
 /// Request sent on the bridge.
-#[derive(Debug, Default, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Request {
     // Request's hash, unique identifier through source and destination chains.
     pub hash: String,
@@ -48,7 +65,7 @@ pub struct Request {
 }
 
 /// Records event associated to requests.
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Event {
     // Hash of the request associated with the event.
     pub req_hash: String,

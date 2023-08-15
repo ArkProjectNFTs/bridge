@@ -49,11 +49,14 @@ async fn main() -> Result<()> {
     // If requested -> start API to serve data from the store.
 
     let eth_handle = tokio::spawn(async move {
-        let _ = eth_indexer.start::<MongoStore>(eth_store).await;
+        match eth_indexer.start::<MongoStore>(eth_store).await {
+            Ok(()) => println!("Normal termination of eth indexer after indexing requested blocks."),
+            Err(e) => println!("Error during eth indexer loop: {:?}", e),
+        }
     });
 
     let sn_handle = tokio::spawn(async move {
-        sn_indexer.start::<MongoStore>(sn_store).await;
+        //sn_indexer.start::<MongoStore>(sn_store).await;
     });
 
     println!("waiting...");

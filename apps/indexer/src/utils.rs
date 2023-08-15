@@ -1,23 +1,5 @@
-use serde::{Deserialize, Serialize};
 use anyhow::Result;
 use std::time::SystemTime;
-
-#[derive(Debug, Default, Serialize, Deserialize)]
-pub enum BridgeChain {
-    #[default]
-    Starknet,
-    Ethereum,
-}
-
-///
-impl ToString for BridgeChain {
-    fn to_string(&self) -> String {
-        match self {
-            BridgeChain::Starknet => String::from("sn"),
-            BridgeChain::Ethereum => String::from("eth"),
-        }
-    }
-}
 
 /// Returns the number of seconds from EPOCH (UTC).
 pub fn utc_now_seconds() -> u64 {

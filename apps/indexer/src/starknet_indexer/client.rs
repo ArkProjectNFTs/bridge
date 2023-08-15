@@ -21,12 +21,12 @@ pub struct StarknetClient {
     account_address: Option<FieldElement>,
 }
 
-impl From<EmittedEvent> for Request {
-    ///
-    fn from(event: EmittedEvent) -> Self {
-        Request::default()
-    }
-}
+// impl From<EmittedEvent> for Request {
+//     ///
+//     fn from(event: EmittedEvent) -> Self {
+//         Request::default()
+//     }
+// }
 
 impl StarknetClient {
     ///

@@ -3352,7 +3352,6 @@ dependencies = [
  "futures",
  "mongodb",
  "regex",
- "reqwest",
  "serde",
  "serde_json",
  "starknet",
