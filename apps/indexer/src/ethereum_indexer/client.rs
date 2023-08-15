@@ -15,6 +15,12 @@ use std::sync::Arc;
 
 use crate::utils;
 
+abigen!(
+    StarklaneBridge,
+    "./Starklane_ABI.json",
+    event_derives(serde::Deserialize, serde::Serialize)
+);
+
 // Max block range used to fetch ethereum logs.
 // If the value is too high, as there is no hard limit
 // for `fromBlock` and `toBlock`, the RPC may return an error.
@@ -26,11 +32,16 @@ pub struct EthereumClient {
     rpc_url: String,
     provider: Provider<Http>,
     provider_signer: Option<SignerMiddleware<Provider<Http>, Wallet<SigningKey>>>,
+    bridge_address: Address,
 }
 
 impl EthereumClient {
     ///
-    pub async fn new(rpc_url: &str, private_key: &Option<String>) -> Result<EthereumClient> {
+    pub async fn new(
+        rpc_url: &str,
+        bridge_address: &str,
+        private_key: &Option<String>
+    ) -> Result<EthereumClient> {
 
         let provider = Provider::<Http>::try_from(rpc_url)?;
 
@@ -44,12 +55,35 @@ impl EthereumClient {
         } else {
             None
         };
-            
+
+        let bridge_address = Address::from_str(bridge_address)
+            .expect("Bridge address is is invalid");
+
         Ok(EthereumClient {
             rpc_url: rpc_url.to_string(),
             provider,
             provider_signer,
+            bridge_address,
         })
+    }
+
+    ///
+    pub fn get_bridge_caller(&self) -> StarklaneBridge<Provider<Http>> {
+        StarklaneBridge::new(
+            self.bridge_address.clone(),
+            Arc::new(self.provider.clone())
+        )
+    }
+
+    ///
+    pub fn get_bridge_sender(
+        &self
+    ) -> StarklaneBridge<SignerMiddleware<Provider<Http>, Wallet<SigningKey>>> {
+        let signer = self.provider_signer
+            .clone()
+            .expect("Bridge sender requested but not initialized. Did you provide a private key in the config?");
+
+        StarklaneBridge::new(self.bridge_address.clone(), Arc::new(signer))
     }
 
     /// Fetches logs for the given block options.
@@ -64,7 +98,6 @@ impl EthereumClient {
         &self,
         from_block: &str,
         to_block: &str,
-        address: Address
     ) -> Result<Vec<Log>> {
 
         let mut from_u64: u64 = match BlockNumber::from_str(from_block).expect("Invalid block number (from)") {
@@ -91,7 +124,7 @@ impl EthereumClient {
                 from_block: Some(BlockNumber::Number(from_u64.into())),
                 to_block: Some(BlockNumber::Number((from_u64 + BLOCKS_MAX_RANGE - 1).into()))
             },
-            address: Some(ValueOrArray::Value(address)),
+            address: Some(ValueOrArray::Value(self.bridge_address.clone())),
             topics: Default::default(),
         };
 
@@ -111,23 +144,30 @@ impl EthereumClient {
     }
 
     ///
-    pub async fn send_test(&self) -> Result<()> {
+    pub fn decode_log(&self, _log: Log) -> Result<()> {
 
-        abigen!(
-            Erc721B,
-            "./Erc721B_ABI.json",
-            event_derives(serde::Deserialize, serde::Serialize)
-        );
+        // let from = Address::from_str("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266").unwrap();
+        // let to = Address::from_str("0x70997970C51812dc3A010C7d01b50e0d17dc79C8").unwrap();
 
-        let from = Address::from_str("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266").unwrap();
-        let to = Address::from_str("0x70997970C51812dc3A010C7d01b50e0d17dc79C8").unwrap();
+        // abigen!(
+        //     StarklaneBridge,
+        //     "./Starklane_ABI.json",
+        //     event_derives(serde::Deserialize, serde::Serialize)
+        // );
 
-        let contract = Erc721B::new(
-            Address::from_str("0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9").unwrap(),
-            Arc::new(self.provider_signer.clone().expect("Signer provider required to send tx")));
 
-        let tx = contract.transfer_from(from, to, U256::from(6)).send().await?.await?;
-        println!("Transaction Receipt: {}", serde_json::to_string(&tx)?);
+        // let starklane_addr = Address::from_str("0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0").unwrap();
+        // let contract = StarklaneBridge::new(
+        //     starklane_addr,
+        //     Arc::new(self.provider_signer.clone().expect("Signer provider required to send tx")));
+
+        // match <DepositRequestInitiated as EthLogDecode>::decode_log(&log.into()) {
+        //     Ok(d) => println!("\n-----------> Decoded as DepositRequestInitiated {:?}", d),
+        //     Err(e) => println!("\n===*** Not DepositRequestInitiated"),
+        // };
+
+        // let tx = contract.transfer_from(from, to, U256::from(6)).send().await?.await?;
+        // println!("Transaction Receipt: {}", serde_json::to_string(&tx)?);
 
         Ok(())
     }

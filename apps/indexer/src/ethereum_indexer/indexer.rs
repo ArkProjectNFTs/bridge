@@ -5,6 +5,7 @@ use crate::storage::store::BridgeRequestStore;
 use crate::config::ChainConfig;
 
 use super::client::EthereumClient;
+use super::events::{self, DepositRequestInitiated};
 
 use tokio::time::{self, Duration};
 use std::sync::Arc;
@@ -19,7 +20,11 @@ pub struct EthereumIndexer {
 impl EthereumIndexer {
     ///
     pub async fn new(config: ChainConfig) -> Result<EthereumIndexer> {
-        let client = EthereumClient::new(&config.rpc_url, &config.account_private_key).await?;
+        let client = EthereumClient::new(
+            &config.rpc_url,
+            &config.address,
+            &config.account_private_key,
+        ).await?;
 
         Ok(EthereumIndexer {
             client,
@@ -29,9 +34,6 @@ impl EthereumIndexer {
 
     ///
     pub async fn start<T: BridgeRequestStore>(&self, store: Arc<T>) {
-        //let addr: Address = Address::parse_checksummed(self.config.address.clone(), None)
-        let addr: Address = Address::from_str(&self.config.address)
-            .expect("Ethereum address is invalid");
 
         let to_block = if let Some(to) = &self.config.to_block {
             &to
@@ -39,16 +41,26 @@ impl EthereumIndexer {
             "latest"
         };
 
-        self.client.send_test().await.expect("Can't send tx");
-
         loop {
             let maybe_eth_logs = self.client.fetch_logs(
                 &self.config.from_block,
-                to_block,
-                addr).await;
+                to_block
+            ).await;
 
             if let Ok(logs) = maybe_eth_logs {
-                println!("Eth logs {:?}", logs);
+                //println!("Eth logs {:?}", logs);
+
+                for l in logs {
+                    println!("\nEth log {:?}", l);
+                    match events::identify(l) {
+                        Ok(l_decoded) => {
+                            println!("Decoded event: {:?}", l_decoded);
+                        },
+                        Err(e) => println!("Error at decoding event: {:?}", e),
+                    };
+                }
+                // self.client.send_test().await.expect("Can't send tx");
+
                 // identify the logs + register data in the db store.
 
                 // TODO: we want to have a store transaction for each block.
