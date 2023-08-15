@@ -1,31 +1,5 @@
-///! Structs and traits related to data to be stored
-///! after indexing Starklane bridge events.
-
-use anyhow::Result;
-use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
-
 use crate::utils::BridgeChain;
-
-///
-#[derive(Debug, Default, Serialize, Deserialize)]
-pub struct BlockIndex {
-    pub chain: BridgeChain,
-    pub block_number: u64,
-    pub block_hash: String,
-    pub block_timestamp: u64,
-    pub insert_timestamp: u64,
-}
-
-/// TODO: Need better data structure for this one...
-///       we may also want the details of tokens, extracted
-///       from the request content.
-#[derive(Debug, Default, Serialize, Deserialize)]
-pub struct CollectionContract {
-    pub chain_src: BridgeChain,
-    pub address_src: String,
-    pub address_dst: String,
-}
 
 /// Request sent on the bridge.
 #[derive(Debug, Default, Serialize, Deserialize)]
@@ -83,51 +57,4 @@ impl ToString for EventLabel {
             EventLabel::TransitErrorL2L1 => String::from("transit_error_l2_l1"),
         }
     }
-}
-
-/// Store related to the indexing state.
-#[async_trait]
-pub trait IndexingStore {
-    ///
-    async fn insert_block(&self, block: BlockIndex) -> Result<()>;
-
-    ///
-    async fn block_by_number(&self, block_number: u64) -> Result<Option<BlockIndex>>;
-}
-
-/// Store for the requests content.
-#[async_trait]
-pub trait RequestStore {
-    ///
-    async fn reqs_by_wallet(&self, address: &str) -> Result<Vec<Request>>;
-
-    ///
-    async fn req_by_hash(&self, hash: &str) -> Result<Option<Request>>;
-
-    ///
-    async fn insert_req(&self, req: Request) -> Result<()>;
-}
-
-/// Store for events.
-#[async_trait]
-pub trait EventStore {
-    ///
-    async fn insert_event(&self, event: Event) -> Result<()>;
-
-    ///
-    async fn events_by_request(&self, req_hash: &str) -> Result<Vec<Event>>;
-}
-
-/// Store for bridged collections.
-#[async_trait]
-pub trait CollectionStore {
-    /// Insert a collection as being bridged for the first time.
-    async fn insert_collection(
-        &self,
-        chain_src: &str,
-        address_src: &str,
-        address_dst: &str,
-        time: u64,
-        req_hash: &str,
-    ) -> Result<()>;
 }

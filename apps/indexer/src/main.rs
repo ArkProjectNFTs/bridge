@@ -1,14 +1,12 @@
 use anyhow::Result;
 
-pub mod bridge_request;
 pub mod storage;
 pub mod utils;
 pub mod config;
 pub mod starknet_indexer;
 pub mod ethereum_indexer;
 
-use bridge_request::{BridgeRequest, BridgeRequestStatus, StatusChange};
-use storage::{mongo::request_store::MongoRequestStore};
+use storage::{mongo::MongoStore};
 
 use ethereum_indexer::EthereumIndexer;
 use starknet_indexer::StarknetIndexer;
@@ -37,7 +35,7 @@ async fn main() -> Result<()> {
         .expect("Config couldn't be loaded");
 
     let mongo_store =
-        Arc::new(MongoRequestStore::new(&args.mongodb, "starklane", "bridge_reqs").await?);
+        Arc::new(MongoStore::new(&args.mongodb, "starklane").await?);
 
     let eth_store = Arc::clone(&mongo_store);
     let sn_store = Arc::clone(&mongo_store);
@@ -51,11 +49,11 @@ async fn main() -> Result<()> {
     // If requested -> start API to serve data from the store.
 
     let eth_handle = tokio::spawn(async move {
-        eth_indexer.start::<MongoRequestStore>(eth_store).await;
+        eth_indexer.start::<MongoStore>(eth_store).await;
     });
 
     let sn_handle = tokio::spawn(async move {
-        sn_indexer.start::<MongoRequestStore>(sn_store).await;
+        sn_indexer.start::<MongoStore>(sn_store).await;
     });
 
     println!("waiting...");

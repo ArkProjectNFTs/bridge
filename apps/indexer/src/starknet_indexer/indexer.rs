@@ -7,7 +7,7 @@ use starknet::{
 
 use super::client::StarknetClient;
 
-use crate::storage::store::BridgeRequestStore;
+use crate::storage::store::RequestStore;
 use crate::config::ChainConfig;
 
 use tokio::time::{self, Duration};
@@ -36,7 +36,7 @@ impl StarknetIndexer {
     }
 
     ///
-    pub async fn start<T: BridgeRequestStore>(&self, store: Arc<T>) {
+    pub async fn start<T: RequestStore>(&self, store: Arc<T>) {
 
         let addr = FieldElement::from_hex_be(&self.config.address)
             .expect("Starknet: can't deserialize address");

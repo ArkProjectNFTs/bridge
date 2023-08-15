@@ -1,7 +1,7 @@
 use anyhow::Result;
 use ethers::types::Address;
 
-use crate::storage::store::BridgeRequestStore;
+use crate::storage::store::{RequestStore};
 use crate::config::ChainConfig;
 
 use super::client::EthereumClient;
@@ -33,7 +33,7 @@ impl EthereumIndexer {
     }
 
     ///
-    pub async fn start<T: BridgeRequestStore>(&self, store: Arc<T>) {
+    pub async fn start<T: RequestStore>(&self, store: Arc<T>) {
 
         let to_block = if let Some(to) = &self.config.to_block {
             &to

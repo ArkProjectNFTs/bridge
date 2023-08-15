@@ -10,7 +10,7 @@ use starknet::{
 };
 use url::Url;
 
-use crate::bridge_request::BridgeRequest;
+use crate::storage::store::Request;
 
 ///
 pub struct StarknetClient {
@@ -21,10 +21,10 @@ pub struct StarknetClient {
     account_address: Option<FieldElement>,
 }
 
-impl From<EmittedEvent> for BridgeRequest {
+impl From<EmittedEvent> for Request {
     ///
     fn from(event: EmittedEvent) -> Self {
-        BridgeRequest::default()
+        Request::default()
     }
 }
 
