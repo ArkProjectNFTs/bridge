@@ -72,21 +72,27 @@ mod bridge {
 
     #[derive(Drop, starknet::Event)]
     struct DepositRequestInitiated {
+        #[key]
         hash: u256,
+        #[key]
         block_timestamp: u64,
-        req_content: Span<felt252>
+        req_content: Request,
     }
 
     #[derive(Drop, starknet::Event)]
     struct WithdrawRequestCompleted {
+        #[key]
         hash: u256,
+        #[key]
         block_timestamp: u64,
-        req_content: Span<felt252>
+        req_content: Request
     }
 
     #[derive(Drop, starknet::Event)]
     struct CollectionDeployedFromL1 {
+        #[key]
         l1_addr: EthAddress,
+        #[key]
         l2_addr: ContractAddress,
         name: LongString,
         symbol: LongString
@@ -143,16 +149,10 @@ mod bridge {
             i += 1;
         };
 
-        // We have to serialize the request again to emit the event..
-        // The serialization has a high cost.
-        let mut buf = array![];
-        req.serialize(ref buf);
-
         self.emit(WithdrawRequestCompleted {
             hash: req.hash,
             block_timestamp: starknet::info::get_block_timestamp(),
-            // TODO: check if we do need to have the whole request each time..
-            req_content: buf.span()
+            req_content: req
         });
     }
 
@@ -274,7 +274,7 @@ mod bridge {
             self.emit(DepositRequestInitiated {
                 hash: req.hash,
                 block_timestamp: starknet::info::get_block_timestamp(),
-                req_content: buf.span()
+                req_content: req
             });
         }
     }

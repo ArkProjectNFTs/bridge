@@ -1,5 +1,5 @@
 use anyhow::Result;
-use starknet::core::types::{BlockId, BlockTag, EmittedEvent};
+use starknet::core::types::{BlockId, BlockTag, EmittedEvent, FieldElement};
 
 use super::client::StarknetClient;
 use super::events;
@@ -137,18 +137,27 @@ where
         // TODO: start a database transaction/session.
 
         for e in events {
-            match events::get_store_data(e)? {
-                (Some(req), Some(ev)) => {
-                    log::debug!("Request/Event\n{:?}\n{:?}", req, ev);
+            //log::debug!("raw event\n{:?}\n", e);
+            let event_selector = e.keys[0].clone();
+            // The header is the first felt in the data of the event.
+            let request_header: FieldElement = e.data[0];
 
-                    self.store.insert_req(req).await?;
-                    self.store.insert_event(ev.clone()).await?;
+            match events::get_store_data(e) {
+                Ok(store_data) => match store_data {
+                    (Some(req), Some(ev), xchain_txs) => {
+                        log::debug!("Request/Event\n{:?}\n{:?}", req, ev);
 
-                    // TODO:
-                    // self.store.insert_tx(....) << If the header has autoburn or autowithdraw.
-                }
-                // Maybe fine (upgrade for instance, etc..)
-                _ => log::warn!("Event emitted by Starklane is not handled"),
+                        self.store.insert_req(req).await?;
+                        self.store.insert_event(ev.clone()).await?;
+
+                        for tx in xchain_txs {
+                            self.store.insert_tx(tx).await?;
+                        }
+                    }
+                    // Maybe fine (upgrade for instance, etc..)
+                    _ => log::warn!("Request or event for store could'nt be built for event: {:?}", event_selector),
+                },
+                Err(er) => log::warn!("Event not processed {:?} -> {:?}", event_selector, er),
             };
         }
 
