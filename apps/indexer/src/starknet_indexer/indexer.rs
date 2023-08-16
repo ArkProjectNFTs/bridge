@@ -43,7 +43,7 @@ where
         if to_block == BlockId::Tag(BlockTag::Latest) {
             self.head_of_chain_poll(from_block).await?;
         } else {
-            self.fetch_range(from_block, to_block)?;
+            todo!();
         }
 
         Ok(())
@@ -54,7 +54,16 @@ where
 
     }
 
-    fn fetch_range(&self, from_block: BlockId, to_block: BlockId) -> Result<()> {
+    ///
+    fn fetch_range(&self, _from_block: BlockId, _to_block: BlockId) -> Result<()> {
+        // TODO: a logic for fetching only from - to range of blocks
+        // and process associated events, and stop when to is reached.
+
+        // Here we can put a logic to only fetch small ranges by small ranges, until
+        // we reach to.
+
+        // If the logic is simple, maybe head_of_chain_poll and this one can be the same
+        // function.
         Ok(())
     }
 
