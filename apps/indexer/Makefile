@@ -22,3 +22,7 @@ stop_local_devnodes:
 	@echo "Stopping devnodes..."
 	- pkill katana
 	- pkill anvil
+
+db_reset:
+	sudo docker-compose -f ./docker-compose.yml down
+	sudo docker-compose -f ./docker-compose.yml up -d
