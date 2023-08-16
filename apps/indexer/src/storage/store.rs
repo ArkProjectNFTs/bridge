@@ -1,44 +1,65 @@
-use crate::{BridgeRequest, BridgeRequestStatus, StatusChange};
+///! Structs and traits related to data to be stored
+///! after indexing Starklane bridge events.
 use anyhow::Result;
 use async_trait::async_trait;
 
+use crate::storage::{BlockIndex, BridgeChain, CrossChainTx, Event, Request};
+
+/// Store related to cross chain transactions.
+#[async_trait]
+pub trait CrossChainTxStore {
+    ///
+    async fn insert_tx(&self, tx: CrossChainTx) -> Result<()>;
+
+    ///
+    async fn delete_tx(&self, req_hash: String) -> Result<()>;
+
+    ///
+    async fn list_xtxs(&self, chain: BridgeChain) -> Result<Vec<CrossChainTx>>;
+}
+
 /// Store related to the indexing state.
 #[async_trait]
-pub trait IndexingStore {
-    // Need to save that a block is processed on a given chain.
-    // chain: String, block_number: u64, timestamp: u64 (time the block was processed).
-}
-
-/// Store for the requests persistence.
-#[async_trait]
-pub trait BridgeRequestStore {
+pub trait BlockStore {
     ///
-    async fn list_by_wallet(&self, address: &str) -> Result<Vec<BridgeRequest>>;
+    async fn insert_block(&self, block: BlockIndex) -> Result<()>;
 
     ///
-    async fn get_by_hash(&self, hash: &str) -> Result<Option<BridgeRequest>>;
-
-    ///
-    async fn insert(&self, req: BridgeRequest) -> Result<()>;
-
-    /// TODO: add tx_hash here...!
-    async fn status_set(
+    async fn block_by_number(
         &self,
-        hash: &str,
-        status: BridgeRequestStatus,
-        time: u64,
-        tx_hash: String,
-    ) -> Result<()>;
-
-    ///
-    async fn status_get(&self, hash: &str) -> Result<Vec<StatusChange>>;
+        chain: BridgeChain,
+        block_number: u64,
+    ) -> Result<Option<BlockIndex>>;
 }
 
-/// Store for bridged collections persistence.
+/// Store for the requests content.
 #[async_trait]
-pub trait BridgedCollectionStore {
+pub trait RequestStore {
+    ///
+    async fn reqs_by_wallet(&self, address: &str) -> Result<Vec<Request>>;
+
+    ///
+    async fn req_by_hash(&self, hash: &str) -> Result<Option<Request>>;
+
+    ///
+    async fn insert_req(&self, req: Request) -> Result<()>;
+}
+
+/// Store for events.
+#[async_trait]
+pub trait EventStore {
+    ///
+    async fn insert_event(&self, event: Event) -> Result<()>;
+
+    ///
+    async fn events_by_request(&self, req_hash: &str) -> Result<Vec<Event>>;
+}
+
+/// Store for bridged collections.
+#[async_trait]
+pub trait CollectionStore {
     /// Insert a collection as being bridged for the first time.
-    async fn insert(
+    async fn insert_collection(
         &self,
         chain_src: &str,
         address_src: &str,
