@@ -53,6 +53,7 @@ pub struct CrossChainTx {
     pub kind: CrossChainTxKind,
     pub req_hash: String,
     pub req_content: String,
+    pub tx_hash: String,
 }
 
 ///

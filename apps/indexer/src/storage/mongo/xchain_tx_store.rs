@@ -15,12 +15,30 @@ impl CrossChainTxStore for MongoStore {
     }
 
     ///
-    async fn delete_tx(&self, req_hash: String) -> Result<()> {
+    async fn set_tx_as_sent(&self, req_hash: String, tx_hash: String) -> Result<()> {
         self.xchain_txs
-            .delete_one(doc! { "req_hash": req_hash }, None)
+            .update_one(
+                doc! { "req_hash": req_hash },
+                doc! { "$set": { "tx_hash": tx_hash }},
+                None)
             .await?;
 
         Ok(())
+    }
+
+    ///
+    async fn pending_xtxs(&self, chain: BridgeChain) -> Result<Vec<CrossChainTx>> {
+        let filter = doc! { "chain": chain.to_string(), "tx_hash": "" };
+
+        let mut cursor = self.xchain_txs.find(filter, None).await?;
+
+        let mut txs: Vec<CrossChainTx> = vec![];
+
+        while let Some(tx) = cursor.try_next().await? {
+            txs.push(tx);
+        }
+
+        Ok(txs)
     }
 
     ///

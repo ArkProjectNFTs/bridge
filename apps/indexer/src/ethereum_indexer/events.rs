@@ -101,6 +101,13 @@ fn request_from_log_data(data: Vec<U256>) -> Result<Request> {
     let content_array: Vec<Value> = hex_strings.iter().map(|s| json!(s)).collect();
     let content = serde_json::to_string(&content_array)?;
 
+    // TODO: if it's a withdraw or deposit, the values for the collection_src etc..
+    // will differ.
+    // Need to be checked.
+    // We still need to insert the request even if it's a withdraw as the indexer
+    // on starknet side may be slower/faster, and we don't want to depend on the other
+    // side indexation.
+
     Ok(Request {
         hash: format!("{:#032x}{:032x}", data[2], data[1]),
         chain_src: BridgeChain::Ethereum,

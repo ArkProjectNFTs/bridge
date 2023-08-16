@@ -93,7 +93,7 @@ where
                 .await?;
 
             // Don't fetch if we already are on the head of the chain.
-            if from_u64 >= latest_u64 {
+            if from_u64 > latest_u64 {
                 log::debug!("Nothing to fetch (from={} to={})", from_u64, latest_u64);
                 continue;
             }

@@ -12,10 +12,13 @@ pub trait CrossChainTxStore {
     async fn insert_tx(&self, tx: CrossChainTx) -> Result<()>;
 
     ///
-    async fn delete_tx(&self, req_hash: String) -> Result<()>;
+    async fn set_tx_as_sent(&self, req_hash: String, tx_hash: String) -> Result<()>;
 
     ///
     async fn list_xtxs(&self, chain: BridgeChain) -> Result<Vec<CrossChainTx>>;
+
+    ///
+    async fn pending_xtxs(&self, chain: BridgeChain) -> Result<Vec<CrossChainTx>>;
 }
 
 /// Store related to the indexing state.

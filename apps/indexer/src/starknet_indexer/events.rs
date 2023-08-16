@@ -28,6 +28,7 @@ pub fn get_store_data(event: EmittedEvent) -> Result<(Option<Request>, Option<Ev
     };
 
     let request = request_from_event_data(event.data)?;
+    let mut txs = vec![];
 
     assert_eq!(request.hash, store_event.req_hash);
 
@@ -35,11 +36,12 @@ pub fn get_store_data(event: EmittedEvent) -> Result<(Option<Request>, Option<Ev
     match felt_to_hex(&event.keys[0]).as_str() {
         DEPOSIT_REQUEST_INITIATED_SELECTOR => {
             store_event.label = EventLabel::DepositInitiatedL2;
+
+            // txs are only valid for deposit.
+            txs = get_xchain_txs(request_header, request.hash.clone(), request.content.clone())?;
         }
         _ => return Ok((None, None, vec![])),
     }
-
-    let txs = get_xchain_txs(request_header, request.hash.clone(), request.content.clone())?;
 
     Ok((Some(request), Some(store_event), txs))
 }
@@ -91,6 +93,7 @@ fn get_xchain_txs(
                 kind: CrossChainTxKind::WithdrawAuto,
                 req_hash: req_hash.clone(),
                 req_content: req_content.clone(),
+                tx_hash: String::from(""),
             }
         );
     }
@@ -102,6 +105,7 @@ fn get_xchain_txs(
                 kind: CrossChainTxKind::BurnAuto,
                 req_hash: req_hash.clone(),
                 req_content: req_content.clone(),
+                tx_hash: String::from(""),
             }
         );
     }

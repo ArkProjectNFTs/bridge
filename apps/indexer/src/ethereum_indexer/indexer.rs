@@ -81,7 +81,7 @@ where
 
     ///
     async fn xchain_txs_send(&self) -> Result<()> {
-        let txs = self.store.list_xtxs(BridgeChain::Ethereum).await?;
+        let txs = self.store.pending_xtxs(BridgeChain::Ethereum).await?;
         log::debug!("Sending xchain_txs to ethereum node [{}]", txs.len());
 
         let starklane = self.client.get_bridge_sender();
@@ -91,6 +91,10 @@ where
 
         // TODO: for loop instead for_each, async closure?
         for tx in txs {
+            // TODO: we need to first check if a corresponding withdraw event doesn't
+            // already exist. This will avoid sending a tx that will revert and can be
+            // eth consuming!
+
             let felts_strs: Vec<String> = serde_json::from_str(&tx.req_content)
                 .expect("Fail parsing request content for xchain_tx");
 
@@ -102,8 +106,13 @@ where
 
             match tx.kind {
                 CrossChainTxKind::WithdrawAuto => {
-                    let _receipt = starklane.withdraw_tokens(u256s).send().await?.await?;
-                    self.store.delete_tx(tx.req_hash).await?;
+                    let receipt = starklane.withdraw_tokens(u256s).send().await?.await?;
+                    if let Some(r) = receipt {
+                        self.store.set_tx_as_sent(
+                            tx.req_hash,
+                            format!("{:#064x}", r.transaction_hash)
+                        ).await?;
+                    };
                 }
                 CrossChainTxKind::BurnAuto => todo!(),
             };
