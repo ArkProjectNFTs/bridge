@@ -72,11 +72,14 @@ pub fn get_store_data(log: Log) -> Result<(Option<Request>, Option<Event>)> {
             request = request_from_log_data(data.req_content)?;
         }
         COLLECTION_DEPOYED_FROM_L2_SIG => {
-            // TODO:
-            log::info!("Collection deployed from L2 {:?}", log);
+            // TODO: return event only.
+            log::debug!("Collection deployed from L2 {:?}", log);
             return Ok((None, None));
         }
-        _ => return Ok((None, None)),
+        _ => {
+            log::debug!("not handled log\n{:?}\n", log);
+            return Ok((None, None))
+        },
     };
 
     assert_eq!(request.hash, event.req_hash);

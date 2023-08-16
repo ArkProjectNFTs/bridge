@@ -89,7 +89,7 @@ impl StarknetClient {
     ) -> Result<HashMap<u64, Vec<EmittedEvent>>> {
         log::info!("Starknet fetching blocks {:?} - {:?}", from_block, to_block);
 
-        let mut events = HashMap::new();
+        let mut events: HashMap<u64, Vec<EmittedEvent>> = HashMap::new();
 
         let filter = EventFilter {
             from_block: Some(from_block),
@@ -108,7 +108,10 @@ impl StarknetClient {
                 .await?;
 
             event_page.events.iter().for_each(|e| {
-                events.entry(e.block_number).or_insert(vec![e.clone()]);
+                events
+                    .entry(e.block_number)
+                    .and_modify(|v| v.push(e.clone()))
+                    .or_insert(vec![e.clone()]);
             });
 
             continuation_token = event_page.continuation_token;
