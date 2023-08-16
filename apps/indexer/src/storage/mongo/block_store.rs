@@ -19,15 +19,24 @@ impl BlockStore for MongoStore {
         chain: BridgeChain,
         block_number: u64,
     ) -> Result<Option<BlockIndex>> {
-        Ok(self
+        log::error!("0----- {:?}",                 doc! {
+                    "chain": chain.clone(),
+                    "block_number": block_number as i64,
+                });
+
+        let b = self
             .blocks
             .find_one(
                 doc! {
-                    "chain": chain.to_string(),
+                    "chain": chain,
                     "block_number": block_number as i64,
                 },
                 None,
             )
-            .await?)
+            .await?;
+
+        log::error!("0----- {:?}", b);
+
+        Ok(b)
     }
 }

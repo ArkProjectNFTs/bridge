@@ -1,7 +1,7 @@
 use anyhow::Result;
-use mongodb::{options::ClientOptions, Client, Collection};
+use mongodb::{options::ClientOptions, Client, Collection, bson::Bson};
 
-use crate::storage::{BlockIndex, Event, Request, CrossChainTx};
+use crate::storage::{BlockIndex, Event, Request, CrossChainTx, BridgeChain, CrossChainTxKind, EventLabel};
 
 mod block_store;
 mod event_store;
@@ -45,5 +45,72 @@ impl MongoStore {
             blocks,
             xchain_txs,
         })
+    }
+}
+
+///
+impl From<BridgeChain> for Bson {
+    fn from(v: BridgeChain) -> Bson {
+        Bson::String(v.to_string())
+    }
+}
+
+///
+impl From<Bson> for BridgeChain {
+    fn from(v: Bson) -> BridgeChain {
+        match v {
+            Bson::String(s) => match s.as_str() {
+                "sn" => BridgeChain::Starknet,
+                "eth" => BridgeChain::Ethereum,
+                &_ => panic!("Unknown bridge chain {:?}", s),
+            },
+            _ => panic!("Unsupported Bson value {:?}", v),
+        }
+    }
+}
+
+///
+impl From<EventLabel> for Bson {
+    fn from(v: EventLabel) -> Bson {
+        Bson::String(v.to_string())
+    }
+}
+
+///
+impl From<Bson> for EventLabel {
+    fn from(v: Bson) -> EventLabel {
+        match v {
+            Bson::String(s) => match s.as_str() {
+                "deposit_initiated_l1" => EventLabel::DepositInitiatedL1,
+                "withdraw_completed_l1" => EventLabel::WithdrawCompletedL1,
+                "transit_error_l1_l2" => EventLabel::TransitErrorL1L2,
+                "deposit_initiated_l2" => EventLabel::DepositInitiatedL2,
+                "withdraw_completed_l2" => EventLabel::WithdrawCompletedL2,
+                "transit_error_l2_l1" => EventLabel::TransitErrorL2L1,
+                &_ => panic!("Unknown event label {:?}", s),
+            },
+            _ => panic!("Unsupported Bson value {:?}", v),
+        }
+    }
+}
+
+///
+impl From<CrossChainTxKind> for Bson {
+    fn from(v: CrossChainTxKind) -> Bson {
+        Bson::String(v.to_string())
+    }
+}
+
+///
+impl From<Bson> for CrossChainTxKind {
+    fn from(v: Bson) -> CrossChainTxKind {
+        match v {
+            Bson::String(s) => match s.as_str() {
+                "withdraw_auto" => CrossChainTxKind::WithdrawAuto,
+                "burn_auto" => CrossChainTxKind::BurnAuto,
+                &_ => panic!("Unknown xchain tx kind {:?}", s),
+            },
+            _ => panic!("Unsupported Bson value {:?}", v),
+        }
     }
 }

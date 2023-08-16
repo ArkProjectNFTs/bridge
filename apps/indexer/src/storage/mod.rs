@@ -10,7 +10,9 @@ pub mod store;
 #[derive(Debug, Default, Serialize, Deserialize, Clone)]
 pub enum BridgeChain {
     #[default]
+    #[serde(rename = "sn")]
     Starknet,
+    #[serde(rename = "eth")]
     Ethereum,
 }
 
@@ -28,7 +30,9 @@ impl ToString for BridgeChain {
 #[derive(Debug, Default, Serialize, Deserialize, Clone)]
 pub enum CrossChainTxKind {
     #[default]
+    #[serde(rename = "withdraw_auto")]
     WithdrawAuto,
+    #[serde(rename = "burn_auto")]
     BurnAuto,
 }
 
@@ -107,12 +111,18 @@ pub struct Event {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum EventLabel {
+    #[serde(rename = "deposit_initiated_l1")]
     DepositInitiatedL1,
+    #[serde(rename = "withdraw_completed_l1")]
     WithdrawCompletedL1,
+    #[serde(rename = "transit_error_l1_l2")]
     TransitErrorL1L2,
 
+    #[serde(rename = "deposit_initiated_l2")]
     DepositInitiatedL2,
+    #[serde(rename = "withdraw_completed_l2")]
     WithdrawCompletedL2,
+    #[serde(rename = "transit_error_l2_l1")]
     TransitErrorL2L1,
 }
 

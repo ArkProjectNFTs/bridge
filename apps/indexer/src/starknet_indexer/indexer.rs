@@ -119,12 +119,6 @@ where
 
     /// Returns the number of events processed for the given block.
     async fn process_events(&self, block_number: u64, events: Vec<EmittedEvent>) -> Result<()> {
-        log::debug!(
-            "Processing {} events for block {}",
-            events.len(),
-            block_number
-        );
-
         if self
             .store
             .block_by_number(BridgeChain::Starknet, block_number)
@@ -134,6 +128,12 @@ where
             log::debug!("Block {} already indexed for starknet", block_number);
             return Ok(());
         }
+
+        log::debug!(
+            "Processing {} events for block {}",
+            events.len(),
+            block_number
+        );
 
         // TODO: start a database transaction/session.
 
