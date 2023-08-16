@@ -11,6 +11,10 @@ sgr0 := $(shell tput sgr0)
 
 # TODO: for upgrades, check how to force proxy arg.
 
+# Starklane local setup.
+starklane_local_setup:
+	forge script --broadcast --verify --rpc-url ${ETH_RPC_URL} script/LocalTesting.s.sol:LocalSetup
+
 # Starklane deposit tokens
 starklane_deposit:
 	@printf "$(bold)Ensure you don't forget the proxy argument:\n"
