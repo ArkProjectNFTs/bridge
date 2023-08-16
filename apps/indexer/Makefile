@@ -26,3 +26,8 @@ stop_local_devnodes:
 db_reset:
 	sudo docker-compose -f ./docker-compose.yml down
 	sudo docker-compose -f ./docker-compose.yml up -d
+
+run_dev:
+	cargo build
+	@make db_reset
+	RUST_LOG=debug cargo run -- --config-file local.config --mongodb mongodb://localhost:27017/starklane
