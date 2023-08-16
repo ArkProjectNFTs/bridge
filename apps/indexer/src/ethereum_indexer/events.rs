@@ -38,7 +38,6 @@ const COLLECTION_DEPOYED_FROM_L2_SIG: &str =
 
 /// Returns storage data from the log entry.
 pub fn get_store_data(log: Log) -> Result<(Option<Request>, Option<Event>)> {
-
     let sig = format!("{:#064x}", log.topics[0]);
     let req_hash = format!("{:#064x}", log.topics[1]);
 
@@ -119,7 +118,12 @@ fn request_from_log_data(event_label: &EventLabel, data: Vec<U256>) -> Result<Re
             to: hex_strings[5].clone(),
             content,
         },
-        _ => return Err(anyhow!("EventLabel {:?} not supposed to generate a request", event_label))
+        _ => {
+            return Err(anyhow!(
+                "EventLabel {:?} not supposed to generate a request",
+                event_label
+            ))
+        }
     };
 
     Ok(req)

@@ -10,7 +10,6 @@ pub const DEPOSIT_REQUEST_INITIATED_SELECTOR: &str =
 pub const WITHDRAW_REQUEST_COMPLETED_SELECTOR: &str =
     "0x0132aab9714c265c8ad151ce006bb91691100722ddec42e7ee96dc9dfa9e741c";
 
-
 pub const REQUEST_HEADER_WITHDRAW_AUTO: u128 = 0x01000000;
 pub const REQUEST_HEADER_BURN_AUTO: u128 = 0x010000;
 
@@ -50,7 +49,7 @@ pub fn get_store_data(
             )?;
 
             assert_eq!(request.hash, store_event.req_hash);
-            return Ok((Some(request), Some(store_event), txs))
+            return Ok((Some(request), Some(store_event), txs));
         }
         WITHDRAW_REQUEST_COMPLETED_SELECTOR => {
             store_event.label = EventLabel::WithdrawCompletedL2;
@@ -58,7 +57,7 @@ pub fn get_store_data(
             let request = request_from_event_data(&store_event.label, event.data)?;
 
             assert_eq!(request.hash, store_event.req_hash);
-            return Ok((Some(request), Some(store_event), txs))
+            return Ok((Some(request), Some(store_event), txs));
         }
         _ => return Ok((None, None, vec![])),
     };
@@ -100,7 +99,12 @@ fn request_from_event_data(event_label: &EventLabel, data: Vec<FieldElement>) ->
             to: felt_to_hex_noleading(&data[6]),             // owner l2
             content,
         },
-        _ => return Err(anyhow!("EventLabel {:?} not supposed to generate a request", event_label))
+        _ => {
+            return Err(anyhow!(
+                "EventLabel {:?} not supposed to generate a request",
+                event_label
+            ))
+        }
     };
 
     Ok(req)
