@@ -5,6 +5,7 @@ use crate::storage::{BlockIndex, Event, Request};
 
 mod event_store;
 mod request_store;
+mod block_store;
 
 /// Mongo db abstraction.
 ///

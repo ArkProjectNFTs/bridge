@@ -36,15 +36,14 @@ async fn main() -> Result<()> {
     let mongo_store = Arc::new(MongoStore::new(&args.mongodb, "starklane").await?);
 
     let eth_store = Arc::clone(&mongo_store);
-    let sn_store = Arc::clone(&mongo_store);
 
     let eth_indexer = EthereumIndexer::new(config.ethereum.clone())
-        .await
-        .expect("Ethereum indexer couldn't be created");
+        .await?;
 
-    let sn_indexer = StarknetIndexer::new(config.starknet.clone())
-        .await
-        .expect("Starknet indexer couldn't be created");
+    let sn_indexer = StarknetIndexer::<MongoStore>::new(
+        config.starknet.clone(),
+        Arc::clone(&mongo_store)
+    ).await?;
 
     // If requested -> start API to serve data from the store.
 
@@ -56,10 +55,8 @@ async fn main() -> Result<()> {
     });
 
     let sn_handle = tokio::spawn(async move {
-        match sn_indexer.start::<MongoStore>(sn_store).await {
-            Ok(()) => {
-                log::info!("Normal termination of sn indexer after indexing requested blocks.")
-            }
+        match sn_indexer.start().await {
+            Ok(()) => log::info!("Normal termination of sn indexer after indexing requested blocks."),
             Err(e) => log::error!("Error during sn indexer loop: {:?}", e),
         }
     });

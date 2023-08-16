@@ -22,7 +22,7 @@ impl EthereumIndexer {
     pub async fn new(config: ChainConfig) -> Result<EthereumIndexer> {
         let client = EthereumClient::new(
             &config.rpc_url,
-            &config.address,
+            &config.bridge_address,
             &config.account_private_key,
         )
         .await?;

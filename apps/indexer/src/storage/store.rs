@@ -3,16 +3,20 @@
 use anyhow::Result;
 use async_trait::async_trait;
 
-use crate::storage::{BlockIndex, Event, Request};
+use crate::storage::{BlockIndex, Event, Request, BridgeChain};
 
 /// Store related to the indexing state.
 #[async_trait]
-pub trait IndexingStore {
+pub trait BlockStore {
     ///
     async fn insert_block(&self, block: BlockIndex) -> Result<()>;
 
     ///
-    async fn block_by_number(&self, block_number: u64) -> Result<Option<BlockIndex>>;
+    async fn block_by_number(
+        &self,
+        chain: BridgeChain,
+        block_number: u64
+    ) -> Result<Option<BlockIndex>>;
 }
 
 /// Store for the requests content.

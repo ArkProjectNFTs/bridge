@@ -10,7 +10,7 @@ pub struct ChainConfig {
     pub rpc_url: String,
     pub from_block: String,
     pub to_block: Option<String>,
-    pub address: String,
+    pub bridge_address: String,
     pub fetch_interval: u64,
     pub account_address: Option<String>,
     pub account_private_key: Option<String>,

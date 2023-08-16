@@ -7,7 +7,10 @@ use starknet::{
     signers::{LocalWallet, SigningKey},
 };
 use std::sync::Arc;
+use std::collections::HashMap;
 use url::Url;
+
+use crate::config::ChainConfig;
 
 ///
 pub struct StarknetClient {
@@ -15,31 +18,31 @@ pub struct StarknetClient {
     provider: AnyProvider,
     wallet: Option<LocalWallet>,
     account_address: Option<FieldElement>,
+    bridge_address: FieldElement,
 }
 
 impl StarknetClient {
     ///
-    pub async fn new(
-        rpc_url: &str,
-        account_address: &Option<String>,
-        private_key: &Option<String>,
-    ) -> Result<StarknetClient> {
-        let rpc_url = Url::parse(rpc_url)?;
+    pub async fn new(config: ChainConfig) -> Result<StarknetClient> {
+        let rpc_url = Url::parse(&config.rpc_url)?;
         let provider = AnyProvider::JsonRpcHttp(JsonRpcClient::new(HttpTransport::new(rpc_url)));
 
-        let wallet = StarknetClient::wallet_from_private_key(&private_key);
+        let wallet = StarknetClient::wallet_from_private_key(&config.account_private_key);
         let chain_id = provider.chain_id().await?;
-        let account_address = if let Some(pk) = account_address {
-            Some(FieldElement::from_hex_be(&pk)?)
+        let account_address = if let Some(ac) = &config.account_address {
+            Some(FieldElement::from_hex_be(&ac)?)
         } else {
             None
         };
+
+        let bridge_address = FieldElement::from_hex_be(&config.bridge_address)?;
 
         Ok(StarknetClient {
             provider,
             wallet,
             account_address,
             chain_id,
+            bridge_address,
         })
     }
 
@@ -76,20 +79,24 @@ impl StarknetClient {
     /// as the events are accumulated before this function returns.
     /// We can think of an other version that returns each page, and let
     /// the caller process the pages.
+    ///
+    /// TODO: change return type to HashMap instead of vector, to have the block
+    /// number as a key.
     pub async fn fetch_events(
         &self,
         from_block: BlockId,
         to_block: BlockId,
-        address: FieldElement,
-    ) -> Result<Vec<EmittedEvent>> {
+    ) -> Result<HashMap<u64, Vec<EmittedEvent>>> {
+        log::info!("Starknet fetching blocks {:?} - {:?}", from_block, to_block);
+
+        let mut events = HashMap::new();
+
         let filter = EventFilter {
             from_block: Some(from_block),
             to_block: Some(to_block),
-            address: Some(address),
+            address: Some(self.bridge_address),
             keys: None,
         };
-
-        let mut events = vec![];
 
         let chunk_size = 200;
         let mut continuation_token: Option<String> = None;
@@ -100,7 +107,10 @@ impl StarknetClient {
                 .get_events(filter.clone(), continuation_token, chunk_size)
                 .await?;
 
-            events.extend(event_page.events);
+            event_page.events.iter().for_each(|e| {
+                events.entry(e.block_number).or_insert(vec![e.clone()]);
+            });
+
             continuation_token = event_page.continuation_token;
 
             if continuation_token.is_none() {

@@ -29,8 +29,6 @@ impl ToString for BridgeChain {
 pub struct BlockIndex {
     pub chain: BridgeChain,
     pub block_number: u64,
-    pub block_hash: String,
-    pub block_timestamp: u64,
     pub insert_timestamp: u64,
 }
 
