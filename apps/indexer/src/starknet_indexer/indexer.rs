@@ -37,6 +37,11 @@ where
 
     ///
     pub async fn start(&self) -> Result<()> {
+
+        // TODO: start a loop that will check for the TXs (with request) to be sent to
+        // starknet...! (as we have here a client for starknet txs with invoke available).
+        // On starknet, it should only by auto-burn invokes.
+
         let from_block = self.client.parse_block_id(&self.config.from_block)?;
         let to_block = if let Some(to) = &self.config.to_block {
             self.client.parse_block_id(&to)?
@@ -140,10 +145,8 @@ where
                     self.store.insert_req(req).await?;
                     self.store.insert_event(ev.clone()).await?;
 
-                    // TODO: check for withdraw auto to send TX on ethereum.
-                    //       check for burn auto to send TX on ethereum.
-                    // Instead of sending here the TX -> put this into a database.
-                    // And in the mainloop, a job will take care of checking those.
+                    // TODO:
+                    // self.store.insert_tx(....) << If the header has autoburn or autowithdraw.
                 }
                 // Maybe fine (upgrade for instance, etc..)
                 _ => log::warn!("Event emitted by Starklane is not handled"),

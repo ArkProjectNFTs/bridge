@@ -25,6 +25,33 @@ impl ToString for BridgeChain {
 }
 
 ///
+#[derive(Debug, Default, Serialize, Deserialize, Clone)]
+pub enum CrossChainTxKind {
+    #[default]
+    WithdrawAuto,
+    BurnAuto,
+}
+
+///
+impl ToString for CrossChainTxKind {
+    fn to_string(&self) -> String {
+        match self {
+            CrossChainTxKind::WithdrawAuto => String::from("withdraw_auto"),
+            CrossChainTxKind::BurnAuto => String::from("burn_auto"),
+        }
+    }
+}
+
+///
+#[derive(Debug, Default, Serialize, Deserialize)]
+pub struct CrossChainTx {
+    pub chain: BridgeChain,
+    pub kind: CrossChainTxKind,
+    pub req_hash: String,
+    pub req_content: String,
+}
+
+///
 #[derive(Debug, Default, Serialize, Deserialize)]
 pub struct BlockIndex {
     pub chain: BridgeChain,

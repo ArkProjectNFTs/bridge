@@ -1,11 +1,12 @@
 use anyhow::Result;
 use mongodb::{options::ClientOptions, Client, Collection};
 
-use crate::storage::{BlockIndex, Event, Request};
+use crate::storage::{BlockIndex, Event, Request, CrossChainTx};
 
 mod block_store;
 mod event_store;
 mod request_store;
+mod xchain_tx_store;
 
 /// Mongo db abstraction.
 ///
@@ -19,6 +20,7 @@ pub struct MongoStore {
     requests: Collection<Request>,
     events: Collection<Event>,
     blocks: Collection<BlockIndex>,
+    xchain_txs: Collection<CrossChainTx>,
 }
 
 ///
@@ -35,11 +37,13 @@ impl MongoStore {
         let requests = db.collection::<Request>("requests");
         let events = db.collection::<Event>("events");
         let blocks = db.collection::<BlockIndex>("blocks");
+        let xchain_txs = db.collection::<CrossChainTx>("xchain_txs");
 
         Ok(MongoStore {
             requests,
             events,
             blocks,
+            xchain_txs,
         })
     }
 }
