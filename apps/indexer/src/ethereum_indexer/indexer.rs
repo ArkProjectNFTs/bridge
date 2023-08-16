@@ -61,7 +61,11 @@ where
             for (block_number, logs) in blocks_logs {
                 match self.process_logs(block_number, logs).await {
                     Ok(_) => (),
-                    Err(e) => log::warn!("Error processing logs for block {:?}\n{:?}", block_number, e),
+                    Err(e) => log::warn!(
+                        "Error processing logs for block {:?}\n{:?}",
+                        block_number,
+                        e
+                    ),
                 };
 
                 if block_number > from {
@@ -100,18 +104,19 @@ where
 
             let u256s: Vec<U256> = felts_strs
                 .into_iter()
-                .map(|felt_str| U256::from_str_radix(&felt_str, 16)
-                     .expect("Invalid U256 format (expecting hex str)"))
+                .map(|felt_str| {
+                    U256::from_str_radix(&felt_str, 16)
+                        .expect("Invalid U256 format (expecting hex str)")
+                })
                 .collect();
 
             match tx.kind {
                 CrossChainTxKind::WithdrawAuto => {
                     let receipt = starklane.withdraw_tokens(u256s).send().await?.await?;
                     if let Some(r) = receipt {
-                        self.store.set_tx_as_sent(
-                            tx.req_hash,
-                            format!("{:#064x}", r.transaction_hash)
-                        ).await?;
+                        self.store
+                            .set_tx_as_sent(tx.req_hash, format!("{:#064x}", r.transaction_hash))
+                            .await?;
                     };
                 }
                 CrossChainTxKind::BurnAuto => todo!(),

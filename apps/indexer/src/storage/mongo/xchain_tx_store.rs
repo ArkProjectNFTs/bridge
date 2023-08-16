@@ -20,7 +20,8 @@ impl CrossChainTxStore for MongoStore {
             .update_one(
                 doc! { "req_hash": req_hash },
                 doc! { "$set": { "tx_hash": tx_hash }},
-                None)
+                None,
+            )
             .await?;
 
         Ok(())

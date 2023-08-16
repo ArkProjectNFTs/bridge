@@ -155,7 +155,10 @@ where
                         }
                     }
                     // Maybe fine (upgrade for instance, etc..)
-                    _ => log::warn!("Request or event for store could'nt be built for event: {:?}", event_selector),
+                    _ => log::warn!(
+                        "Request or event for store could'nt be built for event: {:?}",
+                        event_selector
+                    ),
                 },
                 Err(er) => log::warn!("Event not processed {:?} -> {:?}", event_selector, er),
             };

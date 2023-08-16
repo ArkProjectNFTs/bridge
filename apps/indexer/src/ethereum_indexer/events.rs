@@ -78,8 +78,8 @@ pub fn get_store_data(log: Log) -> Result<(Option<Request>, Option<Event>)> {
         }
         _ => {
             log::debug!("not handled log\n{:?}\n", log);
-            return Ok((None, None))
-        },
+            return Ok((None, None));
+        }
     };
 
     assert_eq!(request.hash, event.req_hash);

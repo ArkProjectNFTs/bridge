@@ -123,8 +123,8 @@ impl EthereumClient {
                         .try_into()
                         .unwrap(),
                 )
-                    .and_modify(|v| v.push(l.clone()))
-                    .or_insert(vec![l.clone()]);
+                .and_modify(|v| v.push(l.clone()))
+                .or_insert(vec![l.clone()]);
             });
 
             if diff >= BLOCKS_MAX_RANGE {
