@@ -96,7 +96,7 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEscrow, Stark
 
         Request memory req;
 
-        // The withdrawQuick is only available for request originated from
+        // The withdraw auto is only available for request originated from
         // Starknet side as the withdraw on starknet is automatically done
         // by the sequencer.
         req.header = Protocol.requestHeaderV1(ctype, useAutoBurn, false);
@@ -153,8 +153,8 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEscrow, Stark
 
         // Any error or permission fail in the message consumption will cause a revert.
         // After message being consumed, it is considered legit and tokens can be withdrawn.
-        if (Protocol.canUseWithdrawQuick(header)) {
-            _consumeMessageQuick(_starklaneL2Address, request);
+        if (Protocol.canUseWithdrawAuto(header)) {
+            _consumeMessageAutoWithdraw(_starklaneL2Address, request);
         } else {
             _consumeMessageStarknet(_starknetCoreAddress, _starklaneL2Address, request);
         }

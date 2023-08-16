@@ -6,7 +6,7 @@ use serde_json::{json, Value};
 
 use crate::storage::{BridgeChain, Event, EventLabel, Request};
 
-/// Event expected from the bridge.
+///
 #[derive(Debug, PartialEq, Eq, EthEvent)]
 pub struct DepositRequestInitiated {
     #[ethevent(indexed)]
@@ -15,8 +15,26 @@ pub struct DepositRequestInitiated {
     req_content: Vec<U256>,
 }
 
+///
+#[derive(Debug, PartialEq, Eq, EthEvent)]
+pub struct WithdrawRequestCompleted {
+    #[ethevent(indexed)]
+    hash: U256,
+    block_timestamp: U256,
+    req_content: Vec<U256>,
+}
+
 const DEPOSIT_REQUEST_INITIATED_SIG: &str =
     "0x4ecaf4a99ef1a36d5c1967133fb3f251e98f89361d2b43ee590c283171051b8c";
+
+const WITHDRAW_REQUEST_COMPLETED_SIG: &str =
+    "0x1969477bb1c714c2de347e8b12129f967163d2cdd4bbc4a0d1e0f062211d86ed";
+
+const COLLECTION_DEPOYED_FROM_L2_SIG: &str =
+    "0xf1653c653aee21ff13e04dc08fdab8b953d980fc4d17e032af195883a4623245";
+
+// TODO: Check how to rework this get_store_data.
+// We can have an event only, and no associated request (ex: collection deployed).
 
 /// Returns storage data from the log entry.
 pub fn get_store_data(log: Log) -> Result<(Option<Request>, Option<Event>)> {
@@ -40,10 +58,23 @@ pub fn get_store_data(log: Log) -> Result<(Option<Request>, Option<Event>)> {
         DEPOSIT_REQUEST_INITIATED_SIG => {
             let data = <DepositRequestInitiated as EthLogDecode>::decode_log(&raw)?;
             event.label = EventLabel::DepositInitiatedL1;
-            event.req_hash = format!("{:#x}", data.hash);
+            event.req_hash = format!("{:#64x}", data.hash);
             event.block_timestamp = data.block_timestamp.try_into().unwrap();
 
             request = request_from_log_data(data.req_content)?;
+        }
+        WITHDRAW_REQUEST_COMPLETED_SIG => {
+            let data = <WithdrawRequestCompleted as EthLogDecode>::decode_log(&raw)?;
+            event.label = EventLabel::WithdrawCompletedL1;
+            event.req_hash = format!("{:#64x}", data.hash);
+            event.block_timestamp = data.block_timestamp.try_into().unwrap();
+
+            request = request_from_log_data(data.req_content)?;
+        }
+        COLLECTION_DEPOYED_FROM_L2_SIG => {
+            // TODO:
+            log::info!("Collection deployed from L2 {:?}", log);
+            return Ok((None, None));
         }
         _ => return Ok((None, None)),
     };
@@ -68,11 +99,7 @@ fn request_from_log_data(data: Vec<U256>) -> Result<Request> {
     let content = serde_json::to_string(&content_array)?;
 
     Ok(Request {
-        hash: format!(
-            "{}{}",
-            hex_strings[2],
-            hex_strings[1].strip_prefix("0x").unwrap()
-        ),
+        hash: format!("{:#032x}{:032x}", data[2], data[1]),
         chain_src: BridgeChain::Ethereum,
         collection_src: hex_strings[3].clone(),
         collection_dst: hex_strings[4].clone(),
