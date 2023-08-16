@@ -9,6 +9,8 @@ use k256::ecdsa::SigningKey;
 use std::str::FromStr;
 use std::sync::Arc;
 
+use crate::config::ChainConfig;
+
 abigen!(
     StarklaneBridge,
     "./Starklane_ABI.json",
@@ -30,24 +32,19 @@ pub struct EthereumClient {
 
 impl EthereumClient {
     ///
-    pub async fn new(
-        rpc_url: &str,
-        bridge_address: &str,
-        private_key: &Option<String>,
-    ) -> Result<EthereumClient> {
-        let provider = Provider::<Http>::try_from(rpc_url)?;
+    pub async fn new(config: ChainConfig) -> Result<EthereumClient> {
+        let provider = Provider::<Http>::try_from(&config.rpc_url)?;
 
         let chain_id = provider.get_chainid().await.unwrap();
 
-        let provider_signer = if let Some(pk) = private_key {
+        let provider_signer = if let Some(pk) = &config.account_private_key {
             let wallet: LocalWallet = pk.parse::<LocalWallet>()?.with_chain_id(chain_id.as_u32());
             Some(SignerMiddleware::new(provider.clone(), wallet.clone()))
         } else {
             None
         };
 
-        let bridge_address =
-            Address::from_str(bridge_address).expect("Bridge address is is invalid");
+        let bridge_address = Address::from_str(&config.bridge_address)?;
 
         Ok(EthereumClient {
             provider,

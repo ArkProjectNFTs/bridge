@@ -2,7 +2,7 @@ use anyhow::Result;
 use ethers::types::BlockNumber;
 
 use crate::config::ChainConfig;
-use crate::storage::store::{EventStore, RequestStore};
+use crate::storage::store::{BlockStore, CrossChainTxStore, EventStore, RequestStore};
 
 use super::client::EthereumClient;
 use super::events;
@@ -12,26 +12,28 @@ use std::sync::Arc;
 use tokio::time::{self, Duration};
 
 ///
-pub struct EthereumIndexer {
+pub struct EthereumIndexer<T: RequestStore + EventStore + BlockStore + CrossChainTxStore> {
     client: EthereumClient,
     config: ChainConfig,
+    store: Arc<T>,
 }
 
-impl EthereumIndexer {
+impl<T> EthereumIndexer<T>
+where
+    T: RequestStore + EventStore + BlockStore + CrossChainTxStore,
+{
     ///
-    pub async fn new(config: ChainConfig) -> Result<EthereumIndexer> {
-        let client = EthereumClient::new(
-            &config.rpc_url,
-            &config.bridge_address,
-            &config.account_private_key,
-        )
-        .await?;
-
-        Ok(EthereumIndexer { client, config })
+    pub async fn new(config: ChainConfig, store: Arc<T>) -> Result<EthereumIndexer<T>> {
+        let client = EthereumClient::new(config.clone()).await?;
+        Ok(EthereumIndexer {
+            client,
+            config,
+            store,
+        })
     }
 
     ///
-    pub async fn start<T: RequestStore + EventStore>(&self, store: Arc<T>) -> Result<()> {
+    pub async fn start(&self) -> Result<()> {
         let mut from_u64: u64 = match BlockNumber::from_str(&self.config.from_block)
             .expect("Invalid from_block value")
         {
@@ -72,8 +74,8 @@ impl EthereumIndexer {
 
                         match events::get_store_data(l)? {
                             (Some(r), Some(e)) => {
-                                store.insert_req(r).await?;
-                                store.insert_event(e.clone()).await?;
+                                self.store.insert_req(r).await?;
+                                self.store.insert_event(e.clone()).await?;
 
                                 // TODO: check for burn auto to send TX on ethereum.
 

@@ -3,7 +3,7 @@ use async_trait::async_trait;
 use mongodb::bson::doc;
 
 use super::MongoStore;
-use crate::storage::{store::BlockStore, BlockIndex, BridgeChain, Request};
+use crate::storage::{store::BlockStore, BlockIndex, BridgeChain};
 
 #[async_trait]
 impl BlockStore for MongoStore {
@@ -19,14 +19,6 @@ impl BlockStore for MongoStore {
         chain: BridgeChain,
         block_number: u64,
     ) -> Result<Option<BlockIndex>> {
-        log::error!(
-            "0----- {:?}",
-            doc! {
-                "chain": chain.clone(),
-                "block_number": block_number as i64,
-            }
-        );
-
         let b = self
             .blocks
             .find_one(
@@ -37,8 +29,6 @@ impl BlockStore for MongoStore {
                 None,
             )
             .await?;
-
-        log::error!("0----- {:?}", b);
 
         Ok(b)
     }

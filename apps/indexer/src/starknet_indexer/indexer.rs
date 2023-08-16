@@ -1,12 +1,12 @@
 use anyhow::Result;
-use starknet::core::types::{BlockId, BlockTag, EmittedEvent, FieldElement};
+use starknet::core::types::{BlockId, BlockTag, EmittedEvent};
 
 use super::client::StarknetClient;
 use super::events;
 
 use crate::config::ChainConfig;
 use crate::storage::{
-    store::{BlockStore, EventStore, RequestStore},
+    store::{BlockStore, CrossChainTxStore, EventStore, RequestStore},
     BlockIndex, BridgeChain,
 };
 use crate::utils;
@@ -15,7 +15,7 @@ use std::sync::Arc;
 use tokio::time::{self, Duration};
 
 ///
-pub struct StarknetIndexer<T: RequestStore + EventStore + BlockStore> {
+pub struct StarknetIndexer<T: RequestStore + EventStore + BlockStore + CrossChainTxStore> {
     client: StarknetClient,
     config: ChainConfig,
     store: Arc<T>,
@@ -23,7 +23,7 @@ pub struct StarknetIndexer<T: RequestStore + EventStore + BlockStore> {
 
 impl<T> StarknetIndexer<T>
 where
-    T: RequestStore + EventStore + BlockStore,
+    T: RequestStore + EventStore + BlockStore + CrossChainTxStore,
 {
     ///
     pub async fn new(config: ChainConfig, store: Arc<T>) -> Result<StarknetIndexer<T>> {
