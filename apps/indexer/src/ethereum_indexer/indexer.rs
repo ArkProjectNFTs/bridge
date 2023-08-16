@@ -1,8 +1,12 @@
 use anyhow::Result;
-use ethers::types::BlockNumber;
+use ethers::types::{BlockNumber, Log};
 
 use crate::config::ChainConfig;
-use crate::storage::store::{BlockStore, CrossChainTxStore, EventStore, RequestStore};
+use crate::storage::{
+    store::{BlockStore, CrossChainTxStore, EventStore, RequestStore},
+    BlockIndex, BridgeChain,
+};
+use crate::utils;
 
 use super::client::EthereumClient;
 use super::events;
@@ -34,17 +38,61 @@ where
 
     ///
     pub async fn start(&self) -> Result<()> {
-        let mut from_u64: u64 = match BlockNumber::from_str(&self.config.from_block)
-            .expect("Invalid from_block value")
-        {
-            BlockNumber::Earliest => 0,
-            BlockNumber::Number(x) => x.try_into().expect("Not a valid u64 (from)"),
-            _ => anyhow::bail!("Invalid block number (from_block)"),
-        };
+        let (mut from, mut to, continue_polling_blocks) = self.get_block_range_info().await?;
+
+        loop {
+            time::sleep(Duration::from_secs(self.config.fetch_interval)).await;
+
+            to = self.client.get_block_number().await;
+
+            if from >= to {
+                log::debug!("Nothing to fetch (from={} to={})", from, to);
+                continue;
+            }
+
+            let blocks_logs = self.client.fetch_logs(from, to).await?;
+
+            for (block_number, logs) in blocks_logs {
+                self.process_logs(block_number, logs).await?;
+
+                if block_number > from {
+                    from = block_number;
+                }
+            }
+
+            // +1 to exlude the last fetched block at the next fetch.
+            from += 1;
+
+            // We want to continue polling the head of the chain if the
+            // to_block is set to "latest" in the config.
+            if continue_polling_blocks {
+                to = self.client.get_block_number().await;
+                if from > to {
+                    // More consistent to always have from and to equal,
+                    // or to > from.
+                    from = to;
+                }
+            } else {
+                // We stop at the block number in the configuration.
+                if from > to {
+                    return Ok(());
+                }
+            }
+        }
+    }
+
+    ///
+    async fn get_block_range_info(&self) -> Result<(u64, u64, bool)> {
+        let from_u64: u64 =
+            match BlockNumber::from_str(&self.config.from_block).expect("Invalid from_block") {
+                BlockNumber::Earliest => 0,
+                BlockNumber::Number(x) => x.try_into().expect("Invalid from_block number"),
+                _ => anyhow::bail!("Invalid block number (from_block)"),
+            };
 
         let mut to_block_was_latest = false;
-        let mut to_u64: u64 = match &self.config.to_block {
-            Some(b) => match BlockNumber::from_str(b).expect("Invalid to_block value") {
+        let to_u64: u64 = match &self.config.to_block {
+            Some(b) => match BlockNumber::from_str(b).expect("Invalid to_block") {
                 BlockNumber::Latest => {
                     to_block_was_latest = true;
                     self.client.get_block_number().await
@@ -55,64 +103,52 @@ where
             None => self.client.get_block_number().await,
         };
 
-        loop {
-            // Here, we use fetch_logs as Starklane for now doesn't have
-            // a lot's of events to monitor.
-            match self.client.fetch_logs(from_u64, to_u64).await {
-                Ok(logs) => {
-                    let n_logs = logs.len();
-                    log::info!(
-                        "\nEth fetching blocks {} - {} ({} logs)",
-                        from_u64,
-                        to_u64,
-                        n_logs
-                    );
+        Ok((from_u64, to_u64, to_block_was_latest))
+    }
 
-                    for l in logs {
-                        // TODO: verify if the block is not already fetched and processed.
-                        // If yes, skip this log.
-
-                        match events::get_store_data(l)? {
-                            (Some(r), Some(e)) => {
-                                self.store.insert_req(r).await?;
-                                self.store.insert_event(e.clone()).await?;
-
-                                // TODO: check for burn auto to send TX on ethereum.
-
-                                if e.block_number > from_u64 {
-                                    from_u64 = e.block_number;
-                                }
-                            }
-                            _ => log::warn!("Event emitted by Starklane possibly is not handled"),
-                        };
-                    }
-
-                    if n_logs > 0 {
-                        // To ensure those blocks are not fetched anymore,
-                        // as the get_logs range includes the from_block value.
-                        from_u64 += 1;
-
-                        // We want to continue polling the head of the chain if the
-                        // to_block is set to "latest" in the config.
-                        if to_block_was_latest {
-                            to_u64 = self.client.get_block_number().await;
-                            if from_u64 > to_u64 {
-                                // More consistent to always have from and to equal,
-                                // or to > from.
-                                to_u64 = from_u64;
-                            }
-                        } else {
-                            // We stop at the block number in the configuration.
-                            if from_u64 > to_u64 {
-                                return Ok(());
-                            }
-                        }
-                    }
-                }
-                Err(e) => log::error!("Error at getting eth logs {:?}", e),
-            };
-
-            time::sleep(Duration::from_secs(self.config.fetch_interval)).await;
+    /// Processes the logs for the given block.
+    async fn process_logs(&self, block_number: u64, logs: Vec<Log>) -> Result<()> {
+        if self
+            .store
+            .block_by_number(BridgeChain::Ethereum, block_number)
+            .await?
+            .is_some()
+        {
+            log::debug!("Block {} already indexed for ethereum", block_number);
+            return Ok(());
         }
+
+        log::debug!(
+            "Processing {} events for block {}",
+            logs.len(),
+            block_number
+        );
+
+        // TODO: start a database transaction/session.
+
+        for l in logs {
+            match events::get_store_data(l)? {
+                (Some(r), Some(e)) => {
+                    self.store.insert_req(r).await?;
+                    self.store.insert_event(e.clone()).await?;
+
+                    // TODO: check for burn auto to send TX on ethereum
+                    //       and add them to the xchains store.
+                }
+                // Maybe fine, like proxy upgrade / ownership, ...
+                _ => log::warn!("Event emitted by Starklane is not handled"),
+            };
+        }
+
+        let block_idx = BlockIndex {
+            chain: BridgeChain::Ethereum,
+            block_number: block_number,
+            insert_timestamp: utils::utc_now_seconds(),
+        };
+
+        self.store.insert_block(block_idx).await?;
+        // TODO: end the database transaction/session.
+
+        Ok(())
     }
 }

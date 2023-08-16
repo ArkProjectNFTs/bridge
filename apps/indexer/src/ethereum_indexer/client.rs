@@ -6,6 +6,7 @@ use ethers::prelude::*;
 use ethers::providers::{Http, Provider};
 use ethers::types::{Address, BlockNumber, Log};
 use k256::ecdsa::SigningKey;
+use std::collections::HashMap;
 use std::str::FromStr;
 use std::sync::Arc;
 
@@ -90,11 +91,16 @@ impl EthereumClient {
     /// TODO: implement a `fetch_logs_safe` which is only fecthing a safe range limit,
     /// and return the last block fetched (Result<(Vec<Log>, u64)>) to let the caller
     /// iterate as it needs.
-    pub async fn fetch_logs(&self, from_block: u64, to_block: u64) -> Result<Vec<Log>> {
+    pub async fn fetch_logs(
+        &self,
+        from_block: u64,
+        to_block: u64,
+    ) -> Result<HashMap<u64, Vec<Log>>> {
+        log::info!("\nEth fetching blocks {} - {}", from_block, to_block);
         let mut from_block = from_block;
         let mut diff = to_block - from_block;
 
-        let mut logs: Vec<Log> = vec![];
+        let mut logs: HashMap<u64, Vec<Log>> = HashMap::new();
 
         let filters = Filter {
             block_option: FilterBlockOption::Range {
@@ -109,7 +115,16 @@ impl EthereumClient {
 
         loop {
             let range_logs = self.provider.get_logs(&filters).await?;
-            logs.extend(range_logs);
+
+            range_logs.iter().for_each(|l| {
+                logs.entry(
+                    l.block_number
+                        .expect("Log is expected to have a block number")
+                        .try_into()
+                        .unwrap(),
+                )
+                .or_insert(vec![l.clone()]);
+            });
 
             if diff >= BLOCKS_MAX_RANGE {
                 diff -= BLOCKS_MAX_RANGE;

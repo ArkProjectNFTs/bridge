@@ -116,7 +116,7 @@ where
         }
     }
 
-    /// Returns the number of events processed for the given block.
+    /// Processes the events for the given block.
     async fn process_events(&self, block_number: u64, events: Vec<EmittedEvent>) -> Result<()> {
         if self
             .store
