@@ -132,8 +132,8 @@ contract BridgeTest is Test {
         // TODO: test event emission to verify the request.
     }
 
-    // Test a withdraw QUICK that will trigger the deploy of a new collection on L1.
-    function test_withdrawTokensERC721QuickWithdrawDeploy() public {
+    // Test a withdraw auto that will trigger the deploy of a new collection on L1.
+    function test_withdrawTokensERC721AutoWithdrawDeploy() public {
         // Build the request and compute it's "would be" message hash.
         felt252 header = Protocol.requestHeaderV1(CollectionType.ERC721, false, true);
         Request memory req = buildRequestDeploy(header, 888, bob);
@@ -143,7 +143,7 @@ contract BridgeTest is Test {
         // The message must be simulated to come from the L2 indexer and registered
         // as QUICK message.
 
-        IStarklane(bridge).addMessageHashForQuick(uint256(msgHash));
+        IStarklane(bridge).addMessageHashForAutoWithdraw(uint256(msgHash));
         address collection = IStarklane(bridge).withdrawTokens(reqSerialized);
 
         // TODO: add verification of event emission.

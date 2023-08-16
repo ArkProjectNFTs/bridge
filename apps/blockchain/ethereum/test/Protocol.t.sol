@@ -107,7 +107,7 @@ contract ProtocolTest is Test {
             felt252.unwrap(header),
             0x01010101
         );
-        assertTrue(Protocol.canUseWithdrawQuick(felt252.unwrap(header)));
+        assertTrue(Protocol.canUseWithdrawAuto(felt252.unwrap(header)));
     }
 
     //

@@ -22,6 +22,38 @@ the storage capabilities to the indexers.
 
 For now, only `MongoStore` is implemented.
 
+## What is indexed
+
+Each bridge contract on Starknet and Ethereum emits the same kind of event.
+The most used:
+* Deposit request initiated (on L1/L2).
+* Withdraw request completed (on L1/L2).
+
+As the two chains may be indexed at different speeds and to avoid race
+associated to that, the request content is always emitted with all of
+those events.
+
+Having the request content, we can ensure that each indexer can insert
+the request in the database if it does not exist. And at the same time,
+each indexer is completely independant from the other to insert the
+events.
+
+So, when an event is seen on starknet or a log on ethereum, the following
+occurs:
+
+1. From the log/event, the indexer construct a `Request`, an `Event` and a list
+of potentiel `CrossChainTx`. Those are entities to saved into the stores.
+
+2. If a `Request` already exist with it's hash, the content is always the same,
+so the `Request` is not twice in the DB.
+
+3. The `Event` is always inserted, as both chains have different events.
+
+4. The `CrossChainTx` transactions apply for `withdraw_auto` (only L2->L1), and `burn_auto` (L2 <-> L1).
+Those transactions are here to be sent automatically by the indexer (if a private key is provided).
+Once a transaction is sent, it is no longer pending and will not be re-executed, event if the indexer
+has to restart fetching the blocks.
+
 ## Dev
 
 Work in progress for contribution guidelines and generic setup.

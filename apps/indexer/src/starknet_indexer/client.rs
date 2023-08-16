@@ -30,7 +30,7 @@ impl StarknetClient {
         let wallet = StarknetClient::wallet_from_private_key(&config.account_private_key);
         let chain_id = provider.chain_id().await?;
         let account_address = if let Some(ac) = &config.account_address {
-            Some(FieldElement::from_hex_be(&ac)?)
+            Some(FieldElement::from_hex_be(ac)?)
         } else {
             None
         };
@@ -89,7 +89,7 @@ impl StarknetClient {
     ) -> Result<HashMap<u64, Vec<EmittedEvent>>> {
         log::info!("Starknet fetching blocks {:?} - {:?}", from_block, to_block);
 
-        let mut events = HashMap::new();
+        let mut events: HashMap<u64, Vec<EmittedEvent>> = HashMap::new();
 
         let filter = EventFilter {
             from_block: Some(from_block),
@@ -108,7 +108,10 @@ impl StarknetClient {
                 .await?;
 
             event_page.events.iter().for_each(|e| {
-                events.entry(e.block_number).or_insert(vec![e.clone()]);
+                events
+                    .entry(e.block_number)
+                    .and_modify(|v| v.push(e.clone()))
+                    .or_insert(vec![e.clone()]);
             });
 
             continuation_token = event_page.continuation_token;
@@ -124,7 +127,7 @@ impl StarknetClient {
     /// Returns a local wallet from a private key, if provided.
     fn wallet_from_private_key(private_key: &Option<String>) -> Option<LocalWallet> {
         if let Some(pk) = private_key {
-            let private_key = match FieldElement::from_hex_be(&pk) {
+            let private_key = match FieldElement::from_hex_be(pk) {
                 Ok(p) => p,
                 Err(e) => {
                     log::error!("Error importing private key: {:?}", e);
@@ -132,9 +135,9 @@ impl StarknetClient {
                 }
             };
             let key = SigningKey::from_secret_scalar(private_key);
-            return Some(LocalWallet::from_signing_key(key));
+            Some(LocalWallet::from_signing_key(key))
         } else {
-            return None;
+            None
         }
     }
 

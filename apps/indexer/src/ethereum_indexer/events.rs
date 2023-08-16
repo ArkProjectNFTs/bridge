@@ -1,14 +1,22 @@
 use anyhow::{anyhow, Result};
-use ethers::abi::RawLog;
 use ethers::prelude::*;
 
 use serde_json::{json, Value};
 
 use crate::storage::{BridgeChain, Event, EventLabel, Request};
 
-/// Event expected from the bridge.
+///
 #[derive(Debug, PartialEq, Eq, EthEvent)]
 pub struct DepositRequestInitiated {
+    #[ethevent(indexed)]
+    hash: U256,
+    block_timestamp: U256,
+    req_content: Vec<U256>,
+}
+
+///
+#[derive(Debug, PartialEq, Eq, EthEvent)]
+pub struct WithdrawRequestCompleted {
     #[ethevent(indexed)]
     hash: U256,
     block_timestamp: U256,
@@ -18,13 +26,22 @@ pub struct DepositRequestInitiated {
 const DEPOSIT_REQUEST_INITIATED_SIG: &str =
     "0x4ecaf4a99ef1a36d5c1967133fb3f251e98f89361d2b43ee590c283171051b8c";
 
+const WITHDRAW_REQUEST_COMPLETED_SIG: &str =
+    "0x1969477bb1c714c2de347e8b12129f967163d2cdd4bbc4a0d1e0f062211d86ed";
+
+const COLLECTION_DEPOYED_FROM_L2_SIG: &str =
+    "0xf1653c653aee21ff13e04dc08fdab8b953d980fc4d17e032af195883a4623245";
+
+// TODO: Check how to rework this get_store_data.
+// We can have an event only, and no associated request (ex: collection deployed).
+
 /// Returns storage data from the log entry.
 pub fn get_store_data(log: Log) -> Result<(Option<Request>, Option<Event>)> {
-    // Check topic + parse.
-    let raw: RawLog = log.clone().into();
+    let sig = format!("{:#64x}", log.topics[0]);
+    let req_hash = format!("{:#64x}", log.topics[1]);
 
     let mut event = Event {
-        req_hash: String::from(""),
+        req_hash,
         label: EventLabel::DepositInitiatedL1,
         block_timestamp: 0,
         block_number: log.block_number.unwrap().try_into().unwrap(),
@@ -36,16 +53,30 @@ pub fn get_store_data(log: Log) -> Result<(Option<Request>, Option<Event>)> {
     // rework very welcome!
     let request;
 
-    match format!("{:?}", raw.topics[0]).as_str() {
+    match sig.as_str() {
         DEPOSIT_REQUEST_INITIATED_SIG => {
-            let data = <DepositRequestInitiated as EthLogDecode>::decode_log(&raw)?;
+            let data = <DepositRequestInitiated as EthLogDecode>::decode_log(&log.clone().into())?;
             event.label = EventLabel::DepositInitiatedL1;
-            event.req_hash = format!("{:#x}", data.hash);
             event.block_timestamp = data.block_timestamp.try_into().unwrap();
 
-            request = request_from_log_data(data.req_content)?;
+            request = request_from_log_data(&event.label, data.req_content)?;
         }
-        _ => return Ok((None, None)),
+        WITHDRAW_REQUEST_COMPLETED_SIG => {
+            let data = <WithdrawRequestCompleted as EthLogDecode>::decode_log(&log.clone().into())?;
+            event.label = EventLabel::WithdrawCompletedL1;
+            event.block_timestamp = data.block_timestamp.try_into().unwrap();
+
+            request = request_from_log_data(&event.label, data.req_content)?;
+        }
+        COLLECTION_DEPOYED_FROM_L2_SIG => {
+            // TODO: return event only.
+            log::debug!("Collection deployed from L2 {:?}", log);
+            return Ok((None, None));
+        }
+        _ => {
+            log::debug!("not handled log\n{:?}\n", log);
+            return Ok((None, None));
+        }
     };
 
     assert_eq!(request.hash, event.req_hash);
@@ -55,7 +86,7 @@ pub fn get_store_data(log: Log) -> Result<(Option<Request>, Option<Event>)> {
 
 /// From the raw buffer in the Log data, parse the request fields
 /// required to build `Request`.
-fn request_from_log_data(data: Vec<U256>) -> Result<Request> {
+fn request_from_log_data(event_label: &EventLabel, data: Vec<U256>) -> Result<Request> {
     if data.len() < 6 {
         return Err(anyhow!(
             "Request can't be extracted from log data: {:?}",
@@ -67,17 +98,32 @@ fn request_from_log_data(data: Vec<U256>) -> Result<Request> {
     let content_array: Vec<Value> = hex_strings.iter().map(|s| json!(s)).collect();
     let content = serde_json::to_string(&content_array)?;
 
-    Ok(Request {
-        hash: format!(
-            "{}{}",
-            hex_strings[2],
-            hex_strings[1].strip_prefix("0x").unwrap()
-        ),
-        chain_src: BridgeChain::Ethereum,
-        collection_src: hex_strings[3].clone(),
-        collection_dst: hex_strings[4].clone(),
-        from: hex_strings[5].clone(),
-        to: hex_strings[6].clone(),
-        content,
-    })
+    let req = match event_label {
+        EventLabel::DepositInitiatedL1 => Request {
+            hash: format!("{:#32x}{:32x}", data[2], data[1]),
+            chain_src: BridgeChain::Ethereum,
+            collection_src: hex_strings[3].clone(),
+            collection_dst: hex_strings[4].clone(),
+            from: hex_strings[5].clone(),
+            to: hex_strings[6].clone(),
+            content,
+        },
+        EventLabel::WithdrawCompletedL1 => Request {
+            hash: format!("{:#32x}{:32x}", data[2], data[1]),
+            chain_src: BridgeChain::Starknet,
+            collection_src: hex_strings[4].clone(),
+            collection_dst: hex_strings[3].clone(),
+            from: hex_strings[6].clone(),
+            to: hex_strings[5].clone(),
+            content,
+        },
+        _ => {
+            return Err(anyhow!(
+                "EventLabel {:?} not supposed to generate a request",
+                event_label
+            ))
+        }
+    };
+
+    Ok(req)
 }

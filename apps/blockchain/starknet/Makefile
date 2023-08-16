@@ -93,4 +93,4 @@ starklane_local_setup:
 
 	# Deposit tokens
 	$(eval salt=$(shell date +%s%N))
-	starkli invoke ${bridge_addr} deposit_tokens ${salt} ${erc721_addr} ${ETH_ACCOUNT} 2 u256:1 u256:2 0 0 ${priv_key}
+	starkli invoke ${bridge_addr} deposit_tokens ${salt} ${erc721_addr} ${ETH_ACCOUNT} 2 u256:1 u256:2 1 0 ${priv_key}

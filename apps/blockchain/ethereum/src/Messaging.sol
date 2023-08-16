@@ -7,12 +7,9 @@ import "starknet/IStarknetMessaging.sol";
 
 import "./sn/Cairo.sol";
 
-// When set to QUICK_NONE, the request were not sent with the option for withdrawQuick.
-uint256 constant QUICK_NONE = 0x00;
-// When set to QUICK_AVAILABLE, tokens can be withdrawn.
-uint256 constant QUICK_AVAILABLE = 0x01;
-// When set to QUICK_WITHDRAWN, token were withdrawn.
-uint256 constant QUICK_WITHDRAWN = 0x02;
+uint256 constant WITHDRAW_AUTO_NONE = 0x00;
+uint256 constant WITHDRAW_AUTO_READY = 0x01;
+uint256 constant WITHDRAW_AUTO_CONSUMED = 0x02;
 
 error WithdrawMethodError();
 error WithdrawAlreadyError();
@@ -20,7 +17,7 @@ error WithdrawAlreadyError();
 /**
    @title Contract responsible of withdrawing token from messaging.
 
-   @dev If any message is configured to be withdraw with the QUICK methods,
+   @dev If any message is configured to be withdraw with the auto methods,
    then the regular starknet messaging will always be ignored and vice-versa.
 
    In solidity, when we query a mapping, if the key does not exist, 0 is returned when
@@ -31,22 +28,22 @@ error WithdrawAlreadyError();
 contract StarklaneMessaging is Ownable {
 
     // Messages sent directly from L2 indexer, that can be withdrawn with
-    // the QUICK method.
+    // the auto method.
     //
     // The mapping mimics the Starknet messaging with a ref count like status.
-    mapping(bytes32 => uint256) _withdrawQuick;
+    mapping(bytes32 => uint256) _autoWithdrawn;
 
     /**
      */
-    event MessageHashAddedQuick(bytes32 msgHash);
+    event MessageHashAutoWithdrawAdded(bytes32 msgHash);
 
     /**
-       @notice Adds the hash of a message that can be consumed with the QUICK
+       @notice Adds the hash of a message that can be consumed with the auto
        method.
 
        @param msgHash Hash of the message to be considered as consumable.
     */
-    function addMessageHashForQuick(
+    function addMessageHashForAutoWithdraw(
         uint256 msgHash
     )
         external
@@ -55,21 +52,21 @@ contract StarklaneMessaging is Ownable {
     {
         bytes32 hash = bytes32(msgHash);
 
-        if (_withdrawQuick[hash] != QUICK_NONE) {
+        if (_autoWithdrawn[hash] != WITHDRAW_AUTO_NONE) {
             revert WithdrawMethodError();
         }
 
-        _withdrawQuick[hash] = QUICK_AVAILABLE;
-        emit MessageHashAddedQuick(hash);
+        _autoWithdrawn[hash] = WITHDRAW_AUTO_READY;
+        emit MessageHashAutoWithdrawAdded(hash);
     }
 
     /**
-       @notice Consumes a message with the QUICK method.
+       @notice Consumes a message with the Auto withdraw method.
 
        @param fromL2Address Address of the L2 contract that send the message.
        @param request Request containing the tokens to withdraw.
     */
-    function _consumeMessageQuick(
+    function _consumeMessageAutoWithdraw(
         snaddress fromL2Address,
         uint256[] memory request
     )
@@ -83,15 +80,13 @@ contract StarklaneMessaging is Ownable {
                 request)
         );
 
-        uint256 quickStatus = _withdrawQuick[msgHash];
+        uint256 status = _autoWithdrawn[msgHash];
 
-        if (quickStatus == QUICK_NONE) {
-            revert WithdrawMethodError();
-        } else if (quickStatus == QUICK_WITHDRAWN) {
+        if (status == WITHDRAW_AUTO_CONSUMED) {
             revert WithdrawAlreadyError();
         }
 
-        _withdrawQuick[msgHash] = QUICK_WITHDRAWN;
+        _autoWithdrawn[msgHash] = WITHDRAW_AUTO_CONSUMED;
     }
 
     /**
@@ -114,9 +109,9 @@ contract StarklaneMessaging is Ownable {
             request
         );
 
-        // If the message were configured to be withdrawn with QUICK method,
+        // If the message were configured to be withdrawn with auto method,
         // starknet method is denied.
-        if (_withdrawQuick[msgHash] != QUICK_NONE) {
+        if (_autoWithdrawn[msgHash] != WITHDRAW_AUTO_NONE) {
             revert WithdrawMethodError();
         }
     }
