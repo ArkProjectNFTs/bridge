@@ -4,10 +4,7 @@ use futures::TryStreamExt;
 use mongodb::bson::doc;
 
 use super::MongoStore;
-use crate::storage::{
-    Event,
-    store::EventStore,
-};
+use crate::storage::{store::EventStore, Event};
 
 #[async_trait]
 impl EventStore for MongoStore {
@@ -28,11 +25,8 @@ impl EventStore for MongoStore {
 
     ///
     async fn insert_event(&self, event: Event) -> Result<()> {
-        self.events
-            .insert_one(event, None)
-            .await?;
+        self.events.insert_one(event, None).await?;
 
         Ok(())
     }
-
 }

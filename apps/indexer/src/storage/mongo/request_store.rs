@@ -4,10 +4,7 @@ use futures::TryStreamExt;
 use mongodb::bson::doc;
 
 use super::MongoStore;
-use crate::storage::{
-    Request,
-    store::RequestStore
-};
+use crate::storage::{store::RequestStore, Request};
 
 #[async_trait]
 impl RequestStore for MongoStore {
@@ -33,18 +30,13 @@ impl RequestStore for MongoStore {
 
     ///
     async fn req_by_hash(&self, hash: &str) -> Result<Option<Request>> {
-        Ok(self.requests
-           .find_one(doc! { "hash": hash }, None)
-           .await?)
+        Ok(self.requests.find_one(doc! { "hash": hash }, None).await?)
     }
 
     ///
     async fn insert_req(&self, req: Request) -> Result<()> {
-        self.requests
-            .insert_one(req, None)
-            .await?;
+        self.requests.insert_one(req, None).await?;
 
         Ok(())
     }
-
 }

@@ -1,15 +1,13 @@
-use anyhow::{Result, anyhow};
-use std::sync::Arc;
+use anyhow::{anyhow, Result};
+use regex::Regex;
 use starknet::{
-    core::{types::*, types::FieldElement},
     accounts::{Account, Call, SingleOwnerAccount},
-    providers::{
-        jsonrpc::HttpTransport, AnyProvider, JsonRpcClient, Provider,
-    },
+    core::{types::FieldElement, types::*},
+    providers::{jsonrpc::HttpTransport, AnyProvider, JsonRpcClient, Provider},
     signers::{LocalWallet, SigningKey},
 };
+use std::sync::Arc;
 use url::Url;
-use regex::Regex;
 
 ///
 pub struct StarknetClient {
@@ -27,8 +25,7 @@ impl StarknetClient {
         private_key: &Option<String>,
     ) -> Result<StarknetClient> {
         let rpc_url = Url::parse(rpc_url)?;
-        let provider = AnyProvider::JsonRpcHttp(
-            JsonRpcClient::new(HttpTransport::new(rpc_url)));
+        let provider = AnyProvider::JsonRpcHttp(JsonRpcClient::new(HttpTransport::new(rpc_url)));
 
         let wallet = StarknetClient::wallet_from_private_key(&private_key);
         let chain_id = provider.chain_id().await?;
@@ -51,7 +48,7 @@ impl StarknetClient {
         match id {
             BlockId::Tag(BlockTag::Latest) => Ok(self.provider.block_number().await?),
             BlockId::Number(n) => Ok(*n),
-            _ => Err(anyhow!("BlockID can´t be converted to u64"))
+            _ => Err(anyhow!("BlockID can´t be converted to u64")),
         }
     }
 
@@ -83,9 +80,8 @@ impl StarknetClient {
         &self,
         from_block: BlockId,
         to_block: BlockId,
-        address: FieldElement
+        address: FieldElement,
     ) -> Result<Vec<EmittedEvent>> {
-
         let filter = EventFilter {
             from_block: Some(from_block),
             to_block: Some(to_block),
@@ -99,10 +95,9 @@ impl StarknetClient {
         let mut continuation_token: Option<String> = None;
 
         loop {
-            let event_page = self.provider.get_events(
-                filter.clone(),
-                continuation_token,
-                chunk_size)
+            let event_page = self
+                .provider
+                .get_events(filter.clone(), continuation_token, chunk_size)
                 .await?;
 
             events.extend(event_page.events);
@@ -135,7 +130,6 @@ impl StarknetClient {
 
     ///
     pub async fn invoke_tx(&self, calls: Vec<Call>) -> Result<()> {
-
         let signer = match &self.wallet {
             Some(w) => Arc::new(w),
             None => anyhow::bail!("A private key is required to send transaction on starknet!"),
@@ -143,16 +137,13 @@ impl StarknetClient {
 
         let account_address = match self.account_address {
             Some(a) => a,
-            None => anyhow::bail!("An account address is required to send transaction on starknet!"),
+            None => {
+                anyhow::bail!("An account address is required to send transaction on starknet!")
+            }
         };
 
         let mut account =
-            SingleOwnerAccount::new(
-                &self.provider,
-                signer,
-                account_address,
-                self.chain_id
-            );
+            SingleOwnerAccount::new(&self.provider, signer, account_address, self.chain_id);
 
         account.set_block_id(BlockId::Tag(BlockTag::Pending));
 
@@ -166,11 +157,11 @@ impl StarknetClient {
     }
 
     /* Example of a call with invoke:
-        let call = Call {
-            to: felt!("0x006e31821066d2146a8efd816e915245db7624379ca5f3d179dddd0d3e09d647"),
-            selector: felt!("0x03552df12bdc6089cf963c40c4cf56fbfd4bd14680c244d1c5494c2790f1ea5c"),
-            calldata: vec![felt!("1"), felt!("0")],
-        };
-        self.client.invoke_tx(vec![call]).await;
-     */
+       let call = Call {
+           to: felt!("0x006e31821066d2146a8efd816e915245db7624379ca5f3d179dddd0d3e09d647"),
+           selector: felt!("0x03552df12bdc6089cf963c40c4cf56fbfd4bd14680c244d1c5494c2790f1ea5c"),
+           calldata: vec![felt!("1"), felt!("0")],
+       };
+       self.client.invoke_tx(vec![call]).await;
+    */
 }

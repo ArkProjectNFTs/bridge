@@ -1,10 +1,9 @@
 ///! Structs and traits related to data to be stored
 ///! after indexing Starklane bridge events.
-
 use anyhow::Result;
 use async_trait::async_trait;
 
-use crate::storage::{Request, Event, BlockIndex};
+use crate::storage::{BlockIndex, Event, Request};
 
 /// Store related to the indexing state.
 #[async_trait]

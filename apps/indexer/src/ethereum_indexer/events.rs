@@ -1,10 +1,10 @@
-use anyhow::{Result, anyhow};
-use ethers::prelude::*;
+use anyhow::{anyhow, Result};
 use ethers::abi::RawLog;
+use ethers::prelude::*;
 
 use serde_json::{json, Value};
 
-use crate::storage::{Request, Event, EventLabel, BridgeChain};
+use crate::storage::{BridgeChain, Event, EventLabel, Request};
 
 /// Event expected from the bridge.
 #[derive(Debug, PartialEq, Eq, EthEvent)]
@@ -15,7 +15,8 @@ pub struct DepositRequestInitiated {
     req_content: Vec<U256>,
 }
 
-const DEPOSIT_REQUEST_INITIATED_SIG: &str = "0x4ecaf4a99ef1a36d5c1967133fb3f251e98f89361d2b43ee590c283171051b8c";
+const DEPOSIT_REQUEST_INITIATED_SIG: &str =
+    "0x4ecaf4a99ef1a36d5c1967133fb3f251e98f89361d2b43ee590c283171051b8c";
 
 /// Returns storage data from the log entry.
 pub fn get_store_data(log: Log) -> Result<(Option<Request>, Option<Event>)> {
@@ -56,7 +57,10 @@ pub fn get_store_data(log: Log) -> Result<(Option<Request>, Option<Event>)> {
 /// required to build `Request`.
 fn request_from_log_data(data: Vec<U256>) -> Result<Request> {
     if data.len() < 6 {
-        return Err(anyhow!("Request can't be extracted from log data: {:?}", data));
+        return Err(anyhow!(
+            "Request can't be extracted from log data: {:?}",
+            data
+        ));
     }
 
     let hex_strings: Vec<String> = data.iter().map(|u256| format!("{:#x}", u256)).collect();
@@ -64,7 +68,11 @@ fn request_from_log_data(data: Vec<U256>) -> Result<Request> {
     let content = serde_json::to_string(&content_array)?;
 
     Ok(Request {
-        hash: format!("{}{}", hex_strings[2], hex_strings[1].strip_prefix("0x").unwrap()),
+        hash: format!(
+            "{}{}",
+            hex_strings[2],
+            hex_strings[1].strip_prefix("0x").unwrap()
+        ),
         chain_src: BridgeChain::Ethereum,
         collection_src: hex_strings[3].clone(),
         collection_dst: hex_strings[4].clone(),

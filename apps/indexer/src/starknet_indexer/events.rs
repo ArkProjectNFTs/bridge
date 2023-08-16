@@ -1,12 +1,11 @@
-use anyhow::{Result, anyhow};
-use starknet::{
-    core::{types::*, types::FieldElement},
-};
+use anyhow::{anyhow, Result};
 use serde_json::{json, Value};
+use starknet::core::{types::FieldElement, types::*};
 
-use crate::storage::{Request, Event, EventLabel, BridgeChain};
+use crate::storage::{BridgeChain, Event, EventLabel, Request};
 
-const DEPOSIT_REQUEST_INITIATED_SELECTOR: &str = "0x01682ccdc90fbee2d6cc3e930539cb4ca29390a438db1c2e4c7d493e01a61abb";
+const DEPOSIT_REQUEST_INITIATED_SELECTOR: &str =
+    "0x01682ccdc90fbee2d6cc3e930539cb4ca29390a438db1c2e4c7d493e01a61abb";
 
 ///
 pub fn get_store_data(event: EmittedEvent) -> Result<(Option<Request>, Option<Event>)> {
@@ -27,7 +26,7 @@ pub fn get_store_data(event: EmittedEvent) -> Result<(Option<Request>, Option<Ev
     match felt_to_hex(&event.keys[0]).as_str() {
         DEPOSIT_REQUEST_INITIATED_SELECTOR => {
             store_event.label = EventLabel::DepositInitiatedL2;
-        },
+        }
         _ => return Ok((None, None)),
     }
 
@@ -37,14 +36,16 @@ pub fn get_store_data(event: EmittedEvent) -> Result<(Option<Request>, Option<Ev
 /// From the raw buffer in the event data, parse the request fields
 /// required to build `Request`.
 fn request_from_event_data(data: Vec<FieldElement>) -> Result<Request> {
-
     // For now, the format of the data is including the request hash and the block timestamp.
     // The request hash being u256 -> 2 FieldElements.
     // The block timestamp -> 1 FieldElement.
     // The fixed size part of the request is 7 FieldElement long.
     // We then need at least 10 FieldElement.
     if data.len() < 10 {
-        return Err(anyhow!("Request can't be extracted from event data: {:?}", data));
+        return Err(anyhow!(
+            "Request can't be extracted from event data: {:?}",
+            data
+        ));
     }
 
     // We skip the first three values that are the hash (2 felts) and the timestamp.

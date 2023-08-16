@@ -1,11 +1,10 @@
 ///! When PR like https://github.com/alloy-rs/core/pull/51
 ///! will be merged, eth calls will be far better with more typing.
 ///!
-
 use anyhow::Result;
-use ethers::types::{Address, Log, BlockNumber};
-use ethers::providers::{Provider, Http};
 use ethers::prelude::*;
+use ethers::providers::{Http, Provider};
+use ethers::types::{Address, BlockNumber, Log};
 use k256::ecdsa::SigningKey;
 use std::str::FromStr;
 use std::sync::Arc;
@@ -34,24 +33,21 @@ impl EthereumClient {
     pub async fn new(
         rpc_url: &str,
         bridge_address: &str,
-        private_key: &Option<String>
+        private_key: &Option<String>,
     ) -> Result<EthereumClient> {
-
         let provider = Provider::<Http>::try_from(rpc_url)?;
 
         let chain_id = provider.get_chainid().await.unwrap();
 
         let provider_signer = if let Some(pk) = private_key {
             let wallet: LocalWallet = pk.parse::<LocalWallet>()?.with_chain_id(chain_id.as_u32());
-            Some(SignerMiddleware::new(
-                provider.clone(),
-                wallet.clone()))
+            Some(SignerMiddleware::new(provider.clone(), wallet.clone()))
         } else {
             None
         };
 
-        let bridge_address = Address::from_str(bridge_address)
-            .expect("Bridge address is is invalid");
+        let bridge_address =
+            Address::from_str(bridge_address).expect("Bridge address is is invalid");
 
         Ok(EthereumClient {
             provider,
@@ -62,15 +58,12 @@ impl EthereumClient {
 
     ///
     pub fn get_bridge_caller(&self) -> StarklaneBridge<Provider<Http>> {
-        StarklaneBridge::new(
-            self.bridge_address.clone(),
-            Arc::new(self.provider.clone())
-        )
+        StarklaneBridge::new(self.bridge_address.clone(), Arc::new(self.provider.clone()))
     }
 
     ///
     pub fn get_bridge_sender(
-        &self
+        &self,
     ) -> StarklaneBridge<SignerMiddleware<Provider<Http>, Wallet<SigningKey>>> {
         let signer = self.provider_signer
             .clone()
@@ -81,10 +74,12 @@ impl EthereumClient {
 
     ///
     pub async fn get_block_number(&self) -> u64 {
-        self.provider.get_block_number()
+        self.provider
+            .get_block_number()
             .await
             .expect("Can't fetch eth last block")
-            .try_into().expect("Not a valid u64 (to)")
+            .try_into()
+            .expect("Not a valid u64 (to)")
     }
 
     /// Fetches logs for the given block options.
@@ -107,7 +102,9 @@ impl EthereumClient {
         let filters = Filter {
             block_option: FilterBlockOption::Range {
                 from_block: Some(BlockNumber::Number(from_block.into())),
-                to_block: Some(BlockNumber::Number((from_block + BLOCKS_MAX_RANGE - 1).into()))
+                to_block: Some(BlockNumber::Number(
+                    (from_block + BLOCKS_MAX_RANGE - 1).into(),
+                )),
             },
             address: Some(ValueOrArray::Value(self.bridge_address.clone())),
             topics: Default::default(),
@@ -127,5 +124,4 @@ impl EthereumClient {
 
         Ok(logs)
     }
-
 }
