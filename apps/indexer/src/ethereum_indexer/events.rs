@@ -33,7 +33,7 @@ pub fn get_store_data(log: Log) -> Result<(Option<Request>, Option<Event>)> {
     // TODO: not a fan of the mut here and for event, but as the type of data can change,
     // if someone has a better rust knowlege as mine for now,
     // rework very welcome!
-    let mut request;
+    let request;
 
     match format!("{:?}", raw.topics[0]).as_str() {
         DEPOSIT_REQUEST_INITIATED_SIG => {

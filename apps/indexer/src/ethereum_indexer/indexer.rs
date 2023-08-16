@@ -1,5 +1,5 @@
-use anyhow::{Result, anyhow};
-use ethers::types::{Address, BlockNumber};
+use anyhow::Result;
+use ethers::types::BlockNumber;
 
 use crate::storage::store::{RequestStore, EventStore};
 use crate::config::ChainConfig;
@@ -57,8 +57,6 @@ impl EthereumIndexer {
         };
 
         loop {
-            // TODO: verify if the block is not already fetched and processed.
-
             // Here, we use fetch_logs as Starklane for now doesn't have
             // a lot's of events to monitor.
             match self.client.fetch_logs(from_u64, to_u64).await {
@@ -67,10 +65,15 @@ impl EthereumIndexer {
                     log::info!("\nEth fetching blocks {} - {} ({} logs)", from_u64, to_u64, n_logs);
 
                     for l in logs {
+                        // TODO: verify if the block is not already fetched and processed.
+                        // If yes, skip this log.
+
                         match events::get_store_data(l)? {
                             (Some(r), Some(e)) => {
                                 store.insert_req(r).await?;
                                 store.insert_event(e.clone()).await?;
+
+                                // TODO: check for burn auto to send TX on ethereum.
 
                                 if e.block_number > from_u64 {
                                     from_u64 = e.block_number;

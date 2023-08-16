@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{Result, anyhow};
 use std::sync::Arc;
 use starknet::{
     core::{types::*, types::FieldElement},
@@ -9,24 +9,15 @@ use starknet::{
     signers::{LocalWallet, SigningKey},
 };
 use url::Url;
-
-use crate::storage::Request;
+use regex::Regex;
 
 ///
 pub struct StarknetClient {
-    rpc_url: String,
     chain_id: FieldElement,
     provider: AnyProvider,
     wallet: Option<LocalWallet>,
     account_address: Option<FieldElement>,
 }
-
-// impl From<EmittedEvent> for Request {
-//     ///
-//     fn from(event: EmittedEvent) -> Self {
-//         Request::default()
-//     }
-// }
 
 impl StarknetClient {
     ///
@@ -35,7 +26,6 @@ impl StarknetClient {
         account_address: &Option<String>,
         private_key: &Option<String>,
     ) -> Result<StarknetClient> {
-        let rpc_url_str = rpc_url.to_string();
         let rpc_url = Url::parse(rpc_url)?;
         let provider = AnyProvider::JsonRpcHttp(
             JsonRpcClient::new(HttpTransport::new(rpc_url)));
@@ -49,7 +39,6 @@ impl StarknetClient {
         };
 
         Ok(StarknetClient {
-            rpc_url: rpc_url_str,
             provider,
             wallet,
             account_address,
@@ -57,10 +46,39 @@ impl StarknetClient {
         })
     }
 
+    ///
+    pub async fn block_id_to_u64(&self, id: &BlockId) -> Result<u64> {
+        match id {
+            BlockId::Tag(BlockTag::Latest) => Ok(self.provider.block_number().await?),
+            BlockId::Number(n) => Ok(*n),
+            _ => Err(anyhow!("BlockID can´t be converted to u64"))
+        }
+    }
+
+    ///
+    pub fn parse_block_id(&self, id: &str) -> Result<BlockId> {
+        let regex_block_number = Regex::new("^[0-9]{1,}$").unwrap();
+
+        if id == "latest" {
+            Ok(BlockId::Tag(BlockTag::Latest))
+        } else if id == "pending" {
+            Ok(BlockId::Tag(BlockTag::Pending))
+        } else if regex_block_number.is_match(id) {
+            Ok(BlockId::Number(id.parse::<u64>()?))
+        } else {
+            Ok(BlockId::Hash(FieldElement::from_hex_be(id)?))
+        }
+    }
+
     /// On Starknet, a chunk size limits the maximum number of events
     /// that can be retrieved with one call.
     /// To ensure all events are fetched, we must ensure all events pages
     /// are correctly fechted.
+    ///
+    /// TODO: for now this version is ok, but it can be RAM consuming
+    /// as the events are accumulated before this function returns.
+    /// We can think of an other version that returns each page, and let
+    /// the caller process the pages.
     pub async fn fetch_events(
         &self,
         from_block: BlockId,
@@ -77,7 +95,7 @@ impl StarknetClient {
 
         let mut events = vec![];
 
-        let chunk_size = 100;
+        let chunk_size = 200;
         let mut continuation_token: Option<String> = None;
 
         loop {
@@ -140,7 +158,7 @@ impl StarknetClient {
 
         let execution = account.execute(calls).fee_estimate_multiplier(1.5f64);
         let estimated_fee = (execution.estimate_fee().await?.overall_fee) * 3 / 2;
-        let tx = execution.max_fee(estimated_fee.into()).send().await?;
+        let _tx = execution.max_fee(estimated_fee.into()).send().await?;
 
         //println!("InvokeTX: {:?}", tx);
 

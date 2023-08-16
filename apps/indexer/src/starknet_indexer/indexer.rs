@@ -1,18 +1,16 @@
 use anyhow::Result;
 use starknet::{
-    macros::felt,
-    accounts::Call,
     core::{types::{FieldElement, BlockId, BlockTag}},
 };
 
 use super::client::StarknetClient;
+use super::events;
 
-use crate::storage::store::RequestStore;
+use crate::storage::store::{RequestStore, EventStore};
 use crate::config::ChainConfig;
 
 use tokio::time::{self, Duration};
 use std::sync::Arc;
-use regex::Regex;
 
 ///
 pub struct StarknetIndexer {
@@ -36,20 +34,22 @@ impl StarknetIndexer {
     }
 
     ///
-    pub async fn start<T: RequestStore>(&self, store: Arc<T>) {
+    pub async fn start<T: RequestStore + EventStore>(&self, store: Arc<T>) -> Result<()> {
 
         let addr = FieldElement::from_hex_be(&self.config.address)
             .expect("Starknet: can't deserialize address");
 
-        let from_block = parse_block_id(&self.config.from_block)
+        let mut from_block = self.client.parse_block_id(&self.config.from_block)
             .expect("Starknet: can't deserialize from_block");
 
         let to_block = if let Some(to) = &self.config.to_block {
-            parse_block_id(&to).expect("Starknet: can't deserialize to_block")
+            self.client.parse_block_id(&to).expect("Starknet: can't deserialize to_block")
         } else {
             BlockId::Tag(BlockTag::Latest)
         };
-        
+
+        let to_block_is_latest = to_block == BlockId::Tag(BlockTag::Latest);
+
         loop {
             let maybe_sn_events = self.client.fetch_events(
                 from_block,
@@ -57,35 +57,53 @@ impl StarknetIndexer {
                 addr).await;
 
             if let Ok(events) = maybe_sn_events {
-                log::debug!("{:?}", events);
-                // identify the events + register data in the db store.
+                let n_events = events.len();
+                log::info!("\nSN fetching blocks {:?} - {:?} ({} logs)", from_block, to_block, n_events);
 
-                // TODO: we want to have a store transaction for each block.
-                // This will ensure that the block is or fully processed,
-                // or not processed at all.
-                // The store for indexing state will register if the block is processed.
-                // And block is skipped if already processed.
-                //
-                // To identify block, the log entry have a block_number field.
+                let from_u64 = self.client.block_id_to_u64(&from_block).await?;
+
+                for e in events {
+                    let event_block = e.block_number;
+
+                    // TODO: verify if the block is not already fetched and processed.
+                    // If yes, skip this event.
+                    match events::get_store_data(e)? {
+                        (Some(r), Some(e)) => {
+                            store.insert_req(r).await?;
+                            store.insert_event(e.clone()).await?;
+
+                            // TODO: check for withdraw auto to send TX on ethereum.
+                            //       check for burn auto to send TX on ethereum.
+
+                            if event_block > from_u64 {
+                                from_block = BlockId::Number(event_block);
+                            }
+                        },
+                        _ => log::warn!("Event emitted by Starklane possibly is not handled"),
+                    };
+
+                }
+
+                if n_events > 0 {
+                    let from_u64 = self.client.block_id_to_u64(&from_block).await? + 1;
+                    let to_u64 = self.client.block_id_to_u64(&to_block).await?;
+
+                    if !to_block_is_latest {
+                        // We stop at the block number in the configuration.
+                        if from_u64 > to_u64 {
+                            return Ok(())
+                        }
+                    }
+
+                    // if latest, we just keep polling.
+
+                    from_block = BlockId::Number(from_u64);
+                }
             } else {
                 log::error!("Error at getting starknet events...! {:?}", maybe_sn_events);
             }
 
             time::sleep(Duration::from_secs(self.config.fetch_interval)).await;
         }
-    }
-}
-
-fn parse_block_id(id: &str) -> Result<BlockId> {
-    let regex_block_number = Regex::new("^[0-9]{1,}$").unwrap();
-
-    if id == "latest" {
-        Ok(BlockId::Tag(BlockTag::Latest))
-    } else if id == "pending" {
-        Ok(BlockId::Tag(BlockTag::Pending))
-    } else if regex_block_number.is_match(id) {
-        Ok(BlockId::Number(id.parse::<u64>()?))
-    } else {
-        Ok(BlockId::Hash(FieldElement::from_hex_be(id)?))
     }
 }

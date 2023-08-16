@@ -2,7 +2,7 @@
 ///! will be merged, eth calls will be far better with more typing.
 ///!
 
-use anyhow::{Result, anyhow};
+use anyhow::Result;
 use ethers::types::{Address, Log, BlockNumber};
 use ethers::providers::{Provider, Http};
 use ethers::prelude::*;
@@ -24,7 +24,6 @@ const BLOCKS_MAX_RANGE: u64 = 200;
 
 ///
 pub struct EthereumClient {
-    rpc_url: String,
     provider: Provider<Http>,
     provider_signer: Option<SignerMiddleware<Provider<Http>, Wallet<SigningKey>>>,
     bridge_address: Address,
@@ -55,7 +54,6 @@ impl EthereumClient {
             .expect("Bridge address is is invalid");
 
         Ok(EthereumClient {
-            rpc_url: rpc_url.to_string(),
             provider,
             provider_signer,
             bridge_address,
