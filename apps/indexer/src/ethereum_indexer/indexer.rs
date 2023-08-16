@@ -176,8 +176,11 @@ where
 
             match events::get_store_data(l)? {
                 (Some(r), Some(e)) => {
-                    self.store.insert_req(r).await?;
                     self.store.insert_event(e.clone()).await?;
+
+                    if self.store.req_by_hash(&r.hash).await?.is_none() {
+                        self.store.insert_req(r).await?;
+                    }
 
                     // TODO: check for burn auto to send TX on ethereum
                     //       and add them to the xchains store.

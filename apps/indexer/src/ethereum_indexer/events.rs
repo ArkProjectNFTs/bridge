@@ -38,11 +38,12 @@ const COLLECTION_DEPOYED_FROM_L2_SIG: &str =
 
 /// Returns storage data from the log entry.
 pub fn get_store_data(log: Log) -> Result<(Option<Request>, Option<Event>)> {
-    // Check topic + parse.
-    let raw: RawLog = log.clone().into();
+
+    let sig = format!("{:#064x}", log.topics[0]);
+    let req_hash = format!("{:#064x}", log.topics[1]);
 
     let mut event = Event {
-        req_hash: String::from(""),
+        req_hash,
         label: EventLabel::DepositInitiatedL1,
         block_timestamp: 0,
         block_number: log.block_number.unwrap().try_into().unwrap(),
@@ -54,22 +55,20 @@ pub fn get_store_data(log: Log) -> Result<(Option<Request>, Option<Event>)> {
     // rework very welcome!
     let request;
 
-    match format!("{:?}", raw.topics[0]).as_str() {
+    match sig.as_str() {
         DEPOSIT_REQUEST_INITIATED_SIG => {
-            let data = <DepositRequestInitiated as EthLogDecode>::decode_log(&raw)?;
+            let data = <DepositRequestInitiated as EthLogDecode>::decode_log(&log.clone().into())?;
             event.label = EventLabel::DepositInitiatedL1;
-            event.req_hash = format!("{:#64x}", data.hash);
             event.block_timestamp = data.block_timestamp.try_into().unwrap();
 
-            request = request_from_log_data(data.req_content)?;
+            request = request_from_log_data(&event.label, data.req_content)?;
         }
         WITHDRAW_REQUEST_COMPLETED_SIG => {
-            let data = <WithdrawRequestCompleted as EthLogDecode>::decode_log(&raw)?;
+            let data = <WithdrawRequestCompleted as EthLogDecode>::decode_log(&log.clone().into())?;
             event.label = EventLabel::WithdrawCompletedL1;
-            event.req_hash = format!("{:#64x}", data.hash);
             event.block_timestamp = data.block_timestamp.try_into().unwrap();
 
-            request = request_from_log_data(data.req_content)?;
+            request = request_from_log_data(&event.label, data.req_content)?;
         }
         COLLECTION_DEPOYED_FROM_L2_SIG => {
             // TODO: return event only.
@@ -89,7 +88,7 @@ pub fn get_store_data(log: Log) -> Result<(Option<Request>, Option<Event>)> {
 
 /// From the raw buffer in the Log data, parse the request fields
 /// required to build `Request`.
-fn request_from_log_data(data: Vec<U256>) -> Result<Request> {
+fn request_from_log_data(event_label: &EventLabel, data: Vec<U256>) -> Result<Request> {
     if data.len() < 6 {
         return Err(anyhow!(
             "Request can't be extracted from log data: {:?}",
@@ -101,20 +100,27 @@ fn request_from_log_data(data: Vec<U256>) -> Result<Request> {
     let content_array: Vec<Value> = hex_strings.iter().map(|s| json!(s)).collect();
     let content = serde_json::to_string(&content_array)?;
 
-    // TODO: if it's a withdraw or deposit, the values for the collection_src etc..
-    // will differ.
-    // Need to be checked.
-    // We still need to insert the request even if it's a withdraw as the indexer
-    // on starknet side may be slower/faster, and we don't want to depend on the other
-    // side indexation.
+    let req = match event_label {
+        EventLabel::DepositInitiatedL1 => Request {
+            hash: format!("{:#032x}{:032x}", data[2], data[1]),
+            chain_src: BridgeChain::Ethereum,
+            collection_src: hex_strings[3].clone(),
+            collection_dst: hex_strings[4].clone(),
+            from: hex_strings[5].clone(),
+            to: hex_strings[6].clone(),
+            content,
+        },
+        EventLabel::WithdrawCompletedL1 => Request {
+            hash: format!("{:#032x}{:032x}", data[2], data[1]),
+            chain_src: BridgeChain::Starknet,
+            collection_src: hex_strings[4].clone(),
+            collection_dst: hex_strings[3].clone(),
+            from: hex_strings[6].clone(),
+            to: hex_strings[5].clone(),
+            content,
+        },
+        _ => return Err(anyhow!("EventLabel {:?} not supposed to generate a request", event_label))
+    };
 
-    Ok(Request {
-        hash: format!("{:#032x}{:032x}", data[2], data[1]),
-        chain_src: BridgeChain::Ethereum,
-        collection_src: hex_strings[3].clone(),
-        collection_dst: hex_strings[4].clone(),
-        from: hex_strings[5].clone(),
-        to: hex_strings[6].clone(),
-        content,
-    })
+    Ok(req)
 }

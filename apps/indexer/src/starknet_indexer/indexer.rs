@@ -147,8 +147,11 @@ where
                     (Some(req), Some(ev), xchain_txs) => {
                         log::debug!("Request/Event\n{:?}\n{:?}", req, ev);
 
-                        self.store.insert_req(req).await?;
                         self.store.insert_event(ev.clone()).await?;
+
+                        if self.store.req_by_hash(&req.hash).await?.is_none() {
+                            self.store.insert_req(req).await?;
+                        }
 
                         for tx in xchain_txs {
                             self.store.insert_tx(tx).await?;

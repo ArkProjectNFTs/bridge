@@ -7,6 +7,10 @@ use crate::storage::{BridgeChain, CrossChainTx, CrossChainTxKind, Event, EventLa
 pub const DEPOSIT_REQUEST_INITIATED_SELECTOR: &str =
     "0x01682ccdc90fbee2d6cc3e930539cb4ca29390a438db1c2e4c7d493e01a61abb";
 
+pub const WITHDRAW_REQUEST_COMPLETED_SELECTOR: &str =
+    "0x0132aab9714c265c8ad151ce006bb91691100722ddec42e7ee96dc9dfa9e741c";
+
+
 pub const REQUEST_HEADER_WITHDRAW_AUTO: u128 = 0x01000000;
 pub const REQUEST_HEADER_BURN_AUTO: u128 = 0x010000;
 
@@ -29,15 +33,14 @@ pub fn get_store_data(
         tx_hash: felt_to_hex(&event.transaction_hash),
     };
 
-    let request = request_from_event_data(event.data)?;
     let mut txs = vec![];
-
-    assert_eq!(request.hash, store_event.req_hash);
 
     // Here, the selector has the leading 0.
     match felt_to_hex(&event.keys[0]).as_str() {
         DEPOSIT_REQUEST_INITIATED_SELECTOR => {
             store_event.label = EventLabel::DepositInitiatedL2;
+
+            let request = request_from_event_data(&store_event.label, event.data)?;
 
             // txs are only valid for deposit.
             txs = get_xchain_txs(
@@ -45,16 +48,25 @@ pub fn get_store_data(
                 request.hash.clone(),
                 request.content.clone(),
             )?;
+
+            assert_eq!(request.hash, store_event.req_hash);
+            return Ok((Some(request), Some(store_event), txs))
+        }
+        WITHDRAW_REQUEST_COMPLETED_SELECTOR => {
+            store_event.label = EventLabel::WithdrawCompletedL2;
+
+            let request = request_from_event_data(&store_event.label, event.data)?;
+
+            assert_eq!(request.hash, store_event.req_hash);
+            return Ok((Some(request), Some(store_event), txs))
         }
         _ => return Ok((None, None, vec![])),
-    }
-
-    Ok((Some(request), Some(store_event), txs))
+    };
 }
 
 /// From the raw buffer in the event data, parse the request fields
 /// required to build `Request`.
-fn request_from_event_data(data: Vec<FieldElement>) -> Result<Request> {
+fn request_from_event_data(event_label: &EventLabel, data: Vec<FieldElement>) -> Result<Request> {
     // First 7 felts are the fixed size part of the request.
     if data.len() < 7 {
         return Err(anyhow!(
@@ -69,15 +81,29 @@ fn request_from_event_data(data: Vec<FieldElement>) -> Result<Request> {
         .collect();
     let content = serde_json::to_string(&content_array)?;
 
-    Ok(Request {
-        hash: u256_to_hex(&data[1..])?, // first felt is the header.
-        chain_src: BridgeChain::Starknet,
-        collection_src: felt_to_hex_noleading(&data[4]), // collection l2
-        collection_dst: felt_to_hex_noleading(&data[3]), // collection l1
-        from: felt_to_hex_noleading(&data[6]),           // owner l2
-        to: felt_to_hex_noleading(&data[5]),             // owner l1
-        content,
-    })
+    let req = match event_label {
+        EventLabel::DepositInitiatedL2 => Request {
+            hash: u256_to_hex(&data[1..])?, // first felt is the header.
+            chain_src: BridgeChain::Starknet,
+            collection_src: felt_to_hex_noleading(&data[4]), // collection l2
+            collection_dst: felt_to_hex_noleading(&data[3]), // collection l1
+            from: felt_to_hex_noleading(&data[6]),           // owner l2
+            to: felt_to_hex_noleading(&data[5]),             // owner l1
+            content,
+        },
+        EventLabel::WithdrawCompletedL2 => Request {
+            hash: u256_to_hex(&data[1..])?, // first felt is the header.
+            chain_src: BridgeChain::Ethereum,
+            collection_src: felt_to_hex_noleading(&data[3]), // collection l1
+            collection_dst: felt_to_hex_noleading(&data[4]), // collection l2
+            from: felt_to_hex_noleading(&data[5]),           // owner l1
+            to: felt_to_hex_noleading(&data[6]),             // owner l2
+            content,
+        },
+        _ => return Err(anyhow!("EventLabel {:?} not supposed to generate a request", event_label))
+    };
+
+    Ok(req)
 }
 
 ///
