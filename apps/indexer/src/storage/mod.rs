@@ -1,6 +1,6 @@
-///! For now only mongo store is used locally,
-///! Any new store can be added (i.e. dynamodb) implementing
-///! the traits in store.rs.
+//! For now only mongo store is used locally,
+//! Any new store can be added (i.e. dynamodb) implementing
+//! the traits in store.rs.
 use serde::{Deserialize, Serialize};
 
 pub mod mongo;
@@ -53,6 +53,7 @@ pub struct CrossChainTx {
     pub kind: CrossChainTxKind,
     pub req_hash: String,
     pub req_content: String,
+    pub tx_hash: String,
 }
 
 ///
