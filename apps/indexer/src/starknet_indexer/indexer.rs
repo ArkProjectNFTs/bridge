@@ -1,15 +1,15 @@
 use anyhow::Result;
-use starknet::core::types::{BlockId, BlockTag, FieldElement, EmittedEvent};
+use starknet::core::types::{BlockId, BlockTag, EmittedEvent, FieldElement};
 
 use super::client::StarknetClient;
 use super::events;
 
-use crate::utils;
 use crate::config::ChainConfig;
 use crate::storage::{
-    BridgeChain, BlockIndex,
-    store::{EventStore, RequestStore, BlockStore}
+    store::{BlockStore, EventStore, RequestStore},
+    BlockIndex, BridgeChain,
 };
+use crate::utils;
 
 use std::sync::Arc;
 use tokio::time::{self, Duration};
@@ -23,16 +23,20 @@ pub struct StarknetIndexer<T: RequestStore + EventStore + BlockStore> {
 
 impl<T> StarknetIndexer<T>
 where
-    T: RequestStore + EventStore + BlockStore {
+    T: RequestStore + EventStore + BlockStore,
+{
     ///
     pub async fn new(config: ChainConfig, store: Arc<T>) -> Result<StarknetIndexer<T>> {
         let client = StarknetClient::new(config.clone()).await?;
-        Ok(StarknetIndexer { client, config, store })
+        Ok(StarknetIndexer {
+            client,
+            config,
+            store,
+        })
     }
 
     ///
     pub async fn start(&self) -> Result<()> {
-
         let from_block = self.client.parse_block_id(&self.config.from_block)?;
         let to_block = if let Some(to) = &self.config.to_block {
             self.client.parse_block_id(&to)?
@@ -51,7 +55,6 @@ where
         // even if a lot's of events are emitted by Starklane.
         // Also, this will help with transactional approach for the database, to ensure
         // atomicity.
-
     }
 
     ///
@@ -70,14 +73,20 @@ where
     /// Fetches all the events staring at `from_block` until head of the chain.
     /// Then polls the head of the chain.
     async fn head_of_chain_poll(&self, from_block: BlockId) -> Result<()> {
-        log::info!("Starknet head of chain polling every {} seconds", self.config.fetch_interval);
+        log::info!(
+            "Starknet head of chain polling every {} seconds",
+            self.config.fetch_interval
+        );
 
         let mut from_u64 = self.client.block_id_to_u64(&from_block).await?;
 
         loop {
             time::sleep(Duration::from_secs(self.config.fetch_interval)).await;
 
-            let latest_u64 = self.client.block_id_to_u64(&BlockId::Tag(BlockTag::Latest)).await?;
+            let latest_u64 = self
+                .client
+                .block_id_to_u64(&BlockId::Tag(BlockTag::Latest))
+                .await?;
 
             // Don't fetch if we already are on the head of the chain.
             if from_u64 >= latest_u64 {
@@ -85,7 +94,10 @@ where
                 continue;
             }
 
-            let block_events = self.client.fetch_events(from_block, BlockId::Number(latest_u64)).await?;
+            let block_events = self
+                .client
+                .fetch_events(from_block, BlockId::Number(latest_u64))
+                .await?;
 
             for (block_number, events) in block_events {
                 self.process_events(block_number, events).await?;
@@ -97,14 +109,23 @@ where
 
             // +1 to exlude the last fetched block at the next fetch.
             from_u64 += 1;
-        };
+        }
     }
 
     /// Returns the number of events processed for the given block.
-    async fn process_events(&self, block_number: u64, events: Vec<EmittedEvent>, ) -> Result<()> {
-        log::debug!("Processing {} events for block {}", events.len(), block_number);
+    async fn process_events(&self, block_number: u64, events: Vec<EmittedEvent>) -> Result<()> {
+        log::debug!(
+            "Processing {} events for block {}",
+            events.len(),
+            block_number
+        );
 
-        if self.store.block_by_number(BridgeChain::Starknet, block_number).await?.is_some() {
+        if self
+            .store
+            .block_by_number(BridgeChain::Starknet, block_number)
+            .await?
+            .is_some()
+        {
             log::debug!("Block {} already indexed for starknet", block_number);
             return Ok(());
         }

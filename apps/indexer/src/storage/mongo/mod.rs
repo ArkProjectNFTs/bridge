@@ -3,9 +3,9 @@ use mongodb::{options::ClientOptions, Client, Collection};
 
 use crate::storage::{BlockIndex, Event, Request};
 
+mod block_store;
 mod event_store;
 mod request_store;
-mod block_store;
 
 /// Mongo db abstraction.
 ///

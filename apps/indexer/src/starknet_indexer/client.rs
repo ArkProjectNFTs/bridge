@@ -6,8 +6,8 @@ use starknet::{
     providers::{jsonrpc::HttpTransport, AnyProvider, JsonRpcClient, Provider},
     signers::{LocalWallet, SigningKey},
 };
-use std::sync::Arc;
 use std::collections::HashMap;
+use std::sync::Arc;
 use url::Url;
 
 use crate::config::ChainConfig;

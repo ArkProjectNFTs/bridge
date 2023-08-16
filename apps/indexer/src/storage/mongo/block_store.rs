@@ -3,7 +3,7 @@ use async_trait::async_trait;
 use mongodb::bson::doc;
 
 use super::MongoStore;
-use crate::storage::{store::BlockStore, Request, BlockIndex, BridgeChain};
+use crate::storage::{store::BlockStore, BlockIndex, BridgeChain, Request};
 
 #[async_trait]
 impl BlockStore for MongoStore {
@@ -17,14 +17,17 @@ impl BlockStore for MongoStore {
     async fn block_by_number(
         &self,
         chain: BridgeChain,
-        block_number: u64
+        block_number: u64,
     ) -> Result<Option<BlockIndex>> {
-        Ok(self.blocks.find_one(
-            doc! {
-                "chain": chain.to_string(),
-                "block_number": block_number as i64,
-            },
-            None
-        ).await?)
+        Ok(self
+            .blocks
+            .find_one(
+                doc! {
+                    "chain": chain.to_string(),
+                    "block_number": block_number as i64,
+                },
+                None,
+            )
+            .await?)
     }
 }
