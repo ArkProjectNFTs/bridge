@@ -3,7 +3,7 @@
 use anyhow::Result;
 use async_trait::async_trait;
 
-use crate::storage::{BlockIndex, BridgeChain, Event, Request, CrossChainTx};
+use crate::storage::{BlockIndex, BridgeChain, CrossChainTx, Event, Request};
 
 /// Store related to cross chain transactions.
 #[async_trait]

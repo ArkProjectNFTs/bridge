@@ -1,7 +1,7 @@
 use anyhow::Result;
 use async_trait::async_trait;
-use mongodb::bson::doc;
 use futures::TryStreamExt;
+use mongodb::bson::doc;
 
 use super::MongoStore;
 use crate::storage::{store::CrossChainTxStore, BridgeChain, CrossChainTx};
@@ -16,10 +16,9 @@ impl CrossChainTxStore for MongoStore {
 
     ///
     async fn delete_tx(&self, req_hash: String) -> Result<()> {
-        self.xchain_txs.delete_one(
-            doc! { "req_hash": req_hash },
-            None,
-        ).await?;
+        self.xchain_txs
+            .delete_one(doc! { "req_hash": req_hash }, None)
+            .await?;
 
         Ok(())
     }

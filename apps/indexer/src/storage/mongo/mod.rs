@@ -1,7 +1,9 @@
 use anyhow::Result;
-use mongodb::{options::ClientOptions, Client, Collection, bson::Bson};
+use mongodb::{bson::Bson, options::ClientOptions, Client, Collection};
 
-use crate::storage::{BlockIndex, Event, Request, CrossChainTx, BridgeChain, CrossChainTxKind, EventLabel};
+use crate::storage::{
+    BlockIndex, BridgeChain, CrossChainTx, CrossChainTxKind, Event, EventLabel, Request,
+};
 
 mod block_store;
 mod event_store;

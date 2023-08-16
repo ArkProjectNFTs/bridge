@@ -37,7 +37,6 @@ where
 
     ///
     pub async fn start(&self) -> Result<()> {
-
         // TODO: start a loop that will check for the TXs (with request) to be sent to
         // starknet...! (as we have here a client for starknet txs with invoke available).
         // On starknet, it should only by auto-burn invokes.
