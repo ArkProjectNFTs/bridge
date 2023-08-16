@@ -30,7 +30,7 @@ impl StarknetClient {
         let wallet = StarknetClient::wallet_from_private_key(&config.account_private_key);
         let chain_id = provider.chain_id().await?;
         let account_address = if let Some(ac) = &config.account_address {
-            Some(FieldElement::from_hex_be(&ac)?)
+            Some(FieldElement::from_hex_be(ac)?)
         } else {
             None
         };
@@ -127,7 +127,7 @@ impl StarknetClient {
     /// Returns a local wallet from a private key, if provided.
     fn wallet_from_private_key(private_key: &Option<String>) -> Option<LocalWallet> {
         if let Some(pk) = private_key {
-            let private_key = match FieldElement::from_hex_be(&pk) {
+            let private_key = match FieldElement::from_hex_be(pk) {
                 Ok(p) => p,
                 Err(e) => {
                     log::error!("Error importing private key: {:?}", e);
@@ -135,9 +135,9 @@ impl StarknetClient {
                 }
             };
             let key = SigningKey::from_secret_scalar(private_key);
-            return Some(LocalWallet::from_signing_key(key));
+            Some(LocalWallet::from_signing_key(key))
         } else {
-            return None;
+            None
         }
     }
 

@@ -1,6 +1,6 @@
-///! For now only mongo store is used locally,
-///! Any new store can be added (i.e. dynamodb) implementing
-///! the traits in store.rs.
+//! For now only mongo store is used locally,
+//! Any new store can be added (i.e. dynamodb) implementing
+//! the traits in store.rs.
 use serde::{Deserialize, Serialize};
 
 pub mod mongo;

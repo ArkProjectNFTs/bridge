@@ -1,6 +1,6 @@
-///! When PR like https://github.com/alloy-rs/core/pull/51
-///! will be merged, eth calls will be far better with more typing.
-///!
+//! When PR like https://github.com/alloy-rs/core/pull/51
+//! will be merged, eth calls will be far better with more typing.
+
 use anyhow::Result;
 use ethers::prelude::*;
 use ethers::providers::{Http, Provider};
@@ -56,7 +56,7 @@ impl EthereumClient {
 
     ///
     pub fn get_bridge_caller(&self) -> StarklaneBridge<Provider<Http>> {
-        StarklaneBridge::new(self.bridge_address.clone(), Arc::new(self.provider.clone()))
+        StarklaneBridge::new(self.bridge_address, Arc::new(self.provider.clone()))
     }
 
     ///
@@ -67,7 +67,7 @@ impl EthereumClient {
             .clone()
             .expect("Bridge sender requested but not initialized. Did you provide a private key in the config?");
 
-        StarklaneBridge::new(self.bridge_address.clone(), Arc::new(signer))
+        StarklaneBridge::new(self.bridge_address, Arc::new(signer))
     }
 
     ///
@@ -109,7 +109,7 @@ impl EthereumClient {
                     (from_block + BLOCKS_MAX_RANGE - 1).into(),
                 )),
             },
-            address: Some(ValueOrArray::Value(self.bridge_address.clone())),
+            address: Some(ValueOrArray::Value(self.bridge_address)),
             topics: Default::default(),
         };
 

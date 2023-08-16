@@ -1,5 +1,5 @@
 use anyhow::Result;
-use starknet::core::types::{BlockId, BlockTag, EmittedEvent, FieldElement};
+use starknet::core::types::{BlockId, BlockTag, EmittedEvent};
 
 use super::client::StarknetClient;
 use super::events;
@@ -43,7 +43,7 @@ where
 
         let from_block = self.client.parse_block_id(&self.config.from_block)?;
         let to_block = if let Some(to) = &self.config.to_block {
-            self.client.parse_block_id(&to)?
+            self.client.parse_block_id(to)?
         } else {
             BlockId::Tag(BlockTag::Latest)
         };
@@ -62,17 +62,17 @@ where
     }
 
     ///
-    fn fetch_range(&self, _from_block: BlockId, _to_block: BlockId) -> Result<()> {
-        // TODO: a logic for fetching only from - to range of blocks
-        // and process associated events, and stop when to is reached.
+    //fn fetch_range(&self, _from_block: BlockId, _to_block: BlockId) -> Result<()> {
+    // TODO: a logic for fetching only from - to range of blocks
+    // and process associated events, and stop when to is reached.
 
-        // Here we can put a logic to only fetch small ranges by small ranges, until
-        // we reach to.
+    // Here we can put a logic to only fetch small ranges by small ranges, until
+    // we reach to.
 
-        // If the logic is simple, maybe head_of_chain_poll and this one can be the same
-        // function.
-        Ok(())
-    }
+    // If the logic is simple, maybe head_of_chain_poll and this one can be the same
+    // function.
+    //Ok(())
+    //}
 
     /// Fetches all the events staring at `from_block` until head of the chain.
     /// Then polls the head of the chain.
@@ -138,9 +138,7 @@ where
 
         for e in events {
             //log::debug!("raw event\n{:?}\n", e);
-            let event_selector = e.keys[0].clone();
-            // The header is the first felt in the data of the event.
-            let request_header: FieldElement = e.data[0];
+            let event_selector = e.keys[0];
 
             match events::get_store_data(e) {
                 Ok(store_data) => match store_data {
@@ -169,7 +167,7 @@ where
 
         let block_idx = BlockIndex {
             chain: BridgeChain::Starknet,
-            block_number: block_number,
+            block_number,
             insert_timestamp: utils::utc_now_seconds(),
         };
 

@@ -38,12 +38,12 @@ where
 
     ///
     pub async fn start(&self) -> Result<()> {
-        let (mut from, mut to, continue_polling_blocks) = self.get_block_range_info().await?;
+        let (mut from, _, _) = self.get_block_range_info().await?;
 
         loop {
             time::sleep(Duration::from_secs(self.config.fetch_interval)).await;
 
-            to = self.client.get_block_number().await;
+            let to = self.client.get_block_number().await;
 
             if from > to {
                 log::debug!("Nothing to fetch (from={} to={})", from, to);
@@ -172,7 +172,7 @@ where
         // TODO: start a database transaction/session.
 
         for l in logs {
-            let l_sig = l.topics[0].clone();
+            let l_sig = l.topics[0];
 
             match events::get_store_data(l)? {
                 (Some(r), Some(e)) => {
@@ -192,7 +192,7 @@ where
 
         let block_idx = BlockIndex {
             chain: BridgeChain::Ethereum,
-            block_number: block_number,
+            block_number,
             insert_timestamp: utils::utc_now_seconds(),
         };
 
