@@ -45,21 +45,21 @@ library Protocol {
     uint256 private constant DEPOSIT_AUTO_BURN = (0x01 << (8 * 2));
 
     // Byte 3 of the header: withdraw config.
-    uint256 private constant WITHDRAW_QUICK = (0x01 << (8 * 3));
+    uint256 private constant WITHDRAW_AUTO = (0x01 << (8 * 3));
 
     /**
-       @notice Verifies if the given header supports the withdraw QUICK.
+       @notice Verifies if the given header supports the withdraw auto.
 
-       @return True if withdraw QUICK is supported, false otherwise.
+       @return True if withdraw auto is supported, false otherwise.
     */
-    function canUseWithdrawQuick(
+    function canUseWithdrawAuto(
         uint256 header
     )
         internal
         pure
         returns (bool)
     {
-        return (header & WITHDRAW_QUICK) == WITHDRAW_QUICK;
+        return (header & WITHDRAW_AUTO) == WITHDRAW_AUTO;
     }
 
     /**
@@ -98,7 +98,7 @@ library Protocol {
     function requestHeaderV1(
         CollectionType ctype,
         bool useDepositAutoBurn,
-        bool useWithdrawQuick
+        bool useWithdrawAuto
     )
         internal
         pure
@@ -116,8 +116,8 @@ library Protocol {
             h |= DEPOSIT_AUTO_BURN;
         }
         
-        if (useWithdrawQuick) {
-            h |= WITHDRAW_QUICK;
+        if (useWithdrawAuto) {
+            h |= WITHDRAW_AUTO;
         }
 
         return Cairo.felt252Wrap(h);

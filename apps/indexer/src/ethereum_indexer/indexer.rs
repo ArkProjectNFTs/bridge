@@ -1,10 +1,10 @@
 use anyhow::Result;
-use ethers::types::{BlockNumber, Log};
+use ethers::types::{BlockNumber, Log, U256};
 
 use crate::config::ChainConfig;
 use crate::storage::{
     store::{BlockStore, CrossChainTxStore, EventStore, RequestStore},
-    BlockIndex, BridgeChain,
+    BlockIndex, BridgeChain, CrossChainTxKind,
 };
 use crate::utils;
 
@@ -38,47 +38,92 @@ where
 
     ///
     pub async fn start(&self) -> Result<()> {
-        let (mut from, mut to, continue_polling_blocks) = self.get_block_range_info().await?;
+        let (mut from, _, _) = self.get_block_range_info().await?;
 
         loop {
             time::sleep(Duration::from_secs(self.config.fetch_interval)).await;
 
-            to = self.client.get_block_number().await;
+            let to = self.client.get_block_number().await;
 
-            if from >= to {
+            if from > to {
                 log::debug!("Nothing to fetch (from={} to={})", from, to);
                 continue;
             }
 
-            let blocks_logs = self.client.fetch_logs(from, to).await?;
+            let blocks_logs = match self.client.fetch_logs(from, to).await {
+                Ok(bl) => bl,
+                Err(e) => {
+                    log::warn!("Error fetching logs: {:?}", e);
+                    continue;
+                }
+            };
 
             for (block_number, logs) in blocks_logs {
-                self.process_logs(block_number, logs).await?;
+                match self.process_logs(block_number, logs).await {
+                    Ok(_) => (),
+                    Err(e) => log::warn!(
+                        "Error processing logs for block {:?}\n{:?}",
+                        block_number,
+                        e
+                    ),
+                };
 
                 if block_number > from {
                     from = block_number;
                 }
             }
 
+            match self.xchain_txs_send().await {
+                Ok(_) => (),
+                Err(e) => log::warn!("Error sending xchain_txs {:?}", e),
+            };
+
             // +1 to exlude the last fetched block at the next fetch.
             from += 1;
-
-            // We want to continue polling the head of the chain if the
-            // to_block is set to "latest" in the config.
-            if continue_polling_blocks {
-                to = self.client.get_block_number().await;
-                if from > to {
-                    // More consistent to always have from and to equal,
-                    // or to > from.
-                    from = to;
-                }
-            } else {
-                // We stop at the block number in the configuration.
-                if from > to {
-                    return Ok(());
-                }
-            }
         }
+    }
+
+    ///
+    async fn xchain_txs_send(&self) -> Result<()> {
+        let txs = self.store.pending_xtxs(BridgeChain::Ethereum).await?;
+        log::debug!("Sending xchain_txs to ethereum node [{}]", txs.len());
+
+        let starklane = self.client.get_bridge_sender();
+
+        // let tx = starklane.reset().send().await?.await?;
+        // println!("Transaction Receipt: {}", serde_json::to_string(&tx)?);
+
+        // TODO: for loop instead for_each, async closure?
+        for tx in txs {
+            // TODO: we need to first check if a corresponding withdraw event doesn't
+            // already exist. This will avoid sending a tx that will revert and can be
+            // eth consuming!
+
+            let felts_strs: Vec<String> = serde_json::from_str(&tx.req_content)
+                .expect("Fail parsing request content for xchain_tx");
+
+            let u256s: Vec<U256> = felts_strs
+                .into_iter()
+                .map(|felt_str| {
+                    U256::from_str_radix(&felt_str, 16)
+                        .expect("Invalid U256 format (expecting hex str)")
+                })
+                .collect();
+
+            match tx.kind {
+                CrossChainTxKind::WithdrawAuto => {
+                    let receipt = starklane.withdraw_tokens(u256s).send().await?.await?;
+                    if let Some(r) = receipt {
+                        self.store
+                            .set_tx_as_sent(tx.req_hash, format!("{:#064x}", r.transaction_hash))
+                            .await?;
+                    };
+                }
+                CrossChainTxKind::BurnAuto => todo!(),
+            };
+        }
+
+        Ok(())
     }
 
     ///
@@ -127,22 +172,27 @@ where
         // TODO: start a database transaction/session.
 
         for l in logs {
+            let l_sig = l.topics[0];
+
             match events::get_store_data(l)? {
                 (Some(r), Some(e)) => {
-                    self.store.insert_req(r).await?;
                     self.store.insert_event(e.clone()).await?;
+
+                    if self.store.req_by_hash(&r.hash).await?.is_none() {
+                        self.store.insert_req(r).await?;
+                    }
 
                     // TODO: check for burn auto to send TX on ethereum
                     //       and add them to the xchains store.
                 }
                 // Maybe fine, like proxy upgrade / ownership, ...
-                _ => log::warn!("Event emitted by Starklane is not handled"),
+                _ => log::warn!("Event emitted by Starklane is not handled {:?}", l_sig),
             };
         }
 
         let block_idx = BlockIndex {
             chain: BridgeChain::Ethereum,
-            block_number: block_number,
+            block_number,
             insert_timestamp: utils::utc_now_seconds(),
         };
 

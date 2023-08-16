@@ -1,5 +1,5 @@
-///!
-///!
+//! Starklane indexer main entry point.
+
 use anyhow::Result;
 use clap::Parser;
 use std::sync::Arc;

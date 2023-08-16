@@ -41,12 +41,12 @@ interface IStarklane {
         returns (address);
 
     /**
-       @notice Adds the hash of a message that can be consumed with the QUICK
+       @notice Adds the hash of a message that can be consumed with the auto
        method.
 
        @param msgHash Hash of the message to be considered as consumable.
     */
-    function addMessageHashForQuick(
+    function addMessageHashForAutoWithdraw(
         uint256 msgHash
     )
         external
