@@ -52,10 +52,10 @@ starklane_upgrade_auto:
 
 # Deposit tokens.
 starklane_deposit:
-	@printf "${bold}Ensure you don't forget the bridge, collection, owner_l1, tokens argument:\n${normal}"
-	@echo "${shiny}usage: make starklane_deposit config=.yourconfig.env bridge=0x... collection=0x... owner_l1=0x... tokens=1 1 0\n${normal}"
+	@printf "${bold}Ensure you don't forget the bridge, collection, owner_l1, tokens argument, withdraw_auto:\n${normal}"
+	@echo "${shiny}usage: make starklane_deposit config=.yourconfig.env bridge=0x... collection=0x... owner_l1=0x... withdraw_auto=0 tokens=\"1 1 0\"\n${normal}"
 	$(eval salt=$(shell date +%s%N))
-	starkli invoke $(bridge) deposit_tokens ${salt} $(collection) $(owner_l1) $(tokens) 0 0 ${priv_key}
+	starkli invoke $(bridge) deposit_tokens ${salt} $(collection) $(owner_l1) $(tokens) $(withdraw_auto) 0 ${priv_key}
 
 # ERC721 bridgeable deploy
 # For now, only supports name and symbol of length 1.

@@ -96,9 +96,10 @@ impl EthereumClient {
         from_block: u64,
         to_block: u64,
     ) -> Result<HashMap<u64, Vec<Log>>> {
-        log::info!("\nEth fetching blocks {} - {}", from_block, to_block);
+        log::info!("Eth fetching blocks {} - {}", from_block, to_block);
         let mut from_block = from_block;
         let mut diff = to_block - from_block;
+        let mut range = BLOCKS_MAX_RANGE;
 
         let mut logs: HashMap<u64, Vec<Log>> = HashMap::new();
 
@@ -106,7 +107,7 @@ impl EthereumClient {
             block_option: FilterBlockOption::Range {
                 from_block: Some(BlockNumber::Number(from_block.into())),
                 to_block: Some(BlockNumber::Number(
-                    (from_block + BLOCKS_MAX_RANGE - 1).into(),
+                    (from_block + range - 1).into(),
                 )),
             },
             address: Some(ValueOrArray::Value(self.bridge_address)),
@@ -127,9 +128,13 @@ impl EthereumClient {
                 .or_insert(vec![l.clone()]);
             });
 
+            from_block += range;
+
             if diff >= BLOCKS_MAX_RANGE {
                 diff -= BLOCKS_MAX_RANGE;
-                from_block += BLOCKS_MAX_RANGE;
+            } else if diff > 0 {
+                range = diff;
+                diff = 0;
             } else {
                 break;
             }

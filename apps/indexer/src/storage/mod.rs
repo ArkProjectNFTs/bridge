@@ -109,20 +109,21 @@ pub struct Event {
 }
 
 ///
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, PartialOrd, Eq, Ord, Copy)]
 #[serde(rename_all = "snake_case")]
 pub enum EventLabel {
     #[serde(rename = "deposit_initiated_l1")]
     DepositInitiatedL1,
-    #[serde(rename = "withdraw_completed_l1")]
-    WithdrawCompletedL1,
-    #[serde(rename = "transit_error_l1_l2")]
-    TransitErrorL1L2,
-
     #[serde(rename = "deposit_initiated_l2")]
     DepositInitiatedL2,
+
+    #[serde(rename = "withdraw_completed_l1")]
+    WithdrawCompletedL1,
     #[serde(rename = "withdraw_completed_l2")]
     WithdrawCompletedL2,
+
+    #[serde(rename = "transit_error_l1_l2")]
+    TransitErrorL1L2,
     #[serde(rename = "transit_error_l2_l1")]
     TransitErrorL2L1,
 }
