@@ -45,8 +45,8 @@ where
 
             let to = self.client.get_block_number().await;
 
-            if from > to {
-                log::debug!("Nothing to fetch (from={} to={})", from, to);
+            if from >= to {
+                log::info!("Nothing to fetch (from={} to={})", from, to);
                 continue;
             }
 
@@ -58,6 +58,8 @@ where
                 }
             };
 
+            log::debug!("blocks logs: {:?}", blocks_logs);
+
             for (block_number, logs) in blocks_logs {
                 match self.process_logs(block_number, logs).await {
                     Ok(_) => (),
@@ -67,10 +69,6 @@ where
                         e
                     ),
                 };
-
-                if block_number > from {
-                    from = block_number;
-                }
             }
 
             match self.xchain_txs_send().await {
@@ -78,15 +76,17 @@ where
                 Err(e) => log::warn!("Error sending xchain_txs {:?}", e),
             };
 
-            // +1 to exlude the last fetched block at the next fetch.
-            from += 1;
+            // The block range was fetched and processed.
+            // If any block has an error, an other instance of the indexer
+            // must be restarted on a the specific range.
+            from = to;
         }
     }
 
     ///
     async fn xchain_txs_send(&self) -> Result<()> {
         let txs = self.store.pending_xtxs(BridgeChain::Ethereum).await?;
-        log::debug!("Sending xchain_txs to ethereum node [{}]", txs.len());
+        log::debug!("Verifying xchain_txs for ethereum node [{}]", txs.len());
 
         let starklane = self.client.get_bridge_sender();
 
@@ -97,7 +97,14 @@ where
         for tx in txs {
             // TODO: we need to first check if a corresponding withdraw event doesn't
             // already exist. This will avoid sending a tx that will revert and can be
-            // eth consuming!
+            // eth consuming! But how to check for that...
+            // This may imply an other tx on starknet to register the associated eth block number..?
+            // Because we can't afford being dependent on ethereum indexing..
+            // -> Solution: the indexer and the xchain_transactor must be 2 separate binaries.
+            // Like this, the indexer can be started first, and when in required conditions,
+            // the xchain_transactor can be started.
+            // With this solution, we can keep the indexing of starknet and ethereum totally
+            // independant, and xchain_txs will only be sent when needed.
 
             let felts_strs: Vec<String> = serde_json::from_str(&tx.req_content)
                 .expect("Fail parsing request content for xchain_tx");
@@ -112,6 +119,9 @@ where
 
             match tx.kind {
                 CrossChainTxKind::WithdrawAuto => {
+                    // TODO: check if the event withdraw_l1 is not already registered for this tx.
+                    // we may not depend on indexing order, but if it's already here, we can save
+                    // a tx + eth.
                     let receipt = starklane.withdraw_tokens(u256s).send().await?.await?;
                     if let Some(r) = receipt {
                         self.store

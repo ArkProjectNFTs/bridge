@@ -1,6 +1,10 @@
 //! Starklane indexer main entry point.
 
 use anyhow::Result;
+use axum::{
+    routing::get,
+    Router, Server,
+};
 use clap::Parser;
 use std::sync::Arc;
 
@@ -9,8 +13,11 @@ use ethereum_indexer::EthereumIndexer;
 use starknet_indexer::StarknetIndexer;
 use storage::mongo::MongoStore;
 
+use handlers::{requests, AppState};
+
 pub mod config;
 pub mod ethereum_indexer;
+pub mod handlers;
 pub mod starknet_indexer;
 pub mod storage;
 pub mod utils;
@@ -23,6 +30,9 @@ struct Args {
 
     #[clap(long, help = "Mongo db connection string")]
     mongodb: String,
+
+    #[clap(long, help = "The IP to bind to start indexer api server")]
+    api_server_ip: Option<String>,
 }
 
 #[tokio::main]
@@ -33,7 +43,10 @@ async fn main() -> Result<()> {
     let config =
         StarklaneIndexerConfig::from_file(&args.config_file).expect("Config couldn't be loaded");
 
-    let mongo_store = Arc::new(MongoStore::new(&args.mongodb, "starklane").await?);
+    let dbname = extract_database_name(&args.mongodb)
+        .expect("Database name couldn't be extracted from the connection string");
+
+    let mongo_store = Arc::new(MongoStore::new(&args.mongodb, dbname).await?);
 
     let eth_indexer =
         EthereumIndexer::<MongoStore>::new(config.ethereum.clone(), Arc::clone(&mongo_store))
@@ -42,8 +55,6 @@ async fn main() -> Result<()> {
     let sn_indexer =
         StarknetIndexer::<MongoStore>::new(config.starknet.clone(), Arc::clone(&mongo_store))
             .await?;
-
-    // If requested -> start API to serve data from the store.
 
     let eth_handle = tokio::spawn(async move {
         match eth_indexer.start().await {
@@ -63,8 +74,48 @@ async fn main() -> Result<()> {
         }
     });
 
+    let api_handle = tokio::spawn(async move {
+        if args.api_server_ip.is_none() {
+            return;
+        }
+
+        let app_state = AppState {
+            store: Arc::clone(&mongo_store),
+        };
+
+        let app = Router::new()
+            .route("/requests/:wallet", get(requests::reqs_info_from_wallet))
+            .with_state(app_state);
+
+        match Server::bind(&args.api_server_ip.unwrap().parse().unwrap())
+            .serve(app.into_make_service())
+            .await
+        {
+            Ok(()) => {
+                log::info!("Normal termination of indexer api.")
+            }
+            Err(e) => log::error!("Error indexer api: {:?}", e),
+        }
+    });
+
     // Wait for tasks to complete
-    let (_eth_res, _sn_res) = tokio::join!(eth_handle, sn_handle);
+    let (_eth_res, _sn_res, _api_res) = tokio::join!(eth_handle, sn_handle, api_handle);
 
     Ok(())
+}
+
+/// Extracts database name from connection string.
+/// Expecting the database name to be the latest fragment
+/// of the string after the right most '/'.
+fn extract_database_name(connection_string: &str) -> Option<&str> {
+    if let Some(pos) = connection_string.rfind('/') {
+        let db_name_start = pos + 1;
+        if let Some(pos) = connection_string[db_name_start..].find('?') {
+            Some(&connection_string[db_name_start..db_name_start + pos])
+        } else {
+            Some(&connection_string[db_name_start..])
+        }
+    } else {
+        None
+    }
 }

@@ -93,26 +93,26 @@ where
                 .await?;
 
             // Don't fetch if we already are on the head of the chain.
-            if from_u64 > latest_u64 {
-                log::debug!("Nothing to fetch (from={} to={})", from_u64, latest_u64);
+            if from_u64 >= latest_u64 {
+                log::info!("Nothing to fetch (from={} to={})", from_u64, latest_u64);
                 continue;
             }
 
-            let block_events = self
+            let blocks_events = self
                 .client
-                .fetch_events(from_block, BlockId::Number(latest_u64))
+                .fetch_events(BlockId::Number(from_u64), BlockId::Number(latest_u64))
                 .await?;
 
-            for (block_number, events) in block_events {
-                self.process_events(block_number, events).await?;
+            log::debug!("blocks events: {:?}", blocks_events);
 
-                if block_number > from_u64 {
-                    from_u64 = block_number;
-                }
+            for (block_number, events) in blocks_events {
+                self.process_events(block_number, events).await?;
             }
 
-            // +1 to exlude the last fetched block at the next fetch.
-            from_u64 += 1;
+            // The block range was fetched and processed.
+            // If any block has an error, an other instance of the indexer
+            // must be restarted on a the specific range.
+            from_u64 = latest_u64;
         }
     }
 
