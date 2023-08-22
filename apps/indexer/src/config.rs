@@ -16,10 +16,19 @@ pub struct ChainConfig {
 }
 
 ///
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct XchainTxConfig {
+    pub enabled: bool,
+    pub sn_min_block: u64,
+    pub eth_min_block: u64,
+}
+
+///
 #[derive(Debug, Serialize, Deserialize)]
 pub struct StarklaneIndexerConfig {
     pub ethereum: ChainConfig,
     pub starknet: ChainConfig,
+    pub xchain_txor: XchainTxConfig,
 }
 
 impl StarklaneIndexerConfig {

@@ -7,6 +7,7 @@ use axum::{
 };
 use clap::Parser;
 use std::sync::Arc;
+use tokio::sync::RwLock as AsyncRwLock;
 
 use crate::config::StarklaneIndexerConfig;
 use ethereum_indexer::EthereumIndexer;
@@ -35,6 +36,12 @@ struct Args {
     api_server_ip: Option<String>,
 }
 
+#[derive(Clone, Debug)]
+pub struct ChainsBlocks {
+    sn: u64,
+    eth: u64,
+}
+
 #[tokio::main]
 async fn main() -> Result<()> {
     env_logger::init();
@@ -48,13 +55,27 @@ async fn main() -> Result<()> {
 
     let mongo_store = Arc::new(MongoStore::new(&args.mongodb, dbname).await?);
 
+    let chains_blocks = Arc::new(AsyncRwLock::new(ChainsBlocks {
+        sn: 0,
+        eth: 0,
+    }));
+
     let eth_indexer =
-        EthereumIndexer::<MongoStore>::new(config.ethereum.clone(), Arc::clone(&mongo_store))
-            .await?;
+        EthereumIndexer::<MongoStore>::new(
+            config.ethereum.clone(),
+            Arc::clone(&mongo_store),
+            Arc::clone(&chains_blocks),
+            config.xchain_txor,
+        )
+        .await?;
 
     let sn_indexer =
-        StarknetIndexer::<MongoStore>::new(config.starknet.clone(), Arc::clone(&mongo_store))
-            .await?;
+        StarknetIndexer::<MongoStore>::new(
+            config.starknet.clone(),
+            Arc::clone(&mongo_store),
+            Arc::clone(&chains_blocks),
+        )
+        .await?;
 
     let eth_handle = tokio::spawn(async move {
         match eth_indexer.start().await {

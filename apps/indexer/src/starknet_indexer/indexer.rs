@@ -7,11 +7,13 @@ use super::events;
 use crate::config::ChainConfig;
 use crate::storage::{
     store::{BlockStore, CrossChainTxStore, EventStore, RequestStore},
-    BlockIndex, BridgeChain,
+    BlockIndex, BridgeChain, CrossChainTxKind,
 };
 use crate::utils;
+use crate::ChainsBlocks;
 
 use std::sync::Arc;
+use tokio::sync::RwLock as AsyncRwLock;
 use tokio::time::{self, Duration};
 
 ///
@@ -19,6 +21,7 @@ pub struct StarknetIndexer<T: RequestStore + EventStore + BlockStore + CrossChai
     client: StarknetClient,
     config: ChainConfig,
     store: Arc<T>,
+    chains_blocks: Arc<AsyncRwLock<ChainsBlocks>>,
 }
 
 impl<T> StarknetIndexer<T>
@@ -26,12 +29,17 @@ where
     T: RequestStore + EventStore + BlockStore + CrossChainTxStore,
 {
     ///
-    pub async fn new(config: ChainConfig, store: Arc<T>) -> Result<StarknetIndexer<T>> {
+    pub async fn new(
+        config: ChainConfig,
+        store: Arc<T>,
+        chains_blocks: Arc<AsyncRwLock<ChainsBlocks>>,
+    ) -> Result<StarknetIndexer<T>> {
         let client = StarknetClient::new(config.clone()).await?;
         Ok(StarknetIndexer {
             client,
             config,
             store,
+            chains_blocks,
         })
     }
 
@@ -103,7 +111,7 @@ where
                 .fetch_events(BlockId::Number(from_u64), BlockId::Number(latest_u64))
                 .await?;
 
-            log::debug!("blocks events: {:?}", blocks_events);
+            // log::debug!("blocks events: {:?}", blocks_events);
 
             for (block_number, events) in blocks_events {
                 self.process_events(block_number, events).await?;
@@ -113,6 +121,9 @@ where
             // If any block has an error, an other instance of the indexer
             // must be restarted on a the specific range.
             from_u64 = latest_u64;
+
+            let mut cbs = self.chains_blocks.write().await;
+            cbs.sn = from_u64;
         }
     }
 
@@ -142,8 +153,8 @@ where
 
             match events::get_store_data(e) {
                 Ok(store_data) => match store_data {
-                    (Some(req), Some(ev), xchain_txs) => {
-                        log::debug!("Request/Event\n{:?}\n{:?}", req, ev);
+                    (Some(req), Some(ev), xchain_tx) => {
+                        log::debug!("Request/Event/Tx\n{:?}\n{:?}\n{:?}", req, ev, xchain_tx);
 
                         self.store.insert_event(ev.clone()).await?;
 
@@ -151,8 +162,20 @@ where
                             self.store.insert_req(req).await?;
                         }
 
-                        for tx in xchain_txs {
-                            self.store.insert_tx(tx).await?;
+                        if let Some(tx) = xchain_tx {
+                            match tx.kind {
+                                CrossChainTxKind::WithdrawAuto => {
+                                    // First check if the tx is not already inserted to not overwrite
+                                    // an event already indexed on ethereum.
+                                    if self.store.tx_from_request_kind(
+                                        &tx.req_hash.clone(),
+                                        CrossChainTxKind::WithdrawAuto).await?.is_none()
+                                    {
+                                        self.store.insert_tx(tx).await?;
+                                    }
+                                }
+                                _ => ()
+                            }
                         }
                     }
                     // Maybe fine (upgrade for instance, etc..)

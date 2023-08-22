@@ -4,7 +4,7 @@ use futures::TryStreamExt;
 use mongodb::bson::doc;
 
 use super::MongoStore;
-use crate::storage::{store::CrossChainTxStore, BridgeChain, CrossChainTx};
+use crate::storage::{store::CrossChainTxStore, BridgeChain, CrossChainTx, CrossChainTxKind};
 
 #[async_trait]
 impl CrossChainTxStore for MongoStore {
@@ -55,5 +55,16 @@ impl CrossChainTxStore for MongoStore {
         }
 
         Ok(txs)
+    }
+
+    ///
+    async fn tx_from_request_kind(
+        &self,
+        req_hash: &str,
+        kind: CrossChainTxKind
+    ) -> Result<Option<CrossChainTx>> {
+        let filter = doc! { "req_hash": req_hash, "kind": kind.to_string() };
+
+        Ok(self.xchain_txs.find_one(filter, None).await?)
     }
 }
