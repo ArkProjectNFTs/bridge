@@ -101,19 +101,25 @@ impl EthereumClient {
         let mut diff = to_block - from_block;
         let mut range = BLOCKS_MAX_RANGE;
 
+        let mut to_block_range = from_block + range - 1;
+        if to_block_range > to_block {
+            to_block_range = to_block;
+        }
+
         let mut logs: HashMap<u64, Vec<Log>> = HashMap::new();
 
-        let filters = Filter {
+        let mut filters = Filter {
             block_option: FilterBlockOption::Range {
                 from_block: Some(BlockNumber::Number(from_block.into())),
-                to_block: Some(BlockNumber::Number(
-                    (from_block + range - 1).into(),
-                )),
+                to_block: Some(BlockNumber::Number(to_block_range.into())),
             },
             address: Some(ValueOrArray::Value(self.bridge_address)),
             topics: Default::default(),
         };
 
+        // TODO: rework the logic around the block fetching and limits.
+        // Ethereum RPC is returning an error if a block that is after the latest
+        // block is requested in the filters.
         loop {
             let range_logs = self.provider.get_logs(&filters).await?;
 
@@ -129,6 +135,9 @@ impl EthereumClient {
             });
 
             from_block += range;
+            if from_block > to_block {
+                break;
+            }
 
             if diff >= BLOCKS_MAX_RANGE {
                 diff -= BLOCKS_MAX_RANGE;
@@ -138,6 +147,16 @@ impl EthereumClient {
             } else {
                 break;
             }
+
+            to_block_range = from_block + range - 1;
+            if to_block_range > to_block {
+                to_block_range = to_block;
+            }
+
+            filters.block_option = FilterBlockOption::Range {
+                from_block: Some(BlockNumber::Number(from_block.into())),
+                to_block: Some(BlockNumber::Number(to_block_range.into()))
+            };
         }
 
         Ok(logs)
