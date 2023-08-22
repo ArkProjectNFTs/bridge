@@ -3,17 +3,27 @@
 use anyhow::Result;
 use clap::Parser;
 use std::sync::Arc;
+use axum::{
+    Router,
+    Server,
+    response::Json,
+    routing::{get, post},
+    extract::State,
+};
 
 use crate::config::StarklaneIndexerConfig;
 use ethereum_indexer::EthereumIndexer;
 use starknet_indexer::StarknetIndexer;
 use storage::mongo::MongoStore;
 
+use handlers::{AppState, requests};
+
 pub mod config;
 pub mod ethereum_indexer;
 pub mod starknet_indexer;
 pub mod storage;
 pub mod utils;
+pub mod handlers;
 
 #[derive(Parser, Debug)]
 #[clap(about = "Starklane indexer")]
@@ -23,6 +33,9 @@ struct Args {
 
     #[clap(long, help = "Mongo db connection string")]
     mongodb: String,
+
+    #[clap(long, help = "The IP to bind to start indexer api server")]
+    api_server_ip: Option<String>,
 }
 
 #[tokio::main]
@@ -43,8 +56,6 @@ async fn main() -> Result<()> {
         StarknetIndexer::<MongoStore>::new(config.starknet.clone(), Arc::clone(&mongo_store))
             .await?;
 
-    // If requested -> start API to serve data from the store.
-
     let eth_handle = tokio::spawn(async move {
         match eth_indexer.start().await {
             Ok(()) => {
@@ -63,8 +74,30 @@ async fn main() -> Result<()> {
         }
     });
 
+    let api_handle = tokio::spawn(async move {
+        if args.api_server_ip.is_none() {
+            return;
+        }
+
+        let app_state = AppState {
+            store: Arc::clone(&mongo_store),
+        };
+
+        let app = Router::new()
+            .route("/requests/:wallet", get(requests::reqs_info_from_wallet))
+            .with_state(app_state);
+
+        match Server::bind(&args.api_server_ip.unwrap().parse().unwrap())
+            .serve(app.into_make_service()).await {
+                Ok(()) => {
+                    log::info!("Normal termination of indexer api.")
+                }
+                Err(e) => log::error!("Error indexer api: {:?}", e),
+            }
+    });
+
     // Wait for tasks to complete
-    let (_eth_res, _sn_res) = tokio::join!(eth_handle, sn_handle);
+    let (_eth_res, _sn_res, _api_res) = tokio::join!(eth_handle, sn_handle, api_handle);
 
     Ok(())
 }
