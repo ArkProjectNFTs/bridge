@@ -43,7 +43,10 @@ async fn main() -> Result<()> {
     let config =
         StarklaneIndexerConfig::from_file(&args.config_file).expect("Config couldn't be loaded");
 
-    let mongo_store = Arc::new(MongoStore::new(&args.mongodb, "starklane").await?);
+    let dbname = extract_database_name(&args.mongodb)
+        .expect("Database name couldn't be extracted from the connection string");
+
+    let mongo_store = Arc::new(MongoStore::new(&args.mongodb, dbname).await?);
 
     let eth_indexer =
         EthereumIndexer::<MongoStore>::new(config.ethereum.clone(), Arc::clone(&mongo_store))
@@ -99,4 +102,20 @@ async fn main() -> Result<()> {
     let (_eth_res, _sn_res, _api_res) = tokio::join!(eth_handle, sn_handle, api_handle);
 
     Ok(())
+}
+
+/// Extracts database name from connection string.
+/// Expecting the database name to be the latest fragment
+/// of the string after the right most '/'.
+fn extract_database_name(connection_string: &str) -> Option<&str> {
+    if let Some(pos) = connection_string.rfind('/') {
+        let db_name_start = pos + 1;
+        if let Some(pos) = connection_string[db_name_start..].find('?') {
+            Some(&connection_string[db_name_start..db_name_start + pos])
+        } else {
+            Some(&connection_string[db_name_start..])
+        }
+    } else {
+        None
+    }
 }

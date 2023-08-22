@@ -98,16 +98,16 @@ where
                 continue;
             }
 
-            let block_events = self
+            let blocks_events = self
                 .client
-                .fetch_events(from_block, BlockId::Number(latest_u64))
+                .fetch_events(BlockId::Number(from_u64), BlockId::Number(latest_u64))
                 .await?;
 
-            log::debug!("blocks events: {:?}", block_events);
+            log::debug!("blocks events: {:?}", blocks_events);
 
-            let n_blocks_events = block_events.len();
+            let n_blocks_events = blocks_events.len();
 
-            for (block_number, events) in block_events {
+            for (block_number, events) in blocks_events {
                 self.process_events(block_number, events).await?;
 
                 if block_number > from_u64 {
