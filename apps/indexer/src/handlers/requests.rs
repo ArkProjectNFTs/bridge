@@ -1,16 +1,15 @@
 use axum::{
     extract::{Path, State},
     http::StatusCode,
-    response::IntoResponse,
     Json,
 };
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-use crate::storage::{
-    Request, Event, EventLabel, BridgeChain,
-    store::{EventStore, RequestStore}
-};
 use super::AppState;
+use crate::storage::{
+    store::{EventStore, RequestStore},
+    Event, Request,
+};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct RequestInfo {
@@ -37,11 +36,17 @@ pub async fn reqs_info_from_wallet(
                 });
             } else {
                 // TODO: maybe no need to crash here? Only skip this request?
-                return Err((StatusCode::INTERNAL_SERVER_ERROR, "Error retrieving events".to_string()));
+                return Err((
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "Error retrieving events".to_string(),
+                ));
             }
         }
     } else {
-        return Err((StatusCode::INTERNAL_SERVER_ERROR, "Error retrieving requests".to_string()));
+        return Err((
+            StatusCode::INTERNAL_SERVER_ERROR,
+            "Error retrieving requests".to_string(),
+        ));
     }
 
     Ok(Json(dtos))

@@ -1,29 +1,26 @@
 //! Starklane indexer main entry point.
 
 use anyhow::Result;
+use axum::{
+    routing::get,
+    Router, Server,
+};
 use clap::Parser;
 use std::sync::Arc;
-use axum::{
-    Router,
-    Server,
-    response::Json,
-    routing::{get, post},
-    extract::State,
-};
 
 use crate::config::StarklaneIndexerConfig;
 use ethereum_indexer::EthereumIndexer;
 use starknet_indexer::StarknetIndexer;
 use storage::mongo::MongoStore;
 
-use handlers::{AppState, requests};
+use handlers::{requests, AppState};
 
 pub mod config;
 pub mod ethereum_indexer;
+pub mod handlers;
 pub mod starknet_indexer;
 pub mod storage;
 pub mod utils;
-pub mod handlers;
 
 #[derive(Parser, Debug)]
 #[clap(about = "Starklane indexer")]
@@ -88,12 +85,14 @@ async fn main() -> Result<()> {
             .with_state(app_state);
 
         match Server::bind(&args.api_server_ip.unwrap().parse().unwrap())
-            .serve(app.into_make_service()).await {
-                Ok(()) => {
-                    log::info!("Normal termination of indexer api.")
-                }
-                Err(e) => log::error!("Error indexer api: {:?}", e),
+            .serve(app.into_make_service())
+            .await
+        {
+            Ok(()) => {
+                log::info!("Normal termination of indexer api.")
             }
+            Err(e) => log::error!("Error indexer api: {:?}", e),
+        }
     });
 
     // Wait for tasks to complete
