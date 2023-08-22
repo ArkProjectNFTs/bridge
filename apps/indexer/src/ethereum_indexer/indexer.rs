@@ -1,18 +1,20 @@
 use anyhow::Result;
 use ethers::types::{BlockNumber, Log, U256};
 
-use crate::config::ChainConfig;
+use crate::config::{ChainConfig, XchainTxConfig};
 use crate::storage::{
     store::{BlockStore, CrossChainTxStore, EventStore, RequestStore},
-    BlockIndex, BridgeChain, CrossChainTxKind,
+    BlockIndex, BridgeChain, CrossChainTxKind, EventLabel, Event,
 };
 use crate::utils;
 
 use super::client::EthereumClient;
 use super::events;
+use crate::ChainsBlocks;
 
 use std::str::FromStr;
 use std::sync::Arc;
+use tokio::sync::RwLock as AsyncRwLock;
 use tokio::time::{self, Duration};
 
 ///
@@ -20,6 +22,8 @@ pub struct EthereumIndexer<T: RequestStore + EventStore + BlockStore + CrossChai
     client: EthereumClient,
     config: ChainConfig,
     store: Arc<T>,
+    chains_blocks: Arc<AsyncRwLock<ChainsBlocks>>,
+    xchain_txor_config: XchainTxConfig,
 }
 
 impl<T> EthereumIndexer<T>
@@ -27,12 +31,19 @@ where
     T: RequestStore + EventStore + BlockStore + CrossChainTxStore,
 {
     ///
-    pub async fn new(config: ChainConfig, store: Arc<T>) -> Result<EthereumIndexer<T>> {
+    pub async fn new(
+        config: ChainConfig,
+        store: Arc<T>,
+        chains_blocks: Arc<AsyncRwLock<ChainsBlocks>>,
+        xchain_txor_config: XchainTxConfig,
+    ) -> Result<EthereumIndexer<T>> {
         let client = EthereumClient::new(config.clone()).await?;
         Ok(EthereumIndexer {
             client,
             config,
             store,
+            chains_blocks,
+            xchain_txor_config,
         })
     }
 
@@ -80,32 +91,31 @@ where
             // If any block has an error, an other instance of the indexer
             // must be restarted on a the specific range.
             from = to;
+
+            let mut cbs = self.chains_blocks.write().await;
+            cbs.eth = from;
         }
     }
 
     ///
     async fn xchain_txs_send(&self) -> Result<()> {
+        if !self.xchain_txor_config.enabled {
+            log::debug!("xchain_txor is disabled in config, skipping");
+            return Ok(())
+        }
+
+        let cbs = self.chains_blocks.read().await;
+        if cbs.sn < self.xchain_txor_config.sn_min_block || cbs.eth < self.xchain_txor_config.eth_min_block {
+            log::debug!("xchain_txor skipped due to unmet blocks requirements {:?}", cbs);
+            return Ok(())
+        }
+
         let txs = self.store.pending_xtxs(BridgeChain::Ethereum).await?;
         log::debug!("Verifying xchain_txs for ethereum node [{}]", txs.len());
 
         let starklane = self.client.get_bridge_sender();
 
-        // let tx = starklane.reset().send().await?.await?;
-        // println!("Transaction Receipt: {}", serde_json::to_string(&tx)?);
-
-        // TODO: for loop instead for_each, async closure?
         for tx in txs {
-            // TODO: we need to first check if a corresponding withdraw event doesn't
-            // already exist. This will avoid sending a tx that will revert and can be
-            // eth consuming! But how to check for that...
-            // This may imply an other tx on starknet to register the associated eth block number..?
-            // Because we can't afford being dependent on ethereum indexing..
-            // -> Solution: the indexer and the xchain_transactor must be 2 separate binaries.
-            // Like this, the indexer can be started first, and when in required conditions,
-            // the xchain_transactor can be started.
-            // With this solution, we can keep the indexing of starknet and ethereum totally
-            // independant, and xchain_txs will only be sent when needed.
-
             let felts_strs: Vec<String> = serde_json::from_str(&tx.req_content)
                 .expect("Fail parsing request content for xchain_tx");
 
@@ -119,9 +129,13 @@ where
 
             match tx.kind {
                 CrossChainTxKind::WithdrawAuto => {
-                    // TODO: check if the event withdraw_l1 is not already registered for this tx.
-                    // we may not depend on indexing order, but if it's already here, we can save
-                    // a tx + eth.
+                    // If the withdraw event is already registered on L1, tx sending can be skipped.
+                    let req_events: Vec<Event> = self.store.events_by_request(&tx.req_hash).await?;
+                    if req_events.iter().any(|e| e.label == EventLabel::WithdrawCompletedL1) {
+                        log::debug!("Request already withdrawn on L1 {:?}, skipping", tx.req_hash);
+                        continue;
+                    }
+
                     let receipt = starklane.withdraw_tokens(u256s).send().await?.await?;
                     if let Some(r) = receipt {
                         self.store
@@ -185,11 +199,28 @@ where
             let l_sig = l.topics[0];
 
             match events::get_store_data(l)? {
-                (Some(r), Some(e)) => {
+                (Some(r), Some(e), xchain_tx) => {
+                    log::debug!("Request/Event/Tx\n{:?}\n{:?}\n{:?}", r, e, xchain_tx);
                     self.store.insert_event(e.clone()).await?;
 
                     if self.store.req_by_hash(&r.hash).await?.is_none() {
                         self.store.insert_req(r).await?;
+                    }
+
+                    if let Some(tx) = xchain_tx {
+                        match tx.kind {
+                            CrossChainTxKind::WithdrawAuto => {
+                                // Force insert or update to ensure no more tx are fired.
+                                match self.store.tx_from_request_kind(
+                                    &tx.req_hash.clone(),
+                                    CrossChainTxKind::WithdrawAuto).await?
+                                {
+                                    Some(_) => self.store.set_tx_as_sent(tx.req_hash, tx.tx_hash).await?,
+                                    None => self.store.insert_tx(tx).await?,
+                                }
+                            }
+                            _ => ()
+                        }
                     }
 
                     // TODO: check for burn auto to send TX on ethereum

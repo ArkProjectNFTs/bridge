@@ -94,7 +94,7 @@ pub struct Request {
 }
 
 /// Records event associated to requests.
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct Event {
     // Hash of the request associated with the event.
     pub req_hash: String,

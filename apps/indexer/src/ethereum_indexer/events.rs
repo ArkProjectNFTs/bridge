@@ -3,7 +3,11 @@ use ethers::prelude::*;
 
 use serde_json::{json, Value};
 
-use crate::storage::{BridgeChain, Event, EventLabel, Request};
+use crate::storage::{BridgeChain, Event, EventLabel, Request, CrossChainTx, CrossChainTxKind};
+
+// TODO: refacto this to be common with starknet.
+pub const REQUEST_HEADER_WITHDRAW_AUTO: u128 = 0x01000000;
+pub const REQUEST_HEADER_BURN_AUTO: u128 = 0x010000;
 
 ///
 #[derive(Debug, PartialEq, Eq, EthEvent)]
@@ -36,7 +40,7 @@ const COLLECTION_DEPOYED_FROM_L2_SIG: &str =
 // We can have an event only, and no associated request (ex: collection deployed).
 
 /// Returns storage data from the log entry.
-pub fn get_store_data(log: Log) -> Result<(Option<Request>, Option<Event>)> {
+pub fn get_store_data(log: Log) -> Result<(Option<Request>, Option<Event>, Option<CrossChainTx>)> {
     let sig = format!("{:#64x}", log.topics[0]);
     let req_hash = format!("{:#64x}", log.topics[1]);
 
@@ -52,6 +56,7 @@ pub fn get_store_data(log: Log) -> Result<(Option<Request>, Option<Event>)> {
     // if someone has a better rust knowlege as mine for now,
     // rework very welcome!
     let request;
+    let tx;
 
     match sig.as_str() {
         DEPOSIT_REQUEST_INITIATED_SIG => {
@@ -60,28 +65,47 @@ pub fn get_store_data(log: Log) -> Result<(Option<Request>, Option<Event>)> {
             event.block_timestamp = data.block_timestamp.try_into().unwrap();
 
             request = request_from_log_data(&event.label, data.req_content)?;
+            // TODO: burn txs.
+            tx = None;
         }
         WITHDRAW_REQUEST_COMPLETED_SIG => {
             let data = <WithdrawRequestCompleted as EthLogDecode>::decode_log(&log.clone().into())?;
             event.label = EventLabel::WithdrawCompletedL1;
             event.block_timestamp = data.block_timestamp.try_into().unwrap();
 
+            let h: u128 = data.req_content[0].try_into().expect("Can't convert header to u128");
+            let is_withdraw_auto = h & REQUEST_HEADER_WITHDRAW_AUTO == REQUEST_HEADER_WITHDRAW_AUTO;
+
             request = request_from_log_data(&event.label, data.req_content)?;
+
+            if event.label == EventLabel::WithdrawCompletedL1 && is_withdraw_auto
+            {
+                tx = Some(CrossChainTx {
+                    chain: BridgeChain::Ethereum,
+                    kind: CrossChainTxKind::WithdrawAuto,
+                    req_hash: request.hash.clone(),
+                    req_content: request.content.clone(),
+                    tx_hash: event.tx_hash.clone(),
+                });
+            } else {
+                tx = None;
+            }
+
         }
         COLLECTION_DEPOYED_FROM_L2_SIG => {
             // TODO: return event only.
             log::debug!("Collection deployed from L2 {:?}", log);
-            return Ok((None, None));
+            return Ok((None, None, None));
         }
         _ => {
             log::debug!("not handled log\n{:?}\n", log);
-            return Ok((None, None));
+            return Ok((None, None, None));
         }
     };
 
     assert_eq!(request.hash, event.req_hash);
 
-    Ok((Some(request), Some(event)))
+    Ok((Some(request), Some(event), tx))
 }
 
 /// From the raw buffer in the Log data, parse the request fields
