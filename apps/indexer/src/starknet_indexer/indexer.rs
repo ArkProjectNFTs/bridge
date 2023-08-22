@@ -105,22 +105,14 @@ where
 
             log::debug!("blocks events: {:?}", blocks_events);
 
-            let n_blocks_events = blocks_events.len();
-
             for (block_number, events) in blocks_events {
                 self.process_events(block_number, events).await?;
-
-                if block_number > from_u64 {
-                    from_u64 = block_number;
-                }
             }
 
-            if n_blocks_events > 0 {
-                // +1 to exlude the last fetched block at the next fetch.
-                from_u64 += 1;
-            } else {
-                from_u64 = latest_u64;
-            }
+            // The block range was fetched and processed.
+            // If any block has an error, an other instance of the indexer
+            // must be restarted on a the specific range.
+            from_u64 = latest_u64;
         }
     }
 

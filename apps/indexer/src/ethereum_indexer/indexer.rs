@@ -60,10 +60,6 @@ where
 
             log::debug!("blocks logs: {:?}", blocks_logs);
 
-            let n_blocks_logs = blocks_logs.len();
-
-            // Some logs must be processed, this will automatically advance
-            // the block number that was processed based on db transactions.
             for (block_number, logs) in blocks_logs {
                 match self.process_logs(block_number, logs).await {
                     Ok(_) => (),
@@ -73,10 +69,6 @@ where
                         e
                     ),
                 };
-
-                if block_number > from {
-                    from = block_number;
-                }
             }
 
             match self.xchain_txs_send().await {
@@ -84,14 +76,10 @@ where
                 Err(e) => log::warn!("Error sending xchain_txs {:?}", e),
             };
 
-            if n_blocks_logs == 0 {
-                // No logs found, we can increment the from to skip the whole range.
-                from = to;
-            } else {
-                // +1 to exlude the last fetched block at the next fetch that was set
-                // by the log processing loop.
-                from += 1;
-            }
+            // The block range was fetched and processed.
+            // If any block has an error, an other instance of the indexer
+            // must be restarted on a the specific range.
+            from = to;
         }
     }
 
@@ -109,7 +97,14 @@ where
         for tx in txs {
             // TODO: we need to first check if a corresponding withdraw event doesn't
             // already exist. This will avoid sending a tx that will revert and can be
-            // eth consuming!
+            // eth consuming! But how to check for that...
+            // This may imply an other tx on starknet to register the associated eth block number..?
+            // Because we can't afford being dependent on ethereum indexing..
+            // -> Solution: the indexer and the xchain_transactor must be 2 separate binaries.
+            // Like this, the indexer can be started first, and when in required conditions,
+            // the xchain_transactor can be started.
+            // With this solution, we can keep the indexing of starknet and ethereum totally
+            // independant, and xchain_txs will only be sent when needed.
 
             let felts_strs: Vec<String> = serde_json::from_str(&tx.req_content)
                 .expect("Fail parsing request content for xchain_tx");
@@ -124,6 +119,9 @@ where
 
             match tx.kind {
                 CrossChainTxKind::WithdrawAuto => {
+                    // TODO: check if the event withdraw_l1 is not already registered for this tx.
+                    // we may not depend on indexing order, but if it's already here, we can save
+                    // a tx + eth.
                     let receipt = starklane.withdraw_tokens(u256s).send().await?.await?;
                     if let Some(r) = receipt {
                         self.store
