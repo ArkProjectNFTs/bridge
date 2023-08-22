@@ -69,7 +69,7 @@ where
                 }
             };
 
-            log::debug!("blocks logs: {:?}", blocks_logs);
+            // log::debug!("blocks logs: {:?}", blocks_logs);
 
             for (block_number, logs) in blocks_logs {
                 match self.process_logs(block_number, logs).await {
