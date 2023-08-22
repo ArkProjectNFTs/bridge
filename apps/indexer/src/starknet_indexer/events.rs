@@ -16,7 +16,7 @@ pub const REQUEST_HEADER_BURN_AUTO: u128 = 0x010000;
 ///
 pub fn get_store_data(
     event: EmittedEvent,
-) -> Result<(Option<Request>, Option<Event>, Vec<CrossChainTx>)> {
+) -> Result<(Option<Request>, Option<Event>, Option<CrossChainTx>)> {
     // keys[0] -> selector.
     // keys[1,2] -> req hash.
     // keys[3] -> timestamp.
@@ -32,7 +32,7 @@ pub fn get_store_data(
         tx_hash: felt_to_hex(&event.transaction_hash),
     };
 
-    let mut txs = vec![];
+    let tx;
 
     match felt_to_hex(&event.keys[0]).as_str() {
         DEPOSIT_REQUEST_INITIATED_SELECTOR => {
@@ -40,25 +40,26 @@ pub fn get_store_data(
 
             let request = request_from_event_data(&store_event.label, event.data)?;
 
-            // txs are only valid for deposit.
-            txs = get_xchain_txs(
+            tx = get_xchain_tx_withdraw(
                 request_header,
                 request.hash.clone(),
                 request.content.clone(),
             )?;
 
             assert_eq!(request.hash, store_event.req_hash);
-            Ok((Some(request), Some(store_event), txs))
+            Ok((Some(request), Some(store_event), tx))
         }
         WITHDRAW_REQUEST_COMPLETED_SELECTOR => {
             store_event.label = EventLabel::WithdrawCompletedL2;
 
             let request = request_from_event_data(&store_event.label, event.data)?;
 
+            // TODO: burn txs.
+
             assert_eq!(request.hash, store_event.req_hash);
-            Ok((Some(request), Some(store_event), txs))
+            Ok((Some(request), Some(store_event), None))
         }
-        _ => Ok((None, None, vec![])),
+        _ => Ok((None, None, None)),
     }
 }
 
@@ -107,41 +108,27 @@ fn request_from_event_data(event_label: &EventLabel, data: Vec<FieldElement>) ->
 }
 
 ///
-fn get_xchain_txs(
+fn get_xchain_tx_withdraw(
     header: FieldElement,
     req_hash: String,
     req_content: String,
-) -> Result<Vec<CrossChainTx>> {
+) -> Result<Option<CrossChainTx>> {
     // For now, header must be convertible into u128.
     let h: u128 = header.try_into()?;
 
     let can_withdraw_auto = h & REQUEST_HEADER_WITHDRAW_AUTO == REQUEST_HEADER_WITHDRAW_AUTO;
-    let can_burn_auto = h & REQUEST_HEADER_BURN_AUTO == REQUEST_HEADER_BURN_AUTO;
-
-    // Txs that will target Ethereum bridge contract.
-    let mut txs: Vec<CrossChainTx> = vec![];
 
     if can_withdraw_auto {
-        txs.push(CrossChainTx {
+        Ok(Some(CrossChainTx {
             chain: BridgeChain::Ethereum,
             kind: CrossChainTxKind::WithdrawAuto,
             req_hash: req_hash.clone(),
             req_content: req_content.clone(),
             tx_hash: String::from(""),
-        });
+        }))
+    } else {
+        Ok(None)
     }
-
-    if can_burn_auto {
-        txs.push(CrossChainTx {
-            chain: BridgeChain::Ethereum,
-            kind: CrossChainTxKind::BurnAuto,
-            req_hash: req_hash.clone(),
-            req_content: req_content.clone(),
-            tx_hash: String::from(""),
-        });
-    }
-
-    Ok(txs)
 }
 
 /// Always with leading 0 for u256.
