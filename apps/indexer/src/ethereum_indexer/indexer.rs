@@ -45,12 +45,12 @@ where
 
             let to = self.client.get_block_number().await;
 
-            if from > to {
+            if from >= to {
                 log::debug!("Nothing to fetch (from={} to={})", from, to);
                 continue;
             }
 
-            let blocks_logs = match self.client.fetch_logs(from, to).await {
+            let (last_fetched_block, blocks_logs) = match self.client.fetch_logs(from, to).await {
                 Ok(bl) => bl,
                 Err(e) => {
                     log::warn!("Error fetching logs: {:?}", e);
@@ -58,6 +58,10 @@ where
                 }
             };
 
+            let n_blocks_logs = blocks_logs.len();
+
+            // Some logs must be processed, this will automatically advance
+            // the block number that was processed based on db transactions.
             for (block_number, logs) in blocks_logs {
                 match self.process_logs(block_number, logs).await {
                     Ok(_) => (),
@@ -78,15 +82,21 @@ where
                 Err(e) => log::warn!("Error sending xchain_txs {:?}", e),
             };
 
-            // +1 to exlude the last fetched block at the next fetch.
-            from += 1;
+            if n_blocks_logs == 0 {
+                // No logs found, we can increment the from to skip the whole range.
+                from = last_fetched_block;
+            } else {
+                // +1 to exlude the last fetched block at the next fetch that was set
+                // by the log processing loop.
+                from += 1;
+            }
         }
     }
 
     ///
     async fn xchain_txs_send(&self) -> Result<()> {
         let txs = self.store.pending_xtxs(BridgeChain::Ethereum).await?;
-        log::debug!("Sending xchain_txs to ethereum node [{}]", txs.len());
+        log::debug!("Verifying xchain_txs for ethereum node [{}]", txs.len());
 
         let starklane = self.client.get_bridge_sender();
 
