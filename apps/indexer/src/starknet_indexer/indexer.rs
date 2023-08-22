@@ -93,8 +93,8 @@ where
                 .await?;
 
             // Don't fetch if we already are on the head of the chain.
-            if from_u64 > latest_u64 {
-                log::debug!("Nothing to fetch (from={} to={})", from_u64, latest_u64);
+            if from_u64 >= latest_u64 {
+                log::info!("Nothing to fetch (from={} to={})", from_u64, latest_u64);
                 continue;
             }
 
@@ -102,6 +102,10 @@ where
                 .client
                 .fetch_events(from_block, BlockId::Number(latest_u64))
                 .await?;
+
+            log::debug!("blocks events: {:?}", block_events);
+
+            let n_blocks_events = block_events.len();
 
             for (block_number, events) in block_events {
                 self.process_events(block_number, events).await?;
@@ -111,8 +115,12 @@ where
                 }
             }
 
-            // +1 to exlude the last fetched block at the next fetch.
-            from_u64 += 1;
+            if n_blocks_events > 0 {
+                // +1 to exlude the last fetched block at the next fetch.
+                from_u64 += 1;
+            } else {
+                from_u64 = latest_u64;
+            }
         }
     }
 

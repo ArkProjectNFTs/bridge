@@ -95,7 +95,7 @@ impl EthereumClient {
         &self,
         from_block: u64,
         to_block: u64,
-    ) -> Result<(u64, HashMap<u64, Vec<Log>>)> {
+    ) -> Result<HashMap<u64, Vec<Log>>> {
         log::info!("Eth fetching blocks {} - {}", from_block, to_block);
         let mut from_block = from_block;
         let mut diff = to_block - from_block;
@@ -140,6 +140,6 @@ impl EthereumClient {
             }
         }
 
-        Ok((to_block, logs))
+        Ok(logs)
     }
 }

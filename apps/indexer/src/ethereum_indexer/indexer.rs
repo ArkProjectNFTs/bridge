@@ -46,17 +46,19 @@ where
             let to = self.client.get_block_number().await;
 
             if from >= to {
-                log::debug!("Nothing to fetch (from={} to={})", from, to);
+                log::info!("Nothing to fetch (from={} to={})", from, to);
                 continue;
             }
 
-            let (last_fetched_block, blocks_logs) = match self.client.fetch_logs(from, to).await {
+            let blocks_logs = match self.client.fetch_logs(from, to).await {
                 Ok(bl) => bl,
                 Err(e) => {
                     log::warn!("Error fetching logs: {:?}", e);
                     continue;
                 }
             };
+
+            log::debug!("blocks logs: {:?}", blocks_logs);
 
             let n_blocks_logs = blocks_logs.len();
 
@@ -84,7 +86,7 @@ where
 
             if n_blocks_logs == 0 {
                 // No logs found, we can increment the from to skip the whole range.
-                from = last_fetched_block;
+                from = to;
             } else {
                 // +1 to exlude the last fetched block at the next fetch that was set
                 // by the log processing loop.
