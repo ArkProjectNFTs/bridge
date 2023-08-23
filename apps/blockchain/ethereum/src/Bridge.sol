@@ -40,6 +40,72 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEscrow, Stark
         uint256[] reqContent
     );
 
+    mapping(bytes32 => uint256) private l1ToL2Messages;
+    mapping(bytes32 => uint256) private l1ToL2MessageCancellations;
+    uint256 private messageCancellationDelay = 86400; 
+
+    // Event to notify when message cancellation is started
+    event MessageToL2CancellationStarted(
+        address indexed sender,
+        uint256 indexed toAddress,
+        uint256 selector,
+        uint256[] payload,
+        uint256 nonce
+    );
+
+    // Event to notify when message cancellation is completed
+    event MessageToL2Canceled(
+        address indexed sender,
+        uint256 indexed toAddress,
+        uint256 selector,
+        uint256[] payload,
+        uint256 nonce
+    );
+
+    function getL1ToL2MsgHash(
+    uint256 toAddress,
+    uint256 selector,
+    uint256[] calldata payload,
+    uint256 nonce
+) internal pure returns (bytes32) {
+    return keccak256(abi.encodePacked(toAddress, selector, payload, nonce));
+}
+
+
+    function startL1ToL2MessageCancellation(
+        uint256 toAddress,
+        uint256 selector,
+        uint256[] calldata payload,
+        uint256 nonce
+    ) external {
+        emit MessageToL2CancellationStarted(msg.sender, toAddress, selector, payload, nonce);
+        bytes32 msgHash = getL1ToL2MsgHash(toAddress, selector, payload, nonce);
+        uint256 msgCount = l1ToL2Messages[msgHash];
+        require(msgCount > 0, "NO_MESSAGE_TO_CANCEL");
+        l1ToL2MessageCancellations[msgHash] = block.timestamp;
+    }
+
+    function cancelL1ToL2Message(
+        uint256 toAddress,
+        uint256 selector,
+        uint256[] calldata payload,
+        uint256 nonce
+    ) external {
+        emit MessageToL2Canceled(msg.sender, toAddress, selector, payload, nonce);
+        bytes32 msgHash = getL1ToL2MsgHash(toAddress, selector, payload, nonce);
+        uint256 msgCount = l1ToL2Messages[msgHash];
+        require(msgCount > 0, "NO_MESSAGE_TO_CANCEL");
+
+        uint256 requestTime = l1ToL2MessageCancellations[msgHash];
+        require(requestTime != 0, "MESSAGE_CANCELLATION_NOT_REQUESTED");
+
+        uint256 cancelAllowedTime = requestTime + messageCancellationDelay;
+        require(cancelAllowedTime >= requestTime, "CANCEL_ALLOWED_TIME_OVERFLOW");
+        require(block.timestamp >= cancelAllowedTime, "MESSAGE_CANCELLATION_NOT_ALLOWED_YET");
+
+        l1ToL2Messages[msgHash] = msgCount - 1;
+    }
+
     /**
        @notice Initializes the implementation, only callable once.
 
