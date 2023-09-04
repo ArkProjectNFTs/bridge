@@ -45,7 +45,7 @@ export const nftsRouter = createTRPCRouter({
             nft.contract.openSea?.collectionName ??
             nft.contract.name ??
             "Unknown",
-          id: `${nft.title}-${nft.tokenId}`,
+          id: `${nft.contract.address}-${nft.tokenId}`,
           // TODO @YohanTz: Support videos
           image: nft.media[0]?.thumbnail ?? undefined,
           title: nft.title,
