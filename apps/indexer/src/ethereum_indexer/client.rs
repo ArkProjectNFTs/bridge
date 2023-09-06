@@ -9,6 +9,7 @@ use k256::ecdsa::SigningKey;
 use std::collections::HashMap;
 use std::str::FromStr;
 use std::sync::Arc;
+use tokio::time::{self, Duration};
 
 use crate::config::ChainConfig;
 
@@ -96,6 +97,10 @@ impl EthereumClient {
         from_block: u64,
         to_block: u64,
     ) -> Result<HashMap<u64, Vec<Log>>> {
+        // TODO: add this to configuration as if we use a local node,
+        // this constraint may be removed.
+        time::sleep(Duration::from_millis(500)).await;
+
         log::info!("Eth fetching blocks {} - {}", from_block, to_block);
         let mut from_block = from_block;
         let mut diff = to_block - from_block;
