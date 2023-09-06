@@ -1,5 +1,6 @@
 use anyhow::Result;
 use starknet::core::types::{BlockId, BlockTag, EmittedEvent};
+use starknet::macros::selector;
 
 use super::client::StarknetClient;
 use super::events;
@@ -150,6 +151,12 @@ where
         for e in events {
             //log::debug!("raw event\n{:?}\n", e);
             let event_selector = e.keys[0];
+
+            // TODO: some evens may be skipped like deployed collections etc..
+            // For now, we will ignore the events manually.
+            if event_selector == selector!("CollectionDeployedFromL1") {
+                continue;
+            }
 
             match events::get_store_data(e) {
                 Ok(store_data) => match store_data {
