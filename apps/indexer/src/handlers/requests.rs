@@ -24,7 +24,7 @@ pub async fn reqs_info_from_wallet(
 ) -> Result<Json<Vec<RequestInfo>>, (StatusCode, String)> {
     let mut dtos: Vec<RequestInfo> = vec![];
 
-    if let Ok(reqs) = state.store.reqs_by_wallet(&wallet).await {
+    if let Ok(reqs) = state.store.reqs_by_wallet(&wallet.to_lowercase()).await {
         for req in reqs {
             if let Ok(mut events) = state.store.events_by_request(&req.hash).await {
                 // Sort enum to ensure the latest is the current status.
