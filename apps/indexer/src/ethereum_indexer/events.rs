@@ -124,7 +124,7 @@ fn request_from_log_data(event_label: &EventLabel, data: Vec<U256>) -> Result<Re
 
     let req = match event_label {
         EventLabel::DepositInitiatedL1 => Request {
-            hash: format!("{:#32x}{:32x}", data[2], data[1]),
+            hash: format!("{:#032x}{:032x}", data[2], data[1]),
             chain_src: BridgeChain::Ethereum,
             collection_src: hex_strings[3].clone(),
             collection_dst: hex_strings[4].clone(),
@@ -133,7 +133,7 @@ fn request_from_log_data(event_label: &EventLabel, data: Vec<U256>) -> Result<Re
             content,
         },
         EventLabel::WithdrawCompletedL1 => Request {
-            hash: format!("{:#32x}{:32x}", data[2], data[1]),
+            hash: format!("{:#032x}{:032x}", data[2], data[1]),
             chain_src: BridgeChain::Starknet,
             collection_src: hex_strings[4].clone(),
             collection_dst: hex_strings[3].clone(),

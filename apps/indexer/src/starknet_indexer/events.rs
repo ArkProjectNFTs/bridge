@@ -137,7 +137,7 @@ fn u256_to_hex(felts: &[FieldElement]) -> Result<String> {
         return Err(anyhow!("At least two felts are required to read a u256"));
     }
 
-    Ok(format!("{:#32x}{:32x}", felts[1], felts[0]))
+    Ok(format!("{:#032x}{:032x}", felts[1], felts[0]))
 }
 
 ///
