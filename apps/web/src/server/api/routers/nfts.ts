@@ -1,4 +1,5 @@
 import { Alchemy, Network } from "alchemy-sdk";
+import { validateAndParseAddress } from "starknet";
 import { isAddress } from "viem";
 import { z } from "zod";
 
@@ -19,7 +20,7 @@ export type Nft = {
   tokenId: string;
 };
 
-const Address = z.object({
+const EthereumAddress = z.object({
   address: z.custom<string>((address) => {
     return isAddress(address as string);
   }, "Invalid Address"),
@@ -27,7 +28,7 @@ const Address = z.object({
 
 export const nftsRouter = createTRPCRouter({
   getL1NftsByCollection: publicProcedure
-    .input(Address)
+    .input(EthereumAddress)
     .query(async ({ input }) => {
       const { address } = input;
 
@@ -51,6 +52,61 @@ export const nftsRouter = createTRPCRouter({
           title: nft.title,
           tokenId: nft.tokenId,
         }));
+
+      const nftsByCollection = rawNfts.reduce<Record<string, Array<Nft>>>(
+        (acc, nft) => {
+          if (acc[nft.collectionName] === undefined) {
+            acc[nft.collectionName] = [];
+          }
+
+          acc[nft.collectionName]?.push(nft);
+          return acc;
+        },
+        {}
+      );
+
+      return { byCollection: nftsByCollection, raw: rawNfts };
+    }),
+
+  getL2NftsByCollection: publicProcedure
+    .input(z.object({ address: z.string() }))
+    .query(async ({ input }) => {
+      const { address } = input;
+
+      // TODO @YohanTz: Type env object
+      const ownedNftsResponse = await fetch(
+        `${
+          process.env.NEXT_PUBLIC_ARK_API_DOMAIN ?? ""
+        }/v1/owners/${validateAndParseAddress(address)}/nfts`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "X-API-KEY": "yW0akON1f55mOFwBPXPme4AFfLktbRiQ2GNdT1Mc",
+          },
+        }
+      );
+
+      if (ownedNftsResponse.status !== 200) {
+        return { byCollection: {}, raw: [] };
+      }
+
+      const ownedNfts = (await ownedNftsResponse.json()) as {
+        result: Array<{
+          token_address: string;
+          token_id: string;
+        }>;
+      };
+
+      const rawNfts = ownedNfts.result.map((ownedNft) => {
+        return {
+          collectionContractAddress: ownedNft.token_address,
+          collectionName: "NONE",
+          id: `${ownedNft.token_address}-${ownedNft.token_id}`,
+          image: undefined,
+          title: "NO TITLE",
+          tokenId: ownedNft.token_id,
+        };
+      });
 
       const nftsByCollection = rawNfts.reduce<Record<string, Array<Nft>>>(
         (acc, nft) => {

@@ -17,7 +17,7 @@ export default function TargetChainButton({
       {!isSSR && (
         <button
           className={`text-whiterder-[#0e2230] absolute right-1/2 top-1/2 flex h-11 w-11 -translate-y-1/2
-          translate-x-1/2 items-center justify-center rounded-full border-4 border-white bg-primary-300
+          translate-x-1/2 items-center justify-center rounded-full border-4 border-white bg-primary-source
         dark:border-[#0e2230] ${orientation === "horizontal" ? "" : "rotate-90"}
         `}
           onClick={toggle}

@@ -1,9 +1,10 @@
 import { Typography } from "design-system";
 import Image from "next/image";
 
-import { CHAIN_LOGOS_BY_NAME } from "../_lib/utils/connectors";
-import { type Chain } from "../_types";
-import ConditionalWrapper from "./ConditionalWrapper";
+import { CHAIN_LOGOS_BY_NAME } from "../../_lib/utils/connectors";
+import { type Chain } from "../../_types";
+import ConditionalWrapper from "../ConditionalWrapper";
+import NftCardStackBackground from "./NftCardStackBackground";
 
 type NftCardProps = {
   chain: Chain;
@@ -31,22 +32,7 @@ export default function NftCard({
   return (
     <div className="relative w-full">
       {cardType === "collection" && (
-        <>
-          <div
-            className={`absolute inset-0 z-[-1] -translate-x-[5px] translate-y-[5px] rounded-2xl bg-white dark:bg-dark-blue-950 ${
-              isSelected && cardType === "collection"
-                ? "border-2 border-primary-300"
-                : "border border-neutral-200 dark:border-dark-blue-600"
-            }`}
-          />
-          <div
-            className={`absolute inset-0 z-[-2] -translate-x-[9px] translate-y-[9px] rounded-2xl bg-white dark:bg-dark-blue-950 ${
-              isSelected && cardType === "collection"
-                ? "border-2 border-primary-300"
-                : "border border-neutral-200 dark:border-dark-blue-600"
-            }`}
-          />
-        </>
+        <NftCardStackBackground isSelected={isSelected} />
       )}
       {/* TODO @YohanTz: handle focus visible style properly */}
       <ConditionalWrapper
@@ -61,7 +47,7 @@ export default function NftCard({
             <button
               className={`h-full w-full overflow-hidden rounded-2xl border bg-white p-3 dark:bg-dark-blue-950 ${
                 isSelected
-                  ? "border-primary-300 outline outline-1 outline-primary-300"
+                  ? "border-primary-source outline outline-1 outline-primary-source"
                   : "border-neutral-300 dark:border-dark-blue-600"
               }`}
               onClick={onClick}
@@ -108,7 +94,7 @@ export default function NftCard({
               <div
                 className={`h-5 w-5 rounded-full ${
                   isSelected
-                    ? "border-[6px] border-primary-300 bg-white "
+                    ? "border-[6px] border-primary-source bg-white "
                     : "bg-neutral-300 dark:bg-dark-blue-300"
                 }`}
               />

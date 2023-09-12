@@ -2,7 +2,8 @@ import { XMarkIcon } from "@heroicons/react/24/solid";
 import { useAccount as useStarknetAccount } from "@starknet-react/core";
 import { Button, Drawer, IconButton, Modal, Typography } from "design-system";
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { redirect } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import { useAccount as useEthereumAccount } from "wagmi";
 
 import useCurrentChain from "~/app/_hooks/useCurrentChain";
@@ -15,7 +16,7 @@ import {
 } from "../../../_lib/utils/connectors";
 import { type Chain } from "../../../_types";
 import useNftSelection from "../_hooks/useNftSelection";
-import useTransferStarknetNfts from "../_hooks/useTransferStarknetNfts";
+import useTransferNftsFromChain from "../_hooks/useTransferNfts";
 import TargetChainButton from "./TargetChainButton";
 
 interface ChainTransferSummaryProps {
@@ -79,16 +80,8 @@ function ChainTransferSummary({
 }
 
 function TransferAction() {
-  const { targetChain } = useCurrentChain();
-  const { numberOfSelectedNfts } = useNftSelection("Ethereum");
-
-  // const {
-  //   approveForAll,
-  //   depositTokens,
-  //   isApproveLoading,
-  //   isApprovedForAll,
-  //   isDepositLoading,
-  // } = useTransferNfts();
+  const { sourceChain, targetChain } = useCurrentChain();
+  const { numberOfSelectedNfts } = useNftSelection();
 
   const {
     approveForAll,
@@ -96,7 +89,14 @@ function TransferAction() {
     isApproveLoading,
     isApprovedForAll,
     isDepositLoading,
-  } = useTransferStarknetNfts();
+    isDepositSuccess,
+  } = useTransferNftsFromChain(sourceChain);
+
+  useEffect(() => {
+    if (isDepositSuccess) {
+      redirect("/lounge");
+    }
+  }, [isDepositSuccess]);
 
   return isApprovedForAll ? (
     <>
@@ -108,7 +108,7 @@ function TransferAction() {
         Gas fees are free, handed by Everai!
       </Typography>
       <button
-        className="mt-8 w-full rounded-full bg-dark-blue-950 p-3 text-sm text-white"
+        className="mt-8 w-full rounded-full bg-dark-blue-950 p-3 text-sm text-white dark:bg-dark-blue-700"
         onClick={() => depositTokens()}
       >
         <Typography variant="button_text_s">
@@ -117,7 +117,16 @@ function TransferAction() {
             : `Confirm transfer to ${targetChain}`}
         </Typography>
       </button>
-      {isDepositLoading && "Loading..."}
+      {isDepositLoading && (
+        <Image
+          alt="Bridge loading animation"
+          // className="fixed bottom-0 left-0 right-0 top-23 object-cover"
+          className="fixed inset-0 h-screen w-screen object-cover"
+          height={3000}
+          src="/medias/bridge_animation.gif"
+          width={3000}
+        />
+      )}
     </>
   ) : (
     <>
@@ -134,8 +143,8 @@ function TransferAction() {
       <button
         className={`mt-8 w-full rounded-full p-3 text-sm text-white ${
           numberOfSelectedNfts === 0
-            ? "cursor-no-drop bg-[#1c2f55] opacity-30"
-            : "bg-dark-blue-950"
+            ? "cursor-no-drop bg-[#1c2f55] opacity-30 dark:bg-dark-blue-900"
+            : "bg-dark-blue-900 dark:bg-dark-blue-700"
         }`}
         disabled={numberOfSelectedNfts === 0}
         onClick={() => numberOfSelectedNfts > 0 && approveForAll()}
@@ -160,7 +169,7 @@ function TransferSummary() {
   const { targetChain } = useCurrentChain();
 
   // TODO @YohanTz: Support both sides
-  const { deselectNft, selectedNfts } = useNftSelection("Ethereum");
+  const { deselectNft, selectedNfts } = useNftSelection();
 
   // TODO @YohanTz: Hook wrapper around wagmi and starknet-react
   const shortEthereumAddress = useMemo(
@@ -240,13 +249,17 @@ function TransferSummary() {
             return (
               <div className="flex justify-between" key={selectedNft?.id}>
                 <div className="flex items-center gap-4">
-                  <Image
-                    alt={selectedNft?.title ?? ""}
-                    className="rounded"
-                    height={52}
-                    src={selectedNft?.image ?? ""}
-                    width={52}
-                  />
+                  {selectedNft?.image ? (
+                    <Image
+                      alt={selectedNft?.title ?? ""}
+                      className="rounded"
+                      height={52}
+                      src={selectedNft?.image ?? ""}
+                      width={52}
+                    />
+                  ) : (
+                    <div className="flex h-[52px] w-[52px] items-center justify-center rounded bg-dark-blue-100 dark:bg-dark-blue-900"></div>
+                  )}
                   <div className="flex flex-col">
                     <Typography ellipsable variant="body_text_14">
                       {selectedNft?.collectionName}
@@ -277,7 +290,7 @@ function TransferSummary() {
 
 export default function TransferSummaryContainer() {
   const [showMobileSummary, setShowMobileSummary] = useState(false);
-  const { numberOfSelectedNfts } = useNftSelection("Ethereum");
+  const { numberOfSelectedNfts } = useNftSelection();
 
   return (
     <>

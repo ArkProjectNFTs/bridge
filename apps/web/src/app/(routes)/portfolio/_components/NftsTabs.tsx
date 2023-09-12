@@ -1,10 +1,11 @@
 "use client";
 
 import * as Tabs from "@radix-ui/react-tabs";
+import { useAccount as useStarknetAccount } from "@starknet-react/core";
 import { Typography } from "design-system";
 import { useAccount as useEthereumAccount } from "wagmi";
 
-import NftCard from "~/app/_components/NftCard";
+import NftCard from "~/app/_components/NftCard/NftCard";
 import { api } from "~/utils/api";
 
 interface NftTabsTriggerProps {
@@ -22,14 +23,14 @@ function NftTabsTrigger({
 }: NftTabsTriggerProps) {
   return (
     <Tabs.Trigger
-      className={`group flex items-center gap-2.5 whitespace-nowrap rounded-full bg-[#e4edec] py-1.5 pl-3 pr-2 data-[state=active]:bg-[#1C2F55] data-[state=active]:text-white dark:bg-dark-blue-900 dark:data-[state=active]:bg-primary-400 ${
+      className={`group flex items-center gap-2.5 whitespace-nowrap rounded-full bg-[#e4edec] py-1.5 pl-3 pr-2 data-[state=active]:bg-night-blue-source data-[state=active]:text-white dark:bg-dark-blue-900 dark:data-[state=active]:bg-sunshine-yellow-400 dark:data-[state=active]:text-night-blue-source ${
         className || ""
       }`}
       value={tabValue}
     >
       <Typography variant="button_text_s">{tabName}</Typography>
       <Typography
-        className="grid h-[18px] min-w-[18px] place-items-center rounded-full bg-primary-300 px-1 text-white dark:text-dark-blue-900 dark:group-data-[state=active]:bg-white dark:group-data-[state=active]:text-primary-400"
+        className="grid h-[18px] min-w-[18px] place-items-center rounded-full bg-sunshine-yellow-400 px-1 text-night-blue-source dark:text-dark-blue-900 dark:group-data-[state=active]:bg-night-blue-source dark:group-data-[state=active]:text-sunshine-yellow-400"
         variant="button_text_xs"
       >
         {nftNumber}
@@ -39,16 +40,24 @@ function NftTabsTrigger({
 }
 
 export default function NftsTabs() {
-  const { address } = useEthereumAccount();
+  const { address: ethereumAddress } = useEthereumAccount();
+  const { address: starknetAddress } = useStarknetAccount();
 
-  const { data: nfts } = api.nfts.getL1NftsByCollection.useQuery(
+  const { data: l1Nfts } = api.nfts.getL1NftsByCollection.useQuery(
     {
-      address: address ?? "",
+      address: ethereumAddress ?? "",
     },
-    { enabled: address !== undefined }
+    { enabled: ethereumAddress !== undefined }
   );
 
-  if (nfts === undefined) {
+  const { data: l2Nfts } = api.nfts.getL2NftsByCollection.useQuery(
+    {
+      address: starknetAddress ?? "",
+    },
+    { enabled: starknetAddress !== undefined }
+  );
+
+  if (l1Nfts === undefined || l2Nfts === undefined) {
     return null;
   }
 
@@ -57,23 +66,27 @@ export default function NftsTabs() {
       <Tabs.List className="flex items-center gap-4 overflow-x-scroll">
         <NftTabsTrigger
           className="ml-auto"
-          nftNumber={nfts.raw.length}
+          nftNumber={l1Nfts.raw.length + l2Nfts.raw.length}
           tabName="All nfts"
           tabValue="all"
         />
         <NftTabsTrigger
-          nftNumber={Object.keys(nfts.byCollection).length}
+          // TODO @YohanTz: Wrap in useMemo
+          nftNumber={
+            Object.keys(l1Nfts.byCollection).length +
+            Object.keys(l2Nfts.byCollection).length
+          }
           tabName="Collections"
           tabValue="collections"
         />
         <NftTabsTrigger
-          nftNumber={nfts.raw.length}
+          nftNumber={l1Nfts.raw.length}
           tabName="Ethereum Nfts"
           tabValue="ethereum"
         />
         <NftTabsTrigger
           className="mr-auto"
-          nftNumber={0}
+          nftNumber={l2Nfts.raw.length}
           tabName="Starknet Nfts"
           tabValue="starknet"
         />
@@ -84,8 +97,7 @@ export default function NftsTabs() {
           className="grid grid-cols-2 gap-5 sm:grid-cols-5"
           value="all"
         >
-          {nfts.raw.map((nft) => {
-            console.log(nft);
+          {l1Nfts.raw.map((nft) => {
             return (
               <NftCard
                 title={
@@ -101,16 +113,46 @@ export default function NftsTabs() {
               />
             );
           })}
+          {l2Nfts.raw.map((nft) => {
+            return (
+              <NftCard
+                title={
+                  nft.title.length > 0
+                    ? nft.title
+                    : `${nft.collectionName} #${nft.tokenId}`
+                }
+                cardType="nft"
+                chain="Starknet"
+                image={nft.image}
+                isSelected={false}
+                key={nft.id}
+              />
+            );
+          })}
         </Tabs.Content>
         <Tabs.Content
           className="grid grid-cols-2 gap-5 sm:grid-cols-5"
           value="collections"
         >
-          {Object.entries(nfts.byCollection).map(([collectionName, nfts]) => {
+          {/* TODO @YohanTz: Add Starknet here */}
+          {Object.entries(l1Nfts.byCollection).map(([collectionName, nfts]) => {
             return (
               <NftCard
                 cardType="collection"
                 chain="Ethereum"
+                image={nfts[0]?.image}
+                isSelected={false}
+                key={collectionName}
+                numberOfNfts={nfts.length}
+                title={collectionName}
+              />
+            );
+          })}
+          {Object.entries(l2Nfts.byCollection).map(([collectionName, nfts]) => {
+            return (
+              <NftCard
+                cardType="collection"
+                chain="Starknet"
                 image={nfts[0]?.image}
                 isSelected={false}
                 key={collectionName}
@@ -124,7 +166,7 @@ export default function NftsTabs() {
           className="grid grid-cols-2 gap-5 sm:grid-cols-5"
           value="ethereum"
         >
-          {nfts.raw.map((nft) => {
+          {l1Nfts.raw.map((nft) => {
             return (
               <NftCard
                 title={
@@ -145,7 +187,22 @@ export default function NftsTabs() {
           className="grid grid-cols-2 gap-5 sm:grid-cols-5"
           value="starknet"
         >
-          No Starknet Nfts yet
+          {l2Nfts.raw.map((nft) => {
+            return (
+              <NftCard
+                title={
+                  nft.title.length > 0
+                    ? nft.title
+                    : `${nft.collectionName} #${nft.tokenId}`
+                }
+                cardType="nft"
+                chain="Starknet"
+                image={nft.image}
+                isSelected={false}
+                key={nft.id}
+              />
+            );
+          })}
         </Tabs.Content>
       </div>
     </Tabs.Root>

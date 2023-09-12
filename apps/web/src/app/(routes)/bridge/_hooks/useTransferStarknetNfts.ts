@@ -3,20 +3,17 @@ import {
   useContractRead,
   useContractWrite,
   useAccount as useStarknetAccount,
+  useWaitForTransaction,
 } from "@starknet-react/core";
 import { CallData } from "starknet";
 import { useAccount as useEthereumAccount } from "wagmi";
 
 import useNftSelection from "./useNftSelection";
 
-// TODO @YohanTz: Replace
-const NFT_COLLECTION_TEMP_ADDRESS =
-  "0x03620719dc1c1bd33555174ecf4f31e69578d94d00dd9fb387f33a220193fca6";
-
 const L2_BRIDGE_ADDRESS = process.env.NEXT_PUBLIC_L2_BRIDGE_ADDRESS || "";
 
 export default function useTransferStarknetNfts() {
-  const { numberOfSelectedNfts, selectedNfts } = useNftSelection("Ethereum");
+  const { selectedNfts } = useNftSelection();
 
   const { address: ethereumAddress } = useEthereumAccount();
   const { address: starknetAddress } = useStarknetAccount();
@@ -45,7 +42,7 @@ export default function useTransferStarknetNfts() {
         type: "function",
       },
     ],
-    address: NFT_COLLECTION_TEMP_ADDRESS,
+    address: selectedNfts[0]?.collectionContractAddress ?? "",
     args: [starknetAddress ?? "0xtest", L2_BRIDGE_ADDRESS],
     functionName: "is_approved_for_all",
     watch: true,
@@ -89,30 +86,39 @@ export default function useTransferStarknetNfts() {
     address: L2_BRIDGE_ADDRESS,
   });
 
-  const { write: approveForAll } = useContractWrite({
+  const { data: approveData, write: approveForAll } = useContractWrite({
     calls: [
       {
         calldata: [L2_BRIDGE_ADDRESS, 1],
-        contractAddress: NFT_COLLECTION_TEMP_ADDRESS,
+        contractAddress: selectedNfts[0]?.collectionContractAddress ?? "",
         entrypoint: "set_approval_for_all",
       },
     ],
   });
 
+  const { isLoading: isApproveLoading } = useWaitForTransaction({
+    hash: approveData?.transaction_hash,
+  });
+
+  // TODO @YohanTz: Refacto
   let depositCallData = undefined;
-  if (bridgeContract?.abi !== undefined && ethereumAddress !== undefined) {
+  if (
+    bridgeContract?.abi !== undefined &&
+    ethereumAddress !== undefined &&
+    selectedNfts[0] !== undefined
+  ) {
     depositCallData = new CallData(bridgeContract?.abi);
     depositCallData = depositCallData.compile("deposit_tokens", {
-      collection_l2: NFT_COLLECTION_TEMP_ADDRESS,
+      collection_l2: selectedNfts[0]?.collectionContractAddress ?? "",
       owner_l1: ethereumAddress,
       salt: Date.now(),
-      token_ids: ["1000"],
+      token_ids: selectedNfts.map((selectedNft) => selectedNft?.tokenId),
       use_deposit_burn_auto: false,
-      use_withdraw_auto: false,
+      use_withdraw_auto: true,
     });
   }
 
-  const { write: depositTokens } = useContractWrite({
+  const { data: depositData, write: depositTokens } = useContractWrite({
     calls: [
       {
         calldata: depositCallData,
@@ -122,11 +128,19 @@ export default function useTransferStarknetNfts() {
     ],
   });
 
+  const { isLoading: isDepositLoading, isSuccess: isDepositSuccess } =
+    useWaitForTransaction({
+      hash: depositData?.transaction_hash,
+    });
+
   return {
-    approveForAll,
-    depositTokens,
-    isApproveLoading: false,
+    approveForAll: () => approveForAll(),
+    depositTokens: () => depositTokens(),
+    isApproveLoading:
+      isApproveLoading && approveData?.transaction_hash !== undefined,
     isApprovedForAll,
-    isDepositLoading: false,
+    isDepositLoading:
+      isDepositLoading && depositData?.transaction_hash !== undefined,
+    isDepositSuccess,
   };
 }

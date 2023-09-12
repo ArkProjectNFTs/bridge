@@ -12,7 +12,7 @@ export default function ChainSwitch() {
       <button
         className={`rounded-full border-8 ${
           targetChain === "Ethereum"
-            ? "border-primary-300"
+            ? "border-primary-source"
             : "border-transparent"
         }`}
         onClick={() => setTargetChain("Ethereum")}
@@ -27,7 +27,7 @@ export default function ChainSwitch() {
       <button
         className={`rounded-full border-8 ${
           targetChain === "Starknet"
-            ? "border-primary-300"
+            ? "border-primary-source"
             : "border-transparent"
         }`}
         onClick={() => setTargetChain("Starknet")}

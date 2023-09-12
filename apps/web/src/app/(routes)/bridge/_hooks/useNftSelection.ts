@@ -2,12 +2,12 @@ import { useState } from "react";
 import { useLocalStorage } from "usehooks-ts";
 
 import useAccountFromChain from "~/app/_hooks/useAccountFromChain";
+import useCurrentChain from "~/app/_hooks/useCurrentChain";
 import { api } from "~/utils/api";
 
-import { type Chain } from "../../../_types";
-
-export default function useNftSelection(chain: Chain) {
-  const { address } = useAccountFromChain(chain);
+export default function useNftSelection() {
+  const { sourceChain } = useCurrentChain();
+  const { address } = useAccountFromChain(sourceChain);
 
   const [selectedNftIdsByAddress, setSelectedNftIdsByAddress] = useLocalStorage<
     Record<`0x${string}`, Array<string>>
@@ -21,30 +21,48 @@ export default function useNftSelection(chain: Chain) {
     {}
   );
 
-  const { data: nfts } = api.nfts.getL1NftsByCollection.useQuery(
-    {
-      address: address ?? "",
-    },
-    { enabled: address !== undefined }
-  );
-
+  // Change to use contract address
   const [selectedCollectionName, setSelectedCollectionName] = useState<
     null | string
   >(null);
+
+  const { data: l1Nfts } = api.nfts.getL1NftsByCollection.useQuery(
+    {
+      address: address ?? "",
+    },
+    { enabled: address !== undefined && sourceChain === "Ethereum" }
+  );
+  const { data: l2Nfts } = api.nfts.getL2NftsByCollection.useQuery(
+    {
+      address: address ?? "",
+    },
+    { enabled: address !== undefined && sourceChain === "Starknet" }
+  );
+
+  const nfts = sourceChain === "Ethereum" ? l1Nfts : l2Nfts;
 
   const selectedCollection = selectedCollectionName
     ? nfts?.byCollection[selectedCollectionName] ?? []
     : [];
 
-  const selectedNftIds = address ? selectedNftIdsByAddress[address] ?? [] : [];
+  /**
+   * array.filter() is used because we need to clean the nft ids that are still in the local storage
+   * but that are not in the user wallet anymore
+   */
+  const selectedNftIds = address
+    ? selectedNftIdsByAddress[address]?.filter(
+        (nftId) => nfts?.raw.find((rawNft) => rawNft.id === nftId) !== undefined
+      ) ?? []
+    : [];
 
   const numberOfSelectedNfts = selectedNftIds.length;
 
-  const lastSelectedCollectionName = address
-    ? lastSelectedCollectionNameByAddress[address]
-    : undefined;
+  const lastSelectedCollectionName =
+    address && selectedNftIds.length > 0
+      ? lastSelectedCollectionNameByAddress[address]
+      : undefined;
 
-  // TODO @YohanTz: Directly search in the collection and filter nft not in the wallet anymore
+  // TODO @YohanTz: Directly search in the collection
   const selectedNfts = selectedNftIds
     .map((selectedNftId) => nfts?.raw.find((nft) => nft.id === selectedNftId))
     .filter((nft) => nft !== undefined);

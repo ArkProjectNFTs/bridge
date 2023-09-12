@@ -6,7 +6,7 @@ import useCurrentChain from "~/app/_hooks/useCurrentChain";
 import { CHAIN_LOGOS_BY_NAME } from "../../../_lib/utils/connectors";
 
 interface NftTransferModalProps {
-  image: string;
+  image?: string;
   isOpen: boolean;
   name: string;
   onOpenChange: (open: boolean) => void;
@@ -21,17 +21,25 @@ export default function NftTransferModal({
   const { sourceChain, targetChain } = useCurrentChain();
   return (
     <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
-      <div className="mt-5 flex flex-col gap-5">
-        <div className="flex gap-4">
-          <Image
-            alt="nft image"
-            className="h-28 w-28 rounded-lg"
-            height={112}
-            src={image}
-            width={112}
-          />
+      <div className="mt-5 flex w-full flex-col gap-5">
+        <div className="flex w-full gap-4">
           <div>
-            <Typography component="h3" variant="heading_light_xs">
+            {image ? (
+              <Image
+                alt="nft image"
+                className="h-28 w-28 rounded-lg"
+                height={112}
+                src={image}
+                width={112}
+              />
+            ) : (
+              <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-lg bg-dark-blue-100 object-cover text-center dark:bg-dark-blue-800">
+                <Typography variant="body_text_16">No metadata</Typography>
+              </div>
+            )}
+          </div>
+          <div className="w-full">
+            <Typography component="h3" ellipsable variant="heading_light_xs">
               {name}
               <br />
               Migration in Progress

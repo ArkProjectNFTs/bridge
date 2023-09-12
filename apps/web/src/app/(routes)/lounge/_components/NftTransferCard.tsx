@@ -2,20 +2,24 @@ import { Typography } from "design-system";
 import Image from "next/image";
 import { useState } from "react";
 
+import NftCardStackBackground from "~/app/_components/NftCard/NftCardStackBackground";
+import { type BridgeRequestEventStatus } from "~/server/api/routers/bridgeRequest";
+
+import NftCardStatus from "./NftCardStatus";
 import NftTransferModal from "./NftTransferModal";
 
 interface NftTransferCard {
-  arrivalDate: string;
-  image: string;
+  image?: string;
   name: string;
-  status: "error" | "progress" | "transfered";
+  status: BridgeRequestEventStatus;
+  statusTimestamp: number;
 }
 
 export default function NftTransferCard({
-  arrivalDate,
   image,
   name,
   status,
+  statusTimestamp,
 }: NftTransferCard) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -24,18 +28,25 @@ export default function NftTransferCard({
   }
 
   return (
-    <>
+    <div className="relative w-full">
+      <NftCardStackBackground />
       <button
         className="h-full w-full overflow-hidden rounded-2xl border border-neutral-300 bg-white p-3 text-left dark:border-dark-blue-600 dark:bg-dark-blue-950"
         onClick={handleOpenModal}
       >
-        <Image
-          alt="nft image"
-          className="aspect-[11/9] h-auto w-full rounded-lg object-cover"
-          height={200}
-          src={image}
-          width={200}
-        />
+        {image ? (
+          <Image
+            alt="nft image"
+            className="aspect-[11/9] h-auto w-full rounded-lg object-cover"
+            height={200}
+            src={image}
+            width={200}
+          />
+        ) : (
+          <div className="flex aspect-[11/9] h-auto w-full items-center justify-center rounded-lg bg-dark-blue-100 object-cover dark:bg-dark-blue-800">
+            <Typography variant="body_text_16">No metadata</Typography>
+          </div>
+        )}
         <Typography
           className="mt-3"
           component="p"
@@ -44,14 +55,7 @@ export default function NftTransferCard({
         >
           {name}
         </Typography>
-
-        <Typography
-          className="mt-3 rounded-full bg-red-200 px-2 py-1 text-center"
-          component="p"
-          variant="body_text_12"
-        >
-          Error Transfer
-        </Typography>
+        <NftCardStatus status={status} />
 
         <Typography
           className="mt-4 text-[#686c73]"
@@ -60,7 +64,7 @@ export default function NftTransferCard({
         >
           Arrival
         </Typography>
-        <Typography variant="button_text_s">{arrivalDate}</Typography>
+        <Typography variant="button_text_s">{statusTimestamp}</Typography>
 
         <Typography
           className="mt-2 underline"
@@ -76,6 +80,6 @@ export default function NftTransferCard({
         name={name}
         onOpenChange={setIsModalOpen}
       />
-    </>
+    </div>
   );
 }

@@ -25,14 +25,16 @@
     "@trpc/server": "^10.26.0",
     "alchemy-sdk": "^2.8.3",
     "design-system": "*",
+    "get-starknet-core": "^3.2.0",
     "next": "^13.4.2",
     "next-themes": "^0.2.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "starknet": "^5.19.5",
     "superjson": "1.12.2",
     "usehooks-ts": "^2.9.1",
-    "viem": "^0.3.37",
-    "wagmi": "^1.0.7",
+    "viem": "^1.10.7",
+    "wagmi": "^1.4.1",
     "zod": "^3.21.4"
   },
   "devDependencies": {

@@ -21,7 +21,8 @@
     "MAINNET_ALCHEMY_KEY",
     "L2_DEPLOYER_SALT",
     "MAINNET_FORKING_ENABLED",
-    "DEPLOYER_PRIVATE_KEY"
+    "DEPLOYER_PRIVATE_KEY",
+    "NEXT_PUBLIC_ARK_API_DOMAIN"
   ],
   "pipeline": {
     "build:l1": {

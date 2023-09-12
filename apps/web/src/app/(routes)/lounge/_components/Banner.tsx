@@ -9,24 +9,26 @@ export default function Banner() {
   const { targetChain } = useCurrentChain();
 
   return (
-    <div className="mt-8 flex flex-col-reverse items-center gap-11 overflow-hidden rounded-3xl bg-primary-300 px-6 pt-8 text-dark-blue-950 md:mt-10 md:flex-row md:px-8 md:py-4">
-      {targetChain === "Ethereum" ? (
-        <Image
-          alt="lounge banner illustration"
-          className="relative top-[60px] -mt-[60px] md:top-0 md:mt-0"
-          height={275}
-          src="/medias/ethereum_lounge.svg"
-          width={345}
-        />
-      ) : (
-        <Image
-          alt="lounge banner illustration"
-          className="relative top-[60px] -mt-[60px] md:top-0 md:mt-0"
-          height={310}
-          src="/medias/starknet_lounge.svg"
-          width={300}
-        />
-      )}
+    <div className="mt-8 flex flex-col-reverse items-center gap-11 overflow-hidden rounded-3xl bg-primary-source px-6 pt-8 text-dark-blue-950 md:mt-10 md:flex-row md:px-8 md:py-4">
+      <div className="flex h-80 w-[22rem] shrink-0 items-center justify-center">
+        {targetChain === "Ethereum" ? (
+          <Image
+            alt="lounge banner illustration"
+            className="relative top-[60px] -mt-[60px] md:top-0 md:mt-0"
+            height={275}
+            src="/medias/ethereum_lounge.svg"
+            width={345}
+          />
+        ) : (
+          <Image
+            alt="lounge banner illustration"
+            className="relative top-[60px] -mt-[60px] md:top-0 md:mt-0"
+            height={310}
+            src="/medias/starknet_lounge.svg"
+            width={300}
+          />
+        )}
+      </div>
       <div className="text-center md:text-left">
         <Typography component="h1" variant="heading_light_l">
           Welcome to

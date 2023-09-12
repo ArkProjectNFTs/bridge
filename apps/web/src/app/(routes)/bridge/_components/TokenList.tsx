@@ -2,7 +2,7 @@ import { Typography } from "design-system";
 
 import useCurrentChain from "~/app/_hooks/useCurrentChain";
 
-import NftCard from "../../../_components/NftCard";
+import NftCard from "../../../_components/NftCard/NftCard";
 import useNftSelection from "../_hooks/useNftSelection";
 
 /*
@@ -22,7 +22,7 @@ export default function TokenList() {
     selectedCollectionName,
     toggleNftSelection,
     toggleSelectAll,
-  } = useNftSelection("Ethereum");
+  } = useNftSelection();
 
   if (nfts === undefined) {
     return null;
@@ -40,7 +40,7 @@ export default function TokenList() {
             </Typography>
             {selectedCollectionName !== null && (
               <Typography
-                className="shrink-0 rounded-full bg-primary-300 px-2 py-1.5 text-white"
+                className="shrink-0 rounded-full bg-primary-source px-2 py-1.5 text-white"
                 variant="body_text_bold_12"
               >
                 {selectedCollection.length}
@@ -59,7 +59,7 @@ export default function TokenList() {
             </button>
           )}
         </div>
-        <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 xl:grid-cols-4">
+        <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 xl:grid-cols-5">
           {selectedCollectionName === null
             ? Object.entries(nfts.byCollection).map(
                 ([collectionName, nfts]) => {

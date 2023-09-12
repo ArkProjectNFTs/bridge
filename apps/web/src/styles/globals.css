@@ -3,31 +3,31 @@
 @tailwind utilities;
 
 .Ethereum {
-  /* Magic blue */
-  --color-primary-50: #fcf5fe;
-  --color-primary-100: #f8e9fe;
-  --color-primary-200: #f2d2fc;
-  --color-primary-300: #e6a5f7;
-  --color-primary-400: #dc7ff3;
-  --color-primary-500: #ca4fe6;
-  --color-primary-600: #b02fca;
-  --color-primary-700: #9423a8;
-  --color-primary-800: #7b1f89;
-  --color-primary-900: #671f70;
-  --color-primary-950: #43084a;
+  /* Playground Purple */
+  --color-primary-source: #8c62f2;
+  --color-primary-50: #f8f0ff;
+  --color-primary-100: #e9d3ff;
+  --color-primary-200: #d7b7ff;
+  --color-primary-300: #c39cff;
+  --color-primary-400: #ad82ff;
+  --color-primary-500: #966bfa;
+  --color-primary-600: #7e56e4;
+  --color-primary-700: #6844c8;
+  --color-primary-800: #5335a6;
+  --color-primary-900: #3f287f;
 }
 
 .Starknet {
-  /* Mint Green */
-  --color-primary-50: #f2fbf8;
-  --color-primary-100: #d2f5e9;
-  --color-primary-200: #a6e9d4;
-  --color-primary-300: #60d2b3;
-  --color-primary-400: #44bda0;
-  --color-primary-500: #2aa286;
-  --color-primary-600: #1f826e;
-  --color-primary-700: #1d6859;
-  --color-primary-800: #1c534a;
-  --color-primary-900: #1b463e;
-  --color-primary-950: #0a2924;
+  /* Folly Red*/
+  --color-primary-source: #f8545c;
+  --color-primary-50: #ffeeec;
+  --color-primary-100: #ffccc9;
+  --color-primary-200: #ffaba7;
+  --color-primary-300: #ff8a88;
+  --color-primary-400: #ff6a6e;
+  --color-primary-500: #ed4d56;
+  --color-primary-600: #d53243;
+  --color-primary-700: #b81c33;
+  --color-primary-800: #970e26;
+  --color-primary-900: #740d1d;
 }

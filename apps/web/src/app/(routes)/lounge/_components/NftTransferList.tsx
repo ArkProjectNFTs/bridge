@@ -5,34 +5,33 @@ import { Button, Typography } from "design-system";
 import Image from "next/image";
 import { useState } from "react";
 
-import emptyCard3 from "../../../../../public/medias/empty_card_3.png";
+import NftsEmptyState from "~/app/_components/NftsEmptyState";
+import useAccountFromChain from "~/app/_hooks/useAccountFromChain";
+import useCurrentChain from "~/app/_hooks/useCurrentChain";
+import { api } from "~/utils/api";
+
 import NftTransferCard from "./NftTransferCard";
 
-const empty_cards = [
-  { alt: "empty Nft card 3", src: emptyCard3 },
-  { alt: "empty Nft card 3", src: emptyCard3 },
-  { alt: "empty Nft card 3", src: emptyCard3 },
-  { alt: "empty Nft card 3", src: emptyCard3 },
-  { alt: "empty Nft card 3", src: emptyCard3 },
-];
+export default function NftTransferList() {
+  const [displayOption, setDisplayOption] = useState("card");
+  const { targetChain } = useCurrentChain();
+  const { address } = useAccountFromChain(targetChain);
 
-function NftTransferEmptyState() {
-  return (
+  const { data: bridgeRequestData } =
+    api.bridgeRequest.getBridgeRequestsFromAddress.useQuery(
+      {
+        address: address ?? "",
+      },
+      { enabled: address !== undefined, refetchInterval: 15000 }
+    );
+
+  if (bridgeRequestData === undefined) {
+    return null;
+  }
+
+  return bridgeRequestData.length === 0 ? (
     <>
-      <div className="mt-9 grid grid-cols-2 gap-6 sm:mt-23 sm:grid-cols-5">
-        {empty_cards.map((card, index) => {
-          return (
-            <Image
-              alt={card.alt}
-              className="display-none h-auto w-full last:hidden sm:last:block"
-              height={208}
-              key={index}
-              src={card.src}
-              width={182}
-            />
-          );
-        })}
-      </div>
+      <NftsEmptyState className="mt-9 sm:mt-23" />
       <Typography
         className="mt-5 sm:mt-16"
         component="p"
@@ -41,50 +40,11 @@ function NftTransferEmptyState() {
         There is nothing there...
       </Typography>
     </>
-  );
-}
-
-const nftTransferData: Array<{
-  collectionName: string;
-  image: string;
-  name: string;
-}> = [
-  {
-    collectionName: "Mekaverse",
-    image:
-      "https://res.cloudinary.com/alchemyapi/image/upload/thumbnailv2/eth-mainnet/c7d56728cd014a242e514b7e5678ac8c",
-    name: "Meka #1946",
-  },
-  // {
-  //   collectionName: "Mekaverse",
-  //   image:
-  //     "https://res.cloudinary.com/alchemyapi/image/upload/thumbnailv2/eth-mainnet/6a4518d6b802eb23f4bf9814b0886996",
-  //   name: "Meka #6521",
-  // },
-  // {
-  //   collectionName: "MekaBot",
-  //   image:
-  //     "https://res.cloudinary.com/alchemyapi/image/upload/thumbnailv2/eth-mainnet/58c0df0adf91e4899d9ae9fa352c24bf",
-  //   name: "MekaBot #775",
-  // },
-  // {
-  //   collectionName: "Look Up",
-  //   image:
-  //     "https://res.cloudinary.com/alchemyapi/image/upload/thumbnailv2/eth-mainnet/413c13070c7327df7f57e1eb1a62e6e1",
-  //   name: "Look Up",
-  // },
-];
-
-export default function NftTransferList() {
-  const [displayOption, setDisplayOption] = useState("card");
-
-  return nftTransferData.length === 0 ? (
-    <NftTransferEmptyState />
   ) : (
     <div className="mb-6 mt-9 sm:mt-18">
       <div className="flex justify-between">
         <Typography variant="button_text_l">
-          Nfts in transit ({nftTransferData.length})
+          Nfts in transit ({bridgeRequestData.length})
         </Typography>
         <Toolbar.Root>
           <Toolbar.ToggleGroup
@@ -220,14 +180,14 @@ export default function NftTransferList() {
 
       {displayOption === "card" ? (
         <div className="mt-6 grid grid-cols-2 gap-5 sm:grid-cols-5">
-          {nftTransferData.map((nft, index) => {
+          {bridgeRequestData.map((bridgeRequest, index) => {
             return (
               <NftTransferCard
-                arrivalDate="10/09/2023 - 2.43pm"
-                image={nft.image}
+                image={undefined}
                 key={index}
-                name={nft.name}
-                status="error"
+                name={bridgeRequest.sourceCollection}
+                status={bridgeRequest.status}
+                statusTimestamp={bridgeRequest.statusTimestamp}
               />
             );
           })}
@@ -241,7 +201,7 @@ export default function NftTransferList() {
                 component="th"
                 variant="button_text_l"
               >
-                Nfts in transit ({nftTransferData.length})
+                Nfts in transit ({bridgeRequestData.length})
               </Typography>
               <Typography
                 className="pb-5"
@@ -268,7 +228,7 @@ export default function NftTransferList() {
           </thead>
 
           <tbody className="rounded-3xl">
-            {nftTransferData.map((nft, index) => {
+            {bridgeRequestData.map((bridgeRequest, index) => {
               return (
                 <tr className="group" key={index}>
                   <td
@@ -279,15 +239,15 @@ export default function NftTransferList() {
                         alt="nft image"
                         className="rounded-lg"
                         height={52}
-                        src={nft.image}
+                        src=""
                         width={52}
                       />
                       <div className="flex flex-col gap-1.5">
                         <Typography variant="body_text_14">
-                          {nft.collectionName}
+                          {bridgeRequest.sourceCollection}
                         </Typography>
                         <Typography variant="body_text_bold_14">
-                          {nft.name}
+                          No Nft name
                         </Typography>
                       </div>
                     </div>
@@ -299,7 +259,7 @@ export default function NftTransferList() {
                       className="mt-3 rounded-full bg-red-100 px-2 py-1 text-center"
                       variant="button_text_xs"
                     >
-                      Transfer in progress ...
+                      {bridgeRequest.status}
                     </Typography>
                   </td>
                   <td className=" bg-white pb-4 group-first:pt-6">
@@ -312,7 +272,7 @@ export default function NftTransferList() {
                           Estimated arrival
                         </Typography>
                         <Typography variant="button_text_s">
-                          10/09/2023 - 2:43pm
+                          {bridgeRequest.statusTimestamp}
                         </Typography>
                       </div>
                       <Button variant="s">Stop transfer</Button>
