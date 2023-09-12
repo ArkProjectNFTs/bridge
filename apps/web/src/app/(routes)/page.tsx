@@ -1,11 +1,5 @@
 import { Typography } from "design-system";
-import Image from "next/image";
 
-import emptyCard1 from "../../../public/medias/empty_card_1.png";
-import emptyCard2 from "../../../public/medias/empty_card_2.png";
-import emptyCard3 from "../../../public/medias/empty_card_3.png";
-import emptyCard4 from "../../../public/medias/empty_card_4.png";
-import emptyCard5 from "../../../public/medias/empty_card_5.png";
 import ConnectWalletsButton from "../_components/ConnectWalletsButton";
 import MainPageContainer from "../_components/MainPageContainer";
 import NftsEmptyState from "../_components/NftsEmptyState";
