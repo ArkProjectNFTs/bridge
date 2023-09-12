@@ -1,7 +1,6 @@
 "use client";
 
 import { Typography } from "design-system";
-import Image from "next/image";
 import { useState } from "react";
 
 import ConnectModal from "./ConnectModal";

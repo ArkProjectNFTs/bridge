@@ -22,7 +22,10 @@
     "L2_DEPLOYER_SALT",
     "MAINNET_FORKING_ENABLED",
     "DEPLOYER_PRIVATE_KEY",
-    "NEXT_PUBLIC_ARK_API_DOMAIN"
+    "NEXT_PUBLIC_ARK_API_DOMAIN",
+    "VERCEL_URL",
+    "NODE_ENV",
+    "PORT"
   ],
   "pipeline": {
     "build:l1": {
