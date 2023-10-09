@@ -1,13 +1,7 @@
 import useCurrentChain from "~/app/_hooks/useCurrentChain";
 import { useIsSSR } from "~/app/_hooks/useIsSSR";
 
-interface TargetChainButtonProps {
-  orientation: "horizontal" | "vertical";
-}
-
-export default function TargetChainButton({
-  orientation,
-}: TargetChainButtonProps) {
+export default function TargetChainButton() {
   const { toggle } = useCurrentChain();
 
   const isSSR = useIsSSR();
@@ -16,10 +10,7 @@ export default function TargetChainButton({
     <div className="relative">
       {!isSSR && (
         <button
-          className={`text-whiterder-[#0e2230] absolute right-1/2 top-1/2 flex h-11 w-11 -translate-y-1/2
-          translate-x-1/2 items-center justify-center rounded-full border-4 border-white bg-primary-source
-        dark:border-[#0e2230] ${orientation === "horizontal" ? "" : "rotate-90"}
-        `}
+          className="text-whiterder-[#0e2230] absolute right-1/2 top-1/2 flex h-11 w-11 -translate-y-1/2 translate-x-1/2 items-center justify-center rounded-full border-4 border-white bg-primary-source dark:border-[#0e2230]"
           onClick={toggle}
         >
           {/* <Image

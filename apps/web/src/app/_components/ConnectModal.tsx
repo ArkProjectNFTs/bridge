@@ -10,6 +10,7 @@ import useConnectFromChain from "../_hooks/useConnectFromChain";
 import useDisconnectFromChain from "../_hooks/useDisconnectFromChain";
 import {
   CHAIN_LOGOS_BY_NAME,
+  CHAIN_WALLET_ILLUSTRATION_BY_NAME,
   CONNECTOR_LABELS_BY_ID,
   WALLET_LOGOS_BY_ID,
 } from "../_lib/utils/connectors";
@@ -80,20 +81,29 @@ function ConnectorList({ chain }: ConnectorListProps) {
     <>
       <Image
         alt={`${chain} icon`}
-        height={68}
-        src={CHAIN_LOGOS_BY_NAME[chain]}
-        width={68}
+        height={100}
+        src={CHAIN_WALLET_ILLUSTRATION_BY_NAME[chain]}
+        width={100}
       />
       <div className="w-full px-7">
         <Typography
-          className="m-6"
+          className="mt-6"
           component={RUIDialog.Title}
           variant="heading_light_xxs"
         >
           {chain} Wallet
         </Typography>
-        <div className="mt-6 flex justify-center rounded-full bg-sky-100 py-3 ">
-          <Typography variant="body_text_bold_14">{shortAddress}</Typography>
+        <Typography className="mb-6 mt-2" component="p" variant="body_text_14">
+          0 ETH
+        </Typography>
+        <div
+          className={`mt-6 flex justify-center rounded-full py-3 ${
+            chain === "Ethereum"
+              ? "bg-playground-purple-50  dark:bg-playground-purple-300"
+              : "bg-folly-red-50 dark:bg-folly-red-300"
+          }`}
+        >
+          <Typography variant="button_text_s">{shortAddress}</Typography>
         </div>
         <button
           className="mt-4 w-full rounded-full border-2 border-dark-blue-950 py-2"
@@ -107,12 +117,12 @@ function ConnectorList({ chain }: ConnectorListProps) {
     <>
       <Image
         alt="wallet icon"
-        height={80}
-        src="/medias/wallet.svg"
-        width={105}
+        height={100}
+        src={CHAIN_WALLET_ILLUSTRATION_BY_NAME[chain]}
+        width={100}
       />
       <Typography
-        className="m-6"
+        className="py-6"
         component={RUIDialog.Title}
         variant="heading_light_xxs"
       >
@@ -176,18 +186,18 @@ export default function ConnectModal({
           <Image
             alt="wallet icon"
             height={80}
-            src="/medias/wallet.svg"
+            src="/medias/default_wallet.svg"
             width={105}
           />
           <Typography
-            className="m-6"
+            className="pb-4 pt-6"
             component={RUIDialog.Title}
             variant="heading_light_xxs"
           >
             Connect your wallets to login
           </Typography>
           <Typography
-            className="mx-7 mb-6 mt-4"
+            className="mx-7 mb-6"
             component={RUIDialog.Description}
             variant="body_text_14"
           >

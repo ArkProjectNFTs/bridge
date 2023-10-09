@@ -1,83 +1,14 @@
 import { XMarkIcon } from "@heroicons/react/24/solid";
-import { useAccount as useStarknetAccount } from "@starknet-react/core";
 import { Button, Drawer, IconButton, Modal, Typography } from "design-system";
 import Image from "next/image";
 import { redirect } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
-import { useAccount as useEthereumAccount } from "wagmi";
+import { useEffect, useState } from "react";
 
 import useCurrentChain from "~/app/_hooks/useCurrentChain";
-import { useIsSSR } from "~/app/_hooks/useIsSSR";
 
-import {
-  CHAIN_LOGOS_BY_NAME,
-  CONNECTOR_LABELS_BY_ID,
-  WALLET_LOGOS_BY_ID,
-} from "../../../_lib/utils/connectors";
-import { type Chain } from "../../../_types";
 import useNftSelection from "../_hooks/useNftSelection";
 import useTransferNftsFromChain from "../_hooks/useTransferNfts";
-import TargetChainButton from "./TargetChainButton";
-
-interface ChainTransferSummaryProps {
-  chain: Chain;
-  connectorId?: string;
-  shortAddress: string;
-  targetChain: Chain;
-}
-
-function ChainTransferSummary({
-  chain,
-  connectorId,
-  shortAddress,
-  targetChain,
-}: ChainTransferSummaryProps) {
-  const isTargetChain = chain === targetChain;
-  const isSSR = useIsSSR();
-
-  return (
-    <div
-      className={`flex w-full justify-between gap-3 rounded-2xl bg-neutral-50 px-3 dark:bg-[#0e2230] ${
-        isTargetChain ? "pb-3 pt-7" : "pb-7 pt-3"
-      }`}
-    >
-      <div className="flex items-center gap-3">
-        <Image
-          alt={`${chain} logo`}
-          height={42}
-          src={CHAIN_LOGOS_BY_NAME[chain]}
-          width={42}
-        />
-        <div>
-          <span className="rounded-md bg-dark-blue-100 p-1 text-xs font-semibold text-dark-blue-700 dark:bg-dark-blue-300 dark:text-[#0e2230]">
-            {isTargetChain ? "To" : "From"}
-          </span>
-          <Typography component="div" variant="body_text_14">
-            {chain}
-          </Typography>
-        </div>
-      </div>
-      {!isSSR && connectorId !== undefined && (
-        <div className="flex items-center gap-3">
-          <Image
-            alt={`${CONNECTOR_LABELS_BY_ID[connectorId] ?? ""} logo`}
-            height={42}
-            src={WALLET_LOGOS_BY_ID[connectorId] ?? ""}
-            width={42}
-          />
-          <div>
-            <span className="rounded-md bg-dark-blue-100 p-1 text-xs font-semibold text-dark-blue-700 dark:bg-dark-blue-300 dark:text-[#0e2230]">
-              Wallet
-            </span>
-            <Typography component="div" variant="body_text_14">
-              {shortAddress}
-            </Typography>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
+import WalletsTransferSummary from "./WalletsTransferSummary";
 
 function TransferAction() {
   const { sourceChain, targetChain } = useCurrentChain();
@@ -161,32 +92,8 @@ function TransferAction() {
 }
 
 function TransferSummary() {
-  const { address: ethereumAddress, connector: ethereumConnector } =
-    useEthereumAccount();
-  const { address: starknetAddress, connector: starknetConnector } =
-    useStarknetAccount();
-
-  const { targetChain } = useCurrentChain();
-
   // TODO @YohanTz: Support both sides
   const { deselectNft, selectedNfts } = useNftSelection();
-
-  // TODO @YohanTz: Hook wrapper around wagmi and starknet-react
-  const shortEthereumAddress = useMemo(
-    () =>
-      ethereumAddress
-        ? `${ethereumAddress.slice(0, 6)}...${ethereumAddress.slice(-4)}`
-        : "",
-    [ethereumAddress]
-  );
-
-  const shortStarknetAddress = useMemo(
-    () =>
-      starknetAddress
-        ? `${starknetAddress.slice(0, 6)}...${starknetAddress.slice(-4)}`
-        : "",
-    [starknetAddress]
-  );
 
   return (
     <>
@@ -197,34 +104,8 @@ function TransferSummary() {
       >
         Your assets to transfer
       </Typography>
-      <Typography
-        className="mt-4 dark:text-dark-blue-300"
-        component="p"
-        variant="body_text_14"
-      >
-        You need to confirm the transaction in your wallet to start the
-        migration.
-      </Typography>
-      <div
-        className={`mt-8 flex w-full gap-1.5 ${
-          targetChain === "Ethereum" ? "flex-col-reverse" : "flex-col"
-        }`}
-      >
-        <ChainTransferSummary
-          chain="Ethereum"
-          connectorId={ethereumConnector?.id}
-          shortAddress={shortEthereumAddress}
-          targetChain={targetChain}
-        />
-        <TargetChainButton orientation="vertical" />
-        <ChainTransferSummary
-          chain="Starknet"
-          // eslint-disable-next-line @typescript-eslint/unbound-method
-          connectorId={starknetConnector?.id}
-          shortAddress={shortStarknetAddress}
-          targetChain={targetChain}
-        />
-      </div>
+
+      <WalletsTransferSummary />
 
       {selectedNfts.length > 0 ? (
         <Typography className="mt-8 w-full" variant="body_text_14">
@@ -238,7 +119,7 @@ function TransferSummary() {
         >
           No Nfts selected yet...
           <br />
-          Select a collection to start
+          Select a collection to start.
         </Typography>
       )}
 

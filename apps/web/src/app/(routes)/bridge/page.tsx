@@ -4,7 +4,7 @@ import { Typography } from "design-system";
 
 import MainPageContainer from "../../_components/MainPageContainer";
 import useCurrentChain from "../../_hooks/useCurrentChain";
-import NftTransferDrawer from "./_components/NftTransferSummary";
+import NftTransferSummary from "./_components/NftTransferSummary";
 import TargetChainSwitch from "./_components/TargetChainSwitch";
 import TokenList from "./_components/TokenList";
 
@@ -30,7 +30,7 @@ export default function Page() {
         <TokenList />
       </MainPageContainer>
 
-      <NftTransferDrawer />
+      <NftTransferSummary />
     </div>
   );
 }

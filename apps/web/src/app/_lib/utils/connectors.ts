@@ -47,6 +47,11 @@ export const CHAIN_LOGOS_BY_NAME: Record<Chain, string> = {
   Starknet: "/logos/starknet.svg",
 };
 
+export const CHAIN_WALLET_ILLUSTRATION_BY_NAME: Record<Chain, string> = {
+  Ethereum: "/medias/ethereum_wallet.png",
+  Starknet: "/medias/starknet_wallet.png",
+};
+
 // TODO @YohanTz: An injected connector may not be Metamask
 export const CONNECTOR_LABELS_BY_ID: Record<string, string> = {
   argentX: "Argent X",
