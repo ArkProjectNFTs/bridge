@@ -10,16 +10,9 @@ export default function TargetChainButton() {
     <div className="relative">
       {!isSSR && (
         <button
-          className="text-whiterder-[#0e2230] absolute right-1/2 top-1/2 flex h-11 w-11 -translate-y-1/2 translate-x-1/2 items-center justify-center rounded-full border-4 border-white bg-primary-source dark:border-[#0e2230]"
+          className="absolute right-1/2 top-1/2 flex h-11 w-11 -translate-y-1/2 translate-x-1/2 items-center justify-center rounded-full border-4 border-[#F7FBFA] bg-primary-source dark:border-[#0e2230]"
           onClick={toggle}
         >
-          {/* <Image
-          alt="Change bridge target icon"
-          height={26}
-          src="/icons/arrows.svg"
-          width={26}
-        /> */}
-
           <svg
             className="stroke-white dark:stroke-[#0e2230]"
             fill="none"

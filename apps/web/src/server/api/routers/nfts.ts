@@ -27,82 +27,46 @@ const EthereumAddress = z.object({
 });
 
 export const nftsRouter = createTRPCRouter({
-  getL1NftsByCollection: publicProcedure.input(EthereumAddress).query(({}) => {
-    console.log("TEST");
-    const rawNfts = [
-      {
-        collectionContractAddress: "0xtest",
-        collectionName: "TEST COLLECTION NAME",
-        id: "1223",
-        image: "random",
-        title: "TEST TITLE",
-        tokenId: "1",
-      },
-      {
-        collectionContractAddress: "0xtest",
-        collectionName: "TEST COLLECTION NAME",
-        id: "12233",
-        image: "random2",
-        title: "TEST TITLE2",
-        tokenId: "12",
-      },
-    ];
+  getL1NftsByCollection: publicProcedure
+    .input(EthereumAddress)
+    .query(async ({ input }) => {
+      const { address } = input;
 
-    const nftsByCollection = rawNfts.reduce<Record<string, Array<Nft>>>(
-      (acc, nft) => {
-        if (acc[nft.collectionName] === undefined) {
-          acc[nft.collectionName] = [];
-        }
+      const { ownedNfts } = await alchemy.nft.getNftsForOwner(
+        address.toLowerCase()
+      );
 
-        acc[nft.collectionName]?.push(nft);
-        return acc;
-      },
-      {}
-    );
+      const rawNfts = ownedNfts
+        .filter(
+          (nft) => nft.tokenType === "ERC721" || nft.tokenType === "ERC1155"
+        )
+        .map((nft) => ({
+          collectionContractAddress: nft.contract.address,
+          collectionName:
+            nft.contract.openSea?.collectionName ??
+            nft.contract.name ??
+            "Unknown",
+          id: `${nft.contract.address}-${nft.tokenId}`,
+          // TODO @YohanTz: Support videos
+          image: nft.media[0]?.thumbnail ?? undefined,
+          title: nft.title,
+          tokenId: nft.tokenId,
+        }));
 
-    return { byCollection: nftsByCollection, raw: rawNfts };
-  }),
+      const nftsByCollection = rawNfts.reduce<Record<string, Array<Nft>>>(
+        (acc, nft) => {
+          if (acc[nft.collectionName] === undefined) {
+            acc[nft.collectionName] = [];
+          }
 
-  // getL1NftsByCollection: publicProcedure
-  //   .input(EthereumAddress)
-  //   .query(async ({ input }) => {
-  //     const { address } = input;
+          acc[nft.collectionName]?.push(nft);
+          return acc;
+        },
+        {}
+      );
 
-  //     const { ownedNfts } = await alchemy.nft.getNftsForOwner(
-  //       address.toLowerCase()
-  //     );
-
-  //     const rawNfts = ownedNfts
-  //       .filter(
-  //         (nft) => nft.tokenType === "ERC721" || nft.tokenType === "ERC1155"
-  //       )
-  //       .map((nft) => ({
-  //         collectionContractAddress: nft.contract.address,
-  //         collectionName:
-  //           nft.contract.openSea?.collectionName ??
-  //           nft.contract.name ??
-  //           "Unknown",
-  //         id: `${nft.contract.address}-${nft.tokenId}`,
-  //         // TODO @YohanTz: Support videos
-  //         image: nft.media[0]?.thumbnail ?? undefined,
-  //         title: nft.title,
-  //         tokenId: nft.tokenId,
-  //       }));
-
-  //     const nftsByCollection = rawNfts.reduce<Record<string, Array<Nft>>>(
-  //       (acc, nft) => {
-  //         if (acc[nft.collectionName] === undefined) {
-  //           acc[nft.collectionName] = [];
-  //         }
-
-  //         acc[nft.collectionName]?.push(nft);
-  //         return acc;
-  //       },
-  //       {}
-  //     );
-
-  //     return { byCollection: nftsByCollection, raw: rawNfts };
-  //   }),
+      return { byCollection: nftsByCollection, raw: rawNfts };
+    }),
 
   getL2NftsByCollection: publicProcedure
     .input(z.object({ address: z.string() }))
