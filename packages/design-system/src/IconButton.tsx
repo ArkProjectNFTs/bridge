@@ -9,11 +9,6 @@ interface IconButtonProps {
 export function IconButton({ className, icon, onClick }: IconButtonProps) {
   return (
     <button
-      //
-      //
-      // ADD TRANSITIONS !!!
-      //
-      //
       className={`flex h-8 w-8 items-center justify-center rounded-full border-2 border-asteroid-grey-600 bg-transparent text-asteroid-grey-600 transition-[border_color]
       hover:border-asteroid-grey-800 hover:text-asteroid-grey-800 
       dark:border-space-blue-400 dark:text-space-blue-400
