@@ -73,7 +73,7 @@ function RootLayout({ children }: { children: React.ReactNode }) {
       suppressHydrationWarning
     >
       <body
-        className={`min-h-screen bg-[#F7FBFA] text-night-blue-source dark:bg-[#0e2230] dark:text-white ${targetChain}`}
+        className={`min-h-screen bg-[#F7FBFA] text-night-blue-source dark:bg-galaxy-blue  dark:text-white ${targetChain}`}
       >
         <Providers>
           <Header />

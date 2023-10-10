@@ -58,7 +58,7 @@ export default function BrigetCountIndicator() {
 
       {!isSSR && selectedNftIds.length > 0 && pathname === "/bridge" && (
         <Typography
-          className="absolute -right-2 top-0 min-w-[1.5rem] rounded-full border-2 border-white bg-primary-source px-1.5 py-0.5 text-center text-white dark:border-[#0e2230]"
+          className="absolute -right-2 top-0 min-w-[1.5rem] rounded-full border-2 border-white bg-primary-source px-1.5 py-0.5 text-center text-white dark:border-galaxy-blue"
           variant="body_text_12"
         >
           {selectedNftIds.length}

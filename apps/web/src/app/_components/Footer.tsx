@@ -12,9 +12,9 @@ export default function Footer() {
         width={230}
       />
       <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:gap-8">
-        <Typography variant="button_text_l">Terms of use</Typography>
+        {/* <Typography variant="button_text_l">Terms of use</Typography>
         <Typography variant="button_text_l">FAQ</Typography>
-        <Typography variant="button_text_l">Documentation</Typography>
+        <Typography variant="button_text_l">Documentation</Typography> */}
         <Typography variant="button_text_l">© 2023 Screenshot Labs</Typography>
       </div>
     </footer>

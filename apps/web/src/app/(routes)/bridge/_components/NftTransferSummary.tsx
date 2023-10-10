@@ -38,16 +38,13 @@ function TransferAction() {
       >
         Gas fees are free, handed by Everai!
       </Typography>
-      <button
-        className="mt-8 w-full rounded-full bg-dark-blue-950 p-3 text-sm text-white dark:bg-dark-blue-700"
-        onClick={() => depositTokens()}
-      >
+      <Button className="mt-8" onClick={() => depositTokens()} size="small">
         <Typography variant="button_text_s">
           {isDepositLoading
             ? "Approval in Progress..."
             : `Confirm transfer to ${targetChain}`}
         </Typography>
-      </button>
+      </Button>
       {isDepositLoading && (
         <Image
           alt="Bridge loading animation"
@@ -71,21 +68,23 @@ function TransferAction() {
           migration. Each collection will require a signature via your wallet.
         </Typography>
       )}
-      <button
-        className={`mt-8 w-full rounded-full p-3 text-sm text-white ${
+      <Button
+        className={`mt-8 ${
           numberOfSelectedNfts === 0
             ? "cursor-no-drop bg-[#1c2f55] opacity-30 dark:bg-dark-blue-900"
             : "bg-dark-blue-900 dark:bg-dark-blue-700"
         }`}
-        disabled={numberOfSelectedNfts === 0}
+        // disabled={numberOfSelectedNfts === 0}
+        color="default"
         onClick={() => numberOfSelectedNfts > 0 && approveForAll()}
+        size="small"
       >
         <Typography variant="button_text_s">
           {numberOfSelectedNfts === 0
             ? `Confirm transfer to ${targetChain}`
             : "Approve the selected Nfts"}
         </Typography>
-      </button>
+      </Button>
       {isApproveLoading && "Loading..."}
     </>
   );
@@ -174,9 +173,22 @@ function TransferSummary() {
                 </div>
                 <IconButton
                   icon={
-                    <XMarkIcon className="h-5 w-5 text-dark-blue-700 dark:text-dark-blue-400" />
+                    <svg
+                      fill="none"
+                      height="21"
+                      viewBox="0 0 21 21"
+                      width="21"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M5.0531 15.1982L10.0531 10.1982M10.0531 10.1982L15.0531 5.19824M10.0531 10.1982L5.0531 5.19824M10.0531 10.1982L15.0531 15.1982"
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                      />
+                    </svg>
                   }
-                  className="border-2 border-dark-blue-700 bg-transparent dark:border-dark-blue-400"
                   onClick={() => deselectNft(selectedNft?.id ?? "")}
                 />
               </div>
@@ -221,9 +233,10 @@ export default function TransferSummaryContainer() {
                   {numberOfSelectedNfts}{" "}
                   {numberOfSelectedNfts > 1 ? "Nfts" : "Nft"} selected
                 </Typography>
-                <Button onClick={() => setShowMobileSummary(true)} variant="s">
+
+                {/* <Button onClick={() => setShowMobileSummary(true)} variant="s">
                   Continue
-                </Button>
+                </Button> */}
               </div>
             </>
           )}

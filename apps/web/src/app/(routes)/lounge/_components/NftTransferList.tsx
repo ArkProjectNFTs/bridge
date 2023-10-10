@@ -275,7 +275,9 @@ export default function NftTransferList() {
                           {bridgeRequest.statusTimestamp}
                         </Typography>
                       </div>
-                      <Button variant="s">Stop transfer</Button>
+                      {/* <Button color="default" size="large">
+                        Stop transfer
+                      </Button> */}
                     </div>
                   </td>
                   <td className="bg-white pb-4 pr-6 text-right group-first:rounded-se-3xl group-first:pt-6 group-last:rounded-ee-3xl">

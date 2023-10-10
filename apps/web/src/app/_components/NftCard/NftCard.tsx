@@ -44,11 +44,13 @@ export default function NftCard({
             </div>
           ) : (
             <button
-              className={`h-full w-full overflow-hidden rounded-2xl border bg-white p-3 dark:bg-dark-blue-950 ${
+              className={`h-full w-full overflow-hidden rounded-2xl border bg-white p-3 outline outline-1 transition-[outline_border] dark:bg-dark-blue-950 ${
                 isSelected
-                  ? "border-primary-source outline outline-1 outline-primary-source"
-                  : "border-neutral-300 dark:border-dark-blue-600"
-              }`}
+                  ? "border-primary-source outline-primary-source"
+                  : "border-neutral-300 outline-transparent dark:border-dark-blue-600"
+              }
+              hover:border-primary-source hover:outline-primary-source
+              dark:hover:border-primary-source dark:hover:outline-primary-source`}
               onClick={onClick}
             >
               {children}

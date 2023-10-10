@@ -1,4 +1,4 @@
-import { Typography } from "design-system";
+import { Button, Typography } from "design-system";
 
 import NftsEmptyState from "~/app/_components/NftsEmptyState";
 import NftsLoadingState from "~/app/_components/NftsLoadingState";
@@ -25,7 +25,7 @@ function CollectionGrid({ selectCollection }: CollectionGridProps) {
   }
 
   return (
-    <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 xl:grid-cols-5">
+    <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-5">
       {Object.entries(nfts.byCollection).map(
         ([collectionName, collectionNfts]) => {
           return (
@@ -107,23 +107,20 @@ function CollectionTokenList({
           </Typography>
           <Typography
             className="shrink-0 rounded-full bg-primary-source px-2 py-1.5 text-white"
-            variant="body_text_bold_12"
+            variant="body_text_12"
           >
             {selectedCollection.length}
             {selectedCollection.length > 1 ? " Nfts" : " Nft"}
           </Typography>
         </div>
-        <button
-          className="rounded-full bg-dark-blue-950 px-3.5 py-2 font-medium text-white"
-          onClick={toggleSelectAll}
-        >
+        <Button color="default" onClick={toggleSelectAll} size="small">
           <Typography variant="button_text_s">
             {allCollectionSelected ? "Deselect all" : "Select all"}
           </Typography>
-        </button>
+        </Button>
       </div>
 
-      <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 xl:grid-cols-5">
+      <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-5">
         {selectedCollection.map((nft) => {
           return (
             <NftCard

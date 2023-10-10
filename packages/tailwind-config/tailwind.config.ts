@@ -129,6 +129,9 @@ export default {
         "asteroid-grey-700": "#4d6073",
         "asteroid-grey-800": "#374756",
         "asteroid-grey-900": "#242e37",
+
+        // galaxy-blue
+        "galaxy-blue": "#0e2230",
       },
       fontFamily: {
         "styrene-a": ["var(--font-styrene-a)"],

@@ -12,7 +12,7 @@ export default function TargetChainSwitch() {
   return (
     <div className=" my-8 inline-flex gap-0.5">
       <div
-        className={`flex w-40 items-center gap-2 rounded-l-2xl bg-white py-4 pl-3 pr-8 dark:bg-space-blue-800`}
+        className={`flex w-40 items-center gap-2 rounded-l-2xl bg-white py-4 pl-4 pr-8 dark:bg-space-blue-800`}
       >
         <Image
           alt={`${sourceChain} logo`}
@@ -35,7 +35,7 @@ export default function TargetChainSwitch() {
 
       <TargetChainButton />
 
-      <div className="flex w-40 items-center gap-2 rounded-r-2xl bg-white py-4 pl-8 pr-3 dark:bg-space-blue-800">
+      <div className="flex w-40 items-center gap-2 rounded-r-2xl bg-white py-4 pl-8 pr-4 dark:bg-space-blue-800">
         <div className="flex flex-col items-start text-left">
           <Typography
             className="rounded bg-dark-blue-100 p-1 dark:bg-space-blue-300 dark:text-space-blue-900"

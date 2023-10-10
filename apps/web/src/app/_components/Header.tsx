@@ -62,7 +62,7 @@ export default function Header() {
   }
 
   return (
-    <header className="fixed z-20 flex h-23 w-full items-center  justify-between bg-white p-6 dark:bg-[#0e2230]">
+    <header className="fixed z-20 flex h-23 w-full items-center  justify-between bg-white p-6 dark:bg-galaxy-blue">
       <Link href="/">
         <Typography variant="logo">starklane</Typography>
       </Link>

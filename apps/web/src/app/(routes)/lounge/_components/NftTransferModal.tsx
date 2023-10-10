@@ -50,7 +50,7 @@ export default function NftTransferModal({
           </div>
         </div>
         <div className="flex items-center justify-between rounded-md bg-[#F7FBFA] px-4 py-3 dark:bg-dark-blue-900">
-          {/* <div className="flex items-center justify-between rounded-md bg-[#F7FBFA] px-4 py-3 dark:bg-[#0e2230]"> */}
+          {/* <div className="flex items-center justify-between rounded-md bg-[#F7FBFA] px-4 py-3 dark:bg-galaxy-blue"> */}
           <Image
             alt={`${CHAIN_LOGOS_BY_NAME[sourceChain]} logo`}
             height={52}
@@ -96,7 +96,7 @@ export default function NftTransferModal({
           <Typography component="p" variant="body_text_14">
             Note that it will not cancel the gas fee.
           </Typography>
-          <Button variant="s">Stop transfer</Button>
+          {/* <Button variant="s">Stop transfer</Button> */}
         </div>
       </div>
     </Modal>
