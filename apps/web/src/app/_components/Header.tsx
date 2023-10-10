@@ -48,7 +48,7 @@ export default function Header() {
       return;
     }
 
-    if (!isFullyConnected && !isConnecting) {
+    if (pathname !== "/" && !isFullyConnected && !isConnecting) {
       router.push("/");
     }
   }, [pathname, isFullyConnected, router, isConnecting]);

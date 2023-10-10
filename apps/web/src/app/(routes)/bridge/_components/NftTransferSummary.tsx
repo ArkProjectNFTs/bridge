@@ -44,7 +44,7 @@ function TransferAction() {
       >
         <Typography variant="button_text_s">
           {isDepositLoading
-            ? "Loading..."
+            ? "Approval in Progress..."
             : `Confirm transfer to ${targetChain}`}
         </Typography>
       </button>
@@ -112,15 +112,19 @@ function TransferSummary() {
           {selectedNfts.length} Nfts selected
         </Typography>
       ) : (
-        <Typography
-          className="mt-8 w-full"
-          component="p"
-          variant="body_text_14"
-        >
-          No Nfts selected yet...
-          <br />
-          Select a collection to start.
-        </Typography>
+        <div className="mt-8 flex w-full items-center gap-4">
+          <Image
+            alt="no nft selected nft image"
+            height={68}
+            src="/medias/nft_selection_empty.png"
+            width={62}
+          />
+          <Typography component="p" variant="body_text_14">
+            No Nfts selected yet...
+            <br />
+            Select a collection to start.
+          </Typography>
+        </div>
       )}
 
       {/* TODO @YohanTz: Always show scroll bar to indicate that there is more content to view (with Radix ScrollArea ?) */}
@@ -139,7 +143,23 @@ function TransferSummary() {
                       width={52}
                     />
                   ) : (
-                    <div className="flex h-[52px] w-[52px] items-center justify-center rounded bg-dark-blue-100 dark:bg-dark-blue-900"></div>
+                    // <div className="flex h-[52px] w-[52px] items-center justify-center rounded bg-dark-blue-100 dark:bg-dark-blue-900"></div>
+                    <>
+                      <Image
+                        alt="empty Nft image"
+                        className="hidden rounded dark:block"
+                        height={52}
+                        src={`/medias/dark/empty_nft.png`}
+                        width={52}
+                      />
+                      <Image
+                        alt="empty Nft image"
+                        className="rounded dark:hidden"
+                        height={52}
+                        src={`/medias/empty_nft.png`}
+                        width={52}
+                      />
+                    </>
                   )}
                   <div className="flex flex-col">
                     <Typography ellipsable variant="body_text_14">

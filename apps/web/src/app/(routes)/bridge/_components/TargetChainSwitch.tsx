@@ -7,55 +7,53 @@ import { CHAIN_LOGOS_BY_NAME } from "../../../_lib/utils/connectors";
 import TargetChainButton from "./TargetChainButton";
 
 export default function TargetChainSwitch() {
-  const { setTargetChain, targetChain } = useCurrentChain();
+  const { sourceChain, targetChain } = useCurrentChain();
 
   return (
     <div className=" my-8 inline-flex gap-0.5">
-      <button
-        className={`flex items-center gap-2 rounded-l-2xl bg-white py-4 pl-3 pr-8`}
-        onClick={() => setTargetChain("Ethereum")}
+      <div
+        className={`flex w-40 items-center gap-2 rounded-l-2xl bg-white py-4 pl-3 pr-8 dark:bg-space-blue-800`}
       >
         <Image
-          alt={`Ethereum logo`}
+          alt={`${sourceChain} logo`}
           height={32}
-          src={CHAIN_LOGOS_BY_NAME.Ethereum}
+          src={CHAIN_LOGOS_BY_NAME[sourceChain]}
           width={32}
         />
         <div className="flex flex-col items-start text-left">
           <Typography
-            className="rounded bg-dark-blue-100 p-1"
+            className="rounded bg-dark-blue-100 p-1 dark:bg-space-blue-300 dark:text-space-blue-900"
             component="p"
             variant="body_text_12"
           >
             From
           </Typography>
 
-          <Typography variant="button_text_s">Ethereum</Typography>
+          <Typography variant="button_text_s">{sourceChain}</Typography>
         </div>
-      </button>
+      </div>
+
       <TargetChainButton />
-      <button
-        className="flex items-center gap-2 rounded-r-2xl bg-white py-4 pl-8 pr-3"
-        onClick={() => setTargetChain("Starknet")}
-      >
+
+      <div className="flex w-40 items-center gap-2 rounded-r-2xl bg-white py-4 pl-8 pr-3 dark:bg-space-blue-800">
         <div className="flex flex-col items-start text-left">
           <Typography
-            className="rounded bg-dark-blue-100 p-1"
+            className="rounded bg-dark-blue-100 p-1 dark:bg-space-blue-300 dark:text-space-blue-900"
             component="p"
             variant="body_text_12"
           >
             To
           </Typography>
-          <Typography variant="button_text_s">Starknet</Typography>
+          <Typography variant="button_text_s">{targetChain}</Typography>
         </div>
 
         <Image
-          alt={`Starknet logo`}
+          alt={`${targetChain} logo`}
           height={32}
-          src={CHAIN_LOGOS_BY_NAME.Starknet}
+          src={CHAIN_LOGOS_BY_NAME[targetChain]}
           width={32}
         />
-      </button>
+      </div>
     </div>
   );
 }

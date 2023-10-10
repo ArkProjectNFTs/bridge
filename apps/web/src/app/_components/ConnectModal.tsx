@@ -1,9 +1,12 @@
 import * as RUIDialog from "@radix-ui/react-dialog";
-// import { useAccount as useStarknetAccount } from "@starknet-react/core";
+import { useBalance as useStarknetBalance } from "@starknet-react/core";
 import { Dialog, Typography } from "design-system";
 import Image from "next/image";
 import { useState } from "react";
-import { useAccount as useEthereumAccount } from "wagmi";
+import {
+  useAccount as useEthereumAccount,
+  useBalance as useEthereumBalance,
+} from "wagmi";
 
 import useAccountFromChain from "../_hooks/useAccountFromChain";
 import useConnectFromChain from "../_hooks/useConnectFromChain";
@@ -73,9 +76,15 @@ interface ConnectorListProps {
 }
 
 function ConnectorList({ chain }: ConnectorListProps) {
-  const { isConnected, shortAddress } = useAccountFromChain(chain);
+  const { address, isConnected, shortAddress } = useAccountFromChain(chain);
   const { connectors } = useConnectFromChain(chain);
   const { disconnect } = useDisconnectFromChain(chain);
+
+  const { data: ethEthereumBalance } = useEthereumBalance({ address });
+  const { data: ethStarknetBalance } = useStarknetBalance({ address });
+
+  const ethBalance =
+    chain === "Ethereum" ? ethEthereumBalance : ethStarknetBalance;
 
   return isConnected ? (
     <>
@@ -94,7 +103,9 @@ function ConnectorList({ chain }: ConnectorListProps) {
           {chain} Wallet
         </Typography>
         <Typography className="mb-6 mt-2" component="p" variant="body_text_14">
-          0 ETH
+          {ethBalance?.formatted
+            ? `${parseFloat(ethBalance.formatted).toFixed(4)} ETH`
+            : null}
         </Typography>
         <div
           className={`mt-6 flex justify-center rounded-full py-3 ${

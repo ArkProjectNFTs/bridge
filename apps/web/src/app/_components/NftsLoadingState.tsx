@@ -1,36 +1,36 @@
 import Image from "next/image";
 
-interface NftsEmptyStateProps {
+interface NftsLoadingStateProps {
   className?: string;
 }
 
-export default function NftsEmptyState({
+export default function NftsLoadingState({
   className = "",
-}: NftsEmptyStateProps) {
+}: NftsLoadingStateProps) {
   return (
     <div className={`grid grid-cols-2 gap-6 sm:grid-cols-5 ${className}`}>
-      {[1, 2, 3, 4, 5].map((emptyCardNumber) => {
+      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((lodingCardNumber) => {
         return (
           <>
             <Image
-              alt={`empty card ${emptyCardNumber}`}
+              alt={`loadingcard ${lodingCardNumber}`}
               className="hidden h-auto w-full dark:block dark:last:hidden sm:dark:last:block"
               height={208}
-              key={`dark-${emptyCardNumber}`}
-              src={`/medias/dark/empty_card_${emptyCardNumber}.png`}
+              key={`dark-${lodingCardNumber}`}
+              src={`/medias/dark/loading_card.png`}
               width={182}
             />
           </>
         );
       })}
-      {[1, 2, 3, 4, 5].map((emptyCardNumber) => {
+      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((loadingCardNumber) => {
         return (
           <Image
-            alt={`empty card ${emptyCardNumber}`}
+            alt={`loading card ${loadingCardNumber}`}
             className="block h-auto w-full last:hidden dark:hidden sm:last:block sm:dark:last:hidden"
             height={208}
-            key={emptyCardNumber}
-            src={`/medias/empty_card_${emptyCardNumber}.png`}
+            key={loadingCardNumber}
+            src={`/medias/loading_card.png`}
             width={182}
           />
         );

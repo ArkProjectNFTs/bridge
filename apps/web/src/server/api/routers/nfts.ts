@@ -45,7 +45,7 @@ export const nftsRouter = createTRPCRouter({
           collectionName:
             nft.contract.openSea?.collectionName ??
             nft.contract.name ??
-            "Unknown",
+            "No metadata",
           id: `${nft.contract.address}-${nft.tokenId}`,
           // TODO @YohanTz: Support videos
           image: nft.media[0]?.thumbnail ?? undefined,
@@ -100,7 +100,7 @@ export const nftsRouter = createTRPCRouter({
       const rawNfts = ownedNfts.result.map((ownedNft) => {
         return {
           collectionContractAddress: ownedNft.token_address,
-          collectionName: "NONE",
+          collectionName: "No metadata",
           id: `${ownedNft.token_address}-${ownedNft.token_id}`,
           image: undefined,
           title: "NO TITLE",

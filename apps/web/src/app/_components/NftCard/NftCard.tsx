@@ -1,13 +1,12 @@
 import { Typography } from "design-system";
-import Image from "next/image";
 
-import { CHAIN_LOGOS_BY_NAME } from "../../_lib/utils/connectors";
 import { type Chain } from "../../_types";
 import ConditionalWrapper from "../ConditionalWrapper";
+import NftCardImage from "./NftCardImage";
 import NftCardStackBackground from "./NftCardStackBackground";
 
 type NftCardProps = {
-  chain: Chain;
+  chain?: Chain;
   image?: string;
   isSelected: boolean;
   onClick?: () => void;
@@ -57,29 +56,7 @@ export default function NftCard({
           )
         }
       >
-        <div className="relative">
-          {image ? (
-            <Image
-              alt={title}
-              className="aspect-square h-full w-full rounded-lg object-cover"
-              height={300}
-              // TODO @YohanTz: Handle no image case
-              src={image}
-              width={300}
-            />
-          ) : (
-            <div className="flex aspect-square h-full w-full items-center justify-center rounded-lg bg-dark-blue-100 dark:bg-dark-blue-900">
-              <Typography variant="body_text_18">No metadata</Typography>
-            </div>
-          )}
-          <Image
-            alt={`${chain} logo`}
-            className="absolute right-2 top-2"
-            height={32}
-            src={CHAIN_LOGOS_BY_NAME[chain]}
-            width={32}
-          />
-        </div>
+        <NftCardImage chain={chain} imageUrl={image} />
         <div className="mt-3 text-left">
           <div className="flex items-center justify-between">
             <Typography

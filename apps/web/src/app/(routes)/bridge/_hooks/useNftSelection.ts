@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocalStorage } from "usehooks-ts";
 
 import useAccountFromChain from "~/app/_hooks/useAccountFromChain";
@@ -30,13 +30,17 @@ export default function useNftSelection() {
     {
       address: address ?? "",
     },
-    { enabled: address !== undefined && sourceChain === "Ethereum" }
+    {
+      enabled: address !== undefined && sourceChain === "Ethereum",
+    }
   );
   const { data: l2Nfts } = api.nfts.getL2NftsByCollection.useQuery(
     {
       address: address ?? "",
     },
-    { enabled: address !== undefined && sourceChain === "Starknet" }
+    {
+      enabled: address !== undefined && sourceChain === "Starknet",
+    }
   );
 
   const nfts = sourceChain === "Ethereum" ? l1Nfts : l2Nfts;
@@ -69,6 +73,11 @@ export default function useNftSelection() {
 
   const allCollectionSelected =
     selectedCollection.length === selectedNftIds.length;
+
+  // @YohanTz: Refacto to remove the need of useEffect
+  useEffect(() => {
+    setSelectedCollectionName(null);
+  }, [sourceChain]);
 
   function deselectNft(nftId: string) {
     if (address === undefined || !selectedNftIds.includes(nftId)) {
