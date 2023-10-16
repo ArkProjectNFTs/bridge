@@ -1,6 +1,7 @@
 use anyhow::{anyhow, Result};
 use serde_json::{json, Value};
 use starknet::core::{types::FieldElement, types::*};
+use starknet::macros::selector;
 
 use crate::storage::{BridgeChain, CrossChainTx, CrossChainTxKind, Event, EventLabel, Request};
 
@@ -20,6 +21,10 @@ pub fn get_store_data(
     // keys[0] -> selector.
     // keys[1,2] -> req hash.
     // keys[3] -> timestamp.
+    if event.keys[0] == selector!("CollectionDeployedFromL1") {
+        return Ok((None, None, None));
+    }
+
     let hash = u256_to_hex(&event.keys[1..])?;
     let block_timestamp = event.keys[3];
     let request_header = event.data[0];

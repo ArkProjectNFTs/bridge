@@ -2,10 +2,15 @@ version: '3.1'
 
 services:
 
-  db:
+  starklane_db:
     # TODO: add volume for persistence when alpha is ready.
     container_name: starklane_db
     image: mongo
     restart: always
     ports:
       - 27017:27017
+    volumes:
+      - starklane_testnet:/data/db
+
+volumes:
+  starklane_testnet:

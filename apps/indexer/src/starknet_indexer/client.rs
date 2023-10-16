@@ -176,5 +176,6 @@ impl StarknetClient {
            calldata: vec![felt!("1"), felt!("0")],
        };
        self.client.invoke_tx(vec![call]).await;
+
     */
 }
