@@ -12,7 +12,6 @@ impl RequestStore for MongoStore {
     async fn reqs_by_wallet(&self, address: &str) -> Result<Vec<Request>> {
         let filter = doc! {
             "$or": [
-                {"from": address},
                 {"to": address},
             ]
         };
