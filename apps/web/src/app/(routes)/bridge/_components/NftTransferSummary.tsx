@@ -1,5 +1,11 @@
-import { XMarkIcon } from "@heroicons/react/24/solid";
-import { Button, Drawer, IconButton, Modal, Typography } from "design-system";
+import {
+  Button,
+  Drawer,
+  IconButton,
+  Modal,
+  Notification,
+  Typography,
+} from "design-system";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -31,13 +37,57 @@ function TransferAction() {
 
   return isApprovedForAll ? (
     <>
-      <Typography
-        className="mt-8 rounded-xl bg-[#60D2B34D] p-3 text-dark-blue-950"
-        component="p"
-        variant="body_text_14"
+      <Notification
+        icon={
+          <svg
+            className="shrink-0"
+            fill="none"
+            height="32"
+            viewBox="0 0 32 32"
+            width="32"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <mask id="path-1-inside-1_502_17917" fill="white">
+              <path
+                fillRule="evenodd"
+                clipRule="evenodd"
+                d="M28.5 13.3726V11.7351C28.5 10.346 27.7794 9.05644 26.5964 8.32845L24.9915 7.34082C23.8136 7.90428 23 9.1071 23 10.4999C23 12.4329 24.567 13.9999 26.5 13.9999C27.2436 13.9999 27.9331 13.768 28.5 13.3726Z"
+              />
+            </mask>
+            <path
+              fillRule="evenodd"
+              clipRule="evenodd"
+              d="M28.5 13.3726V11.7351C28.5 10.346 27.7794 9.05644 26.5964 8.32845L24.9915 7.34082C23.8136 7.90428 23 9.1071 23 10.4999C23 12.4329 24.567 13.9999 26.5 13.9999C27.2436 13.9999 27.9331 13.768 28.5 13.3726Z"
+              fill="#B4E1AC"
+            />
+            <path
+              d="M28.5 13.3726L29.0721 14.1928L29.5 13.8943V13.3726H28.5ZM26.5964 8.32845L26.0723 9.18011L26.5964 8.32845ZM24.9915 7.34082L25.5156 6.48916L25.0515 6.20358L24.56 6.43872L24.9915 7.34082ZM27.5 11.7351V13.3726H29.5V11.7351H27.5ZM26.0723 9.18011C26.9595 9.7261 27.5 10.6933 27.5 11.7351H29.5C29.5 9.99878 28.5992 8.38678 27.1205 7.47679L26.0723 9.18011ZM24.4674 8.19248L26.0723 9.18011L27.1205 7.47679L25.5156 6.48916L24.4674 8.19248ZM24 10.4999C24 9.50656 24.5793 8.64651 25.423 8.24292L24.56 6.43872C23.0479 7.16206 22 8.70765 22 10.4999H24ZM26.5 12.9999C25.1193 12.9999 24 11.8807 24 10.4999H22C22 12.9852 24.0147 14.9999 26.5 14.9999V12.9999ZM27.9279 12.5524C27.5234 12.8346 27.0325 12.9999 26.5 12.9999V14.9999C27.4548 14.9999 28.3428 14.7015 29.0721 14.1928L27.9279 12.5524Z"
+              fill="#0E2230"
+              mask="url(#path-1-inside-1_502_17917)"
+            />
+            <path
+              d="M9 5.5H14C16.4853 5.5 18.5 7.51472 18.5 10V28H4.5V10C4.5 7.51472 6.51472 5.5 9 5.5Z"
+              fill="#B4E1AC"
+              stroke="#0E2230"
+            />
+            <path
+              d="M7.5 10C7.5 9.17157 8.17157 8.5 9 8.5H14C14.8284 8.5 15.5 9.17157 15.5 10V13C15.5 13.8284 14.8284 14.5 14 14.5H9C8.17157 14.5 7.5 13.8284 7.5 13V10Z"
+              fill="#E3FADE"
+              stroke="#0E2230"
+            />
+            <path d="M1 28H22" stroke="#0E2230" strokeLinecap="round" />
+            <path
+              d="M22 6L27.5039 9.21059C27.8111 9.3898 28 9.7187 28 10.0744V21C28 22.1046 27.1046 23 26 23V23C24.8954 23 24 22.1046 24 21V17C24 15.8954 23.1046 15 22 15H19"
+              stroke="#0E2230"
+              strokeLinecap="round"
+            />
+          </svg>
+        }
+        className="mt-8"
+        variant="gas_fee"
       >
-        Gas fees are free, handed by Everai!
-      </Typography>
+        Gas fees are free, handed by Ark Project!
+      </Notification>
       <Button className="mt-8" onClick={() => depositTokens()} size="small">
         <Typography variant="button_text_s">
           {isDepositLoading
