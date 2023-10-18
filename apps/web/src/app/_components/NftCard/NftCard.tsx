@@ -29,7 +29,7 @@ export default function NftCard({
   title,
 }: NftCardProps) {
   return (
-    <div className="relative w-full">
+    <div className={`${onClick !== undefined ? "group" : ""} relative w-full`}>
       {cardType === "collection" && (
         <NftCardStackBackground isSelected={isSelected} />
       )}

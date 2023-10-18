@@ -1,8 +1,11 @@
 import * as RUIDialog from "@radix-ui/react-dialog";
-import { useBalance as useStarknetBalance } from "@starknet-react/core";
+import {
+  useAccount as useStarknetAccount,
+  useBalance as useStarknetBalance,
+} from "@starknet-react/core";
 import { Dialog, Typography } from "design-system";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   useAccount as useEthereumAccount,
   useBalance as useEthereumBalance,
@@ -184,11 +187,14 @@ export default function ConnectModal({
     },
   });
 
-  // useStarknetAccount({
-  //   onConnect() {
-  //     onWalletConnect();
-  //   },
-  // });
+  // TODO: Use onConnect like in the ethereum version
+  const { address } = useStarknetAccount();
+
+  useEffect(() => {
+    if (address !== undefined) {
+      onWalletConnect();
+    }
+  }, [address]);
 
   return (
     <Dialog isOpen={isOpen} onOpenChange={onOpenChange}>

@@ -108,6 +108,14 @@ export default function useTransferStarknetNfts() {
     selectedNfts[0] !== undefined
   ) {
     depositCallData = new CallData(bridgeContract?.abi);
+    console.table({
+      collection_l2: selectedNfts[0]?.collectionContractAddress ?? "",
+      owner_l1: ethereumAddress,
+      salt: Date.now(),
+      token_ids: selectedNfts.map((selectedNft) => selectedNft?.tokenId),
+      use_deposit_burn_auto: false,
+      use_withdraw_auto: true,
+    });
     depositCallData = depositCallData.compile("deposit_tokens", {
       collection_l2: selectedNfts[0]?.collectionContractAddress ?? "",
       owner_l1: ethereumAddress,

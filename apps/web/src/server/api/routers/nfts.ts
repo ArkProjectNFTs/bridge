@@ -87,24 +87,23 @@ export const nftsRouter = createTRPCRouter({
       );
 
       if (ownedNftsResponse.status !== 200) {
-        console.log(ownedNftsResponse.status);
         return { byCollection: {}, raw: [] };
       }
 
       const ownedNfts = (await ownedNftsResponse.json()) as {
         result: Array<{
-          token_address: string;
+          contract_address: string;
           token_id: string;
         }>;
       };
 
       const rawNfts = ownedNfts.result.map((ownedNft) => {
         return {
-          collectionContractAddress: ownedNft.token_address,
+          collectionContractAddress: ownedNft.contract_address,
           collectionName: "No metadata",
-          id: `${ownedNft.token_address}-${ownedNft.token_id}`,
+          id: `${ownedNft.contract_address}-${ownedNft.token_id}`,
           image: undefined,
-          title: "NO TITLE",
+          title: `#${ownedNft.token_id}`,
           tokenId: ownedNft.token_id,
         };
       });

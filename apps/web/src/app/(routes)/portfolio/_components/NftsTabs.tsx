@@ -6,6 +6,7 @@ import { Typography } from "design-system";
 import { useAccount as useEthereumAccount } from "wagmi";
 
 import NftCard from "~/app/_components/NftCard/NftCard";
+import NftsLoadingState from "~/app/_components/NftsLoadingState";
 import { api } from "~/utils/api";
 
 interface NftTabsTriggerProps {
@@ -58,7 +59,7 @@ export default function NftsTabs() {
   );
 
   if (l1Nfts === undefined || l2Nfts === undefined) {
-    return null;
+    return <NftsLoadingState className="mt-18" />;
   }
 
   return (

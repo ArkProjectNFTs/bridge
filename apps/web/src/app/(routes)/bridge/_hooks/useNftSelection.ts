@@ -163,7 +163,7 @@ export default function useNftSelection() {
     });
   }
 
-  function selectCollection(collectionName: string) {
+  function selectCollection(collectionName: null | string) {
     setSelectedCollectionName(collectionName);
   }
 

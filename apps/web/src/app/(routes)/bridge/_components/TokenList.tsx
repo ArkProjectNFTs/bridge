@@ -9,7 +9,7 @@ import NftCard from "../../../_components/NftCard/NftCard";
 import useNftSelection from "../_hooks/useNftSelection";
 
 interface CollectionGridProps {
-  selectCollection: (collectionName: string) => void;
+  selectCollection: (collectionName: null | string) => void;
 }
 
 function CollectionGrid({ selectCollection }: CollectionGridProps) {
@@ -59,7 +59,7 @@ function CollectionList({ selectCollection }: CollectionGridProps) {
           </Typography>
           {nfts === undefined ? null : (
             <Typography
-              className="rounded-full bg-primary-source px-2 py-1 text-white"
+              className="rounded-full bg-primary-source px-2.5 py-1 text-white"
               variant="button_text_s"
             >
               {Object.keys(nfts?.byCollection)?.length ?? 0}
@@ -81,6 +81,7 @@ function CollectionList({ selectCollection }: CollectionGridProps) {
 
 interface CollectionTokenListProps {
   allCollectionSelected: boolean;
+  selectCollection: (collectionName: null | string) => void;
   selectedCollection: Array<Nft>;
   selectedCollectionName: null | string;
   toggleNftSelection: (nftId: string) => void;
@@ -89,6 +90,7 @@ interface CollectionTokenListProps {
 
 function CollectionTokenList({
   allCollectionSelected,
+  selectCollection,
   selectedCollection,
   selectedCollectionName,
   toggleNftSelection,
@@ -100,6 +102,28 @@ function CollectionTokenList({
 
   return (
     <div>
+      {/* TODO @YohanTz: Refacto to be a variant in the Button component */}
+      <button
+        className="mb-10 flex h-12 items-center gap-1.5 rounded-full border-2 border-asteroid-grey-600 px-6 py-3 text-asteroid-grey-600 dark:border-space-blue-300 dark:text-space-blue-300"
+        onClick={() => selectCollection(null)}
+      >
+        {/* TODO @YohanTz: Export svg to icons file */}
+        <svg
+          fill="none"
+          height="24"
+          viewBox="0 0 24 24"
+          width="24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M20.25 12L12.7297 12C11.9013 12 11.2297 12.6716 11.2297 13.5L11.2297 16.4369C11.2297 17.0662 10.5013 17.4157 10.0104 17.0219L4.47931 12.585C4.10504 12.2848 4.10504 11.7152 4.47931 11.415L10.0104 6.97808C10.5013 6.58428 11.2297 6.93377 11.2297 7.56311L11.2297 9.375"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-width="1.5"
+          />
+        </svg>
+        <Typography variant="button_text_s">Back</Typography>
+      </button>
       <div className="mb-10 flex w-full flex-wrap justify-between gap-3.5">
         <div className="flex max-w-full items-center gap-3.5">
           <Typography ellipsable variant="heading_light_s">
@@ -160,6 +184,7 @@ export default function TokenList() {
       ) : (
         <CollectionTokenList
           allCollectionSelected={allCollectionSelected}
+          selectCollection={selectCollection}
           selectedCollection={selectedCollection}
           selectedCollectionName={selectedCollectionName}
           toggleNftSelection={toggleNftSelection}
