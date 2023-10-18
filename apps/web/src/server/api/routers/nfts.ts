@@ -93,17 +93,24 @@ export const nftsRouter = createTRPCRouter({
       const ownedNfts = (await ownedNftsResponse.json()) as {
         result: Array<{
           contract_address: string;
+          metadata?: { image: string; name: string };
           token_id: string;
         }>;
       };
 
       const rawNfts = ownedNfts.result.map((ownedNft) => {
+        // TODO @YohanTz: Handle images / videos properly
+
+        const regex = /\.mp4$/;
+        const imageURL = ownedNft.metadata?.image.replace(regex, ".jpg");
+
         return {
           collectionContractAddress: ownedNft.contract_address,
-          collectionName: "No metadata",
+          // TODO @YohanTz: Take collection name from api response
+          collectionName: "EveraiDuo",
           id: `${ownedNft.contract_address}-${ownedNft.token_id}`,
-          image: undefined,
-          title: `#${ownedNft.token_id}`,
+          image: imageURL,
+          title: ownedNft.metadata?.name ?? ownedNft.token_id,
           tokenId: ownedNft.token_id,
         };
       });

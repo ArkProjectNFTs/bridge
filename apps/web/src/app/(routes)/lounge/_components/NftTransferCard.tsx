@@ -15,6 +15,39 @@ interface NftTransferCard {
   statusTimestamp: number;
 }
 
+function utcUnixSecondsToIso8601(utcTs) {
+  const utcMs = utcTs * 1000;
+
+  const localDt = new Date();
+
+  // Get the local timezone offset in minutes and convert it to milliseconds.
+  const localOffset = localDt.getTimezoneOffset() * 60 * 1000;
+  // Calculate the local time.
+  const localTs = utcMs + localOffset;
+
+  const date = new Date(localTs);
+
+  // Get day, month, and year components from the Date object
+  const day = date.getDate();
+  const month = date.getMonth() + 1; // Months are zero-based, so add 1
+  const year = date.getFullYear();
+
+  // Get hours and minutes components from the Date object
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+
+  // Format day, month, hours, and minutes to have leading zeros if necessary
+  const formattedDay = day < 10 ? "0" + day : day;
+  const formattedMonth = month < 10 ? "0" + month : month;
+  const formattedHours = hours < 10 ? "0" + hours : hours;
+  const formattedMinutes = minutes < 10 ? "0" + minutes : minutes;
+
+  // Create the formatted date string in the format "dd/mm/yyyy HH:mm"
+  const formattedDateTime = `${formattedDay}/${formattedMonth}/${year} ${formattedHours}:${formattedMinutes}`;
+
+  return formattedDateTime;
+}
+
 export default function NftTransferCard({
   image,
   name,
@@ -22,6 +55,7 @@ export default function NftTransferCard({
   statusTimestamp,
 }: NftTransferCard) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const readableDate = utcUnixSecondsToIso8601(statusTimestamp);
 
   function handleOpenModal() {
     setIsModalOpen(true);
@@ -64,7 +98,7 @@ export default function NftTransferCard({
         >
           Arrival
         </Typography>
-        <Typography variant="button_text_s">{statusTimestamp}</Typography>
+        <Typography variant="button_text_s">{readableDate}</Typography>
 
         <Typography
           className="mt-2 underline"

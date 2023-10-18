@@ -23,7 +23,7 @@ export default function NftTransferList() {
       {
         address: address ?? "",
       },
-      { enabled: address !== undefined, refetchInterval: 15000 }
+      { enabled: address !== undefined, refetchInterval: 3000 }
     );
 
   if (bridgeRequestData === undefined) {
