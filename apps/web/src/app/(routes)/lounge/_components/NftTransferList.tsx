@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useState } from "react";
 
 import NftsEmptyState from "~/app/_components/NftsEmptyState";
+import NftsLoadingState from "~/app/_components/NftsLoadingState";
 import useAccountFromChain from "~/app/_hooks/useAccountFromChain";
 import useCurrentChain from "~/app/_hooks/useCurrentChain";
 import { api } from "~/utils/api";
@@ -26,7 +27,7 @@ export default function NftTransferList() {
     );
 
   if (bridgeRequestData === undefined) {
-    return null;
+    return <NftsLoadingState className="mt-9 sm:mt-23" />;
   }
 
   return bridgeRequestData.length === 0 ? (

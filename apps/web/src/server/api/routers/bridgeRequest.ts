@@ -41,7 +41,9 @@ export const bridgeRequestRouter = createTRPCRouter({
       const { address } = input;
 
       const bridgeRequestsResponse = await fetch(
-        `https://idx-testnet.starklane.io/requests/${address}`,
+        `${
+          process.env.NEXT_PUBLIC_STARKLANE_API_DOMAIN ?? ""
+        }/requests/${address}`,
         {
           headers: {
             "Content-Type": "application/json",

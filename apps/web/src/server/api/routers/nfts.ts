@@ -77,7 +77,7 @@ export const nftsRouter = createTRPCRouter({
       const ownedNftsResponse = await fetch(
         `${
           process.env.NEXT_PUBLIC_ARK_API_DOMAIN ?? ""
-        }/v1/owners/${validateAndParseAddress(address)}/nfts`,
+        }/v1/owners/${validateAndParseAddress(address)}/tokens`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -87,6 +87,7 @@ export const nftsRouter = createTRPCRouter({
       );
 
       if (ownedNftsResponse.status !== 200) {
+        console.log(ownedNftsResponse.status);
         return { byCollection: {}, raw: [] };
       }
 
