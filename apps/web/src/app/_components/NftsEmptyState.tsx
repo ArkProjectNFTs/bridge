@@ -8,7 +8,7 @@ export default function NftsEmptyState({
   className = "",
 }: NftsEmptyStateProps) {
   return (
-    <div className={`grid grid-cols-2 gap-6 sm:grid-cols-5 ${className}`}>
+    <div className={`grid grid-cols-2 gap-5 sm:grid-cols-5 ${className}`}>
       {[1, 2, 3, 4, 5].map((emptyCardNumber) => {
         return (
           <>

@@ -8,7 +8,7 @@ export default function NftsLoadingState({
   className = "",
 }: NftsLoadingStateProps) {
   return (
-    <div className={`grid grid-cols-2 gap-6 sm:grid-cols-5 ${className}`}>
+    <div className={`grid grid-cols-2 gap-5 sm:grid-cols-5 ${className}`}>
       {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((lodingCardNumber) => {
         return (
           <>
