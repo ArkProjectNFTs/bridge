@@ -75,17 +75,19 @@ export const nftsRouter = createTRPCRouter({
 
       try {
         // TODO @YohanTz: Type env object
-        const ownedNftsResponse = await fetch(
-          `${
-            process.env.NEXT_PUBLIC_ARK_API_DOMAIN ?? ""
-          }/v1/owners/${validateAndParseAddress(address)}/tokens`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              "X-API-KEY": "yW0akON1f55mOFwBPXPme4AFfLktbRiQ2GNdT1Mc",
-            },
-          }
-        );
+
+        const url = `${
+          process.env.NEXT_PUBLIC_ARK_API_DOMAIN ?? ""
+        }/v1/owners/${validateAndParseAddress(address)}/tokens`;
+
+        console.log("Fetching api: ", url);
+
+        const ownedNftsResponse = await fetch(url, {
+          headers: {
+            "Content-Type": "application/json",
+            "X-API-KEY": "yW0akON1f55mOFwBPXPme4AFfLktbRiQ2GNdT1Mc",
+          },
+        });
 
         console.log("Response status: ", ownedNftsResponse.status);
 
