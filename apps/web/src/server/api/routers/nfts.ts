@@ -73,20 +73,59 @@ export const nftsRouter = createTRPCRouter({
     .query(async ({ input }) => {
       const { address } = input;
 
-      // TODO @YohanTz: Type env object
-      const ownedNftsResponse = await fetch(
-        `${
-          process.env.NEXT_PUBLIC_ARK_API_DOMAIN ?? ""
-        }/v1/owners/${validateAndParseAddress(address)}/tokens`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            "X-API-KEY": "yW0akON1f55mOFwBPXPme4AFfLktbRiQ2GNdT1Mc",
-          },
-        }
-      );
+      try {
+        // TODO @YohanTz: Type env object
+        const ownedNftsResponse = await fetch(
+          `${
+            process.env.NEXT_PUBLIC_ARK_API_DOMAIN ?? ""
+          }/v1/owners/${validateAndParseAddress(address)}/tokens`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              "X-API-KEY": "yW0akON1f55mOFwBPXPme4AFfLktbRiQ2GNdT1Mc",
+            },
+          }
+        );
 
-      if (ownedNftsResponse.status !== 200) {
+        console.log("Response status: ", ownedNftsResponse.status);
+
+        if (ownedNftsResponse.status !== 200) {
+          return { byCollection: {}, raw: [] };
+        }
+
+        const ownedNfts = (await ownedNftsResponse.json()) as {
+          result: Array<{
+            contract_address: string;
+            token_id: string;
+          }>;
+        };
+
+        const rawNfts = ownedNfts.result.map((ownedNft) => {
+          return {
+            collectionContractAddress: ownedNft.contract_address,
+            collectionName: "No metadata",
+            id: `${ownedNft.contract_address}-${ownedNft.token_id}`,
+            image: undefined,
+            title: `#${ownedNft.token_id}`,
+            tokenId: ownedNft.token_id,
+          };
+        });
+
+        const nftsByCollection = rawNfts.reduce<Record<string, Array<Nft>>>(
+          (acc, nft) => {
+            if (acc[nft.collectionName] === undefined) {
+              acc[nft.collectionName] = [];
+            }
+
+            acc[nft.collectionName]?.push(nft);
+            return acc;
+          },
+          {}
+        );
+
+        return { byCollection: nftsByCollection, raw: rawNfts };
+      } catch (err) {
+        console.error("getL2NftsByCollection error: ", err);
         return { byCollection: {}, raw: [] };
       }
 
