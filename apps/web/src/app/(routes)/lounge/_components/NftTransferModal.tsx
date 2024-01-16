@@ -1,4 +1,4 @@
-import { Button, Modal, Typography } from "design-system";
+import { Modal, Typography } from "design-system";
 import Image from "next/image";
 
 import useCurrentChain from "~/app/_hooks/useCurrentChain";

@@ -15,7 +15,7 @@ interface NftTransferCard {
   statusTimestamp: number;
 }
 
-function utcUnixSecondsToIso8601(utcTs) {
+function utcUnixSecondsToIso8601(utcTs: number) {
   const utcMs = utcTs * 1000;
 
   const localDt = new Date();
@@ -37,10 +37,10 @@ function utcUnixSecondsToIso8601(utcTs) {
   const minutes = date.getMinutes();
 
   // Format day, month, hours, and minutes to have leading zeros if necessary
-  const formattedDay = day < 10 ? "0" + day : day;
-  const formattedMonth = month < 10 ? "0" + month : month;
-  const formattedHours = hours < 10 ? "0" + hours : hours;
-  const formattedMinutes = minutes < 10 ? "0" + minutes : minutes;
+  const formattedDay = day < 10 ? "0" + day.toString() : day;
+  const formattedMonth = month < 10 ? "0" + month.toString() : month;
+  const formattedHours = (hours < 10 ? "0" : "") + hours.toString();
+  const formattedMinutes = minutes < 10 ? "0" + String(minutes) : String(minutes);
 
   // Create the formatted date string in the format "dd/mm/yyyy HH:mm"
   const formattedDateTime = `${formattedDay}/${formattedMonth}/${year} ${formattedHours}:${formattedMinutes}`;

@@ -1,7 +1,7 @@
 "use client";
 
 import * as Toolbar from "@radix-ui/react-toolbar";
-import { Button, Typography } from "design-system";
+import { Typography } from "design-system";
 import Image from "next/image";
 import { useState } from "react";
 

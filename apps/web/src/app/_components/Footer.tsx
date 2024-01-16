@@ -1,5 +1,5 @@
-import { Typography } from "design-system";
-import Image from "next/image";
+// import { Typography } from "design-system";
+// import Image from "next/image";
 
 export default function Footer() {
   return (

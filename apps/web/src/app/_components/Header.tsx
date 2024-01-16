@@ -2,7 +2,7 @@
 
 import {
   useConnectors,
-  useAccount as useStarknetAccount,
+  // useAccount as useStarknetAccount,
 } from "@starknet-react/core";
 import { Typography } from "design-system";
 import Link from "next/link";
@@ -29,7 +29,7 @@ export default function Header() {
     isConnected: isEthereumConnected,
     isConnecting: isEthereumConnecting,
   } = useEthereumAccount();
-  const { isConnected: isStarknetConnected } = useStarknetAccount();
+  // const { isConnected: isStarknetConnected } = useStarknetAccount();
   const { isLoading: isStarknetLoading } = useConnectors();
 
   const router = useRouter();

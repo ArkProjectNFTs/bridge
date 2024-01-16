@@ -37,9 +37,11 @@ export const nftsRouter = createTRPCRouter({
       );
 
       const rawNfts = ownedNfts
-        .filter(
-          (nft) => nft.tokenType === "ERC721" || nft.tokenType === "ERC1155"
-        )
+        // .filter(
+        //   (nft) =>
+        //     nft.contract.tokenType === "ERC721" ||
+        //     nft.contract.tokenType === "ERC1155"
+        // )
         .map((nft) => ({
           collectionContractAddress: nft.contract.address,
           collectionName:
@@ -131,44 +133,44 @@ export const nftsRouter = createTRPCRouter({
         return { byCollection: {}, raw: [] };
       }
 
-      const ownedNfts = (await ownedNftsResponse.json()) as {
-        result: Array<{
-          contract_address: string;
-          metadata?: { image: string; name: string };
-          token_id: string;
-        }>;
-      };
+      // const ownedNfts = (await ownedNftsResponse.json()) as {
+      //   result: Array<{
+      //     contract_address: string;
+      //     metadata?: { image: string; name: string };
+      //     token_id: string;
+      //   }>;
+      // };
 
-      const rawNfts = ownedNfts.result.map((ownedNft) => {
-        // TODO @YohanTz: Handle images / videos properly
+      // const rawNfts = ownedNfts.result.map((ownedNft) => {
+      //   // TODO @YohanTz: Handle images / videos properly
 
-        const regex = /\.mp4$/;
-        const imageURL = ownedNft.metadata?.image.replace(regex, ".jpg");
+      //   const regex = /\.mp4$/;
+      //   const imageURL = ownedNft.metadata?.image.replace(regex, ".jpg");
 
-        return {
-          collectionContractAddress: ownedNft.contract_address,
-          // TODO @YohanTz: Take collection name from api response
-          collectionName: "EveraiDuo",
-          id: `${ownedNft.contract_address}-${ownedNft.token_id}`,
-          image: imageURL,
-          title: ownedNft.metadata?.name ?? ownedNft.token_id,
-          tokenId: ownedNft.token_id,
-        };
-      });
+      //   return {
+      //     collectionContractAddress: ownedNft.contract_address,
+      //     // TODO @YohanTz: Take collection name from api response
+      //     collectionName: "EveraiDuo",
+      //     id: `${ownedNft.contract_address}-${ownedNft.token_id}`,
+      //     image: imageURL,
+      //     title: ownedNft.metadata?.name ?? ownedNft.token_id,
+      //     tokenId: ownedNft.token_id,
+      //   };
+      // });
 
-      const nftsByCollection = rawNfts.reduce<Record<string, Array<Nft>>>(
-        (acc, nft) => {
-          if (acc[nft.collectionName] === undefined) {
-            acc[nft.collectionName] = [];
-          }
+      // const nftsByCollection = rawNfts.reduce<Record<string, Array<Nft>>>(
+      //   (acc, nft) => {
+      //     if (acc[nft.collectionName] === undefined) {
+      //       acc[nft.collectionName] = [];
+      //     }
 
-          acc[nft.collectionName]?.push(nft);
-          return acc;
-        },
-        {}
-      );
+      //     acc[nft.collectionName]?.push(nft);
+      //     return acc;
+      //   },
+      //   {}
+      // );
 
-      return { byCollection: nftsByCollection, raw: rawNfts };
+      // return { byCollection: nftsByCollection, raw: rawNfts };
     }),
   // getAll: publicProcedure.query(({ ctx }) => {
   //   return ctx.prisma.example.findMany();
