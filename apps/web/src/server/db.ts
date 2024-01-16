@@ -1,18 +1,16 @@
-import { PrismaClient } from "@prisma/client";
-import { env } from "env.mjs";
+// import { PrismaClient } from "@prisma/client";
 
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
-};
+// import { env } from "~/env.mjs";
 
-/* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment */
-export const prisma =
-  globalForPrisma.prisma ??
-  /* eslint-disable-next-line @typescript-eslint/no-unsafe-call */
-  new PrismaClient({
-    log:
-      env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
-  });
+// const globalForPrisma = globalThis as unknown as {
+//   prisma: PrismaClient | undefined;
+// };
 
-/* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment */
-if (env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+// export const db =
+//   globalForPrisma.prisma ??
+//   new PrismaClient({
+//     log:
+//       env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
+//   });
+
+// if (env.NODE_ENV !== "production") globalForPrisma.prisma = db;
