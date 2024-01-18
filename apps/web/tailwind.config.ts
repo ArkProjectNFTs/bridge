@@ -1,9 +1,7 @@
 import { type Config } from "tailwindcss";
+import sharedConfig from "tailwind-config/tailwind.config";
 
 export default {
-  content: ["./**/*.{js,ts,jsx,tsx}"],
-  theme: {
-    extend: {},
-  },
-  plugins: [],
+  content: [...sharedConfig.content, "../../packages/**/*.{js,ts,jsx,tsx}"],
+  presets: [sharedConfig],
 } satisfies Config;

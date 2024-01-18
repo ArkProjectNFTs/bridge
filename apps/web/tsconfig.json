@@ -18,7 +18,7 @@
     "noUncheckedIndexedAccess": true,
     "baseUrl": ".",
     "paths": {
-      "~/*": ["./*"]
+      "~/*": ["./src/*"]
     },
     "plugins": [
       {
@@ -34,7 +34,8 @@
     "**/*.cjs",
     "**/*.mjs",
     ".next/types/**/*.ts",
-    "postcss.config.js"
+    "postcss.config.js",
+    "src"
   ],
   "exclude": ["node_modules"]
 }
