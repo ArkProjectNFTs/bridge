@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.Ethereum {
+  /* Playground Purple */
+  --color-primary-source: #8c62f2;
+  --color-primary-50: #f8f0ff;
+  --color-primary-100: #e9d3ff;
+  --color-primary-200: #d7b7ff;
+  --color-primary-300: #c39cff;
+  --color-primary-400: #ad82ff;
+  --color-primary-500: #966bfa;
+  --color-primary-600: #7e56e4;
+  --color-primary-700: #6844c8;
+  --color-primary-800: #5335a6;
+  --color-primary-900: #3f287f;
+}
+
+.Starknet {
+  /* Folly Red*/
+  --color-primary-source: #f8545c;
+  --color-primary-50: #ffeeec;
+  --color-primary-100: #ffccc9;
+  --color-primary-200: #ffaba7;
+  --color-primary-300: #ff8a88;
+  --color-primary-400: #ff6a6e;
+  --color-primary-500: #ed4d56;
+  --color-primary-600: #d53243;
+  --color-primary-700: #b81c33;
+  --color-primary-800: #970e26;
+  --color-primary-900: #740d1d;
+}
