@@ -109,120 +109,127 @@ contract CairoTest is Test {
     }
 
     //
-    function test_shortStringSerializedLength() public {
-        assertEq(Cairo.shortStringSerializedLength(""), 1);
-        assertEq(Cairo.shortStringSerializedLength("ABCD"), 2);
+    function test_cairoStringSerializedLength() public {
+        assertEq(Cairo.cairoStringSerializedLength(""), 3);
+        assertEq(Cairo.cairoStringSerializedLength("ABCD"), 3);
         assertEq(
-            Cairo.shortStringSerializedLength(
+            Cairo.cairoStringSerializedLength(
                 "ABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890abcdefg"),
-            3);
+            4);
     }
 
     //
-    function test_shortStringPack() public {
-        uint256[] memory bufEmpty = Cairo.shortStringPack("");
-        assertEq(bufEmpty.length, 0);
+    function test_cairoStringPack() public {
+        uint256[] memory bufEmpty = Cairo.cairoStringPack("");
+        assertEq(bufEmpty[0], 0);
+        assertEq(bufEmpty[1], 0);
+        assertEq(bufEmpty[2], 0);
+        assertEq(bufEmpty.length, 3);
+        uint256[] memory bufShort = Cairo.cairoStringPack("ABC");
+        assertEq(bufShort[0], 0);
+        assertEq(bufShort[1], 0x0041424300000000000000000000000000000000000000000000000000000000);
+        assertEq(bufShort[2], 3);
+        assertEq(bufShort.length, 3);
 
-        uint256[] memory buf = Cairo.shortStringPack("ABCD");
-        assertEq(buf.length, 1);
-        assertEq(
-            buf[0],
-            0x0041424344000000000000000000000000000000000000000000000000000000);
+        uint256[] memory bufLong = Cairo.cairoStringPack("ABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890abcdefg");
+        assertEq(bufLong[0], 1);
+        assertEq(bufLong[1], 0x004142434445464748494a4b4c4d4e4f505152535455565758595a3031323334);
+        assertEq(bufLong[2], 0x0035363738393061626364656667000000000000000000000000000000000000);
+        assertEq(bufLong[3], 13);
+        assertEq(bufLong.length, 4);
 
-        uint256[] memory buf2 = Cairo.shortStringPack("ABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890abcdefg");
-        assertEq(buf2.length, 2);
-        assertEq(
-            buf2[0],
-            0x004142434445464748494a4b4c4d4e4f505152535455565758595a3031323334);
-        assertEq(
-            buf2[1],
-            0x0035363738393061626364656667000000000000000000000000000000000000);
     }
 
     //
-    function test_shortStringUnpack() public {
-        uint256 v1 = 0x00414243000000000000000000000000000000000000000000000000000000;
-        string memory a = Cairo.uint256AsciiToString(v1);
+    function test_cairoStringUnpack() public {
+        uint256[] memory buf = new uint256[](3);
+        buf[0] = 0;
+        buf[1] = 0x0041424300000000000000000000000000000000000000000000000000000000;
+        buf[2] = 3;
+        string memory a = Cairo.cairoStringUnpack(buf, 0);
         assertEq(a, "ABC");
-        assertTrue(Strings.equal(a, "ABC"));
 
-        uint256[] memory buf = new uint256[](1);
-        buf[0] = 0x00414243000000000000000000000000000000000000000000000000000000;
-        string memory s = Cairo.shortStringUnpack(buf, 0, buf.length);
-        assertEq(s, "ABC");
-
-        uint256[] memory buf2 = new uint256[](2);
-        buf2[0] = 0x004142434445464748494a4b4c4d4e4f505152535455565758595a3031323334;
-        buf2[1] = 0x0035363738393061626364656667000000000000000000000000000000000000;
-        string memory s2 = Cairo.shortStringUnpack(buf2, 0, buf2.length);
-        assertTrue(Strings.equal(s2, "ABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890abcdefg"));
+        uint256[] memory buf2 = new uint256[](4);
+        buf2[0] = 1;
+        buf2[1] = 0x00546869732070616c696e64726f6d65206973206e6f7420617320676f6f642c;
+        buf2[2] = 0x0020627574206174206c656173742069742773206c6f6e6720656e6f75676800;
+        buf2[3] = 30;
+        string memory b = Cairo.cairoStringUnpack(buf2, 0);
+        assertEq(b, "This palindrome is not as good, but at least it's long enough");
     }
 
     //
-    function test_shortStringSerialize() public {
-        uint256[] memory buf = new uint256[](2);
+    function test_cairoStringSerialize() public {
+        uint256[] memory buf = new uint256[](3);
         uint256 offset = 0;
 
-        offset += Cairo.shortStringSerialize("ABCD", buf, offset);
-        assertEq(offset, 2);
-        assertEq(buf[0], 1);
+        offset += Cairo.cairoStringSerialize("ABCD", buf, offset);
+        assertEq(offset, 3);
+        assertEq(buf[0], 0);
         assertEq(
             buf[1],
             0x0041424344000000000000000000000000000000000000000000000000000000);
+        assertEq(buf[2], 4);
     }
 
     //
-    function test_shortStringDeserialize() public {
-        uint256[] memory buf = new uint256[](3);
-        buf[0] = 2;
+    function test_cairoStringDeserialize() public {
+        uint256[] memory buf = new uint256[](4);
+        buf[0] = 1;
         buf[1] = 0x004142434445464748494a4b4c4d4e4f505152535455565758595a3031323334;
         buf[2] = 0x0035363738393061626364656667000000000000000000000000000000000000;
+        buf[3] = 13;
 
-        (uint256 inc, string memory s) = Cairo.shortStringDeserialize(buf, 0);
-        assertEq(inc, 3);
+        (uint256 inc, string memory s) = Cairo.cairoStringDeserialize(buf, 0);
+        assertEq(inc, 4);
         assertTrue(Strings.equal(s, "ABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890abcdefg"));
     }
 
     //
-    function test_shortStringArraySerialize() public {
+    function test_cairoStringArraySerialize() public {
         string[] memory data = new string[](2);
         data[0] = "ABCD";
         data[1] = "abcd";
 
-        uint256[] memory buf = new uint256[](5);
+        uint256[] memory buf = new uint256[](7);
 
-        uint256 inc = Cairo.shortStringArraySerialize(data, buf, 0);
-        assertEq(inc, 5);
+        uint256 inc = Cairo.cairoStringArraySerialize(data, buf, 0);
+        assertEq(inc, 7);
         assertEq(buf[0], 2);
-        assertEq(buf[1], 1);
+        assertEq(buf[1], 0);
         assertEq(buf[2], 0x0041424344000000000000000000000000000000000000000000000000000000);
-        assertEq(buf[3], 1);
-        assertEq(buf[4], 0x0061626364000000000000000000000000000000000000000000000000000000);
+        assertEq(buf[3], 4);
+        assertEq(buf[4], 0);
+        assertEq(buf[5], 0x0061626364000000000000000000000000000000000000000000000000000000);
+        assertEq(buf[6], 4);
     }
 
     //
-    function test_shortStringArrayDeserialize() public {
-        uint256[] memory buf = new uint256[](5);
+    function test_cairoStringArrayDeserialize() public {
+        uint256[] memory buf = new uint256[](7);
         buf[0] = 2;
-        buf[1] = 1;
+        buf[1] = 0;
         buf[2] = 0x0041424344000000000000000000000000000000000000000000000000000000;
-        buf[3] = 1;
-        buf[4] = 0x0061626364000000000000000000000000000000000000000000000000000000;
+        buf[3] = 4;
+        buf[4] = 0;
+        buf[5] = 0x0061626364000000000000000000000000000000000000000000000000000000;
+        buf[6] = 4;
 
-        (uint256 inc, string[] memory strs) = Cairo.shortStringArrayDeserialize(buf, 0);
-        assertEq(inc, 5);
+        (uint256 inc, string[] memory strs) = Cairo.cairoStringArrayDeserialize(buf, 0);
+        assertEq(inc, 7);
         assertEq(strs[0], "ABCD");
         assertEq(strs[1], "abcd");
     }
 
     //
-    function test_shortStringArrayDeserializeEmpty() public {
+    function test_cairoStringArrayDeserializeEmpty() public {
         uint256[] memory buf = new uint256[](1);
         buf[0] = 0;
 
-        (uint256 inc, string[] memory strs) = Cairo.shortStringArrayDeserialize(buf, 0);
+        (uint256 inc, string[] memory strs) = Cairo.cairoStringArrayDeserialize(buf, 0);
         assertEq(inc, 1);
         assertEq(strs.length, 0);
     }
 
 }
+
