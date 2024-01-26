@@ -7,8 +7,8 @@ use zeroable::Zeroable;
 use starknet::{ContractAddress, ClassHash, EthAddress};
 use starknet::contract_address::ContractAddressZeroable;
 use starknet::eth_address::EthAddressZeroable;
-use starklane::string::{LongString, SpanFeltSerializedTryIntoLongString};
 use super::interfaces::{IERC721Dispatcher, IERC721DispatcherTrait};
+use starklane::byte_array_extra::SpanFeltTryIntoByteArray;
 
 #[derive(Drop, PartialEq)]
 enum CollectionType {
@@ -18,10 +18,10 @@ enum CollectionType {
 
 #[derive(Drop)]
 struct ERC721Metadata {
-    name: LongString,
-    symbol: LongString,
-    base_uri: LongString,
-    uris: Span<LongString>,
+    name: ByteArray,
+    symbol: ByteArray,
+    base_uri: ByteArray,
+    uris: Span<ByteArray>,
 }
 
 /// Extracts metadata of the given ERC721 contract.
@@ -49,7 +49,7 @@ fn erc721_metadata(
                 let token_uri =
                     match token_uri_from_contract_call(erc721.contract_address, token_id) {
                         Option::Some(uri) => uri,
-                        Option::None => ''.into(),
+                        Option::None => "",
                     };
 
                 out_uris.append(token_uri);
@@ -68,7 +68,7 @@ fn erc721_metadata(
         ERC721Metadata {
             name: erc721.name(),
             symbol: erc721.symbol(),
-            base_uri: ''.into(),
+            base_uri: "",
             uris
         }
     )
@@ -89,7 +89,7 @@ fn erc721_metadata(
 fn token_uri_from_contract_call(
     collection_address: ContractAddress,
     token_id: u256,
-) -> Option<LongString> {
+) -> Option<ByteArray> {
     // TODO: add the interface detection when the standard is out.
 
     let token_uri_selector = 0x0226ad7e84c1fe08eb4c525ed93cccadf9517670341304571e66f7c4f95cbe54;
@@ -101,17 +101,20 @@ fn token_uri_from_contract_call(
     let calldata = _calldata.span();
 
     // As we use syscall, the return value is a raw span of serialized data.
+    // len: 0 -> empty
+    // len: 1 -> 'old' string
+    // len > 1 -> ByteArray
     match starknet::call_contract_syscall(
         collection_address,
         token_uri_selector,
         calldata,
     ) {
-        Result::Ok(span) => SpanFeltSerializedTryIntoLongString::try_into(span),
+        Result::Ok(span) => span.try_into(),
         Result::Err(e) => {
             match starknet::call_contract_syscall(
                 collection_address, tokenUri_selector, calldata,
             ) {
-                Result::Ok(span) => SpanFeltSerializedTryIntoLongString::try_into(span),
+                Result::Ok(span) => span.try_into(),
                 Result::Err(e) => {
                     Option::None
                 }
@@ -132,8 +135,8 @@ fn token_uri_from_contract_call(
 fn deploy_erc721_bridgeable(
     class_hash: ClassHash,
     salt: felt252,
-    name: LongString,
-    symbol: LongString,
+    name: ByteArray,
+    symbol: ByteArray,
     bridge_address: ContractAddress,
 ) -> ContractAddress {
     let mut calldata: Array<felt252> = array![];
@@ -171,7 +174,7 @@ fn verify_collection_address(
 
     // L1 address must always be set as we receive the request from L1.
     if l1_req.is_zero() {
-        panic_with_felt252('L1 address cannot be 0');
+        panic!("L1 address cannot be 0");
     }
 
     // L1 address is present in the request and L2 address is not.
@@ -183,11 +186,11 @@ fn verify_collection_address(
     } else {
         // L1 address is present, and L2 address too.
         if l2_bridge != l2_req {
-            panic_with_felt252('Invalid collection L2 address');
+            panic!("Invalid collection L2 address");
         }
 
         if l1_bridge != l1_req {
-            panic_with_felt252('Invalid collection L1 address');
+            panic!("Invalid collection L1 address");
         }
     }
 

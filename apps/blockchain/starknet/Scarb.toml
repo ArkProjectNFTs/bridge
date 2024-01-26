@@ -3,11 +3,12 @@ name = "starklane"
 version = "0.1.0"
 
 [dependencies]
-starknet = ">=2.1.0"
-#snforge_std = { path = "../../../../../starknet/starknet-foundry/snforge_std/" }
+starknet = ">=2.4.0"
+snforge_std = { git = "https://github.com/foundry-rs/starknet-foundry.git", tag = "v0.13.1" }
 
 [[target.starknet-contract]]
 sierra = true
 casm = true
 
 [lib]
+
