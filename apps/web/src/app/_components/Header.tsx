@@ -70,7 +70,7 @@ export default function Header() {
               <Link href={connectedPage.path} key={connectedPage.name}>
                 <Typography
                   className={
-                    pathname === connectedPage.path
+                    pathname?.includes(connectedPage.path)
                       ? pathname === "/portfolio"
                         ? "text-sunshine-yellow-600"
                         : "text-primary-source"

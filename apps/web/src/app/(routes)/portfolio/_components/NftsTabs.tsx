@@ -2,11 +2,15 @@
 
 import * as Tabs from "@radix-ui/react-tabs";
 import { useAccount as useStarknetAccount } from "@starknet-react/core";
-import { Typography } from "design-system";
+import { Button, Typography } from "design-system";
 import { useAccount as useEthereumAccount } from "wagmi";
 
 import NftCard from "~/app/_components/NftCard/NftCard";
 import NftsLoadingState from "~/app/_components/NftsLoadingState";
+import useInfiniteEthereumCollections from "~/app/_hooks/useInfiniteEthereumCollections";
+import useInfiniteEthereumNfts from "~/app/_hooks/useInfiniteEthereumNfts";
+import useInfiniteStarknetCollections from "~/app/_hooks/useInfiniteStarknetCollections";
+import useInfiniteStarknetNfts from "~/app/_hooks/useInfiniteStarknetNfts";
 import { api } from "~/utils/api";
 
 interface NftTabsTriggerProps {
@@ -41,15 +45,7 @@ function NftTabsTrigger({
 }
 
 export default function NftsTabs() {
-  const { address: ethereumAddress } = useEthereumAccount();
   const { address: starknetAddress } = useStarknetAccount();
-
-  const { data: l1Nfts } = api.nfts.getL1NftsByCollection.useQuery(
-    {
-      address: ethereumAddress ?? "",
-    },
-    { enabled: ethereumAddress !== undefined }
-  );
 
   const { data: l2Nfts } = api.nfts.getL2NftsByCollection.useQuery(
     {
@@ -58,7 +54,44 @@ export default function NftsTabs() {
     { enabled: starknetAddress !== undefined }
   );
 
-  if (l1Nfts === undefined || l2Nfts === undefined) {
+  const {
+    data: l1NftsData,
+    fetchNextPage: fetchNextL1NftsPage,
+    hasNextPage: hasNextL1NftsPage,
+    isFetchingNextPage: isFetchingNextL1NftsPage,
+    totalCount: l1NftsTotalCount,
+  } = useInfiniteEthereumNfts();
+
+  const {
+    data: l1CollectionsData,
+    fetchNextPage: fetchNextL1CollectionsPage,
+    hasNextPage: hasNextL1CollectionsPage,
+    isFetchingNextPage: isFetchingNextL1CollectionsPage,
+    totalCount: l1CollectionsTotalCount,
+  } = useInfiniteEthereumCollections();
+
+  const {
+    data: l2NftsData,
+    fetchNextPage: fetchNextL2NftsPage,
+    hasNextPage: hasNextL2NftsPage,
+    isFetchingNextPage: isFetchingNextL2NftsPage,
+    totalCount: l2NftsTotalCount,
+  } = useInfiniteStarknetNfts();
+
+  const {
+    data: l2CollectionsData,
+    fetchNextPage: fetchNextL2CollectionsPage,
+    hasNextPage: hasNextL2CollectionsPage,
+    isFetchingNextPage: isFetchingNextL2CollectionsPage,
+    totalCount: l2CollectionsTotalCount,
+  } = useInfiniteStarknetCollections();
+
+  if (
+    l1NftsData === undefined ||
+    l2NftsData === undefined ||
+    l1CollectionsData === undefined ||
+    l2CollectionsData === undefined
+  ) {
     return <NftsLoadingState className="mt-18" />;
   }
 
@@ -67,38 +100,34 @@ export default function NftsTabs() {
       <Tabs.List className="flex items-center gap-4 overflow-x-scroll">
         <NftTabsTrigger
           className="ml-auto"
-          nftNumber={l1Nfts.raw.length + l2Nfts.raw.length}
+          nftNumber={l1NftsTotalCount + l2NftsTotalCount}
           tabName="All nfts"
           tabValue="all"
         />
         <NftTabsTrigger
-          // TODO @YohanTz: Wrap in useMemo
-          nftNumber={
-            Object.keys(l1Nfts.byCollection).length +
-            Object.keys(l2Nfts.byCollection).length
-          }
+          nftNumber={l1CollectionsTotalCount + l2CollectionsTotalCount}
           tabName="Collections"
           tabValue="collections"
         />
         <NftTabsTrigger
-          nftNumber={l1Nfts.raw.length}
+          nftNumber={l1NftsTotalCount}
           tabName="Ethereum Nfts"
           tabValue="ethereum"
         />
         <NftTabsTrigger
           className="mr-auto"
-          nftNumber={l2Nfts.raw.length}
+          nftNumber={l2NftsTotalCount}
           tabName="Starknet Nfts"
           tabValue="starknet"
         />
       </Tabs.List>
 
-      <div className="mt-10.5 ">
+      <div className="mb-4 mt-10.5">
         <Tabs.Content
           className="grid grid-cols-2 gap-5 sm:grid-cols-5"
           value="all"
         >
-          {l1Nfts.raw.map((nft) => {
+          {/* {l1Nfts.raw.map((nft) => {
             return (
               <NftCard
                 title={
@@ -129,26 +158,38 @@ export default function NftsTabs() {
                 key={nft.id}
               />
             );
-          })}
+          })} */}
         </Tabs.Content>
-        <Tabs.Content
-          className="grid grid-cols-2 gap-5 sm:grid-cols-5"
-          value="collections"
-        >
-          {/* TODO @YohanTz: Add Starknet here */}
-          {Object.entries(l1Nfts.byCollection).map(([collectionName, nfts]) => {
-            return (
-              <NftCard
-                cardType="collection"
-                chain="Ethereum"
-                image={nfts[0]?.image}
-                isSelected={false}
-                key={collectionName}
-                numberOfNfts={nfts.length}
-                title={collectionName}
-              />
-            );
-          })}
+        <Tabs.Content value="collections">
+          <div className="grid grid-cols-2 gap-5 sm:grid-cols-5">
+            {/* TODO @YohanTz: Add Starknet here */}
+            {l1CollectionsData.pages.map((page) => {
+              return page.contracts.map((nftContract) => {
+                return (
+                  <NftCard
+                    cardType="collection"
+                    chain="Ethereum"
+                    image={nftContract.media[0]?.thumbnail}
+                    isSelected={false}
+                    key={nftContract.address}
+                    numberOfNfts={nftContract.totalBalance}
+                    title={nftContract.name ?? nftContract.symbol ?? ""}
+                  />
+                );
+              });
+            })}
+          </div>
+          <div className="mx-auto mt-14 flex w-full justify-center">
+            {isFetchingNextL1CollectionsPage ? (
+              <div>Loading...</div>
+            ) : hasNextL1CollectionsPage ? (
+              // eslint-disable-next-line @typescript-eslint/no-misused-promises
+              <Button onClick={() => fetchNextL1CollectionsPage()} size="small">
+                Load more
+              </Button>
+            ) : null}
+          </div>
+
           {Object.entries(l2Nfts.byCollection).map(([collectionName, nfts]) => {
             return (
               <NftCard
@@ -163,46 +204,59 @@ export default function NftsTabs() {
             );
           })}
         </Tabs.Content>
-        <Tabs.Content
-          className="grid grid-cols-2 gap-5 sm:grid-cols-5"
-          value="ethereum"
-        >
-          {l1Nfts.raw.map((nft) => {
-            return (
-              <NftCard
-                title={
-                  nft.title.length > 0
-                    ? nft.title
-                    : `${nft.collectionName} #${nft.tokenId}`
-                }
-                cardType="nft"
-                chain="Ethereum"
-                image={nft.image}
-                isSelected={false}
-                key={nft.id}
-              />
-            );
-          })}
+        <Tabs.Content value="ethereum">
+          <div className="grid grid-cols-2 gap-5 sm:grid-cols-5">
+            {l1NftsData.pages.map((page) => {
+              return page.ownedNfts.map((nft) => {
+                return (
+                  <NftCard
+                    title={
+                      nft.title.length > 0
+                        ? nft.title
+                        : `${nft.title ?? nft.contract.name} #${nft.tokenId}`
+                    }
+                    cardType="nft"
+                    chain="Ethereum"
+                    image={nft.media[0]?.thumbnail}
+                    isSelected={false}
+                    key={`${nft.contract.address}-${nft.tokenId}`}
+                  />
+                );
+              });
+            })}
+          </div>
+          <div className="mx-auto mt-14 flex w-full justify-center">
+            {isFetchingNextL1NftsPage ? (
+              <div>Loading...</div>
+            ) : hasNextL1NftsPage ? (
+              // eslint-disable-next-line @typescript-eslint/no-misused-promises
+              <Button onClick={() => fetchNextL1NftsPage()} size="small">
+                Load more
+              </Button>
+            ) : null}
+          </div>
         </Tabs.Content>
         <Tabs.Content
           className="grid grid-cols-2 gap-5 sm:grid-cols-5"
           value="starknet"
         >
-          {l2Nfts.raw.map((nft) => {
-            return (
-              <NftCard
-                title={
-                  nft.title.length > 0
-                    ? nft.title
-                    : `${nft.collectionName} #${nft.tokenId}`
-                }
-                cardType="nft"
-                chain="Starknet"
-                image={nft.image}
-                isSelected={false}
-                key={nft.id}
-              />
-            );
+          {l2NftsData.pages.map((page) => {
+            return page.nfts.map((nft) => {
+              return (
+                <NftCard
+                  title={
+                    nft.metadata?.normalized?.name?.length ?? 0 > 0
+                      ? nft.metadata?.normalized?.name
+                      : `#${nft.token_id}`
+                  }
+                  cardType="nft"
+                  chain="Starknet"
+                  image={nft.metadata?.normalized?.image}
+                  isSelected={false}
+                  key={`${nft.contract_address}-${nft.token_id}`}
+                />
+              );
+            });
           })}
         </Tabs.Content>
       </div>

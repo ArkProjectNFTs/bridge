@@ -8,12 +8,12 @@ import {
 import { CallData } from "starknet";
 import { useAccount as useEthereumAccount } from "wagmi";
 
-import useNftSelection from "./useNftSelection";
+import useNftSelection from "./useNftSelection2";
 
 const L2_BRIDGE_ADDRESS = process.env.NEXT_PUBLIC_L2_BRIDGE_ADDRESS || "";
 
 export default function useTransferStarknetNfts() {
-  const { selectedNfts } = useNftSelection();
+  const { selectedCollectionAddress, selectedTokenIds } = useNftSelection();
 
   const { address: ethereumAddress } = useEthereumAccount();
   const { address: starknetAddress } = useStarknetAccount();
@@ -42,7 +42,7 @@ export default function useTransferStarknetNfts() {
         type: "function",
       },
     ],
-    address: selectedNfts[0]?.collectionContractAddress ?? "",
+    address: selectedCollectionAddress ?? "",
     args: [starknetAddress ?? "0xtest", L2_BRIDGE_ADDRESS],
     functionName: "is_approved_for_all",
     watch: true,
@@ -90,7 +90,7 @@ export default function useTransferStarknetNfts() {
     calls: [
       {
         calldata: [L2_BRIDGE_ADDRESS, 1],
-        contractAddress: selectedNfts[0]?.collectionContractAddress ?? "",
+        contractAddress: selectedCollectionAddress ?? "",
         entrypoint: "set_approval_for_all",
       },
     ],
@@ -105,14 +105,14 @@ export default function useTransferStarknetNfts() {
   if (
     bridgeContract?.abi !== undefined &&
     ethereumAddress !== undefined &&
-    selectedNfts[0] !== undefined
+    selectedCollectionAddress !== undefined
   ) {
     depositCallData = new CallData(bridgeContract?.abi);
     depositCallData = depositCallData.compile("deposit_tokens", {
-      collection_l2: selectedNfts[0]?.collectionContractAddress ?? "",
+      collection_l2: selectedCollectionAddress ?? "",
       owner_l1: ethereumAddress,
       salt: Date.now(),
-      token_ids: selectedNfts.map((selectedNft) => selectedNft?.tokenId),
+      token_ids: selectedTokenIds,
       use_deposit_burn_auto: false,
       use_withdraw_auto: true,
     });

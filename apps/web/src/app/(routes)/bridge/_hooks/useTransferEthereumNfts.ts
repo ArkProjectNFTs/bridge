@@ -8,29 +8,30 @@ import {
   useWaitForTransaction,
 } from "wagmi";
 
-import useNftSelection from "./useNftSelection";
+import useNftSelection from "./useNftSelection2";
 
 export default function useTransferEthereumNfts() {
-  const { numberOfSelectedNfts, selectedNfts } = useNftSelection();
+  const { selectedCollectionAddress, selectedTokenIds, totalSelectedNfts } =
+    useNftSelection();
 
   const { address: ethereumAddress } = useEthereumAccount();
   const { address: starknetAddress } = useStarknetAccount();
 
   const { data: isApprovedForAll } = useContractRead({
     abi: erc721ABI,
-    address: selectedNfts[0]?.collectionContractAddress as `0x${string}`,
+    address: selectedCollectionAddress as `0x${string}`,
     args: [
       ethereumAddress ?? "0xtest",
       process.env.NEXT_PUBLIC_L1_BRIDGE_ADDRESS as `0x${string}`,
     ],
-    enabled: numberOfSelectedNfts > 0,
+    enabled: totalSelectedNfts > 0,
     functionName: "isApprovedForAll",
     watch: true,
   });
 
   const { data: approveData, write: approveForAll } = useContractWrite({
     abi: erc721ABI,
-    address: selectedNfts[0]?.collectionContractAddress as `0x${string}`,
+    address: selectedCollectionAddress as `0x${string}`,
     args: [process.env.NEXT_PUBLIC_L1_BRIDGE_ADDRESS as `0x${string}`, true],
     functionName: "setApprovalForAll",
   });
@@ -79,9 +80,9 @@ export default function useTransferEthereumNfts() {
     args: [
       // TODO @YohanTz: Get the proper request hash from ?
       Date.now(),
-      selectedNfts[0]?.collectionContractAddress as `0x${string}`,
+      selectedCollectionAddress as `0x${string}`,
       starknetAddress,
-      selectedNfts.map((selectedNft) => selectedNft?.tokenId),
+      selectedTokenIds,
       false,
     ],
     functionName: "depositTokens",

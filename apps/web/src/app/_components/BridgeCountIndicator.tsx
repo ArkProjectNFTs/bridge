@@ -1,11 +1,11 @@
 import { Typography } from "design-system";
 import { usePathname } from "next/navigation";
 
-import useNftSelection from "../(routes)/bridge/_hooks/useNftSelection";
+import useNftSelection from "../(routes)/bridge/_hooks/useNftSelection2";
 import { useIsSSR } from "../_hooks/useIsSSR";
 
 export default function BrigetCountIndicator() {
-  const { selectedNftIds } = useNftSelection();
+  const { totalSelectedNfts } = useNftSelection();
 
   const isSSR = useIsSSR();
 
@@ -56,12 +56,12 @@ export default function BrigetCountIndicator() {
         />
       </svg>
 
-      {!isSSR && selectedNftIds.length > 0 && pathname === "/bridge" && (
+      {!isSSR && totalSelectedNfts > 0 && pathname?.includes("/bridge") && (
         <Typography
           className="absolute -right-2 top-0 min-w-[1.5rem] rounded-full border-2 border-white bg-primary-source px-1.5 py-0.5 text-center text-white dark:border-galaxy-blue"
           variant="body_text_12"
         >
-          {selectedNftIds.length}
+          {totalSelectedNfts}
         </Typography>
       )}
     </div>

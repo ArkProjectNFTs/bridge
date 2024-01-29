@@ -11,10 +11,8 @@ import TargetChainButton from "./TargetChainButton";
 export default function WalletsTransferSummary() {
   const { sourceChain, targetChain } = useCurrentChain();
 
-  const { address: ethereumAddress } =
-    useEthereumAccount();
-  const { address: starknetAddress } =
-    useStarknetAccount();
+  const { address: ethereumAddress } = useEthereumAccount();
+  const { address: starknetAddress } = useStarknetAccount();
 
   // TODO @YohanTz: Hook wrapper around wagmi and starknet-react
   const shortEthereumAddress = useMemo(

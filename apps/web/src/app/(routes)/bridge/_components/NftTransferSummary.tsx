@@ -12,13 +12,13 @@ import { useEffect, useState } from "react";
 
 import useCurrentChain from "~/app/_hooks/useCurrentChain";
 
-import useNftSelection from "../_hooks/useNftSelection";
+import useNftSelection from "../_hooks/useNftSelection2";
 import useTransferNftsFromChain from "../_hooks/useTransferNfts";
 import WalletsTransferSummary from "./WalletsTransferSummary";
 
 function TransferAction() {
   const { sourceChain, targetChain } = useCurrentChain();
-  const { numberOfSelectedNfts } = useNftSelection();
+  const { totalSelectedNfts } = useNftSelection();
 
   const {
     approveForAll,
@@ -108,7 +108,7 @@ function TransferAction() {
     </>
   ) : (
     <>
-      {numberOfSelectedNfts > 0 && (
+      {totalSelectedNfts > 0 && (
         <Typography
           className="mt-8 flex gap-2.5 rounded-xl bg-playground-purple-100 p-3 text-dark-blue-950 dark:bg-playground-purple-400"
           component="p"
@@ -146,19 +146,19 @@ function TransferAction() {
       )}
       <Button
         className={`mt-8 ${
-          numberOfSelectedNfts === 0
+          totalSelectedNfts === 0
             ? "cursor-no-drop bg-[#1c2f55] opacity-30 dark:bg-dark-blue-900"
             : "bg-dark-blue-900 dark:bg-dark-blue-700"
         }`}
         // disabled={numberOfSelectedNfts === 0}
         color="default"
-        onClick={() => numberOfSelectedNfts > 0 && approveForAll()}
+        onClick={() => totalSelectedNfts > 0 && approveForAll()}
         size="small"
       >
         <Typography variant="button_text_s">
           {isApproveLoading
             ? "Approve in progress..."
-            : numberOfSelectedNfts === 0
+            : totalSelectedNfts === 0
             ? `Confirm transfer to ${targetChain}`
             : "Approve the selected Nfts"}
         </Typography>
@@ -169,7 +169,12 @@ function TransferAction() {
 
 function TransferSummary() {
   // TODO @YohanTz: Support both sides
-  const { deselectNft, selectedNfts } = useNftSelection();
+  const {
+    deselectNft,
+    selectedCollectionAddress,
+    selectedTokenIds,
+    totalSelectedNfts,
+  } = useNftSelection();
 
   return (
     <>
@@ -183,9 +188,9 @@ function TransferSummary() {
 
       <WalletsTransferSummary />
 
-      {selectedNfts.length > 0 ? (
+      {totalSelectedNfts > 0 ? (
         <Typography className="mt-8 w-full" variant="body_text_14">
-          {selectedNfts.length} Nfts selected
+          {totalSelectedNfts} Nfts selected
         </Typography>
       ) : (
         <div className="mt-8 flex w-full items-center gap-4">
@@ -204,13 +209,13 @@ function TransferSummary() {
       )}
 
       {/* TODO @YohanTz: Always show scroll bar to indicate that there is more content to view (with Radix ScrollArea ?) */}
-      {selectedNfts.length > 0 && (
+      {totalSelectedNfts > 0 && (
         <div className="mt-8 flex w-full flex-col gap-4 overflow-y-auto">
-          {selectedNfts.map((selectedNft) => {
+          {selectedTokenIds.map((selectedTokenId) => {
             return (
-              <div className="flex justify-between" key={selectedNft?.id}>
+              <div className="flex justify-between" key={selectedTokenId}>
                 <div className="flex items-center gap-4">
-                  {selectedNft?.image ? (
+                  {/* {selectedNft?.image ? (
                     <Image
                       alt={selectedNft?.title ?? ""}
                       className="rounded"
@@ -218,34 +223,34 @@ function TransferSummary() {
                       src={selectedNft?.image ?? ""}
                       width={52}
                     />
-                  ) : (
-                    // <div className="flex h-[52px] w-[52px] items-center justify-center rounded bg-dark-blue-100 dark:bg-dark-blue-900"></div>
-                    <>
-                      <Image
-                        alt="empty Nft image"
-                        className="hidden rounded dark:block"
-                        height={52}
-                        src={`/medias/dark/empty_nft.png`}
-                        width={52}
-                      />
-                      <Image
-                        alt="empty Nft image"
-                        className="rounded dark:hidden"
-                        height={52}
-                        src={`/medias/empty_nft.png`}
-                        width={52}
-                      />
-                    </>
-                  )}
+                  ) : ( */}
+                  <>
+                    <Image
+                      alt="empty Nft image"
+                      className="hidden rounded dark:block"
+                      height={52}
+                      src={`/medias/dark/empty_nft.png`}
+                      width={52}
+                    />
+                    <Image
+                      alt="empty Nft image"
+                      className="rounded dark:hidden"
+                      height={52}
+                      src={`/medias/empty_nft.png`}
+                      width={52}
+                    />
+                  </>
+                  {/* )} */}
                   <div className="flex flex-col">
                     <Typography ellipsable variant="body_text_14">
-                      {selectedNft?.collectionName}
+                      {/* {selectedNft?.collectionName} */}
+                      {selectedTokenId}
                     </Typography>
-                    <Typography ellipsable variant="body_text_bold_14">
+                    {/* <Typography ellipsable variant="body_text_bold_14">
                       {selectedNft?.title.length ?? 0 > 0
                         ? selectedNft?.title
                         : selectedNft?.tokenId}
-                    </Typography>
+                    </Typography> */}
                   </div>
                 </div>
                 <IconButton
@@ -266,7 +271,12 @@ function TransferSummary() {
                       />
                     </svg>
                   }
-                  onClick={() => deselectNft(selectedNft?.id ?? "")}
+                  onClick={() =>
+                    deselectNft(
+                      selectedTokenId,
+                      selectedCollectionAddress ?? ""
+                    )
+                  }
                 />
               </div>
             );
@@ -280,14 +290,14 @@ function TransferSummary() {
 
 export default function TransferSummaryContainer() {
   const [showMobileSummary, setShowMobileSummary] = useState(false);
-  const { numberOfSelectedNfts } = useNftSelection();
+  const { totalSelectedNfts } = useNftSelection();
 
   return (
     <>
       <Drawer className="hidden md:block">
         <TransferSummary />
       </Drawer>
-      {numberOfSelectedNfts > 0 && (
+      {totalSelectedNfts > 0 && (
         <Modal
           backdropClassName={`md:hidden ${showMobileSummary ? "" : "hidden"}`}
           className="text-left md:hidden"
@@ -307,8 +317,8 @@ export default function TransferSummaryContainer() {
               </Typography>
               <div className="mb-3 mt-1 flex w-full items-center justify-between">
                 <Typography variant="body_text_14">
-                  {numberOfSelectedNfts}{" "}
-                  {numberOfSelectedNfts > 1 ? "Nfts" : "Nft"} selected
+                  {totalSelectedNfts} {totalSelectedNfts > 1 ? "Nfts" : "Nft"}{" "}
+                  selected
                 </Typography>
 
                 {/* <Button onClick={() => setShowMobileSummary(true)} variant="s">
