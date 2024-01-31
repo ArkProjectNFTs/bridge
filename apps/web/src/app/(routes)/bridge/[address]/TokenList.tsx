@@ -1,13 +1,14 @@
 "use client";
 
-import { Button, Typography } from "design-system";
+import { Typography } from "design-system";
 import Link from "next/link";
 
+import InfiniteScrollButton from "~/app/_components/InfiniteScrollButton";
 import NftCard from "~/app/_components/NftCard/NftCard";
 import useCurrentChain from "~/app/_hooks/useCurrentChain";
 import useInfiniteEthereumNfts from "~/app/_hooks/useInfiniteEthereumNfts";
 
-import useNftSelection from "../_hooks/useNftSelection2";
+import useNftSelection from "../_hooks/useNftSelection";
 
 interface TokenListProps {
   nftContractAddress: string;
@@ -104,16 +105,12 @@ export default function TokenList({ nftContractAddress }: TokenListProps) {
           });
         })}
       </div>
-      <div className="mx-auto mt-14">
-        {isFetchingNextPage ? (
-          <div>Loading...</div>
-        ) : hasNextPage ? (
-          // eslint-disable-next-line @typescript-eslint/no-misused-promises
-          <Button onClick={() => fetchNextPage()} size="small">
-            Load more
-          </Button>
-        ) : null}
-      </div>
+      <InfiniteScrollButton
+        className="mx-auto mt-14"
+        fetchNextPage={() => fetchNextPage}
+        hasNextPage={hasNextPage}
+        isFetchingNextPage={isFetchingNextPage}
+      />
     </div>
   );
 }

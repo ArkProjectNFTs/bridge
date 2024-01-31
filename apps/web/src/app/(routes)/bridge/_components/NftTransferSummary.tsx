@@ -12,7 +12,7 @@ import { useEffect, useState } from "react";
 
 import useCurrentChain from "~/app/_hooks/useCurrentChain";
 
-import useNftSelection from "../_hooks/useNftSelection2";
+import useNftSelection from "../_hooks/useNftSelection";
 import useTransferNftsFromChain from "../_hooks/useTransferNfts";
 import WalletsTransferSummary from "./WalletsTransferSummary";
 
@@ -277,6 +277,7 @@ function TransferSummary() {
                       selectedCollectionAddress ?? ""
                     )
                   }
+                  className="flex-shrink-0"
                 />
               </div>
             );

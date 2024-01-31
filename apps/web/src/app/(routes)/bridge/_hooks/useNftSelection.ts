@@ -1,190 +1,113 @@
-import { useEffect, useState } from "react";
 import { useLocalStorage } from "usehooks-ts";
 
 import useAccountFromChain from "~/app/_hooks/useAccountFromChain";
 import useCurrentChain from "~/app/_hooks/useCurrentChain";
-import { api } from "~/utils/api";
 
 export default function useNftSelection() {
   const { sourceChain } = useCurrentChain();
-  const { address } = useAccountFromChain(sourceChain);
+  const { address: userAddress } = useAccountFromChain(sourceChain);
 
-  const [selectedNftIdsByAddress, setSelectedNftIdsByAddress] = useLocalStorage<
-    Record<`0x${string}`, Array<string>>
-  >("selectedNftIdsByAddress", {});
+  const [selectedTokensByUserAddress, setSelectedTokensByUserAddress] =
+    useLocalStorage<
+      Record<
+        `0x${string}`,
+        { collectionAddress: string; tokenIds: Array<string> } | null
+      >
+    >("selectedTokensByUserAddress", {});
 
-  const [
-    lastSelectedCollectionNameByAddress,
-    setLastSelectedCollectionNameByAddress,
-  ] = useLocalStorage<Record<`0x${string}`, null | string>>(
-    "lastSelectedCollectionNameByAddress",
-    {}
-  );
+  const selectedTokenIds =
+    userAddress !== undefined
+      ? selectedTokensByUserAddress[userAddress]?.tokenIds ?? []
+      : [];
 
-  // Change to use contract address
-  const [selectedCollectionName, setSelectedCollectionName] = useState<
-    null | string
-  >(null);
-
-  const { data: l1Nfts } = api.nfts.getL1NftsByCollection.useQuery(
-    {
-      address: address ?? "",
-    },
-    {
-      enabled: address !== undefined && sourceChain === "Ethereum",
-    }
-  );
-  const { data: l2Nfts } = api.nfts.getL2NftsByCollection.useQuery(
-    {
-      address: address ?? "",
-    },
-    {
-      enabled: address !== undefined && sourceChain === "Starknet",
-    }
-  );
-
-  const nfts = sourceChain === "Ethereum" ? l1Nfts : l2Nfts;
-
-  const selectedCollection = selectedCollectionName
-    ? nfts?.byCollection[selectedCollectionName] ?? []
-    : [];
-
-  /**
-   * array.filter() is used because we need to clean the nft ids that are still in the local storage
-   * but that are not in the user wallet anymore
-   */
-  const selectedNftIds = address
-    ? selectedNftIdsByAddress[address]?.filter(
-        (nftId) => nfts?.raw.find((rawNft) => rawNft.id === nftId) !== undefined
-      ) ?? []
-    : [];
-
-  const numberOfSelectedNfts = selectedNftIds.length;
-
-  const lastSelectedCollectionName =
-    address && selectedNftIds.length > 0
-      ? lastSelectedCollectionNameByAddress[address]
+  const selectedCollectionAddress =
+    userAddress !== undefined
+      ? selectedTokensByUserAddress[userAddress]?.collectionAddress
       : undefined;
 
-  // TODO @YohanTz: Directly search in the collection
-  const selectedNfts = selectedNftIds
-    .map((selectedNftId) => nfts?.raw.find((nft) => nft.id === selectedNftId))
-    .filter((nft) => nft !== undefined);
+  const totalSelectedNfts = selectedTokenIds.length;
 
-  const allCollectionSelected =
-    selectedCollection.length === selectedNftIds.length;
-
-  // @YohanTz: Refacto to remove the need of useEffect
-  useEffect(() => {
-    setSelectedCollectionName(null);
-  }, [sourceChain]);
-
-  function deselectNft(nftId: string) {
-    if (address === undefined || !selectedNftIds.includes(nftId)) {
-      return null;
-    }
-
-    if (selectedNftIds.length === 1) {
-      setLastSelectedCollectionNameByAddress({
-        ...lastSelectedCollectionNameByAddress,
-        [address]: null,
-      });
-    }
-
-    setSelectedNftIdsByAddress({
-      ...selectedNftIdsByAddress,
-      [address]: selectedNftIds.filter(
-        (selectedNftId) => selectedNftId !== nftId
-      ),
-    });
-  }
-
-  function selectNft(nftId: string) {
-    if (address === undefined) {
-      return null;
+  function selectNft(tokenId: string, collectionAddress: string) {
+    if (
+      isNftSelected(tokenId, collectionAddress) ||
+      userAddress === undefined
+    ) {
+      return;
     }
 
     if (
-      selectedCollectionName !== lastSelectedCollectionNameByAddress[address]
+      collectionAddress !==
+      selectedTokensByUserAddress[userAddress]?.collectionAddress
     ) {
-      setSelectedNftIdsByAddress({
-        ...selectedNftIdsByAddress,
-        [address]: [nftId],
-      });
-      setLastSelectedCollectionNameByAddress({
-        ...lastSelectedCollectionNameByAddress,
-        [address]: selectedCollectionName,
-      });
+      setSelectedTokensByUserAddress((previousValue) => ({
+        ...previousValue,
+        [userAddress]: { collectionAddress, tokenIds: [tokenId] },
+      }));
       return;
     }
 
-    setSelectedNftIdsByAddress({
-      ...selectedNftIdsByAddress,
-      [address]: [...selectedNftIds, nftId],
-    });
+    setSelectedTokensByUserAddress((previousValue) => ({
+      ...previousValue,
+      [userAddress]: {
+        collectionAddress,
+        tokenIds: [...selectedTokenIds, tokenId],
+      },
+    }));
   }
 
-  function toggleNftSelection(nftId: string) {
-    if (address === undefined) {
-      return null;
-    }
-
-    if (selectedNftIds.includes(nftId)) {
-      deselectNft(nftId);
+  function deselectNft(tokenId: string, collectionAddress: string) {
+    if (
+      !isNftSelected(tokenId, collectionAddress) ||
+      userAddress === undefined
+    ) {
       return;
     }
 
-    selectNft(nftId);
-  }
-
-  function toggleSelectAll() {
-    if (address === undefined || nfts === undefined) {
+    if (selectedTokenIds.length === 1) {
+      setSelectedTokensByUserAddress((previousValue) => ({
+        ...previousValue,
+        [userAddress]: undefined,
+      }));
       return;
     }
 
-    if (allCollectionSelected) {
-      setSelectedNftIdsByAddress({
-        ...selectedNftIdsByAddress,
-        [address]: [],
-      });
-      setLastSelectedCollectionNameByAddress({
-        ...lastSelectedCollectionNameByAddress,
-        [address]: null,
-      });
+    setSelectedTokensByUserAddress((previousValue) => ({
+      ...previousValue,
+      [userAddress]: {
+        collectionAddress,
+        tokenIds: selectedTokenIds.filter(
+          (selectedTokenId) => selectedTokenId !== tokenId
+        ),
+      },
+    }));
+  }
+
+  function isNftSelected(tokenId: string, collectionAddress: string) {
+    return (
+      selectedTokenIds.includes(tokenId) &&
+      collectionAddress === selectedCollectionAddress
+    );
+  }
+
+  function toggleNftSelection(tokenId: string, collectionAddress: string) {
+    if (userAddress === undefined) {
       return;
     }
-    setSelectedNftIdsByAddress({
-      ...selectedNftIdsByAddress,
-      [address]: selectedCollection.map((nft) => nft.id),
-    });
-    setLastSelectedCollectionNameByAddress({
-      ...lastSelectedCollectionNameByAddress,
-      [address]: selectedCollectionName,
-    });
-  }
 
-  function selectCollection(collectionName: null | string) {
-    setSelectedCollectionName(collectionName);
-  }
+    if (isNftSelected(tokenId, collectionAddress)) {
+      deselectNft(tokenId, collectionAddress);
+      return;
+    }
 
-  function isSelected(nftId: string) {
-    return selectedNftIds.includes(nftId);
+    selectNft(tokenId, collectionAddress);
   }
 
   return {
-    allCollectionSelected,
     deselectNft,
-    isSelected,
-    lastSelectedCollectionName,
-    nfts,
-    numberOfSelectedNfts,
-    selectCollection,
-    selectNft,
-    selectedCollection,
-    selectedCollectionName,
-    selectedNftIds,
-    selectedNfts,
+    isNftSelected,
+    selectedCollectionAddress,
+    selectedTokenIds,
     toggleNftSelection,
-    toggleSelectAll,
+    totalSelectedNfts,
   };
 }

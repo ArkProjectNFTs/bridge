@@ -2,13 +2,9 @@ import { useAccount } from "wagmi";
 
 import { api } from "~/utils/api";
 
-export default function useInfiniteEthereumNfts(
-  params:
-    | {
-        contractAddress?: string;
-      }
-    | undefined
-) {
+export default function useInfiniteEthereumNfts(params?: {
+  contractAddress?: string;
+}) {
   const { address: ethereumAddress } = useAccount();
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =

@@ -8,7 +8,7 @@ import {
   useWaitForTransaction,
 } from "wagmi";
 
-import useNftSelection from "./useNftSelection2";
+import useNftSelection from "./useNftSelection";
 
 export default function useTransferEthereumNfts() {
   const { selectedCollectionAddress, selectedTokenIds, totalSelectedNfts } =

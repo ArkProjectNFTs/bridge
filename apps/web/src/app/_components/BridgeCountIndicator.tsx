@@ -1,7 +1,7 @@
 import { Typography } from "design-system";
 import { usePathname } from "next/navigation";
 
-import useNftSelection from "../(routes)/bridge/_hooks/useNftSelection2";
+import useNftSelection from "../(routes)/bridge/_hooks/useNftSelection";
 import { useIsSSR } from "../_hooks/useIsSSR";
 
 export default function BrigetCountIndicator() {

@@ -6,6 +6,8 @@ import NftsEmptyState from "~/app/_components/NftsEmptyState";
 import NftsLoadingState from "~/app/_components/NftsLoadingState";
 import useCurrentChain from "~/app/_hooks/useCurrentChain";
 
+import useNftSelection from "../_hooks/useNftSelection";
+
 interface CollectionGridProps {
   nftContracts?: Array<ContractForOwner>;
 }
@@ -15,6 +17,7 @@ interface CollectionGridProps {
  */
 export default function CollectionGrid({ nftContracts }: CollectionGridProps) {
   const { sourceChain } = useCurrentChain();
+  const { selectedCollectionAddress } = useNftSelection();
 
   if (nftContracts === undefined) {
     return <NftsLoadingState />;
@@ -31,8 +34,7 @@ export default function CollectionGrid({ nftContracts }: CollectionGridProps) {
               cardType="collection"
               chain={sourceChain}
               image={nftContract.media[0]?.thumbnail}
-              //   isSelected={nftContract.name === lastSelectedCollectionName}
-              isSelected={false}
+              isSelected={nftContract.address === selectedCollectionAddress}
               key={nftContract.address}
               numberOfNfts={nftContract.totalBalance}
               onClick={() => {}}

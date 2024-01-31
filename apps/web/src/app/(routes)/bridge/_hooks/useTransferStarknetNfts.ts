@@ -8,7 +8,7 @@ import {
 import { CallData } from "starknet";
 import { useAccount as useEthereumAccount } from "wagmi";
 
-import useNftSelection from "./useNftSelection2";
+import useNftSelection from "./useNftSelection";
 
 const L2_BRIDGE_ADDRESS = process.env.NEXT_PUBLIC_L2_BRIDGE_ADDRESS || "";
 

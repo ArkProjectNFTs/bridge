@@ -17,7 +17,7 @@ export default function useInfiniteStarknetNfts() {
     );
 
   // TODO @YohanTz: Get totalCount from the api when implemented
-  const totalCount = data?.pages[0]?.nfts?.length ?? 0;
+  const totalCount = (data?.pages[0]?.nfts?.length ?? 0) as number;
 
   return { data, fetchNextPage, hasNextPage, isFetchingNextPage, totalCount };
 }
