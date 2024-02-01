@@ -1,49 +1,58 @@
-import { type ContractForOwner } from "alchemy-sdk";
 import Link from "next/link";
 
 import NftCard from "~/app/_components/NftCard/NftCard";
 import NftsEmptyState from "~/app/_components/NftsEmptyState";
 import NftsLoadingState from "~/app/_components/NftsLoadingState";
 import useCurrentChain from "~/app/_hooks/useCurrentChain";
+import { type Collection } from "~/server/api/types";
 
 import useNftSelection from "../_hooks/useNftSelection";
 
 interface CollectionGridProps {
-  nftContracts?: Array<ContractForOwner>;
+  nftCollectionPages?: Array<{
+    collections: Array<Collection>;
+    totalCount: number;
+  }>;
 }
 
 /*
  * TODO @YohanTz: Take time to optimize the lists with React.memo etc.
  */
-export default function CollectionGrid({ nftContracts }: CollectionGridProps) {
+export default function CollectionGrid({
+  nftCollectionPages,
+}: CollectionGridProps) {
   const { sourceChain } = useCurrentChain();
   const { selectedCollectionAddress } = useNftSelection();
 
-  if (nftContracts === undefined) {
+  if (nftCollectionPages === undefined) {
     return <NftsLoadingState />;
-  } else if (nftContracts.length === 0) {
+  } else if (nftCollectionPages.length === 0) {
     return <NftsEmptyState />;
   }
 
   return (
     <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-5">
-      {nftContracts.map((nftContract) => {
-        return (
-          <Link
-            href={`/bridge/${nftContract.address}`}
-            key={nftContract.address}
-          >
-            <NftCard
-              cardType="collection"
-              chain={sourceChain}
-              image={nftContract.media[0]?.thumbnail}
-              isSelected={nftContract.address === selectedCollectionAddress}
-              numberOfNfts={nftContract.totalBalance}
-              onClick={() => {}}
-              title={nftContract.name ?? nftContract.symbol ?? ""}
-            />
-          </Link>
-        );
+      {nftCollectionPages.map((nftCollectionPage) => {
+        return nftCollectionPage.collections.map((nftCollection) => {
+          return (
+            <Link
+              href={`/bridge/${nftCollection.contractAddress}`}
+              key={nftCollection.contractAddress}
+            >
+              <NftCard
+                isSelected={
+                  nftCollection.contractAddress === selectedCollectionAddress
+                }
+                cardType="collection"
+                chain={sourceChain}
+                image={nftCollection.image}
+                numberOfNfts={nftCollection.totalBalance}
+                onClick={() => {}}
+                title={nftCollection.name}
+              />
+            </Link>
+          );
+        });
       })}
     </div>
   );

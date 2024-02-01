@@ -2,12 +2,15 @@ import { useAccount } from "@starknet-react/core";
 
 import { api } from "~/utils/api";
 
-export default function useInfiniteStarknetNfts() {
+export default function useInfiniteStarknetNfts(params?: {
+  contractAddress?: string;
+}) {
   const { address: starknetAddress } = useAccount();
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     api.nfts.getL2OwnerNftsFromCollection.useInfiniteQuery(
       {
+        contractAddress: params?.contractAddress,
         userAddress: starknetAddress ?? "",
       },
       {

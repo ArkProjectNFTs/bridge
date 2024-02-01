@@ -7,6 +7,7 @@ import InfiniteScrollButton from "~/app/_components/InfiniteScrollButton";
 import NftCard from "~/app/_components/NftCard/NftCard";
 import useCurrentChain from "~/app/_hooks/useCurrentChain";
 import useInfiniteEthereumNfts from "~/app/_hooks/useInfiniteEthereumNfts";
+import useInfiniteStarknetNfts from "~/app/_hooks/useInfiniteStarknetNfts";
 
 import useNftSelection from "../_hooks/useNftSelection";
 
@@ -19,8 +20,30 @@ export default function TokenList({ nftContractAddress }: TokenListProps) {
 
   const { isNftSelected, toggleNftSelection } = useNftSelection();
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useInfiniteEthereumNfts({ contractAddress: nftContractAddress });
+  const {
+    data: l1NftsData,
+    fetchNextPage: fetchNextl1NftsPage,
+    hasNextPage: hasNextl1NftsPage,
+    isFetchingNextPage: isFetchingNextl1NftsPage,
+  } = useInfiniteEthereumNfts({ contractAddress: nftContractAddress });
+
+  const {
+    data: l2NftsData,
+    fetchNextPage: fetchNextl2NftsPage,
+    hasNextPage: hasNextl2NftsPage,
+    isFetchingNextPage: isFetchingNextl2NftsPage,
+  } = useInfiniteStarknetNfts({ contractAddress: nftContractAddress });
+
+  // TODO @YohanTz: Extract to a hook
+  const data = sourceChain === "Ethereum" ? l1NftsData : l2NftsData;
+  const fetchNextPage =
+    sourceChain === "Ethereum" ? fetchNextl1NftsPage : fetchNextl2NftsPage;
+  const hasNextPage =
+    sourceChain === "Ethereum" ? hasNextl1NftsPage : hasNextl2NftsPage;
+  const isFetchingNextPage =
+    sourceChain === "Ethereum"
+      ? isFetchingNextl1NftsPage
+      : isFetchingNextl2NftsPage;
 
   if (data === undefined) {
     return;

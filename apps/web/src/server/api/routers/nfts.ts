@@ -127,10 +127,10 @@ export const nftsRouter = createTRPCRouter({
           })
         );
 
-        return { collections };
+        return { collections, totalCount: 0 };
       } catch (error) {
         console.error("getL2NftCollectionsByWallet error: ", error);
-        return { collections: [] };
+        return { collections: [], totalCount: 0 };
       }
     }),
 

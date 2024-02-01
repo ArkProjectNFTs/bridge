@@ -17,7 +17,7 @@ export default function useInfiniteStarknetCollections() {
     );
 
   // TODO @YohanTz: Get totalCount from the api when implemented
-  const totalCount = (data?.pages[0]?.contracts?.length ?? 0) as number;
+  const totalCount = data?.pages[0]?.collections?.length ?? 0;
 
   return { data, fetchNextPage, hasNextPage, isFetchingNextPage, totalCount };
 }

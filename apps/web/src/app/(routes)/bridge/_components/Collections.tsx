@@ -1,27 +1,32 @@
-import useAccountFromChain from "~/app/_hooks/useAccountFromChain";
 import useCurrentChain from "~/app/_hooks/useCurrentChain";
-import { api } from "~/utils/api";
+import useInfiniteEthereumCollections from "~/app/_hooks/useInfiniteEthereumCollections";
+import useInfiniteStarknetCollections from "~/app/_hooks/useInfiniteStarknetCollections";
 
 import CollectionGrid from "./CollectionGrid";
 import CollectionHeader from "./CollectionHeader";
 
 export default function Collections() {
   const { sourceChain } = useCurrentChain();
-  const { address } = useAccountFromChain(sourceChain);
 
-  const { data } = api.nfts.getL1NftCollectionsByWallet.useQuery(
-    {
-      address: address ?? "",
-    },
-    {
-      enabled: address !== undefined,
-    }
-  );
+  const { data: l1CollectionsData, totalCount: l1CollectionsTotalCount } =
+    useInfiniteEthereumCollections();
+  const { data: l2CollectionsData, totalCount: l2CollectionsTotalCount } =
+    useInfiniteStarknetCollections();
+
+  const pages =
+    sourceChain === "Ethereum"
+      ? l1CollectionsData?.pages
+      : l2CollectionsData?.pages;
+
+  const totalCount =
+    sourceChain === "Ethereum"
+      ? l1CollectionsTotalCount
+      : l2CollectionsTotalCount;
 
   return (
     <>
-      <CollectionHeader collectionTotalCount={data?.totalCount} />
-      <CollectionGrid nftContracts={data?.contracts} />
+      <CollectionHeader collectionTotalCount={totalCount} />
+      <CollectionGrid nftCollectionPages={pages} />
     </>
   );
 }
