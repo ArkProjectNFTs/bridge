@@ -53,8 +53,8 @@ export default function TokenList({ nftContractAddress }: TokenListProps) {
       <div className="mb-10 flex w-full flex-wrap justify-between gap-3.5">
         <div className="flex max-w-full items-center gap-3.5">
           <Typography ellipsable variant="heading_light_s">
-            {data.pages[0]?.ownedNfts[0]?.contract.name ??
-              data.pages[0]?.ownedNfts[0]?.contract.symbol}{" "}
+            {/* {data.pages[0]?.ownedNfts[0]?.contract.name ??
+              data.pages[0]?.ownedNfts[0]?.contract.symbol}{" "} */}
             Collection
           </Typography>
           <Typography
@@ -77,29 +77,22 @@ export default function TokenList({ nftContractAddress }: TokenListProps) {
           return page.ownedNfts.map((ownedNft) => {
             const isSelected = isNftSelected(
               ownedNft.tokenId,
-              ownedNft.contract.address
+              ownedNft.contractAddress
             );
 
             return (
               <NftCard
                 // onClick={() => toggleNftSelection(nft.id)}
                 onClick={() =>
-                  toggleNftSelection(
-                    ownedNft.tokenId,
-                    ownedNft.contract.address
-                  )
-                }
-                title={
-                  ownedNft.title.length > 0
-                    ? ownedNft.title
-                    : `#${ownedNft.tokenId}`
+                  toggleNftSelection(ownedNft.tokenId, ownedNft.contractAddress)
                 }
                 cardType="nft"
                 chain={sourceChain}
-                image={ownedNft.media[0]?.thumbnail}
+                image={ownedNft.image}
                 // isSelected={isSelected(nft.id)}
                 isSelected={isSelected}
                 key={ownedNft.tokenId}
+                title={ownedNft.name}
               />
             );
           });

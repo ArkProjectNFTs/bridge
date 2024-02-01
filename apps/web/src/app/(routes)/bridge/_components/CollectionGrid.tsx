@@ -29,13 +29,15 @@ export default function CollectionGrid({ nftContracts }: CollectionGridProps) {
     <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-5">
       {nftContracts.map((nftContract) => {
         return (
-          <Link href={`/bridge/${nftContract.address}`}>
+          <Link
+            href={`/bridge/${nftContract.address}`}
+            key={nftContract.address}
+          >
             <NftCard
               cardType="collection"
               chain={sourceChain}
               image={nftContract.media[0]?.thumbnail}
               isSelected={nftContract.address === selectedCollectionAddress}
-              key={nftContract.address}
               numberOfNfts={nftContract.totalBalance}
               onClick={() => {}}
               title={nftContract.name ?? nftContract.symbol ?? ""}

@@ -1,9 +1,10 @@
 import { Alchemy, Network, NftFilters } from "alchemy-sdk";
 import { validateAndParseAddress } from "starknet";
-import { isAddress } from "viem";
 import { z } from "zod";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+
+import { type Collection, type Nft } from "../types";
 
 const alchemy = new Alchemy({
   apiKey: process.env.ALCHEMY_API_KEY,
@@ -11,20 +12,31 @@ const alchemy = new Alchemy({
   network: Network.ETH_GOERLI,
 });
 
-export type Nft = {
-  collectionContractAddress: string;
-  collectionName: string;
-  id: string;
-  image: string | undefined;
-  title: string;
-  tokenId: string;
+type ArkNftsApiResponse = {
+  result: Array<{
+    contract_address: string;
+    metadata: {
+      normalized: { image: null | string; name: null | string };
+    } | null;
+    owner: string;
+    token_id: string;
+  }>;
 };
 
-const EthereumAddress = z.object({
-  address: z.custom<string>((address) => {
-    return isAddress(address as string);
-  }, "Invalid Address"),
-});
+type ArkCollectionsApiResponse = {
+  result: Array<{
+    contract_address: string;
+    contract_type: string;
+    name: string;
+    symbol: string;
+  }>;
+};
+
+// const EthereumAddress = z.object({
+//   address: z.custom<string>((address) => {
+//     return isAddress(address as string);
+//   }, "Invalid Address"),
+// });
 
 export const nftsRouter = createTRPCRouter({
   getL1NftCollectionsByWallet: publicProcedure
@@ -37,53 +49,14 @@ export const nftsRouter = createTRPCRouter({
           pageKey: cursor,
         });
 
-      console.log(contracts, pageKey, totalCount);
+      const collections: Array<Collection> = contracts.map((contract) => ({
+        contractAddress: contract.address,
+        image: contract.media[0]?.thumbnail,
+        name: contract.name ?? contract.symbol ?? "Unknown",
+        totalBalance: contract.totalBalance,
+      }));
 
-      return { contracts, nextCursor: pageKey, totalCount };
-    }),
-
-  getL1NftsByCollection: publicProcedure
-    .input(EthereumAddress)
-    .query(async ({ input }) => {
-      const { address } = input;
-
-      const { ownedNfts } = await alchemy.nft.getNftsForOwner(
-        address.toLowerCase(),
-        { excludeFilters: [NftFilters.SPAM] }
-      );
-
-      const rawNfts = ownedNfts
-        // .filter(
-        //   (nft) =>
-        //     nft.contract.tokenType === "ERC721" ||
-        //     nft.contract.tokenType === "ERC1155"
-        // )
-        .map((nft) => ({
-          collectionContractAddress: nft.contract.address,
-          collectionName:
-            nft.contract.openSea?.collectionName ??
-            nft.contract.name ??
-            "No metadata",
-          id: `${nft.contract.address}-${nft.tokenId}`,
-          // TODO @YohanTz: Support videos
-          image: nft.media[0]?.thumbnail ?? undefined,
-          title: nft.title,
-          tokenId: nft.tokenId,
-        }));
-
-      const nftsByCollection = rawNfts.reduce<Record<string, Array<Nft>>>(
-        (acc, nft) => {
-          if (acc[nft.collectionName] === undefined) {
-            acc[nft.collectionName] = [];
-          }
-
-          acc[nft.collectionName]?.push(nft);
-          return acc;
-        },
-        {}
-      );
-
-      return { byCollection: nftsByCollection, raw: rawNfts };
+      return { collections, nextCursor: pageKey, totalCount };
     }),
 
   getL1OwnerNftsFromCollection: publicProcedure
@@ -100,13 +73,27 @@ export const nftsRouter = createTRPCRouter({
     )
     .query(async ({ input }) => {
       const { contractAddress, cursor, userAddress } = input;
-      const { ownedNfts, pageKey, totalCount } =
-        await alchemy.nft.getNftsForOwner(userAddress.toLowerCase(), {
-          contractAddresses:
-            contractAddress !== undefined ? [contractAddress] : undefined,
-          excludeFilters: [NftFilters.SPAM],
-          pageKey: cursor,
-        });
+      const {
+        ownedNfts: nfts,
+        pageKey,
+        totalCount,
+      } = await alchemy.nft.getNftsForOwner(userAddress.toLowerCase(), {
+        contractAddresses:
+          contractAddress !== undefined ? [contractAddress] : undefined,
+        excludeFilters: [NftFilters.SPAM],
+        pageKey: cursor,
+      });
+
+      // TODO @YohanTz: Handle videos
+      const ownedNfts: Array<Nft> = nfts.map((nft) => ({
+        contractAddress: nft.contract.address,
+        image: nft.media[0]?.thumbnail,
+        name:
+          nft.title.length > 0
+            ? nft.title
+            : `${nft.title ?? nft.contract.name} #${nft.tokenId}`,
+        tokenId: nft.tokenId,
+      }));
 
       // TODO @YohanTz: Filter spam NFTs
       return { nextCursor: pageKey, ownedNfts, totalCount };
@@ -128,74 +115,22 @@ export const nftsRouter = createTRPCRouter({
             "X-API-KEY": process.env.ARK_API_KEY ?? "",
           },
         });
-        const contracts = (await contractsResponse.json()) as {
-          result: unknown;
-        };
+        const contracts =
+          (await contractsResponse.json()) as ArkCollectionsApiResponse;
 
-        return { contracts: contracts.result };
-      } catch (error) {
-        console.error("getL2NftCollectionsByWallet error: ", error);
-        return [];
-      }
-    }),
-
-  getL2NftsByCollection: publicProcedure
-    .input(z.object({ address: z.string() }))
-    .query(async ({ input }) => {
-      const { address } = input;
-
-      try {
-        // TODO @YohanTz: Type env object
-
-        const url = `${
-          process.env.NEXT_PUBLIC_ARK_API_DOMAIN ?? ""
-        }/v1/owners/${validateAndParseAddress(address)}/tokens`;
-
-        const ownedNftsResponse = await fetch(url, {
-          headers: {
-            "Content-Type": "application/json",
-            "X-API-KEY": "yW0akON1f55mOFwBPXPme4AFfLktbRiQ2GNdT1Mc",
-          },
-        });
-
-        if (ownedNftsResponse.status !== 200) {
-          return { byCollection: {}, raw: [] };
-        }
-
-        const ownedNfts = (await ownedNftsResponse.json()) as {
-          result: Array<{
-            contract_address: string;
-            token_id: string;
-          }>;
-        };
-
-        const rawNfts = ownedNfts.result.map((ownedNft) => {
-          return {
-            collectionContractAddress: ownedNft.contract_address,
-            collectionName: "No metadata",
-            id: `${ownedNft.contract_address}-${ownedNft.token_id}`,
+        const collections: Array<Collection> = contracts.result.map(
+          (contract) => ({
+            contractAddress: contract.contract_address,
             image: undefined,
-            title: `#${ownedNft.token_id}`,
-            tokenId: ownedNft.token_id,
-          };
-        });
-
-        const nftsByCollection = rawNfts.reduce<Record<string, Array<Nft>>>(
-          (acc, nft) => {
-            if (acc[nft.collectionName] === undefined) {
-              acc[nft.collectionName] = [];
-            }
-
-            acc[nft.collectionName]?.push(nft);
-            return acc;
-          },
-          {}
+            name: contract.name ?? contract.symbol,
+            totalBalance: 0,
+          })
         );
 
-        return { byCollection: nftsByCollection, raw: rawNfts };
-      } catch (err) {
-        console.error("getL2NftsByCollection error: ", err);
-        return { byCollection: {}, raw: [] };
+        return { collections };
+      } catch (error) {
+        console.error("getL2NftCollectionsByWallet error: ", error);
+        return { collections: [] };
       }
     }),
 
@@ -229,12 +164,23 @@ export const nftsRouter = createTRPCRouter({
             "X-API-KEY": process.env.ARK_API_KEY ?? "",
           },
         });
-        const nfts = (await nftsResponse.json()) as { result: unknown };
 
-        return { nfts: nfts.result };
+        const nfts = (await nftsResponse.json()) as ArkNftsApiResponse;
+
+        const ownedNfts: Array<Nft> = nfts.result.map((nft) => ({
+          contractAddress: nft.contract_address,
+          image: nft.metadata?.normalized.image ?? undefined,
+          name:
+            nft.metadata?.normalized.name?.length ?? 0 > 0
+              ? nft.metadata?.normalized?.name ?? ""
+              : `${nft.token_id}`,
+          tokenId: nft.token_id,
+        }));
+
+        return { ownedNfts };
       } catch (error) {
         console.error("getL2NftCollectionsByWallet error: ", error);
-        return [];
+        return { ownedNfts: [] };
       }
     }),
   // getAll: publicProcedure.query(({ ctx }) => {

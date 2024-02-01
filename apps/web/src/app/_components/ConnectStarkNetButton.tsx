@@ -1,4 +1,4 @@
-import { useAccount } from "@starknet-react/core";
+import { useAccount, useStarkName } from "@starknet-react/core";
 import { Typography } from "design-system";
 import Image from "next/image";
 import { useMemo } from "react";
@@ -24,6 +24,8 @@ export default function ConnectStarknetButton({
   const isSSR = useIsSSR();
   const { address, connector, isConnected } = useAccount();
 
+  const { data: starkName } = useStarkName({ address });
+
   const shortAddress = useMemo(
     () => (address ? `${address.slice(0, 6)}...${address.slice(-4)}` : ""),
     [address]
@@ -40,7 +42,7 @@ export default function ConnectStarknetButton({
         onClick={() => onOpenModalChange(!isModalOpen)}
       >
         <Typography variant="button_text_s">
-          {isConnected ? shortAddress : "Connect Starknet Wallet"}
+          {isConnected ? starkName ?? shortAddress : "Connect Starknet Wallet"}
         </Typography>
         <div className="flex">
           <Image

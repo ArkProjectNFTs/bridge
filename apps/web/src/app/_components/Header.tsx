@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  useConnectors,
-  // useAccount as useStarknetAccount,
-} from "@starknet-react/core";
+import { useAccount as useStarknetAccount } from "@starknet-react/core";
 import { Typography } from "design-system";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -29,15 +26,14 @@ export default function Header() {
     isConnected: isEthereumConnected,
     isConnecting: isEthereumConnecting,
   } = useEthereumAccount();
-  // const { isConnected: isStarknetConnected } = useStarknetAccount();
-  const { isLoading: isStarknetLoading } = useConnectors();
+  const { isConnected: isStarknetConnected } = useStarknetAccount();
 
   const router = useRouter();
   const pathname = usePathname();
 
-  const isFullyConnected = isEthereumConnected;
+  const isFullyConnected = isEthereumConnected && isStarknetConnected;
   // TODO @YohanTz: fix isConnecting in starknet-react
-  const isConnecting = isEthereumConnecting || isStarknetLoading;
+  const isConnecting = isEthereumConnecting;
 
   useEffect(() => {
     if (pathname === "/" && isFullyConnected) {

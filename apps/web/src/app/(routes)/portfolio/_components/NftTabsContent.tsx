@@ -33,7 +33,7 @@ function AllNftsTabsContent() {
     );
   } else if (
     l1NftsData.pages[0]?.totalCount === 0 &&
-    l2NftsData.pages[0]?.nfts.length === 0
+    l2NftsData.pages[0]?.ownedNfts.length === 0
   ) {
     return (
       <Tabs.Content value="all">
@@ -46,19 +46,15 @@ function AllNftsTabsContent() {
     <Tabs.Content value="all">
       <div className="grid grid-cols-2 gap-5 sm:grid-cols-5">
         {l2NftsData.pages.map((page) => {
-          return page.nfts.map((nft) => {
+          return page.ownedNfts.map((nft) => {
             return (
               <NftCard
-                title={
-                  nft.metadata?.normalized?.name?.length ?? 0 > 0
-                    ? nft.metadata?.normalized?.name
-                    : `#${nft.token_id}`
-                }
                 cardType="nft"
                 chain="Starknet"
-                image={nft.metadata?.normalized?.image}
+                image={nft.image}
                 isSelected={false}
-                key={`${nft.contract_address}-${nft.token_id}`}
+                key={`${nft.contractAddress}-${nft.tokenId}`}
+                title={nft.name}
               />
             );
           });
@@ -68,16 +64,12 @@ function AllNftsTabsContent() {
           return page.ownedNfts.map((nft) => {
             return (
               <NftCard
-                title={
-                  nft.title.length > 0
-                    ? nft.title
-                    : `${nft.title ?? nft.contract.name} #${nft.tokenId}`
-                }
                 cardType="nft"
                 chain="Ethereum"
-                image={nft.media[0]?.thumbnail}
+                image={nft.image}
                 isSelected={false}
-                key={`${nft.contract.address}-${nft.tokenId}`}
+                key={`${nft.contractAddress}-${nft.tokenId}`}
+                title={nft.name}
               />
             );
           });
@@ -116,39 +108,38 @@ function CollectionsTabsContent() {
     );
   }
 
+  console.log(l2CollectionsData);
+
   return (
     <Tabs.Content value="collections">
       <div className="grid grid-cols-2 gap-5 sm:grid-cols-5">
         {l2CollectionsData.pages.map((page) => {
-          return page.contracts.map((nftContract) => {
+          return page.collections.map((collection) => {
             return (
               <NftCard
-                title={
-                  nftContract.name ?? nftContract.symbol ?? "No collection name"
-                }
                 cardType="collection"
                 chain="Starknet"
-                // image={nftContract.media[0]?.thumbnail}
+                image={collection.image}
                 isSelected={false}
-                key={nftContract.contract_address}
-                // numberOfNfts={nftContract.totalBalance}
-                numberOfNfts={0}
+                key={collection.contractAddress}
+                numberOfNfts={collection.totalBalance}
+                title={collection.name}
               />
             );
           });
         })}
 
         {l1CollectionsData.pages.map((page) => {
-          return page.contracts.map((nftContract) => {
+          return page.collections.map((collection) => {
             return (
               <NftCard
                 cardType="collection"
                 chain="Ethereum"
-                image={nftContract.media[0]?.thumbnail}
+                image={collection.image}
                 isSelected={false}
-                key={nftContract.address}
-                numberOfNfts={nftContract.totalBalance}
-                title={nftContract.name ?? nftContract.symbol ?? ""}
+                key={collection.contractAddress}
+                numberOfNfts={collection.totalBalance}
+                title={collection.name}
               />
             );
           });
@@ -193,16 +184,12 @@ function EthereumNTabsContent() {
           return page.ownedNfts.map((nft) => {
             return (
               <NftCard
-                title={
-                  nft.title.length > 0
-                    ? nft.title
-                    : `${nft.title ?? nft.contract.name} #${nft.tokenId}`
-                }
                 cardType="nft"
                 chain="Ethereum"
-                image={nft.media[0]?.thumbnail}
+                image={nft.image}
                 isSelected={false}
-                key={`${nft.contract.address}-${nft.tokenId}`}
+                key={`${nft.contractAddress}-${nft.tokenId}`}
+                title={nft.name}
               />
             );
           });
@@ -232,7 +219,7 @@ function StarknetTabsContent() {
         <NftsLoadingState />
       </Tabs.Content>
     );
-  } else if (l2NftsData.pages[0].nfts.length === 0) {
+  } else if (l2NftsData.pages[0]?.ownedNfts.length === 0) {
     return (
       <Tabs.Content value="starknet">
         <NftsEmptyState />
@@ -246,19 +233,15 @@ function StarknetTabsContent() {
       value="starknet"
     >
       {l2NftsData.pages.map((page) => {
-        return page.nfts.map((nft) => {
+        return page.ownedNfts.map((nft) => {
           return (
             <NftCard
-              title={
-                nft.metadata?.normalized?.name?.length ?? 0 > 0
-                  ? nft.metadata?.normalized?.name
-                  : `#${nft.token_id}`
-              }
               cardType="nft"
               chain="Starknet"
-              image={nft.metadata?.normalized?.image}
+              image={nft.image}
               isSelected={false}
-              key={`${nft.contract_address}-${nft.token_id}`}
+              key={`${nft.contractAddress}-${nft.tokenId}`}
+              title={nft.name}
             />
           );
         });

@@ -1,4 +1,3 @@
-import * as RUIDialog from "@radix-ui/react-dialog";
 import {
   useAccount as useStarknetAccount,
   useBalance as useStarknetBalance,
@@ -98,11 +97,7 @@ function ConnectorList({ chain }: ConnectorListProps) {
         width={100}
       />
       <div className="w-full px-7">
-        <Typography
-          className="mt-6"
-          component={RUIDialog.Title}
-          variant="heading_light_xxs"
-        >
+        <Typography className="mt-6" component="h3" variant="heading_light_xxs">
           {chain} Wallet
         </Typography>
         <Typography className="mb-6 mt-2" component="p" variant="body_text_14">
@@ -135,11 +130,7 @@ function ConnectorList({ chain }: ConnectorListProps) {
         src={CHAIN_WALLET_ILLUSTRATION_BY_NAME[chain]}
         width={100}
       />
-      <Typography
-        className="py-6"
-        component={RUIDialog.Title}
-        variant="heading_light_xxs"
-      >
+      <Typography className="py-6" component="p" variant="heading_light_xxs">
         Choose your {chain} wallet
       </Typography>
       <div className="flex w-full flex-col gap-4 px-11 sm:px-7">
@@ -208,14 +199,14 @@ export default function ConnectModal({
           />
           <Typography
             className="pb-4 pt-6"
-            component={RUIDialog.Title}
+            component="p"
             variant="heading_light_xxs"
           >
             Connect your wallets to login
           </Typography>
           <Typography
             className="mx-7 mb-6"
-            component={RUIDialog.Description}
+            component="p"
             variant="body_text_14"
           >
             You must connect an Ethereum wallet and a Starknet wallet to start
