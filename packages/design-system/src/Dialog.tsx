@@ -7,9 +7,15 @@ interface DialogProps {
   children: React.ReactNode;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
+  withoutCloseButton?: boolean;
 }
 
-export function Dialog({ children, isOpen, onOpenChange }: DialogProps) {
+export function Dialog({
+  children,
+  isOpen,
+  onOpenChange,
+  withoutCloseButton,
+}: DialogProps) {
   return (
     <>
       <RUIDialog.Root open={isOpen} modal={false} onOpenChange={onOpenChange}>
@@ -21,11 +27,13 @@ export function Dialog({ children, isOpen, onOpenChange }: DialogProps) {
             onInteractOutside={(event) => event.preventDefault()}
           >
             <div className="flex w-full justify-end p-5">
-              <RUIDialog.Close asChild>
-                <button aria-label="Close">
-                  <XMarkIcon className="h-6 w-6" />
-                </button>
-              </RUIDialog.Close>
+              {!withoutCloseButton && (
+                <RUIDialog.Close asChild>
+                  <button aria-label="Close">
+                    <XMarkIcon className="h-6 w-6" />
+                  </button>
+                </RUIDialog.Close>
+              )}
             </div>
             {children}
           </RUIDialog.Content>

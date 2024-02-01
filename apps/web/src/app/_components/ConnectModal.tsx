@@ -5,10 +5,7 @@ import {
 import { Dialog, Typography } from "design-system";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import {
-  useAccount as useEthereumAccount,
-  useBalance as useEthereumBalance,
-} from "wagmi";
+import { useAccountEffect, useBalance as useEthereumBalance } from "wagmi";
 
 import useAccountFromChain from "../_hooks/useAccountFromChain";
 import useConnectFromChain from "../_hooks/useConnectFromChain";
@@ -135,6 +132,7 @@ function ConnectorList({ chain }: ConnectorListProps) {
       </Typography>
       <div className="flex w-full flex-col gap-4 px-11 sm:px-7">
         {connectors.map((connector) => {
+          console.log(connectors);
           return (
             <ConnectorButton
               id={connector.id}
@@ -172,7 +170,7 @@ export default function ConnectModal({
     onOpenChange(false);
   }
 
-  useEthereumAccount({
+  useAccountEffect({
     onConnect() {
       onWalletConnect();
     },

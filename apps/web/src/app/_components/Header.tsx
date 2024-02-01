@@ -13,6 +13,8 @@ import { type Chain } from "../_types";
 import BridgeCountIndicator from "./BridgeCountIndicator";
 import ConnectEthereumButton from "./ConnectEthereumButton";
 import ConnectStarkNetButton from "./ConnectStarkNetButton";
+import EthereumSwitchNetwork from "./EthereumSwitchNetwork";
+import StarknetSwitchNetwork from "./StarknetSwitchNetwork";
 
 const connectedPages = [
   { name: "Portfolio", path: "/portfolio" },
@@ -83,6 +85,7 @@ export default function Header() {
       )}
       <div className="flex gap-4">
         <div className="hidden gap-4 md:flex">
+          {/* TODO @YohanTz: Modal context */}
           <ConnectEthereumButton
             onOpenModalChange={(open) => {
               open ? openModal("Ethereum") : closeModal();
@@ -99,6 +102,8 @@ export default function Header() {
         <DarkModeButton />
         <BridgeCountIndicator />
       </div>
+      <EthereumSwitchNetwork />
+      <StarknetSwitchNetwork />
     </header>
   );
 }

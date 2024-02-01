@@ -7,29 +7,24 @@ import {
 } from "@starknet-react/chains";
 import { StarknetConfig, jsonRpcProvider } from "@starknet-react/core";
 import { ThemeProvider } from "next-themes";
-import { WagmiConfig, configureChains, createConfig } from "wagmi";
+import { WagmiProvider, createConfig, http } from "wagmi";
 import { goerli } from "wagmi/chains";
-import { publicProvider } from "wagmi/providers/public";
 
 import {
   ethereumConnectors,
   starknetConnectors,
 } from "../_lib/utils/connectors";
 
-const { publicClient, webSocketPublicClient } = configureChains(
-  [goerli],
-  [publicProvider()]
-);
-
 const wagmiConfig = createConfig({
-  autoConnect: true,
+  chains: [goerli],
   connectors: ethereumConnectors,
-  publicClient,
-  webSocketPublicClient,
+  transports: {
+    [goerli.id]: http(),
+  },
 });
 
-function starknetRpc(_chain: Chain) {
-  if (_chain.network === "goerli")
+function starknetRpc(chain: Chain) {
+  if (chain.network === "goerli")
     return { nodeUrl: `https://juno.testnet.arkproject.dev/` };
 
   return { nodeUrl: `https://juno.mainnet.arkproject.dev/` };
@@ -48,9 +43,9 @@ export default function Providers({ children }: ProvidersProps) {
       connectors={starknetConnectors}
       provider={jsonRpcProvider({ rpc: starknetRpc })}
     >
-      <WagmiConfig config={wagmiConfig}>
+      <WagmiProvider config={wagmiConfig}>
         <ThemeProvider attribute="class">{children}</ThemeProvider>
-      </WagmiConfig>
+      </WagmiProvider>
     </StarknetConfig>
   );
 }

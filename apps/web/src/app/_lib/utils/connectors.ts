@@ -1,8 +1,7 @@
 import { InjectedConnector as InjectedStarknetConnector } from "@starknet-react/core";
 import { type StaticImageData } from "next/image";
+import { coinbaseWallet, injected } from "wagmi/connectors";
 // import { WalletConnectConnector } from "wagmi/connectors/walletConnect";
-import { CoinbaseWalletConnector } from "wagmi/connectors/coinbaseWallet";
-import { InjectedConnector as InjectedEthereumConnector } from "wagmi/connectors/injected";
 
 import argentXLogo from "../../../../public/logos/argentX.png";
 import braavosLogo from "../../../../public/logos/braavos.png";
@@ -17,11 +16,12 @@ import { type Chain } from "../../_types";
  */
 
 export const ethereumConnectors = [
-  new InjectedEthereumConnector(),
+  injected(),
   //   new WalletConnectConnector({ options: { projectId: walletConnectProjectId } }),
-  new CoinbaseWalletConnector({
+  coinbaseWallet({
     // TODO @YohanTz: handle `darkMode` for coinbase wallet modal
-    options: { appName: "Starklane" /* darkMode: true */ },
+    appName: "Starklane",
+    darkMode: true,
   }),
 ];
 
@@ -37,6 +37,7 @@ export const WALLET_LOGOS_BY_ID: Record<string, StaticImageData> = {
   argentX: argentXLogo,
   braavos: braavosLogo,
   coinbaseWallet: coinbaseLogo,
+  coinbaseWalletSDK: coinbaseLogo,
   injected: metaMaskLogo,
   walletConnect: walletConnectLogo,
 };
@@ -57,6 +58,7 @@ export const CONNECTOR_LABELS_BY_ID: Record<string, string> = {
   argentX: "Argent X",
   braavos: "Braavos",
   coinbaseWallet: "Coinbase Wallet",
+  coinbaseWalletSDK: "Coinbase Wallet",
   injected: "Metamask",
   walletConnect: "WalletConnect",
 };

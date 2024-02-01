@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 "use client";
 
 import { Typography } from "design-system";
@@ -25,6 +26,7 @@ export default function TokenList({ nftContractAddress }: TokenListProps) {
     fetchNextPage: fetchNextl1NftsPage,
     hasNextPage: hasNextl1NftsPage,
     isFetchingNextPage: isFetchingNextl1NftsPage,
+    totalCount: l1NftsTotalCount,
   } = useInfiniteEthereumNfts({ contractAddress: nftContractAddress });
 
   const {
@@ -32,6 +34,7 @@ export default function TokenList({ nftContractAddress }: TokenListProps) {
     fetchNextPage: fetchNextl2NftsPage,
     hasNextPage: hasNextl2NftsPage,
     isFetchingNextPage: isFetchingNextl2NftsPage,
+    totalCount: l2NftsTotalCount,
   } = useInfiniteStarknetNfts({ contractAddress: nftContractAddress });
 
   // TODO @YohanTz: Extract to a hook
@@ -44,6 +47,8 @@ export default function TokenList({ nftContractAddress }: TokenListProps) {
     sourceChain === "Ethereum"
       ? isFetchingNextl1NftsPage
       : isFetchingNextl2NftsPage;
+  const totalCount =
+    sourceChain === "Ethereum" ? l1NftsTotalCount : l2NftsTotalCount;
 
   if (data === undefined) {
     return;
@@ -84,8 +89,8 @@ export default function TokenList({ nftContractAddress }: TokenListProps) {
             className="shrink-0 rounded-full bg-primary-source px-2 py-1.5 text-white"
             variant="body_text_12"
           >
-            {data.pages[0]?.totalCount ?? 0}
-            {data.pages[0]?.totalCount ?? 2 > 1 ? " Nfts" : " Nft"}
+            {totalCount}
+            {totalCount > 1 ? " Nfts" : " Nft"}
           </Typography>
         </div>
         {/* <Button color="default" onClick={toggleSelectAll} size="small">
@@ -123,7 +128,7 @@ export default function TokenList({ nftContractAddress }: TokenListProps) {
       </div>
       <InfiniteScrollButton
         className="mx-auto mt-14"
-        fetchNextPage={() => fetchNextPage}
+        fetchNextPage={() => fetchNextPage()}
         hasNextPage={hasNextPage}
         isFetchingNextPage={isFetchingNextPage}
       />
