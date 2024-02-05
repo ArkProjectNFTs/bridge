@@ -106,6 +106,7 @@ async fn main() -> Result<()> {
 
         let app = Router::new()
             .route("/requests/:wallet", get(requests::reqs_info_from_wallet))
+            .route("/tx/:txhash", get(requests::transaction))
             .with_state(app_state);
 
         match Server::bind(&args.api_server_ip.unwrap().parse().unwrap())

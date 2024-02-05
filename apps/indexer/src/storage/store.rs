@@ -59,6 +59,9 @@ pub trait EventStore {
 
     ///
     async fn events_by_request(&self, req_hash: &str) -> Result<Vec<Event>>;
+
+    /// 
+    async fn event_by_tx(&self, tx_hash: &str) -> Result<Option<Event>>;
 }
 
 /// Store for bridged collections.

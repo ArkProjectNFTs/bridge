@@ -24,6 +24,11 @@ impl EventStore for MongoStore {
     }
 
     ///
+    async fn event_by_tx(&self, tx_hash: &str) -> Result<Option<Event>> {
+        Ok(self.events.find_one(doc! { "tx_hash": tx_hash }, None).await?)
+    }
+
+    ///
     async fn insert_event(&self, event: Event) -> Result<()> {
         self.events.insert_one(event, None).await?;
 

@@ -51,3 +51,15 @@ pub async fn reqs_info_from_wallet(
 
     Ok(Json(dtos))
 }
+
+pub async fn transaction(
+    Path(txhash): Path<String>,
+    state: State<AppState>,
+) -> StatusCode {
+    if let Ok(event) = state.store.event_by_tx(&txhash.to_lowercase()).await {
+        if event.is_some() {
+            return StatusCode::OK;
+        }
+    } 
+    StatusCode::NOT_FOUND
+}
