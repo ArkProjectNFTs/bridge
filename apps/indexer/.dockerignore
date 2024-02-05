@@ -1,0 +1,8 @@
+.dockerignore
+docker-compose.*
+Dockerfile*
+Makefile
+
+.env*
+target/**
+*.config
