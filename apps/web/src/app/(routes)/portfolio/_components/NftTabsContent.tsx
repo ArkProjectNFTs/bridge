@@ -108,8 +108,6 @@ function CollectionsTabsContent() {
     );
   }
 
-  console.log(l2CollectionsData);
-
   return (
     <Tabs.Content value="collections">
       <div className="grid grid-cols-2 gap-5 sm:grid-cols-5">

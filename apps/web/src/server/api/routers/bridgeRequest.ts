@@ -61,7 +61,6 @@ export const bridgeRequestRouter = createTRPCRouter({
       return bridgeRequests.map((bridgeRequest) => {
         const lastBridgeRequestEvent =
           bridgeRequest.events[bridgeRequest.events.length - 1];
-        console.log(bridgeRequest.req.hash);
         return {
           // sourceCollection: bridgeRequest.req.collection_src ?? "",
           sourceCollection: bridgeRequest.req.hash ?? "",

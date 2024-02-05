@@ -7,7 +7,7 @@ export default function useInfiniteStarknetNfts(params?: {
 }) {
   const { address: starknetAddress } = useAccount();
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     api.nfts.getL2OwnerNftsFromCollection.useInfiniteQuery(
       {
         contractAddress: params?.contractAddress,
@@ -22,5 +22,12 @@ export default function useInfiniteStarknetNfts(params?: {
   // TODO @YohanTz: Get totalCount from the api when implemented
   const totalCount = data?.pages[0]?.ownedNfts.length ?? 0;
 
-  return { data, fetchNextPage, hasNextPage, isFetchingNextPage, totalCount };
+  return {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    totalCount,
+  };
 }

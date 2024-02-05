@@ -5,7 +5,6 @@ import localFont from "next/font/local";
 import "~/styles/globals.css";
 import { api } from "~/utils/api";
 
-import Footer from "../_components/Footer";
 import Header from "../_components/Header";
 import useCurrentChain from "../_hooks/useCurrentChain";
 import Providers from "./providers";
@@ -78,7 +77,6 @@ function RootLayout({ children }: { children: React.ReactNode }) {
         <Providers>
           <Header />
           {children}
-          <Footer />
         </Providers>
       </body>
     </html>

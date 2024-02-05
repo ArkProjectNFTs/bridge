@@ -5,7 +5,12 @@ import {
 import { Dialog, Typography } from "design-system";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { useAccountEffect, useBalance as useEthereumBalance } from "wagmi";
+import { useCopyToClipboard } from "usehooks-ts";
+import {
+  useAccountEffect,
+  useAccount as useEthereumAccount,
+  useBalance as useEthereumBalance,
+} from "wagmi";
 
 import useAccountFromChain from "../_hooks/useAccountFromChain";
 import useConnectFromChain from "../_hooks/useConnectFromChain";
@@ -78,12 +83,33 @@ function ConnectorList({ chain }: ConnectorListProps) {
   const { address, isConnected, shortAddress } = useAccountFromChain(chain);
   const { connectors } = useConnectFromChain(chain);
   const { disconnect } = useDisconnectFromChain(chain);
+  const { connector: starknetConnector } = useStarknetAccount();
+  const { connector: ethereumConnector } = useEthereumAccount();
 
   const { data: ethEthereumBalance } = useEthereumBalance({ address });
   const { data: ethStarknetBalance } = useStarknetBalance({ address });
 
   const ethBalance =
     chain === "Ethereum" ? ethEthereumBalance : ethStarknetBalance;
+
+  const connectorId =
+    chain === "Ethereum" ? ethereumConnector?.id : starknetConnector?.id;
+
+  const [, copy] = useCopyToClipboard();
+
+  function handleCopy() {
+    if (address === undefined) {
+      return;
+    }
+
+    copy(address ?? "")
+      .then(() => {
+        console.log("copied");
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
 
   return isConnected ? (
     <>
@@ -97,19 +123,53 @@ function ConnectorList({ chain }: ConnectorListProps) {
         <Typography className="mt-6" component="h3" variant="heading_light_xxs">
           {chain} Wallet
         </Typography>
-        <Typography className="mb-6 mt-2" component="p" variant="body_text_14">
+        <Typography
+          className="mb-6 mt-2 min-h-5"
+          component="p"
+          variant="body_text_14"
+        >
           {ethBalance?.formatted
             ? `${parseFloat(ethBalance.formatted).toFixed(4)} ETH`
             : null}
         </Typography>
         <div
-          className={`mt-6 flex justify-center rounded-full py-3 ${
+          className={`mt-6 flex items-center justify-between rounded-full p-2 ${
             chain === "Ethereum"
               ? "bg-playground-purple-50  dark:bg-playground-purple-300"
               : "bg-folly-red-50 dark:bg-folly-red-300"
           }`}
         >
+          {connectorId !== undefined && (
+            <Image
+              alt="connector"
+              height={28}
+              src={WALLET_LOGOS_BY_ID[connectorId] ?? ""}
+              width={28}
+            />
+          )}
           <Typography variant="button_text_s">{shortAddress}</Typography>
+
+          <button onClick={handleCopy}>
+            <svg
+              fill="none"
+              height="20"
+              viewBox="0 0 21 20"
+              width="21"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M16.125 17.5H7.375C6.68464 17.5 6.125 16.9404 6.125 16.25V6.25C6.125 5.55964 6.68464 5 7.375 5H16.125C16.8154 5 17.375 5.55964 17.375 6.25V16.25C17.375 16.9404 16.8154 17.5 16.125 17.5Z"
+                stroke="currentColor"
+                strokeWidth="1.25"
+              />
+              <path
+                d="M3.625 15.625V5.625C3.625 3.89911 5.02411 2.5 6.75 2.5H15.5"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeWidth="1.25"
+              />
+            </svg>
+          </button>
         </div>
         <button
           className="mt-4 w-full rounded-full border-2 border-dark-blue-950 py-2"
@@ -132,7 +192,9 @@ function ConnectorList({ chain }: ConnectorListProps) {
       </Typography>
       <div className="flex w-full flex-col gap-4 px-11 sm:px-7">
         {connectors.map((connector) => {
-          console.log(connectors);
+          if (connector.id === "io.metamask") {
+            return null;
+          }
           return (
             <ConnectorButton
               id={connector.id}

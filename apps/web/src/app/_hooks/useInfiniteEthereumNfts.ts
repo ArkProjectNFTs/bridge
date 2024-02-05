@@ -7,7 +7,7 @@ export default function useInfiniteEthereumNfts(params?: {
 }) {
   const { address: ethereumAddress } = useAccount();
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     api.nfts.getL1OwnerNftsFromCollection.useInfiniteQuery(
       {
         contractAddress: params?.contractAddress,
@@ -21,5 +21,12 @@ export default function useInfiniteEthereumNfts(params?: {
 
   const totalCount = data?.pages[0]?.totalCount ?? 0;
 
-  return { data, fetchNextPage, hasNextPage, isFetchingNextPage, totalCount };
+  return {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    totalCount,
+  };
 }

@@ -5,7 +5,7 @@ import { api } from "~/utils/api";
 export default function useInfiniteStarknetCollections() {
   const { address: starknetAddress } = useAccount();
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     api.nfts.getL2NftCollectionsByWallet.useInfiniteQuery(
       {
         address: starknetAddress ?? "",
@@ -19,5 +19,12 @@ export default function useInfiniteStarknetCollections() {
   // TODO @YohanTz: Get totalCount from the api when implemented
   const totalCount = data?.pages[0]?.collections?.length ?? 0;
 
-  return { data, fetchNextPage, hasNextPage, isFetchingNextPage, totalCount };
+  return {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    totalCount,
+  };
 }

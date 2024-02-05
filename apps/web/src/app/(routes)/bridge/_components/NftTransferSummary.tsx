@@ -130,14 +130,14 @@ function TransferAction() {
             <path
               d="M25.8054 14.2174C25.6899 12.2929 24.0361 10.8264 22.1116 10.942C20.1871 11.0575 18.7206 12.7112 18.8361 14.6358"
               stroke="#0E2230"
-              stroke-linecap="round"
-              stroke-linejoin="round"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             />
             <path
               d="M14.6758 15.4133C14.1347 13.5628 12.196 12.5013 10.3455 13.0423C8.495 13.5834 7.43347 15.5221 7.9745 17.3726"
               stroke="#0E2230"
-              stroke-linecap="round"
-              stroke-linejoin="round"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             />
           </svg>
           You must approve the selection of your assets before confirming the

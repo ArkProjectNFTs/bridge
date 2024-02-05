@@ -5,7 +5,7 @@ import { api } from "~/utils/api";
 export default function useInfiniteEthereumCollections() {
   const { address: ethereumAddress } = useAccount();
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     api.nfts.getL1NftCollectionsByWallet.useInfiniteQuery(
       {
         address: ethereumAddress ?? "",
@@ -19,5 +19,12 @@ export default function useInfiniteEthereumCollections() {
   // We can take pages[0] because totalCount is the same accross all different pages
   const totalCount = data?.pages[0]?.totalCount ?? 0;
 
-  return { data, fetchNextPage, hasNextPage, isFetchingNextPage, totalCount };
+  return {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    totalCount,
+  };
 }

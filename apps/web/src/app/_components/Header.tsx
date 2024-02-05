@@ -59,7 +59,7 @@ export default function Header() {
   return (
     <header className="fixed z-20 flex h-23 w-full items-center  justify-between bg-white p-6 dark:bg-galaxy-blue">
       <Link href="/">
-        <Typography variant="logo">starklane</Typography>
+        <Typography variant="logo">arklane</Typography>
       </Link>
       {isFullyConnected && (
         <div className="hidden items-center gap-8 md:flex">
@@ -85,7 +85,7 @@ export default function Header() {
       )}
       <div className="flex gap-4">
         <div className="hidden gap-4 md:flex">
-          {/* TODO @YohanTz: Modal context */}
+          {/* TODO @YohanTz: Modal context? */}
           <ConnectEthereumButton
             onOpenModalChange={(open) => {
               open ? openModal("Ethereum") : closeModal();

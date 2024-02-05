@@ -8,10 +8,7 @@ import NftTabsList from "./NftTabsList";
 export default function NftsTabs() {
   return (
     <Tabs.Root className="mt-18" defaultValue="all">
-      <Tabs.List className="flex items-center gap-4 overflow-x-scroll">
-        <NftTabsList />
-      </Tabs.List>
-
+      <NftTabsList />
       <NftTabsContent />
     </Tabs.Root>
   );

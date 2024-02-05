@@ -7,7 +7,7 @@ import { type Chain } from "../_types";
 export default function useCurrentChain() {
   const [sourceChain, setSourceChain] = useLocalStorage<Chain>(
     "chain",
-    "Starknet"
+    "Ethereum"
   );
 
   const targetChain: Chain =

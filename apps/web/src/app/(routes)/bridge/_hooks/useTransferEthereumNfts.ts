@@ -113,7 +113,7 @@ export default function useTransferEthereumNfts() {
     depositTokens: () => depositTokens(),
     isApproveLoading,
     isApprovedForAll,
-    isDepositLoading,
+    isDepositLoading: isDepositLoading && depositData !== undefined,
     isDepositSuccess,
   };
 }

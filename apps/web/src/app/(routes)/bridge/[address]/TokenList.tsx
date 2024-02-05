@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 "use client";
 
-import { Typography } from "design-system";
+import { Button, Typography } from "design-system";
 import Link from "next/link";
 
 import InfiniteScrollButton from "~/app/_components/InfiniteScrollButton";
@@ -10,7 +10,7 @@ import useCurrentChain from "~/app/_hooks/useCurrentChain";
 import useInfiniteEthereumNfts from "~/app/_hooks/useInfiniteEthereumNfts";
 import useInfiniteStarknetNfts from "~/app/_hooks/useInfiniteStarknetNfts";
 
-import useNftSelection from "../_hooks/useNftSelection";
+import useNftSelection, { MAX_SELECTED_ITEMS } from "../_hooks/useNftSelection";
 
 interface TokenListProps {
   nftContractAddress: string;
@@ -19,7 +19,14 @@ interface TokenListProps {
 export default function TokenList({ nftContractAddress }: TokenListProps) {
   const { sourceChain } = useCurrentChain();
 
-  const { isNftSelected, toggleNftSelection } = useNftSelection();
+  const {
+    deselectAllNfts,
+    isNftSelected,
+    selectBatchNfts,
+    selectedCollectionAddress,
+    toggleNftSelection,
+    totalSelectedNfts,
+  } = useNftSelection();
 
   const {
     data: l1NftsData,
@@ -54,6 +61,14 @@ export default function TokenList({ nftContractAddress }: TokenListProps) {
     return;
   }
 
+  const hasMoreThan100Nfts =
+    data.pages.length > 1 || (data.pages.length === 1 && hasNextPage);
+
+  const isAllSelected =
+    (totalSelectedNfts === MAX_SELECTED_ITEMS ||
+      totalSelectedNfts === data.pages[0]?.ownedNfts.length) &&
+    nftContractAddress === selectedCollectionAddress;
+
   return (
     <div className="mb-4 flex flex-col items-start">
       {/* TODO @YohanTz: Refacto to be a variant in the Button component */}
@@ -72,8 +87,8 @@ export default function TokenList({ nftContractAddress }: TokenListProps) {
           <path
             d="M20.25 12L12.7297 12C11.9013 12 11.2297 12.6716 11.2297 13.5L11.2297 16.4369C11.2297 17.0662 10.5013 17.4157 10.0104 17.0219L4.47931 12.585C4.10504 12.2848 4.10504 11.7152 4.47931 11.415L10.0104 6.97808C10.5013 6.58428 11.2297 6.93377 11.2297 7.56311L11.2297 9.375"
             stroke="currentColor"
-            stroke-linecap="round"
-            stroke-width="1.5"
+            strokeLinecap="round"
+            strokeWidth="1.5"
           />
         </svg>
         <Typography variant="button_text_s">Back</Typography>
@@ -93,11 +108,23 @@ export default function TokenList({ nftContractAddress }: TokenListProps) {
             {totalCount > 1 ? " Nfts" : " Nft"}
           </Typography>
         </div>
-        {/* <Button color="default" onClick={toggleSelectAll} size="small">
-          <Typography variant="button_text_s">
-            {allCollectionSelected ? "Deselect all" : "Select all"}
-          </Typography>
-        </Button> */}
+        {isAllSelected ? (
+          <Button color="default" onClick={deselectAllNfts} size="small">
+            Deselect All
+          </Button>
+        ) : (
+          <Button
+            onClick={() => {
+              selectBatchNfts(data.pages[0]?.ownedNfts ?? []);
+            }}
+            color="default"
+            size="small"
+          >
+            <Typography variant="button_text_s">
+              {hasMoreThan100Nfts ? "Select 100 Max" : "Select All"}
+            </Typography>
+          </Button>
+        )}
       </div>
 
       <div className="grid w-full grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-5">
@@ -110,14 +137,12 @@ export default function TokenList({ nftContractAddress }: TokenListProps) {
 
             return (
               <NftCard
-                // onClick={() => toggleNftSelection(nft.id)}
                 onClick={() =>
                   toggleNftSelection(ownedNft.tokenId, ownedNft.contractAddress)
                 }
                 cardType="nft"
                 chain={sourceChain}
                 image={ownedNft.image}
-                // isSelected={isSelected(nft.id)}
                 isSelected={isSelected}
                 key={ownedNft.tokenId}
                 title={ownedNft.name}

@@ -3,6 +3,7 @@ import { Typography } from "design-system";
 
 interface NftTabsTriggerProps {
   className?: string;
+  isLoading: boolean;
   tabName: string;
   tabValue: string;
   totalCount: number;
@@ -10,6 +11,7 @@ interface NftTabsTriggerProps {
 
 export default function NftTabsTrigger({
   className,
+  isLoading,
   tabName,
   tabValue,
   totalCount,
@@ -26,7 +28,11 @@ export default function NftTabsTrigger({
         className="grid h-[18px] min-w-[18px] place-items-center rounded-full bg-sunshine-yellow-400 px-1 text-night-blue-source dark:text-dark-blue-900 dark:group-data-[state=active]:bg-night-blue-source dark:group-data-[state=active]:text-sunshine-yellow-400"
         variant="button_text_xs"
       >
-        {totalCount}
+        {isLoading ? (
+          <div className="h-3 w-3 animate-spin rounded-full border-2 border-current border-r-transparent" />
+        ) : (
+          totalCount
+        )}
       </Typography>
     </Tabs.Trigger>
   );

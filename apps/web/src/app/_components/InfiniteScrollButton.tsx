@@ -1,4 +1,6 @@
 import { Button } from "design-system";
+import { useInView } from "framer-motion";
+import { useEffect, useRef } from "react";
 
 interface InfiniteScrollButtonProps {
   className: string;
@@ -13,8 +15,18 @@ export default function InfiniteScrollButton({
   hasNextPage,
   isFetchingNextPage,
 }: InfiniteScrollButtonProps) {
+  const ref = useRef(null);
+
+  const isInView = useInView(ref);
+
+  useEffect(() => {
+    if (isInView && hasNextPage) {
+      fetchNextPage();
+    }
+  }, [fetchNextPage, hasNextPage, isInView]);
+
   return (
-    <div className={className}>
+    <div className={className} ref={ref}>
       {isFetchingNextPage ? (
         <Button size="small">Loading...</Button>
       ) : hasNextPage ? (

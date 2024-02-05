@@ -18,11 +18,11 @@ import { type Chain } from "../../_types";
 export const ethereumConnectors = [
   injected(),
   //   new WalletConnectConnector({ options: { projectId: walletConnectProjectId } }),
-  coinbaseWallet({
-    // TODO @YohanTz: handle `darkMode` for coinbase wallet modal
-    appName: "Starklane",
-    darkMode: true,
-  }),
+  // coinbaseWallet({
+  //   // TODO @YohanTz: handle `darkMode` for coinbase wallet modal
+  //   appName: "Starklane",
+  //   darkMode: true,
+  // }),
 ];
 
 export const starknetConnectors = [
