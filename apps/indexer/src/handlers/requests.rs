@@ -9,12 +9,14 @@ use super::AppState;
 use crate::storage::{
     store::{EventStore, RequestStore},
     Event, Request,
+    protocol::ProtocolParser,
 };
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct RequestInfo {
     req: Request,
     events: Vec<Event>,
+    token_ids: Vec<String>,
 }
 
 /// Builds a DTO with requests and associated events.
@@ -33,6 +35,7 @@ pub async fn reqs_info_from_wallet(
                 dtos.push(RequestInfo {
                     req: req.clone(),
                     events,
+                    token_ids: req.get_token_ids(),
                 });
             } else {
                 // TODO: maybe no need to crash here? Only skip this request?

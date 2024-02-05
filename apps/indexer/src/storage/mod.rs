@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 
 pub mod mongo;
 pub mod store;
+pub mod protocol;
 
 ///
 #[derive(Debug, Default, Serialize, Deserialize, Clone)]
