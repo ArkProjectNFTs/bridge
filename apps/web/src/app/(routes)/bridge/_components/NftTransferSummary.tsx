@@ -11,6 +11,7 @@ import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import useCurrentChain from "~/app/_hooks/useCurrentChain";
+import { api } from "~/utils/api";
 
 import useNftSelection from "../_hooks/useNftSelection";
 import useTransferNftsFromChain from "../_hooks/useTransferNfts";
@@ -168,13 +169,23 @@ function TransferAction() {
 }
 
 function TransferSummary() {
-  // TODO @YohanTz: Support both sides
   const {
     deselectNft,
     selectedCollectionAddress,
     selectedTokenIds,
     totalSelectedNfts,
   } = useNftSelection();
+
+  console.log(selectedCollectionAddress, selectedTokenIds);
+  const { data: selectedNfts } = api.nfts.getL1NftMetadataBatch.useQuery(
+    {
+      contractAddress: selectedCollectionAddress ?? "",
+      tokenIds: selectedTokenIds,
+    },
+    {
+      keepPreviousData: true,
+    }
+  );
 
   return (
     <>
@@ -209,48 +220,45 @@ function TransferSummary() {
       )}
 
       {/* TODO @YohanTz: Always show scroll bar to indicate that there is more content to view (with Radix ScrollArea ?) */}
-      {totalSelectedNfts > 0 && (
+      {selectedNfts !== undefined && (
         <div className="mt-8 flex w-full flex-col gap-4 overflow-y-auto">
-          {selectedTokenIds.map((selectedTokenId) => {
+          {selectedNfts.map((selectedNft) => {
             return (
-              <div className="flex justify-between" key={selectedTokenId}>
+              <div className="flex justify-between" key={selectedNft.tokenId}>
                 <div className="flex items-center gap-4">
-                  {/* {selectedNft?.image ? (
+                  {selectedNft?.image ? (
                     <Image
-                      alt={selectedNft?.title ?? ""}
+                      alt={selectedNft.tokenName}
                       className="rounded"
                       height={52}
-                      src={selectedNft?.image ?? ""}
+                      src={selectedNft.image}
                       width={52}
                     />
-                  ) : ( */}
-                  <>
-                    <Image
-                      alt="empty Nft image"
-                      className="hidden rounded dark:block"
-                      height={52}
-                      src={`/medias/dark/empty_nft.png`}
-                      width={52}
-                    />
-                    <Image
-                      alt="empty Nft image"
-                      className="rounded dark:hidden"
-                      height={52}
-                      src={`/medias/empty_nft.png`}
-                      width={52}
-                    />
-                  </>
-                  {/* )} */}
+                  ) : (
+                    <>
+                      <Image
+                        alt="empty Nft image"
+                        className="hidden rounded dark:block"
+                        height={52}
+                        src={`/medias/dark/empty_nft.png`}
+                        width={52}
+                      />
+                      <Image
+                        alt="empty Nft image"
+                        className="rounded dark:hidden"
+                        height={52}
+                        src={`/medias/empty_nft.png`}
+                        width={52}
+                      />
+                    </>
+                  )}
                   <div className="flex flex-col">
                     <Typography ellipsable variant="body_text_14">
-                      {/* {selectedNft?.collectionName} */}
-                      {selectedTokenId}
+                      {selectedNft.collectionName}
                     </Typography>
-                    {/* <Typography ellipsable variant="body_text_bold_14">
-                      {selectedNft?.title.length ?? 0 > 0
-                        ? selectedNft?.title
-                        : selectedNft?.tokenId}
-                    </Typography> */}
+                    <Typography ellipsable variant="body_text_bold_14">
+                      {selectedNft.tokenName}
+                    </Typography>
                   </div>
                 </div>
                 <IconButton
@@ -273,7 +281,7 @@ function TransferSummary() {
                   }
                   onClick={() =>
                     deselectNft(
-                      selectedTokenId,
+                      selectedNft.tokenId,
                       selectedCollectionAddress ?? ""
                     )
                   }

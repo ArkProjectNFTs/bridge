@@ -2,10 +2,11 @@
 "use client";
 
 import { Button, Typography } from "design-system";
-import Link from "next/link";
 
 import InfiniteScrollButton from "~/app/_components/InfiniteScrollButton";
 import NftCard from "~/app/_components/NftCard/NftCard";
+import NftsEmptyState from "~/app/_components/NftsEmptyState";
+import NftsLoadingState from "~/app/_components/NftsLoadingState";
 import useCurrentChain from "~/app/_hooks/useCurrentChain";
 import useInfiniteEthereumNfts from "~/app/_hooks/useInfiniteEthereumNfts";
 import useInfiniteStarknetNfts from "~/app/_hooks/useInfiniteStarknetNfts";
@@ -58,7 +59,11 @@ export default function TokenList({ nftContractAddress }: TokenListProps) {
     sourceChain === "Ethereum" ? l1NftsTotalCount : l2NftsTotalCount;
 
   if (data === undefined) {
-    return;
+    return <NftsLoadingState className="mt-20" />;
+  }
+
+  if (data.pages[0]?.ownedNfts.length === 0) {
+    return <NftsEmptyState className="mt-20" />;
   }
 
   const hasMoreThan100Nfts =
@@ -71,28 +76,6 @@ export default function TokenList({ nftContractAddress }: TokenListProps) {
 
   return (
     <div className="mb-4 flex flex-col items-start">
-      {/* TODO @YohanTz: Refacto to be a variant in the Button component */}
-      <Link
-        className="mb-10 inline-flex h-12 items-center gap-1.5 rounded-full border-2 border-asteroid-grey-600 px-6 py-3 text-asteroid-grey-600 dark:border-space-blue-300 dark:text-space-blue-300"
-        href="/bridge"
-      >
-        {/* TODO @YohanTz: Export svg to icons file */}
-        <svg
-          fill="none"
-          height="24"
-          viewBox="0 0 24 24"
-          width="24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M20.25 12L12.7297 12C11.9013 12 11.2297 12.6716 11.2297 13.5L11.2297 16.4369C11.2297 17.0662 10.5013 17.4157 10.0104 17.0219L4.47931 12.585C4.10504 12.2848 4.10504 11.7152 4.47931 11.415L10.0104 6.97808C10.5013 6.58428 11.2297 6.93377 11.2297 7.56311L11.2297 9.375"
-            stroke="currentColor"
-            strokeLinecap="round"
-            strokeWidth="1.5"
-          />
-        </svg>
-        <Typography variant="button_text_s">Back</Typography>
-      </Link>
       <div className="mb-10 flex w-full flex-wrap justify-between gap-3.5">
         <div className="flex max-w-full items-center gap-3.5">
           <Typography ellipsable variant="heading_light_s">

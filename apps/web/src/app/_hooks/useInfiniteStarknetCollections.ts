@@ -16,8 +16,7 @@ export default function useInfiniteStarknetCollections() {
       }
     );
 
-  // TODO @YohanTz: Get totalCount from the api when implemented
-  const totalCount = data?.pages[0]?.collections?.length ?? 0;
+  const totalCount = data?.pages[0]?.totalCount ?? 0;
 
   return {
     data,

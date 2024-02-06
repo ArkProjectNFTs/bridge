@@ -21,6 +21,7 @@ type ArkNftsApiResponse = {
     owner: string;
     token_id: string;
   }>;
+  total_count: number;
 };
 
 type ArkCollectionsApiResponse = {
@@ -30,6 +31,7 @@ type ArkCollectionsApiResponse = {
     name: string;
     symbol: string;
   }>;
+  total_count: number;
 };
 
 // const EthereumAddress = z.object({
@@ -57,6 +59,32 @@ export const nftsRouter = createTRPCRouter({
       }));
 
       return { collections, nextCursor: pageKey, totalCount };
+    }),
+
+  getL1NftMetadataBatch: publicProcedure
+    .input(
+      z.object({ contractAddress: z.string(), tokenIds: z.array(z.string()) })
+    )
+    .query(async ({ input }) => {
+      const { contractAddress, tokenIds } = input;
+      if (tokenIds.length === 0) {
+        return [];
+      }
+
+      const response = await alchemy.nft.getNftMetadataBatch(
+        tokenIds.map((tokenId) => ({
+          contractAddress,
+          tokenId,
+        }))
+      );
+
+      console.log(response);
+      return response.map((nft) => ({
+        collectionName: nft.contract.name,
+        image: nft.media[0]?.thumbnail,
+        tokenId: nft.tokenId,
+        tokenName: nft.title.length > 0 ? nft.title : `#${nft.tokenId}`,
+      }));
     }),
 
   getL1OwnerNftsFromCollection: publicProcedure
@@ -127,7 +155,7 @@ export const nftsRouter = createTRPCRouter({
           })
         );
 
-        return { collections, totalCount: 0 };
+        return { collections, totalCount: contracts.total_count };
       } catch (error) {
         console.error("getL2NftCollectionsByWallet error: ", error);
         return { collections: [], totalCount: 0 };
@@ -166,6 +194,7 @@ export const nftsRouter = createTRPCRouter({
         });
 
         const nfts = (await nftsResponse.json()) as ArkNftsApiResponse;
+        console.log(nfts);
 
         const ownedNfts: Array<Nft> = nfts.result.map((nft) => ({
           contractAddress: nft.contract_address,
@@ -177,10 +206,10 @@ export const nftsRouter = createTRPCRouter({
           tokenId: nft.token_id,
         }));
 
-        return { ownedNfts };
+        return { ownedNfts, totalCount: nfts.total_count };
       } catch (error) {
         console.error("getL2NftCollectionsByWallet error: ", error);
-        return { ownedNfts: [] };
+        return { ownedNfts: [], totalCount: 0 };
       }
     }),
   // getAll: publicProcedure.query(({ ctx }) => {

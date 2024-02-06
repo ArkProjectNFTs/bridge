@@ -10,6 +10,7 @@ export default function BrigetCountIndicator() {
   const isSSR = useIsSSR();
 
   const pathname = usePathname();
+
   return (
     <div className="relative flex items-center">
       <svg
