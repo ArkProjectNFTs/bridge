@@ -176,7 +176,6 @@ function TransferSummary() {
     totalSelectedNfts,
   } = useNftSelection();
 
-  console.log(selectedCollectionAddress, selectedTokenIds);
   const { data: selectedNfts } = api.nfts.getL1NftMetadataBatch.useQuery(
     {
       contractAddress: selectedCollectionAddress ?? "",

@@ -78,7 +78,6 @@ export const nftsRouter = createTRPCRouter({
         }))
       );
 
-      console.log(response);
       return response.map((nft) => ({
         collectionName: nft.contract.name,
         image: nft.media[0]?.thumbnail,
