@@ -1,16 +1,32 @@
 version: '3.1'
 
 services:
-
-  starklane_db:
-    # TODO: add volume for persistence when alpha is ready.
+  indexer:
+    container_name: starklane_indexer
+    # build: .
+    image: ptisserand/starklane-indexer:latest
+    environment:
+      - RUST_LOG=starklane_indexer=DEBUG
+    command: >
+      starklane_indexer --config-file /etc/testnet.config \
+        --mongodb mongodb://${MONGODB_HOSTNAME}:${MONGODB_PORT}/${MONGODB_DB} \
+        --api-server-ip 0.0.0.0:${INDEXER_PORT}
+    volumes:
+      - ./testnet.config:/etc/testnet.config:ro
+    ports:
+      - ${INDEXER_PORT}:${INDEXER_PORT}
+    links:
+      - db:${MONGODB_HOSTNAME}
+    depends_on:
+      - db
+  
+  db:
     container_name: starklane_db
     image: mongo
     restart: always
-    ports:
-      - 27017:27017
     volumes:
-      - starklane_testnet:/data/db
+      - starklane_data:/data/db
+
 
 volumes:
-  starklane_testnet:
+  starklane_data:

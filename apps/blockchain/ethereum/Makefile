@@ -13,7 +13,7 @@ sgr0 := $(shell tput sgr0)
 
 # Starklane local setup.
 starklane_local_setup:
-	forge script --broadcast --verify --rpc-url ${ETH_RPC_URL} script/LocalTesting.s.sol:LocalSetup
+	forge script --broadcast  --rpc-url ${ETH_RPC_URL} script/LocalTesting.s.sol:LocalSetup
 
 # Starklane deposit tokens
 starklane_deposit:
@@ -21,7 +21,7 @@ starklane_deposit:
 	@echo "usage: make starklane_deposit config=.yourconfig.env proxy=0x1234"
 	@printf "$(sgr0)\n"
 	export STARKLANE_L1_PROXY_ADDRESS=$(proxy) && \
-	forge script --broadcast --verify --rpc-url ${ETH_RPC_URL} --sender ${ACCOUNT_ADDRESS} script/Starklane.s.sol:Deposit
+	forge script --broadcast  --rpc-url ${ETH_RPC_URL} --sender ${ACCOUNT_ADDRESS} script/Starklane.s.sol:Deposit
 
 # Starklane withdraw tokens
 starklane_withdraw:
@@ -29,12 +29,12 @@ starklane_withdraw:
 	@echo "usage: make starklane_withdraw config=.yourconfig.env proxy=0x1234"
 	@printf "$(sgr0)\n"
 	export STARKLANE_L1_PROXY_ADDRESS=$(proxy) && \
-	forge script --broadcast --verify --rpc-url ${ETH_RPC_URL} --sender ${ACCOUNT_ADDRESS} script/Starklane.s.sol:WithdrawSN
+	forge script --broadcast  --rpc-url ${ETH_RPC_URL} --sender ${ACCOUNT_ADDRESS} script/Starklane.s.sol:WithdrawSN
 
 # Starklane deploy impl + proxy.
 starklane_deploy:
 	export STARKLANE_L1_PROXY_ADDRESS=0x0000000000000000000000000000000000000000 && \
-	forge script --broadcast --verify --rpc-url ${ETH_RPC_URL} script/Starklane.s.sol:Deploy
+	forge script --broadcast  --rpc-url ${ETH_RPC_URL} script/Starklane.s.sol:Deploy
 
 # Starklane upgrade.
 starklane_upgrade:
@@ -42,12 +42,12 @@ starklane_upgrade:
 	@echo "usage: make starklane_upgrade config=.yourconfig.env proxy=0x1234"
 	@printf "$(sgr0)\n"
 	export STARKLANE_L1_PROXY_ADDRESS=$(proxy) && \
-	forge script --broadcast --verify --rpc-url ${ETH_RPC_URL} script/Starklane.s.sol:Deploy
+	forge script --broadcast  --rpc-url ${ETH_RPC_URL} script/Starklane.s.sol:Deploy
 
 # ERC721Bridgeable deploy impl + proxy.
 erc721_deploy:
 	export ERC721_PROXY_ADDRESS=0x0000000000000000000000000000000000000000 && \
-	forge script --broadcast --verify --rpc-url ${ETH_RPC_URL} script/ERC721.s.sol:Deploy
+	forge script --broadcast  --rpc-url ${ETH_RPC_URL} script/ERC721.s.sol:Deploy
 
 # ERC721Bridgeable upgrade.
 erc721_upgrade:
@@ -55,12 +55,12 @@ erc721_upgrade:
 	@echo "usage: make erc721_upgrade config=.yourconfig.env proxy=0x1234"
 	@printf "$(sgr0)\n"
 	export ERC721_PROXY_ADDRESS=$(proxy) && \
-	forge script --broadcast --verify --rpc-url ${ETH_RPC_URL} script/ERC721.s.sol:Deploy
+	forge script --broadcast  --rpc-url ${ETH_RPC_URL} script/ERC721.s.sol:Deploy
 
 # ERC1155Bridgeable deploy impl + proxy.
 erc1155_deploy:
 	export ERC1155_PROXY_ADDRESS=0x0000000000000000000000000000000000000000 && \
-	forge script --broadcast --verify --rpc-url ${ETH_RPC_URL} script/ERC1155.s.sol:Deploy
+	forge script --broadcast  --rpc-url ${ETH_RPC_URL} script/ERC1155.s.sol:Deploy
 
 # ERC1155Bridgeable upgrade.
 erc1155_upgrade:
@@ -68,5 +68,5 @@ erc1155_upgrade:
 	@echo "usage: make erc1155_upgrade config=.yourconfig.env proxy=0x1234"
 	@printf "$(sgr0)\n"
 	export ERC1155_PROXY_ADDRESS=$(proxy) && \
-	forge script --broadcast --verify --rpc-url ${ETH_RPC_URL} script/ERC1155.s.sol:Deploy
+	forge script --broadcast  --rpc-url ${ETH_RPC_URL} script/ERC1155.s.sol:Deploy
 

@@ -4,7 +4,7 @@ version = "0.1.0"
 
 [dependencies]
 starknet = ">=2.4.0"
-snforge_std = { git = "https://github.com/foundry-rs/starknet-foundry.git", tag = "v0.13.1" }
+snforge_std = { git = "https://github.com/foundry-rs/starknet-foundry.git", tag = "v0.15.0" }
 
 [[target.starknet-contract]]
 sierra = true
@@ -12,3 +12,6 @@ casm = true
 
 [lib]
 
+[tool.sncast.katana]
+account = "katana_account"
+url = "http://127.0.0.1:5050"

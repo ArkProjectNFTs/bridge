@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: software-mansion/setup-scarb@v1
         with:
-          scarb-version: "0.6.0"
+          tool-versions: apps/blockchain/starknet/.tool-versions
       - run: scarb build
         working-directory: apps/blockchain/starknet
 
