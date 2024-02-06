@@ -24,10 +24,9 @@ services:
     container_name: starklane_db
     image: mongo
     restart: always
-    ports:
-      - "27017:27017"
     volumes:
       - starklane_data:/data/db
+
 
 volumes:
   starklane_data:
