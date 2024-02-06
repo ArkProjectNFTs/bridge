@@ -1,16 +1,15 @@
 //! Starklane indexer main entry point.
+extern crate config as external_crate_config;
 
 use anyhow::Result;
-use axum::{
-    routing::get,
-    Router, Server,
-};
+use axum::{routing::get, Router, Server};
 use clap::Parser;
 use std::sync::Arc;
 use tokio::sync::RwLock as AsyncRwLock;
 
-use crate::config::StarklaneIndexerConfig;
+use crate::config as starklane_config;
 use ethereum_indexer::EthereumIndexer;
+use starklane_config::StarklaneIndexerConfig;
 use starknet_indexer::StarknetIndexer;
 use storage::mongo::MongoStore;
 
@@ -23,16 +22,19 @@ pub mod starknet_indexer;
 pub mod storage;
 pub mod utils;
 
+const ENV_PREFIX: &'static str = "INDEXER";
+const ENV_SEPARATOR: &'static str = "__"; // "_" can't be used since we have key with '_' in json
+
 #[derive(Parser, Debug)]
 #[clap(about = "Starklane indexer")]
 struct Args {
-    #[clap(long, help = "Configuration file (JSON)")]
+    #[clap(long, help = "Configuration file (JSON)", env = format!("{}{}CONFIG_FILE", ENV_PREFIX, ENV_SEPARATOR))]
     config_file: String,
 
-    #[clap(long, help = "Mongo db connection string")]
+    #[clap(long, help = "Mongo db connection string", env = format!("{}{}MONGODB_URI", ENV_PREFIX, ENV_SEPARATOR))]
     mongodb: String,
 
-    #[clap(long, help = "The IP to bind to start indexer api server")]
+    #[clap(long, help = "The IP to bind to start indexer api server", env = format!("{}{}SERVER_IP", ENV_PREFIX, ENV_SEPARATOR))]
     api_server_ip: Option<String>,
 }
 
@@ -47,35 +49,44 @@ async fn main() -> Result<()> {
     env_logger::init();
 
     let args = Args::parse();
-    let config =
-        StarklaneIndexerConfig::from_file(&args.config_file).expect("Config couldn't be loaded");
+    let settings = external_crate_config::Config::builder()
+        .add_source(external_crate_config::File::new(
+            &args.config_file,
+            external_crate_config::FileFormat::Json,
+        ))
+        .add_source(
+            external_crate_config::Environment::with_prefix(ENV_PREFIX)
+                .try_parsing(true)
+                .separator(ENV_SEPARATOR),
+        )
+        .build()
+        .unwrap();
+
+    let config: StarklaneIndexerConfig = settings
+        .try_deserialize()
+        .expect("Failed to retrieve configuration");
 
     let dbname = extract_database_name(&args.mongodb)
         .expect("Database name couldn't be extracted from the connection string");
 
     let mongo_store = Arc::new(MongoStore::new(&args.mongodb, dbname).await?);
 
-    let chains_blocks = Arc::new(AsyncRwLock::new(ChainsBlocks {
-        sn: 0,
-        eth: 0,
-    }));
+    let chains_blocks = Arc::new(AsyncRwLock::new(ChainsBlocks { sn: 0, eth: 0 }));
 
-    let eth_indexer =
-        EthereumIndexer::<MongoStore>::new(
-            config.ethereum.clone(),
-            Arc::clone(&mongo_store),
-            Arc::clone(&chains_blocks),
-            config.xchain_txor,
-        )
-        .await?;
+    let eth_indexer = EthereumIndexer::<MongoStore>::new(
+        config.ethereum.clone(),
+        Arc::clone(&mongo_store),
+        Arc::clone(&chains_blocks),
+        config.xchain_txor,
+    )
+    .await?;
 
-    let sn_indexer =
-        StarknetIndexer::<MongoStore>::new(
-            config.starknet.clone(),
-            Arc::clone(&mongo_store),
-            Arc::clone(&chains_blocks),
-        )
-        .await?;
+    let sn_indexer = StarknetIndexer::<MongoStore>::new(
+        config.starknet.clone(),
+        Arc::clone(&mongo_store),
+        Arc::clone(&chains_blocks),
+    )
+    .await?;
 
     let eth_handle = tokio::spawn(async move {
         match eth_indexer.start().await {
