@@ -3,6 +3,8 @@ name = "starklane_indexer"
 version = "0.1.0"
 edition = "2021"
 
+build = "src/build.rs"
+
 [dependencies]
 anyhow = "1.0"
 axum = { version = "0.6.20", features = ["macros"] }
