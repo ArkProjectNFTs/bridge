@@ -245,6 +245,7 @@ export default function ConnectModal({
     if (address !== undefined) {
       onWalletConnect();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address]);
 
   return (

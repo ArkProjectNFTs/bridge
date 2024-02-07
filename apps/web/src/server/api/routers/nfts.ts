@@ -129,7 +129,10 @@ export const nftsRouter = createTRPCRouter({
   getL2NftCollectionsByWallet: publicProcedure
     .input(z.object({ address: z.string(), cursor: z.string().optional() }))
     .query(async ({ input }) => {
-      const { address, cursor } = input;
+      const {
+        address,
+        // cursor
+      } = input;
 
       try {
         const url = `${
@@ -174,7 +177,11 @@ export const nftsRouter = createTRPCRouter({
       })
     )
     .query(async ({ input }) => {
-      const { contractAddress, cursor, userAddress } = input;
+      const {
+        contractAddress,
+        // cursor
+        userAddress,
+      } = input;
 
       try {
         const url = `${

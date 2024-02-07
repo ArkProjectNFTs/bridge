@@ -1,6 +1,9 @@
 import { InjectedConnector as InjectedStarknetConnector } from "@starknet-react/core";
 import { type StaticImageData } from "next/image";
-import { coinbaseWallet, injected } from "wagmi/connectors";
+import {
+  // coinbaseWallet,
+  injected,
+} from "wagmi/connectors";
 // import { WalletConnectConnector } from "wagmi/connectors/walletConnect";
 
 import argentXLogo from "../../../../public/logos/argentX.png";
