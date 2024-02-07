@@ -200,7 +200,6 @@ export const nftsRouter = createTRPCRouter({
         });
 
         const nfts = (await nftsResponse.json()) as ArkNftsApiResponse;
-        console.log(nfts);
 
         const ownedNfts: Array<Nft> = nfts.result.map((nft) => ({
           contractAddress: nft.contract_address,

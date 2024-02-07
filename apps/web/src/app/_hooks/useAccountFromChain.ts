@@ -26,7 +26,7 @@ export default function useAccountFromChain(chain: Chain) {
   }, [address]);
 
   return {
-    address: accountValuesByChain[chain].address,
+    address: accountValuesByChain[chain ?? "Ethereum"].address,
     isConnected: accountValuesByChain[chain].isConnected,
     shortAddress,
   };
