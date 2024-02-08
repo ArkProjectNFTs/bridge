@@ -14,13 +14,22 @@ import "./UUPSProxied.sol";
 
 import "starknet/IStarknetMessaging.sol";
 
+import "./IStarklaneEvent.sol";
+
 error NotSupportedYetError();
 error CollectionMappingError();
+error NotWhiteListedError();
 
 /**
    @title Starklane bridge contract.
 */
-contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEscrow, StarklaneMessaging, CollectionManager {
+contract Starklane is IStarklaneEvent, UUPSOwnableProxied, StarklaneState, StarklaneEscrow, StarklaneMessaging, CollectionManager {
+
+    // Mapping (collectionAddress => bool)
+    mapping(address => bool) _whiteList;
+    address[] _collections;
+
+    bool _whiteListEnabled;
 
     /**
        @notice Request initiated on L1.
@@ -39,6 +48,7 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEscrow, Stark
         uint256 block_timestamp,
         uint256[] reqContent
     );
+
 
     /**
        @notice Initializes the implementation, only callable once.
@@ -92,6 +102,10 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEscrow, Stark
         CollectionType ctype = TokenUtil.detectInterface(collectionL1);
         if (ctype == CollectionType.ERC1155) {
             revert NotSupportedYetError();
+        }
+
+        if (!_isWhiteListed(collectionL1)) {
+            revert NotWhiteListedError();
         }
 
         Request memory req;
@@ -197,4 +211,85 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEscrow, Stark
         return collectionL1;
     }
 
+    /**
+        @notice Enable collection whitelist for deposit
+
+        @param enable white list is enabled if true
+     */
+    function enableWhiteList(bool enable) external onlyOwner {
+        _whiteListEnabled = enable;
+        emit WhiteListUpdated(_whiteListEnabled);
+    }
+
+    /**
+        @notice Update whitelist status for given collection
+
+        @param collection Collection address
+        @param enable white list is enabled if true
+     */
+    function whiteList(address collection, bool enable) external onlyOwner {
+        if (enable && !_whiteList[collection]) {
+            bool toAdd = true;
+            uint256 i = 0;
+            while(i < _collections.length) {
+                if (collection == _collections[i]) {
+                    toAdd = false;
+                    break;
+                }
+                i++;
+            }
+            if (toAdd) {
+                _collections.push(collection);
+            }
+        }
+        _whiteList[collection] = enable;
+        emit CollectionWhiteListUpdated(collection, enable);
+    }
+    
+    
+    /**
+        @return true if white list is enabled
+    */
+    function isWhiteListEnabled() external view returns (bool) {
+        return _whiteListEnabled;
+    }
+
+    /**
+        @notice Check if a collection is whitelisted
+    
+        @param collection Address of collection
+        @return true if given collection is white listed
+     */
+    function isWhiteListed(address collection) external view returns (bool) {
+        return _isWhiteListed(collection);
+    }
+    
+        /**
+     * @return array of white listed collections
+     */
+    function getWhiteListedCollections() external view returns (address[] memory) {
+        uint256 offset = 0;
+        uint256 nbElem = _collections.length;
+        // solidity doesn't support dynamic length array in memory
+        address[] memory ret = new address[](nbElem);
+        for (uint256 i = 0; i < nbElem ;++i) {
+            address cur = _collections[i];
+            if (_whiteList[cur]) {
+                ret[offset] = cur;
+                offset += 1;
+            }
+        }
+        // resize output array
+        assembly {
+            mstore(ret, offset)
+        }
+        
+        return ret;
+    }
+
+    function _isWhiteListed(
+        address collection
+    ) internal view returns (bool) {
+        return !_whiteListEnabled || _whiteList[collection];
+    }
 }
