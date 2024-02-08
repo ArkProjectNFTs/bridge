@@ -37,7 +37,6 @@ interface ProvidersProps {
 export default function Providers({ children }: ProvidersProps) {
   return (
     <StarknetConfig
-      autoConnect
       chains={[starknetGoerli]}
       // chains={[starknetMainnet]}
       connectors={starknetConnectors}

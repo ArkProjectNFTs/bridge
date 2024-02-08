@@ -21,7 +21,7 @@ export default function useTransferEthereumNfts() {
     abi: erc721Abi,
     address: selectedCollectionAddress as `0x${string}`,
     args: [
-      ethereumAddress ?? "0xtest",
+      ethereumAddress ?? "0xa",
       process.env.NEXT_PUBLIC_L1_BRIDGE_ADDRESS as `0x${string}`,
     ],
     functionName: "isApprovedForAll",
@@ -32,7 +32,7 @@ export default function useTransferEthereumNfts() {
     // TODO @YohanTz: https://wagmi.sh/react/guides/migrate-from-v1-to-v2#removed-watch-property
   });
 
-  const { data: approveData, writeContract: writeContractApprove } =
+  const { data: approveHash, writeContract: writeContractApprove } =
     useWriteContract();
 
   function approveForAll() {
@@ -44,12 +44,17 @@ export default function useTransferEthereumNfts() {
     });
   }
 
+  console.log(approveHash);
+
   const { isLoading: isApproveLoading } = useWaitForTransactionReceipt({
-    hash: approveData,
+    hash: approveHash,
   });
 
-  const { data: depositData, writeContract: writeContractDeposit } =
-    useWriteContract({});
+  // console.log(isApproveLoading);
+
+  const { data: depositHash, writeContract: writeContractDeposit } =
+    useWriteContract();
+
   function depositTokens() {
     writeContractDeposit({
       abi: [
@@ -102,18 +107,15 @@ export default function useTransferEthereumNfts() {
     });
   }
 
-  // Use isSuccess from useWaitForTransaction once fixed... or once we do not rely on a public provider ?
   const { isLoading: isDepositLoading, isSuccess: isDepositSuccess } =
-    useWaitForTransactionReceipt({
-      hash: depositData,
-    });
+    useWaitForTransactionReceipt({ hash: depositHash });
 
   return {
     approveForAll: () => approveForAll(),
     depositTokens: () => depositTokens(),
-    isApproveLoading,
+    isApproveLoading: isApproveLoading && approveHash !== undefined,
     isApprovedForAll,
-    isDepositLoading: isDepositLoading && depositData !== undefined,
-    isDepositSuccess,
+    isDepositLoading: isDepositLoading && depositHash !== undefined,
+    isDepositSuccess: isDepositSuccess && depositHash !== undefined,
   };
 }

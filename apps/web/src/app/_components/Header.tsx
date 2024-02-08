@@ -26,7 +26,7 @@ export default function Header() {
   const [openedModal, setOpenedModal] = useState<Chain | undefined>(undefined);
   const {
     isConnected: isEthereumConnected,
-    isConnecting: isEthereumConnecting,
+    // isConnecting: isEthereumConnecting,
   } = useEthereumAccount();
   const { isConnected: isStarknetConnected } = useStarknetAccount();
 
@@ -35,7 +35,8 @@ export default function Header() {
 
   const isFullyConnected = isEthereumConnected && isStarknetConnected;
   // TODO @YohanTz: fix isConnecting in starknet-react
-  const isConnecting = isEthereumConnecting;
+  const isConnecting = false;
+  // const isConnecting = isEthereumConnecting;
 
   useEffect(() => {
     if (pathname === "/" && isFullyConnected) {
