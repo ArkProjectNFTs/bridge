@@ -9,7 +9,14 @@
   },
   "devDependencies": {
     "eslint-config-custom": "*",
-    "tsconfig": "*",
-    "tailwind-config": "*"
+    "tailwind-config": "*",
+    "tsconfig": "*"
+  },
+  "dependencies": {
+    "@heroicons/react": "^2.0.18",
+    "@radix-ui/react-dialog": "^1.0.4",
+    "@types/react": "^18.2.6",
+    "@types/react-dom": "^18.2.4",
+    "react": "18.2.0"
   }
 }

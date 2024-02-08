@@ -1,11 +1,9 @@
-import * as React from "react";
-
 import "./styles.css";
 
-export * from "./Button";
-export * from "./Dialog";
-export * from "./Drawer";
-export * from "./IconButton";
-export * from "./Modal";
-export * from "./Notification";
-export * from "./Typography";
+export { Button } from "./Button";
+export { Dialog } from "./Dialog";
+export { Drawer } from "./Drawer";
+export { IconButton } from "./IconButton";
+export { Modal } from "./Modal";
+export { Notification } from "./Notification";
+export { Typography } from "./Typography";
