@@ -28,6 +28,8 @@ struct Request {
     uint256[] newOwners;
 }
 
+error CollectionTypeMaskUnsupported();
+
 /**
    @title Library related to the protocol for bridging tokens.
 */
@@ -80,7 +82,7 @@ library Protocol {
         } else if (ct == ERC1155_TYPE)  {
             return CollectionType.ERC1155;
         } else {
-            revert("Collection Type MASK is not supported.");
+            revert CollectionTypeMaskUnsupported();
         }
     }
 

@@ -5,6 +5,9 @@ pragma solidity ^0.8.0;
 import "openzeppelin-contracts/contracts/access/Ownable.sol";
 import "openzeppelin-contracts/contracts/proxy/utils/UUPSUpgradeable.sol";
 
+error NotSupportedError();
+error NotPayableError();
+
 /**
    @title Convenient contract to have ownable UUPS proxied contract.
 */
@@ -40,7 +43,7 @@ contract UUPSOwnableProxied is Ownable, UUPSUpgradeable {
         external
         payable
         {
-            revert("NOT SUP");
+            revert NotSupportedError();
         }
 
     /**
@@ -50,7 +53,7 @@ contract UUPSOwnableProxied is Ownable, UUPSUpgradeable {
         external
         payable
         {
-            revert("NO ETH");
+            revert NotPayableError();
         }
 }
 

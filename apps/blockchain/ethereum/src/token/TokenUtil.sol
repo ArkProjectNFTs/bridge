@@ -17,6 +17,8 @@ enum CollectionType {
     ERC1155
 }
 
+error UnsupportedTokenStandard();
+
 /**
    @title Utils functions for token related stuff.
 */
@@ -54,7 +56,7 @@ library TokenUtil {
             return CollectionType.ERC1155;
         }
 
-        revert("Unsupported token standard. Only ERC721 and ERC1155 are supported.");
+        revert UnsupportedTokenStandard();
     }
 
     /**
