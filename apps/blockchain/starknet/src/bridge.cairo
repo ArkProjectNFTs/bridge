@@ -284,37 +284,6 @@ mod bridge {
                 block_timestamp: starknet::info::get_block_timestamp(),
                 req_content: req
             });
-            
-        }
-
-        fn enable_white_list(ref self: ContractState, enable: bool) {
-            ensure_is_admin(@self);
-            self.white_list_enabled.write(enable);
-        }
-
-        fn is_white_list_enabled(self: @ContractState) -> bool {
-            self.white_list_enabled.read()
-        }
-
-        fn white_list_collection(ref self: ContractState, collection: ContractAddress, enabled: bool) {
-            ensure_is_admin(@self);
-            self.white_list.write(collection, enabled);
-        }
-
-        fn is_white_listed(self: @ContractState, collection: ContractAddress) -> bool {
-            _is_white_listed(self, collection)
-        }
-
-        fn enable(ref self: ContractState, enable: bool) {
-            ensure_is_admin(@self);
-            self.enabled.write(enable);
-            self.emit(BridgeEnabled {
-                enable: enable
-            });
-        }
-
-        fn is_enabled(self: @ContractState) -> bool {
-            self.enabled.read()
         }
     }
 
