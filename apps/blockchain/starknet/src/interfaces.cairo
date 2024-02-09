@@ -22,6 +22,12 @@ trait IStarklane<T> {
 
     fn set_erc721_class_hash(ref self: T, class_hash: ClassHash);
     fn get_erc721_class_hash(self: @T) -> ClassHash;
+
+    fn enable_white_list(ref self: T, enable: bool);
+    fn is_white_list_enabled(self: @T) -> bool;
+    fn white_list_collection(ref self: T, collection: ContractAddress, enabled: bool);
+    fn is_white_listed(self: @T, collection: ContractAddress) -> bool;
+
 }
 
 /// Upgradeable contract.

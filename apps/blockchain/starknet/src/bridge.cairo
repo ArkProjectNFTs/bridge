@@ -47,6 +47,11 @@ mod bridge {
         // Registry of escrowed token for collections.
         // <(collection_l2_address, token_id), original_depositor_l2_address>
         escrow: LegacyMap::<(ContractAddress, u256), ContractAddress>,
+
+        // White list enabled flag
+        white_list_enabled: bool,
+        // Registry of whitelisted collections
+        white_list: LegacyMap::<ContractAddress, bool>,
     }
 
     #[constructor]
@@ -61,6 +66,7 @@ mod bridge {
         // TODO: add validation of inputs.
         self.bridge_l1_address.write(bridge_l1_address);
         self.erc721_bridgeable_class.write(erc721_bridgeable_class);
+        self.white_list_enabled.write(false);
     }
 
     #[event]
@@ -234,6 +240,8 @@ mod bridge {
             // is not giving approval to the bridge.
             let from = starknet::get_caller_address();
 
+            assert(_is_white_listed(@self, collection_l2), 'Collection not whitelisted');
+
             // TODO: add support for 1155 and check the detected interface on the collection.
             let ctype = CollectionType::ERC721;
 
@@ -277,6 +285,24 @@ mod bridge {
                 block_timestamp: starknet::info::get_block_timestamp(),
                 req_content: req
             });
+        }
+
+        fn enable_white_list(ref self: ContractState, enable: bool) {
+            ensure_is_admin(@self);
+            self.white_list_enabled.write(enable);
+        }
+
+        fn is_white_list_enabled(self: @ContractState) -> bool {
+            self.white_list_enabled.read()
+        }
+
+        fn white_list_collection(ref self: ContractState, collection: ContractAddress, enabled: bool) {
+            ensure_is_admin(@self);
+            self.white_list.write(collection, enabled);
+        }
+
+        fn is_white_listed(self: @ContractState, collection: ContractAddress) -> bool {
+            _is_white_listed(self, collection)
         }
     }
 
@@ -362,5 +388,13 @@ mod bridge {
             );
 
         l2_addr_from_deploy
+    }
+
+    fn _is_white_listed(self: @ContractState, collection: ContractAddress) -> bool {
+            let enabled = self.white_list_enabled.read();
+            if (enabled) {
+                return self.white_list.read(collection);
+            }
+            true
     }
 }
