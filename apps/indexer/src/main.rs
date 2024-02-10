@@ -2,7 +2,7 @@
 extern crate config as external_crate_config;
 
 use anyhow::Result;
-use axum::{routing::get, Router, Server};
+use axum::{http::Request, middleware::Next, response::Response, routing::get, Router, Server};
 use clap::Parser;
 use std::sync::Arc;
 use tokio::sync::RwLock as AsyncRwLock;
@@ -42,6 +42,12 @@ struct Args {
 pub struct ChainsBlocks {
     sn: u64,
     eth: u64,
+}
+
+async fn version_header<B>(req: Request<B>, next: Next<B>) -> Response {
+    let mut response = next.run(req).await;
+    response.headers_mut().insert("X-INDEXER-VERSION", env!("GIT_HASH").parse().unwrap());
+    response
 }
 
 #[tokio::main]
@@ -118,6 +124,7 @@ async fn main() -> Result<()> {
         let app = Router::new()
             .route("/requests/:wallet", get(requests::reqs_info_from_wallet))
             .route("/tx/:txhash", get(requests::transaction))
+            .layer(axum::middleware::from_fn(version_header))
             .with_state(app_state);
 
         match Server::bind(&args.api_server_ip.unwrap().parse().unwrap())
