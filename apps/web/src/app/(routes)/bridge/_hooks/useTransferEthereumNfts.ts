@@ -1,6 +1,10 @@
+"use client";
+
 import { useAccount as useStarknetAccount } from "@starknet-react/core";
-import { erc721Abi } from "viem";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { parseGwei } from "viem";
+import { erc721Abi } from "viem";
 import {
   useAccount as useEthereumAccount,
   useReadContract,
@@ -10,6 +14,7 @@ import {
 
 import useNftSelection from "./useNftSelection";
 
+// TODO @YohanTz: Divide this hook in 2 (approve / deposit)
 export default function useTransferEthereumNfts() {
   const { selectedCollectionAddress, selectedTokenIds, totalSelectedNfts } =
     useNftSelection();
@@ -44,16 +49,14 @@ export default function useTransferEthereumNfts() {
     });
   }
 
-  console.log(approveHash);
-
   const { isLoading: isApproveLoading } = useWaitForTransactionReceipt({
     hash: approveHash,
   });
 
-  // console.log(isApproveLoading);
-
   const { data: depositHash, writeContract: writeContractDeposit } =
     useWriteContract();
+
+  const router = useRouter();
 
   function depositTokens() {
     writeContractDeposit({
@@ -107,15 +110,20 @@ export default function useTransferEthereumNfts() {
     });
   }
 
-  const { isLoading: isDepositLoading, isSuccess: isDepositSuccess } =
-    useWaitForTransactionReceipt({ hash: depositHash });
+  useEffect(() => {
+    if (depositHash !== undefined) {
+      void router.push(`lounge/${depositHash}`);
+    }
+  }, [depositHash, router]);
+
+  // const { isLoading: isDepositLoading, isSuccess: isDepositSuccess } =
+  //   useWaitForTransactionReceipt({ hash: depositHash });
 
   return {
     approveForAll: () => approveForAll(),
     depositTokens: () => depositTokens(),
+    depositTransactionHash: depositHash,
     isApproveLoading: isApproveLoading && approveHash !== undefined,
     isApprovedForAll,
-    isDepositLoading: isDepositLoading && depositHash !== undefined,
-    isDepositSuccess: isDepositSuccess && depositHash !== undefined,
   };
 }

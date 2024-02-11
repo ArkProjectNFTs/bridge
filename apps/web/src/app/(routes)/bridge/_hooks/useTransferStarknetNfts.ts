@@ -12,6 +12,7 @@ import useNftSelection from "./useNftSelection";
 
 const L2_BRIDGE_ADDRESS = process.env.NEXT_PUBLIC_L2_BRIDGE_ADDRESS || "";
 
+// TODO @YohanTz: Divide this hook in 2 (approve / deposit)
 export default function useTransferStarknetNfts() {
   const { selectedCollectionAddress, selectedTokenIds } = useNftSelection();
 
@@ -128,19 +129,17 @@ export default function useTransferStarknetNfts() {
     ],
   });
 
-  const { isLoading: isDepositLoading, isSuccess: isDepositSuccess } =
-    useWaitForTransaction({
-      hash: depositData?.transaction_hash,
-    });
+  // const { isLoading: isDepositLoading, isSuccess: isDepositSuccess } =
+  //   useWaitForTransaction({
+  //     hash: depositData?.transaction_hash,
+  //   });
 
   return {
     approveForAll: () => approveForAll(),
     depositTokens: () => depositTokens(),
+    depositTransactionHash: depositData?.transaction_hash,
     isApproveLoading:
       isApproveLoading && approveData?.transaction_hash !== undefined,
     isApprovedForAll,
-    isDepositLoading:
-      isDepositLoading && depositData?.transaction_hash !== undefined,
-    isDepositSuccess,
   };
 }

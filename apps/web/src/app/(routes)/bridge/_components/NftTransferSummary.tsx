@@ -7,8 +7,7 @@ import {
   Typography,
 } from "design-system";
 import Image from "next/image";
-import { redirect } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import useCurrentChain from "~/app/_hooks/useCurrentChain";
 import { api } from "~/utils/api";
@@ -21,20 +20,8 @@ function TransferAction() {
   const { sourceChain, targetChain } = useCurrentChain();
   const { totalSelectedNfts } = useNftSelection();
 
-  const {
-    approveForAll,
-    depositTokens,
-    isApproveLoading,
-    isApprovedForAll,
-    isDepositLoading,
-    isDepositSuccess,
-  } = useTransferNftsFromChain(sourceChain);
-
-  useEffect(() => {
-    if (isDepositSuccess) {
-      redirect("/lounge");
-    }
-  }, [isDepositSuccess]);
+  const { approveForAll, depositTokens, isApproveLoading, isApprovedForAll } =
+    useTransferNftsFromChain(sourceChain);
 
   return isApprovedForAll ? (
     <>
@@ -91,25 +78,13 @@ function TransferAction() {
       </Notification>
       <Button className="mt-8" onClick={() => depositTokens()} size="small">
         <Typography variant="button_text_s">
-          {isDepositLoading
-            ? "Approval in Progress..."
-            : `Confirm transfer to ${targetChain}`}
+          Confirm transfer to {targetChain}
         </Typography>
       </Button>
-      {isDepositLoading && (
-        <Image
-          alt="Bridge loading animation"
-          // className="fixed bottom-0 left-0 right-0 top-23 object-cover"
-          className="fixed inset-0 h-screen w-screen object-cover"
-          height={3000}
-          src="/medias/bridge_animation.gif"
-          width={3000}
-        />
-      )}
     </>
   ) : (
     <>
-      {totalSelectedNfts > 0 && (
+      {totalSelectedNfts > 0 && isApprovedForAll !== undefined && (
         <Typography
           className="mt-8 flex gap-2.5 rounded-xl bg-playground-purple-100 p-3 text-dark-blue-950 dark:bg-playground-purple-400"
           component="p"

@@ -1,7 +1,7 @@
 import { InjectedConnector as InjectedStarknetConnector } from "@starknet-react/core";
 import { type StaticImageData } from "next/image";
 import {
-  // coinbaseWallet,
+  //  coinbaseWallet,
   injected,
 } from "wagmi/connectors";
 // import { WalletConnectConnector } from "wagmi/connectors/walletConnect";
@@ -23,7 +23,7 @@ export const ethereumConnectors = [
   //   new WalletConnectConnector({ options: { projectId: walletConnectProjectId } }),
   // coinbaseWallet({
   //   // TODO @YohanTz: handle `darkMode` for coinbase wallet modal
-  //   appName: "Starklane",
+  //   appName: "Arklane",
   //   darkMode: true,
   // }),
 ];

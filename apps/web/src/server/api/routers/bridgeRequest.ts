@@ -26,12 +26,16 @@ type BridgeRequestApiResponse = Array<{
     hash: string;
     to: string;
   };
+  token_ids: Array<string>;
 }>;
 
 type BridgeRequestResponse = {
-  sourceCollection: string;
+  collectionName: string;
+  collectionSourceAddress: string;
   status: BridgeRequestEventStatus;
   statusTimestamp: number;
+  tokenIds: Array<string>;
+  totalCount: number;
 };
 
 export const bridgeRequestRouter = createTRPCRouter({
@@ -42,7 +46,7 @@ export const bridgeRequestRouter = createTRPCRouter({
 
       const bridgeRequestsResponse = await fetch(
         `${
-          process.env.NEXT_PUBLIC_STARKLANE_API_DOMAIN ?? ""
+          process.env.NEXT_PUBLIC_ARKLANE_API_DOMAIN ?? ""
         }/requests/${address}`,
         {
           headers: {
@@ -58,18 +62,47 @@ export const bridgeRequestRouter = createTRPCRouter({
       const bridgeRequests =
         (await bridgeRequestsResponse.json()) as BridgeRequestApiResponse;
 
+      // if (
+      //   bridgeRequests[0] !== undefined &&
+      //   bridgeRequests[0]?.req.chain_src === "eth"
+      // ) {
+      // }
       return bridgeRequests.map((bridgeRequest) => {
         const lastBridgeRequestEvent =
           bridgeRequest.events[bridgeRequest.events.length - 1];
+
+        console.log(bridgeRequest.events[0]?.tx_hash);
+
         return {
-          // sourceCollection: bridgeRequest.req.collection_src ?? "",
-          sourceCollection: bridgeRequest.req.hash ?? "",
+          collectionName: "",
+          collectionSourceAddress: bridgeRequest.req.collection_src,
           status: lastBridgeRequestEvent?.label ?? "error",
           statusTimestamp: lastBridgeRequestEvent?.block_timestamp ?? 0,
+          tokenIds: bridgeRequest.token_ids,
+          totalCount: bridgeRequest.token_ids.length,
         };
       });
     }),
-  // getAll: publicProcedure.query(({ ctx }) => {
-  //   return ctx.prisma.example.findMany();
-  // }),
+  getHasBrigeRequestIndexed: publicProcedure
+    .input(z.object({ transactionHash: z.string() }))
+    .query(async ({ input }): Promise<boolean> => {
+      const { transactionHash } = input;
+
+      const bridgeRequestIndexedResponse = await fetch(
+        `${
+          process.env.NEXT_PUBLIC_ARKLANE_API_DOMAIN ?? ""
+        }/tx/${transactionHash}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (bridgeRequestIndexedResponse.status !== 200) {
+        return false;
+      }
+
+      return true;
+    }),
 });

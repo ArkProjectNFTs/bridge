@@ -23,14 +23,18 @@ const variantsToStatusText: Record<BridgeRequestEventStatus, string> = {
 };
 
 interface NftCardStatusProps {
+  className?: string;
   status: keyof typeof variants;
 }
 
-export default function NftCardStatus({ status }: NftCardStatusProps) {
+export default function NftCardStatus({
+  className,
+  status,
+}: NftCardStatusProps) {
   return (
     <>
       <Typography
-        className={`${variants[status]} mt-3 rounded-full px-2 py-1 text-center`}
+        className={`${variants[status]} ${className} rounded-full px-2 py-1 text-center`}
         component="p"
         variant="body_text_12"
       >

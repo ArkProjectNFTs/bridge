@@ -3,7 +3,11 @@ import Link from "next/link";
 
 import TokenList from "./TokenList";
 
-export default function Page({ params }: { params: { address: string } }) {
+interface PageProps {
+  params: { address: string };
+}
+
+export default function Page({ params: { address } }: PageProps) {
   return (
     <>
       {/* TODO @YohanTz: Refacto to be a variant in the Button component */}
@@ -30,7 +34,7 @@ export default function Page({ params }: { params: { address: string } }) {
           <Typography variant="button_text_s">Back</Typography>
         </Link>
       </div>
-      <TokenList nftContractAddress={params.address} />
+      <TokenList nftContractAddress={address} />
     </>
   );
 }
