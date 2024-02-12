@@ -15,7 +15,7 @@ trait IStarklane<T> {
     );
 
     fn get_l1_collection_address(self: @T, address: ContractAddress) -> EthAddress;
-    fn get_l2_collection_address(self: @T, address: felt252) -> ContractAddress;
+    fn get_l2_collection_address(self: @T, address: EthAddress) -> ContractAddress;
 
     fn set_bridge_l1_addr(ref self: T, address: EthAddress);
     fn get_bridge_l1_addr(self: @T) -> EthAddress;

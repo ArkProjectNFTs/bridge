@@ -42,8 +42,7 @@ mod bridge {
         // Mapping between L2<->L1 collections addresses.
         l2_to_l1_addresses: LegacyMap::<ContractAddress, EthAddress>,
         // Mapping between L1<->L2 collections addresses.
-        // TODO: EthAddress still not have a hash impl.
-        l1_to_l2_addresses: LegacyMap::<felt252, ContractAddress>,
+        l1_to_l2_addresses: LegacyMap::<EthAddress, ContractAddress>,
         // Registry of escrowed token for collections.
         // <(collection_l2_address, token_id), original_depositor_l2_address>
         escrow: LegacyMap::<(ContractAddress, u256), ContractAddress>,
@@ -182,12 +181,10 @@ mod bridge {
     impl BridgeImpl of IStarklane<ContractState> {
 
         fn get_l1_collection_address(self: @ContractState, address: ContractAddress) -> EthAddress {
-            // TODO: ethAddress HashImpl to allow storage as key in legacy map.
-            let cf: felt252 = self.l2_to_l1_addresses.read(address).into();
-            cf.try_into().expect('Invalid eth address')
+            self.l2_to_l1_addresses.read(address)
         }
 
-        fn get_l2_collection_address(self: @ContractState, address: felt252) -> ContractAddress {
+        fn get_l2_collection_address(self: @ContractState, address: EthAddress) -> ContractAddress {
             self.l1_to_l2_addresses.read(address)
         }
 
@@ -355,7 +352,7 @@ mod bridge {
             l1_req,
             l2_req,
             self.l2_to_l1_addresses.read(l2_req),
-            self.l1_to_l2_addresses.read(l1_req.into()),
+            self.l1_to_l2_addresses.read(l1_req),
         );
 
         if !collection_l2.is_zero() {
@@ -374,7 +371,7 @@ mod bridge {
             starknet::get_contract_address(),
         );
 
-        self.l1_to_l2_addresses.write(l1_req.into(), l2_addr_from_deploy);
+        self.l1_to_l2_addresses.write(l1_req, l2_addr_from_deploy);
         self.l2_to_l1_addresses.write(l2_addr_from_deploy, l1_req);
 
         self
