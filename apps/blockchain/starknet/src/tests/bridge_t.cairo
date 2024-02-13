@@ -1,6 +1,14 @@
 #[cfg(test)]
 mod tests {
-    use snforge_std::cheatcodes::l1_handler::L1HandlerTrait;
+    use snforge_std::{
+        cheatcodes::{
+            events::EventFetcher, 
+            events::EventAssertions,
+            l1_handler::L1HandlerTrait
+        },
+        event_name_hash,
+    };
+
     use core::traits::TryInto;
     use array::{ArrayTrait, SpanTrait};
     use traits::Into;
@@ -10,8 +18,8 @@ mod tests {
     use zeroable::Zeroable;
     use starknet::{ContractAddress, ClassHash, EthAddress};
     use starklane::{
-        request::Request,
-        interfaces::{IStarklaneDispatcher, IStarklaneDispatcherTrait},
+        request::{Request, compute_request_hash},
+        interfaces::{IStarklaneDispatcher, IStarklaneDispatcherTrait, IUpgradeableDispatcher, IUpgradeableDispatcherTrait},
     };
     use starklane::token::{
         interfaces::{
@@ -19,8 +27,9 @@ mod tests {
             IERC721BridgeableDispatcher, IERC721BridgeableDispatcherTrait
         },
     };
+    use starklane::bridge::bridge;
 
-    use snforge_std::{declare, ContractClass, ContractClassTrait, start_prank, stop_prank, CheatTarget, L1Handler};
+    use snforge_std::{declare, ContractClass, ContractClassTrait, start_prank, stop_prank, CheatTarget, L1Handler, get_class_hash, spy_events, SpyOn};
 
     /// Deploys Starklane.
     fn deploy_starklane(
@@ -85,6 +94,7 @@ mod tests {
         erc721.set_approval_for_all(bridge_address, true);
         stop_prank(CheatTarget::One(erc721b_address));
 
+        let mut spy = spy_events(SpyOn::One(bridge_address));
         start_prank(CheatTarget::One(bridge_address), COLLECTION_OWNER);
         bridge.deposit_tokens(
             0x123,
@@ -96,8 +106,18 @@ mod tests {
         stop_prank(CheatTarget::One(bridge_address));
 
         assert!(erc721.owner_of(0) == bridge_address, "Wrong owner after deposit");
+        spy.fetch_events();
+        assert_eq!(spy.events.len(), 1, "Only 1 event");
+        let req_hash = compute_request_hash(0x123, erc721b_address, OWNER_L1, array![0, 1].span());
+        let (from, event) = spy.events.at(0);
+        assert!(from == @bridge_address, "Emitted from wrong address");
+        assert_eq!(event.keys.len(), 4, "There should be four keys");
+        assert!(event.keys.at(0) == @event_name_hash('DepositRequestInitiated'), "Wrong event name");
+        assert_eq!(req_hash.low, (*event.keys.at(1)).try_into().unwrap(), "Wrong req hash");
+        assert_eq!(req_hash.high, (*event.keys.at(2)).try_into().unwrap(), "Wrong req hash");
+        let timestamp: u64 = (*event.keys.at(3)).try_into().unwrap();
+        assert_eq!(timestamp, starknet::info::get_block_timestamp(), "Wrong timestamp key");
 
-        // TODO: check for events when available.
     }
 
     #[test]
@@ -147,6 +167,8 @@ mod tests {
             from_address: BRIDGE_L1.into(),
             payload: buf.span()
         };
+        let mut spy = spy_events(SpyOn::One(bridge_address));
+
         l1_handler.execute().unwrap();
         let bridge = IStarklaneDispatcher { contract_address: bridge_address };
 
@@ -161,6 +183,19 @@ mod tests {
 
         assert!(erc721.owner_of(0) == OWNER_L2, "Wrong owner after req");
         assert!(erc721.owner_of(1) == OWNER_L2, "Wrong owner after req");
+
+        spy.assert_emitted(@array![
+            (
+                bridge_address,
+                bridge::Event::WithdrawRequestCompleted(
+                    bridge::WithdrawRequestCompleted {
+                        hash: req.hash,
+                        block_timestamp: starknet::info::get_block_timestamp(),
+                        req_content: req,
+                    }
+                )
+
+        )]);
     }
 
     #[test]
@@ -252,6 +287,51 @@ mod tests {
             false,
             false);
         stop_prank(CheatTarget::One(bridge_address));
+    }
+
+    #[test]
+    fn upgrade_as_admin() {
+       let erc721b_contract_class = declare('erc721_bridgeable');
+
+        let BRIDGE_ADMIN = starknet::contract_address_const::<'starklane'>();
+        let BRIDGE_L1 = EthAddress { address: 'starklane_l1' };
+        let bridge_address = deploy_starklane(BRIDGE_ADMIN, BRIDGE_L1, erc721b_contract_class.class_hash);
+
+        let mut spy = spy_events(SpyOn::One(bridge_address));
+
+        start_prank(CheatTarget::One(bridge_address), BRIDGE_ADMIN);
+        IUpgradeableDispatcher { contract_address: bridge_address}.upgrade(erc721b_contract_class.class_hash);
+        stop_prank(CheatTarget::One(bridge_address));
+        assert!(get_class_hash(bridge_address) == erc721b_contract_class.class_hash, "Incorrect class hash upgrade");
+        
+        spy.assert_emitted(@array![
+            (
+                bridge_address,
+                bridge::Event::ReplacedClassHash(
+                    bridge::ReplacedClassHash {
+                        contract: bridge_address,
+                        class: erc721b_contract_class.class_hash,
+                    }
+                )
+            )
+        ]);
+        assert(spy.events.len() == 0, 'There should be no events');
+    }
+
+    #[test]
+    #[should_panic]
+    fn upgrade_as_not_admin() {
+        let erc721b_contract_class = declare('erc721_bridgeable');
+
+        let BRIDGE_ADMIN = starknet::contract_address_const::<'starklane'>();
+        let BRIDGE_L1 = EthAddress { address: 'starklane_l1' };
+        let bridge_address = deploy_starklane(BRIDGE_ADMIN, BRIDGE_L1, erc721b_contract_class.class_hash);
+        let bridge = IUpgradeableDispatcher { contract_address: bridge_address };
+        let alice = starknet::contract_address_const::<'alice'>();
+
+        start_prank(CheatTarget::One(bridge_address), alice);
+        bridge.upgrade(erc721b_contract_class.class_hash);
+        stop_prank(CheatTarget::One(bridge_address));        
     }
 
 }

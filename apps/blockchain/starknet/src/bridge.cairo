@@ -14,6 +14,14 @@ mod bridge {
     use starknet::eth_address::EthAddressZeroable;
 
     use starklane::interfaces::{IStarklane, IUpgradeable};
+    // events
+    use starklane::interfaces::{
+        DepositRequestInitiated,
+        WithdrawRequestCompleted,
+        CollectionDeployedFromL1,
+        ReplacedClassHash
+    };
+
     use starklane::request::{
         Request,
         compute_request_header_v1,
@@ -74,35 +82,9 @@ mod bridge {
         DepositRequestInitiated: DepositRequestInitiated,
         CollectionDeployedFromL1: CollectionDeployedFromL1,
         WithdrawRequestCompleted: WithdrawRequestCompleted,
+        ReplacedClassHash: ReplacedClassHash,
     }
 
-    #[derive(Drop, starknet::Event)]
-    struct DepositRequestInitiated {
-        #[key]
-        hash: u256,
-        #[key]
-        block_timestamp: u64,
-        req_content: Request,
-    }
-
-    #[derive(Drop, starknet::Event)]
-    struct WithdrawRequestCompleted {
-        #[key]
-        hash: u256,
-        #[key]
-        block_timestamp: u64,
-        req_content: Request
-    }
-
-    #[derive(Drop, starknet::Event)]
-    struct CollectionDeployedFromL1 {
-        #[key]
-        l1_addr: EthAddress,
-        #[key]
-        l2_addr: ContractAddress,
-        name: ByteArray,
-        symbol: ByteArray
-    }
 
     /// Process message from L1 to withdraw token.
     ///
@@ -171,7 +153,12 @@ mod bridge {
             );
 
             match starknet::replace_class_syscall(class_hash) {
-                Result::Ok(_) => (), // emit event
+                Result::Ok(_) => {
+                    self.emit(ReplacedClassHash {
+                        contract: starknet::get_contract_address(),
+                        class: class_hash,
+                    })
+                },
                 Result::Err(revert_reason) => panic(revert_reason),
             };
         }
@@ -276,12 +263,13 @@ mod bridge {
                 buf.span(),
             )
                 .unwrap_syscall();
-
+            
             self.emit(DepositRequestInitiated {
                 hash: req.hash,
                 block_timestamp: starknet::info::get_block_timestamp(),
                 req_content: req
             });
+            
         }
 
         fn enable_white_list(ref self: ContractState, enable: bool) {

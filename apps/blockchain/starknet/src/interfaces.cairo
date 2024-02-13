@@ -1,5 +1,6 @@
 use array::{SpanTrait};
 use starknet::{ClassHash, ContractAddress, EthAddress};
+use starklane::request::Request;
 
 #[starknet::interface]
 trait IStarklane<T> {
@@ -36,12 +37,39 @@ trait IUpgradeable<T> {
     fn upgrade(ref self: T, class_hash: ClassHash);
 }
 
+//////////////////////////
+/// Events
+#[derive(Drop, starknet::Event)]
+struct ReplacedClassHash {
+    contract: ContractAddress,
+    class: ClassHash,
+}
 
-/// TODO: define events here when possible? Is it possible? Test it.
+#[derive(Drop, starknet::Event)]
+struct DepositRequestInitiated {
+    #[key]
+    hash: u256,
+    #[key]
+    block_timestamp: u64,
+    req_content: Request,
+}
 
-// #[derive(Drop, starknet::Event)]
-// struct ReplacedClassHash {
-//     contract: ContractAddress,
-//     class: ClassHash,
-// }
 
+#[derive(Drop, starknet::Event)]
+struct WithdrawRequestCompleted {
+    #[key]
+    hash: u256,
+    #[key]
+    block_timestamp: u64,
+    req_content: Request
+}
+
+#[derive(Drop, starknet::Event)]
+struct CollectionDeployedFromL1 {
+    #[key]
+    l1_addr: EthAddress,
+    #[key]
+    l2_addr: ContractAddress,
+    name: ByteArray,
+    symbol: ByteArray
+}
