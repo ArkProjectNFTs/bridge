@@ -18,6 +18,6 @@ You can always [clone the fork](https://github.com/glihm/starknet-foundry/tree/c
 Once forge is installed, you can run:
 
 ```bash
-snforge
+snforge test
 ```
 

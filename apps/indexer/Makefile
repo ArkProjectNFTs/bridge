@@ -10,12 +10,12 @@ local_setup_with_devnodes:
 	sleep 1
 	@make start_local_devnodes
 	sleep 1
-	make -C ../blockchain/ethereum/ starklane_local_setup config=.env.anvil
-	make -C ../blockchain/starknet/ starklane_local_setup config=.env.katana
+	@make local_setup
+	
 
 start_local_devnodes:
 	@echo "Starting devnodes..."
-	~/starknet/dojo/target/release/katana &
+	katana &
 	anvil &
 
 stop_local_devnodes:
@@ -24,14 +24,14 @@ stop_local_devnodes:
 	- pkill anvil
 
 db_reset:
-	sudo docker-compose -f ./docker-compose.yml down
+	docker-compose -f ./docker-compose.yml down
 	docker volume rm indexer_starklane_testnet -f
-	sudo docker-compose -f ./docker-compose.yml up -d
+	docker-compose -f ./docker-compose.yml up -d
 
 run_dev:
 	cargo build
 	@make db_reset
-	RUST_LOG=debug cargo run -- --config-file local.config --mongodb mongodb://localhost:27017/starklane
+	RUST_LOG=debug cargo run -- --config-file local.config --mongodb mongodb://localhost:27017/starklane --api-server-ip 127.0.0.1:8080
 
 run_server:
 	RUST_LOG=starklane_indexer=debug cargo run -- --config-file testnet.config --mongodb mongodb://localhost:27017/starklane_testnet --api-server-ip 127.0.0.1:7890

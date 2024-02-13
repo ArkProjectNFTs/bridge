@@ -13,16 +13,21 @@ env:
   SCARB_VERSION: v0.6.0
 
 jobs:
-  build-starknet-contracts:
+  test-starknet-contracts:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: software-mansion/setup-scarb@v1
         with:
-          scarb-version: "0.6.0"
+          tool-versions: apps/blockchain/starknet/.tool-versions
+      - uses: foundry-rs/setup-snfoundry@v3
+        with:
+          tool-versions: apps/blockchain/starknet/.tool-versions
       - run: scarb build
         working-directory: apps/blockchain/starknet
-
+      - run: snforge test
+        working-directory: apps/blockchain/starknet
+      
 
   test-ethereum-contracts:
     strategy:
@@ -44,11 +49,11 @@ jobs:
       - name: Run Forge build
         run: |
           forge --version
-          forge build --sizes --root apps/blockchain/contracts/ethereum/
+          forge build --sizes --root apps/blockchain/ethereum/
         id: build
 
       - name: Run Forge tests
         run: |
-          forge test -vvv --root apps/blockchain/contracts/ethereum/
+          forge test -vvv --root apps/blockchain/ethereum/
         id: test
 

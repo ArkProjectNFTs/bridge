@@ -174,9 +174,9 @@ library Protocol {
         // Constant length part of the request is always 7 uint256 long.
         uint256 len = 7;
 
-        len += Cairo.shortStringSerializedLength(req.name);
-        len += Cairo.shortStringSerializedLength(req.symbol);
-        len += Cairo.shortStringSerializedLength(req.uri);
+        len += Cairo.cairoStringSerializedLength(req.name);
+        len += Cairo.cairoStringSerializedLength(req.symbol);
+        len += Cairo.cairoStringSerializedLength(req.uri);
 
         // Arrays always have their length first, then serialized length of each element.
         // For uint256, we can pre-compute it as a uint256 is 2 felts long.
@@ -188,7 +188,7 @@ library Protocol {
         // We start by adding the length of the tokenURIs array.
         len += 1;
         for (uint256 i = 0; i < req.tokenURIs.length; i++) {
-            len += Cairo.shortStringSerializedLength(req.tokenURIs[i]);
+            len += Cairo.cairoStringSerializedLength(req.tokenURIs[i]);
         }
 
         return len;
@@ -224,13 +224,13 @@ library Protocol {
 
         // Variable length part of the request.
         uint256 offset = 7;
-        offset += Cairo.shortStringSerialize(req.name, buf, offset);
-        offset += Cairo.shortStringSerialize(req.symbol, buf, offset);
-        offset += Cairo.shortStringSerialize(req.uri, buf, offset);
+        offset += Cairo.cairoStringSerialize(req.name, buf, offset);
+        offset += Cairo.cairoStringSerialize(req.symbol, buf, offset);
+        offset += Cairo.cairoStringSerialize(req.uri, buf, offset);
 
         offset += Cairo.uint256ArraySerialize(req.tokenIds, buf, offset);
         offset += Cairo.uint256ArraySerialize(req.tokenValues, buf, offset);
-        offset += Cairo.shortStringArraySerialize(req.tokenURIs, buf, offset);
+        offset += Cairo.cairoStringArraySerialize(req.tokenURIs, buf, offset);
         offset += Cairo.uint256ArraySerialize(req.newOwners, buf, offset);
 
         return buf;
@@ -266,13 +266,13 @@ library Protocol {
 
         uint256 inc;
 
-        (inc, req.name) = Cairo.shortStringDeserialize(buf, offset);
+        (inc, req.name) = Cairo.cairoStringDeserialize(buf, offset);
         offset += inc;
 
-        (inc, req.symbol) = Cairo.shortStringDeserialize(buf, offset);
+        (inc, req.symbol) = Cairo.cairoStringDeserialize(buf, offset);
         offset += inc;
 
-        (inc, req.uri) = Cairo.shortStringDeserialize(buf, offset);
+        (inc, req.uri) = Cairo.cairoStringDeserialize(buf, offset);
         offset += inc;
 
         (inc, req.tokenIds) = Cairo.uint256ArrayDeserialize(buf, offset);
@@ -281,7 +281,7 @@ library Protocol {
         (inc, req.tokenValues) = Cairo.uint256ArrayDeserialize(buf, offset);
         offset += inc;
 
-        (inc, req.tokenURIs) = Cairo.shortStringArrayDeserialize(buf, offset);
+        (inc, req.tokenURIs) = Cairo.cairoStringArrayDeserialize(buf, offset);
         offset += inc;
 
         (inc, req.newOwners) = Cairo.uint256ArrayDeserialize(buf, offset);

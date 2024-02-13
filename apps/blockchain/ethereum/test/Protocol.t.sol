@@ -132,11 +132,11 @@ contract ProtocolTest is Test {
     function test_requestSerializedLength() public {
         Request memory req = buildRequestDummy();
         uint256 len = Protocol.requestSerializedLength(req);
-        assertEq(len, 17);
+        assertEq(len, 22);
 
         Request memory reqFull = buildRequestDummyFull();
         uint256 lenFull = Protocol.requestSerializedLength(reqFull);
-        assertEq(lenFull, 26);
+        assertEq(lenFull, 30);
     }
 
     //
@@ -152,38 +152,48 @@ contract ProtocolTest is Test {
         assertEq(buf[4], 0x123);
         assertEq(buf[5], 0x0);
         assertEq(buf[6], 0x789);
-        assertEq(buf[7], 0);
-        assertEq(buf[8], 0);
-        assertEq(buf[9], 1);
-        assertEq(buf[10], 0x0041424344000000000000000000000000000000000000000000000000000000);
-        assertEq(buf[11], 1);
-        assertEq(buf[12], 1);
-        assertEq(buf[13], 0);
-        assertEq(buf[14], 0);
-        assertEq(buf[15], 0);
-        assertEq(buf[16], 0);
+        assertEq(buf[7], 0); // name data len
+        assertEq(buf[8], 0); // name pending word
+        assertEq(buf[9], 0); // name pending word len
+        assertEq(buf[10], 0); // symbol data len
+        assertEq(buf[11], 0); // symbol pending word
+        assertEq(buf[12], 0); // symbol pending word len
+        assertEq(buf[13], 0); // base_uri data len
+        assertEq(buf[14], 0x0041424344000000000000000000000000000000000000000000000000000000); // base_uri pending word
+        assertEq(buf[15], 4); // base_uri pending word len
+        assertEq(buf[16], 1); // ids len
+        assertEq(buf[17], 1); // ids[0] low
+        assertEq(buf[18], 0); // ids[0] high
+        assertEq(buf[19], 0); // values len
+        assertEq(buf[20], 0); // uris len
+        assertEq(buf[21], 0); // new owners len
     }
 
     //
     function test_requestDeserialize() public {
-        uint256[] memory data = new uint256[](17);
-        data[0] = 0x1;
-        data[1] = 0x1;
-        data[2] = 0x0;
-        data[3] = 0x0;
-        data[4] = 0x123;
-        data[5] = 0x0;
-        data[6] = 0x789;
-        data[7] = 0;
-        data[8] = 0;
-        data[9] = 1;
-        data[10] = 0x0041424344000000000000000000000000000000000000000000000000000000;
-        data[11] = 1;
-        data[12] = 1;
-        data[13] = 0;
-        data[14] = 0;
-        data[15] = 0;
-        data[16] = 0;
+        uint256[] memory data = new uint256[](22);
+        data[0] = 0x1; // header
+        data[1] = 0x1; // hash low
+        data[2] = 0x0; // hash high
+        data[3] = 0x0; // collectionL1
+        data[4] = 0x123; // collectionL2
+        data[5] = 0x0; // ownerL1
+        data[6] = 0x789; // ownerL2
+        data[7] = 0; // name data len
+        data[8] = 0; // name pending word
+        data[9] = 0; // name pending word len
+        data[10] = 0; // symbol data len
+        data[11] = 0; // symbol pending word
+        data[12] = 0; // symbol pending word len
+        data[13] = 0; // base_uri data len
+        data[14] = 0x0041424344000000000000000000000000000000000000000000000000000000; // base_uri pending word
+        data[15] = 4; // base_uri pending word len
+        data[16] = 1; // ids len
+        data[17] = 1; // ids[0] low
+        data[18] = 0; // ids[0] high
+        data[19] = 0; // values len
+        data[20] = 0; // uris len
+        data[21] = 0; // new owners len
 
         Request memory req = Protocol.requestDeserialize(data, 0);
 

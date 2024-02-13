@@ -12,13 +12,9 @@ mod erc721_bridgeable {
     use option::OptionTrait;
     use array::{ArrayTrait, SpanTrait};
 
-    use starklane::string::{
-        LongString, Felt252IntoLongString,
-        long_string_storage_read, long_string_storage_write
-    };
-
     use starklane::token::interfaces::{IERC721, IERC721Bridgeable};
     use starklane::interfaces::IUpgradeable;
+    use starklane::byte_array_storage::ByteArrayStore;
 
     #[storage]
     struct Storage {
@@ -27,21 +23,24 @@ mod erc721_bridgeable {
         owners: LegacyMap<u256, ContractAddress>,
         operator_approvals: LegacyMap<(ContractAddress, ContractAddress), bool>,
         token_approvals: LegacyMap<u256, ContractAddress>,
+        name: ByteArray,
+        symbol: ByteArray,
+        token_uris: LegacyMap<u256, ByteArray>,
     }
 
     #[constructor]
     fn constructor(
         ref self: ContractState,
-        name: LongString,
-        symbol: LongString,
+        name: ByteArray,
+        symbol: ByteArray,
         bridge: ContractAddress,
         collection_owner: ContractAddress,
     ) {
         assert(!bridge.is_zero(), 'Invalid bridge address');
         assert(!collection_owner.is_zero(), 'Bad collection owner address');
 
-        long_string_storage_write('ERC721', 'name', name);
-        long_string_storage_write('ERC721', 'symbol', symbol);
+        self.name.write(name);
+        self.symbol.write(symbol);
         self.bridge.write(bridge);
         self.collection_owner.write(collection_owner);
     }
@@ -92,9 +91,9 @@ mod erc721_bridgeable {
             mint(ref self, to, token_id);
         }
 
-        fn mint_from_bridge_uri(ref self: ContractState, to: ContractAddress, token_id: u256, token_uri: LongString) {
+        fn mint_from_bridge_uri(ref self: ContractState, to: ContractAddress, token_id: u256, token_uri: ByteArray) {
             IERC721Bridgeable::mint_from_bridge(ref self, to, token_id);
-            long_string_storage_write(token_id.low.into(), token_id.high.into(), token_uri);
+            self.token_uris.write(token_id, token_uri);
         }
     }
 
@@ -118,12 +117,12 @@ mod erc721_bridgeable {
         //
         // *** VIEWS ***
         //
-        fn name(self: @ContractState) -> LongString {
-            long_string_storage_read('ERC721', 'name')
+        fn name(self: @ContractState) -> ByteArray {
+            self.name.read()
         }
 
-        fn symbol(self: @ContractState) -> LongString {
-            long_string_storage_read('ERC721', 'symbol')
+        fn symbol(self: @ContractState) -> ByteArray {
+            self.symbol.read()
         }
 
         fn owner_of(self: @ContractState, token_id: u256) -> ContractAddress {
@@ -136,18 +135,18 @@ mod erc721_bridgeable {
             is_approved_for_all_check(self, owner, operator)
         }
 
-        fn token_uri(self: @ContractState, token_id: u256) -> LongString {
+        fn token_uri(self: @ContractState, token_id: u256) -> ByteArray {
             assert(exists(self, token_id), 'ERC721: invalid token ID');
-            long_string_storage_read(token_id.low.into(), token_id.high.into())            
+            self.token_uris.read(token_id)      
         }
 
         fn mint_free(ref self: ContractState, to: ContractAddress, token_id: u256) {
             mint(ref self, to, token_id);
         }
 
-        fn mint_uri_free(ref self: ContractState, to: ContractAddress, token_id: u256, token_uri: LongString) {
+        fn mint_uri_free(ref self: ContractState, to: ContractAddress, token_id: u256, token_uri: ByteArray) {
             mint(ref self, to, token_id);
-            long_string_storage_write(token_id.low.into(), token_id.high.into(), token_uri);
+            self.token_uris.write(token_id, token_uri);
         }
 
         fn mint_range_free(ref self: ContractState, to: ContractAddress, start: u256, end: u256) {
@@ -269,14 +268,13 @@ mod tests {
     use starknet::class_hash::Felt252TryIntoClassHash;
     use starknet::{ContractAddress, ClassHash};
 
-    use starklane::string::{LongString, LongStringSerde};
 
-    use snforge_std::{declare, deploy, PreparedContract, start_prank, stop_prank};
+    use snforge_std::{declare, ContractClassTrait, start_prank, stop_prank, CheatTarget};
 
     /// Deploy a ERC721Bridgeable instance, reusable in tests.
     fn deploy_erc721b(
-        name: LongString,
-        symbol: LongString,
+        name: ByteArray,
+        symbol: ByteArray,
         bridge_addr: ContractAddress,
         collection_owner: ContractAddress,
     ) -> ContractAddress {
@@ -286,13 +284,9 @@ mod tests {
         calldata.append(bridge_addr.into());
         calldata.append(collection_owner.into());
 
-        let class_hash = declare('erc721_bridgeable');
-        let prepared = PreparedContract {
-            class_hash: class_hash,
-            constructor_calldata: @calldata
-        };
+        let contract = declare('erc721_bridgeable');
 
-        deploy(prepared).unwrap()
+        contract.deploy(@calldata).unwrap()
     }
 
     /// Mocked bridge addr.
@@ -308,29 +302,27 @@ mod tests {
     /// Deploy everai collection.
     fn deploy_everai_collection() -> ContractAddress {
         deploy_erc721b(
-            'everai duo'.into(),
-            'DUO'.into(),
+            "everai duo",
+            "DUO",
             bridge_addr_mock(),
             collection_owner_addr_mock())
     }
 
     /// Should have correct constructor valules.
     #[test]
-    #[available_gas(2000000000)]
     fn deploy_new() {
         let contract_address = deploy_everai_collection();
         let erc721 = IERC721Dispatcher { contract_address };
 
         let n = erc721.name();
-        assert(n == 'everai duo'.into(), 'bad name');
+        assert_eq!(n, "everai duo", "bad name");
 
         let s = erc721.symbol();
-        assert(s == 'DUO'.into(), 'bad symbol');
+        assert_eq!(s, "DUO", "bad symbol");
     }
 
     /// Should store some LongString inside the storage.
     #[test]
-    #[available_gas(2000000000)]
     fn storage_struct() {
         let NEW_DUO_OWNER = starknet::contract_address_const::<128>();
         let TOKEN_ID = 244;
@@ -338,16 +330,15 @@ mod tests {
         let contract_address = deploy_everai_collection();
         let erc721 = IERC721Dispatcher { contract_address };        
 
-        let new_uri: LongString = 'https:...'.into();
-        erc721.mint_uri_free(NEW_DUO_OWNER, TOKEN_ID, new_uri);
+        let new_uri = "https:...";
+        erc721.mint_uri_free(NEW_DUO_OWNER, TOKEN_ID, new_uri.clone());
 
         let fetched_uri = erc721.token_uri(TOKEN_ID);
-        assert(fetched_uri == new_uri, 'bad fetched uri');
+        assert_eq!(fetched_uri, new_uri, "bad fetched uri");
     }
 
     /// Should mint token from bridge call.
     #[test]
-    #[available_gas(2000000000)]
     fn mint_from_bridge() {
         let BRIDGE = bridge_addr_mock();
         let COLLECTION_OWNER = collection_owner_addr_mock();
@@ -357,19 +348,18 @@ mod tests {
 
         let erc721b = IERC721BridgeableDispatcher { contract_address };
 
-        start_prank(contract_address, BRIDGE);
-        erc721b.mint_from_bridge_uri(NEW_DUO_OWNER, 0, 'myuri'.into());
-        stop_prank(contract_address);
+        start_prank(CheatTarget::One(contract_address), BRIDGE);
+        erc721b.mint_from_bridge_uri(NEW_DUO_OWNER, 0, "myuri");
+        stop_prank(CheatTarget::One(contract_address));
 
         let erc721 = IERC721Dispatcher { contract_address };
-        assert(erc721.owner_of(0) == NEW_DUO_OWNER, 'bad owner');
-        assert(erc721.token_uri(0) == 'myuri'.into(), 'bad uri');
+        assert!(erc721.owner_of(0) == NEW_DUO_OWNER, "bad owner");
+        assert_eq!(erc721.token_uri(0), "myuri", "bad uri");
     }
 
     /// Should not mint token if not bridge.
     #[test]
     #[should_panic(expected: ('ERC721: only bridge can mint', ))]
-    #[available_gas(2000000000)]
     fn should_panic_mint_from_bridge_fail() {
         let BRIDGE = bridge_addr_mock();
         let COLLECTION_OWNER = collection_owner_addr_mock();
@@ -378,12 +368,11 @@ mod tests {
         let contract_address = deploy_everai_collection();
 
         let erc721b = IERC721BridgeableDispatcher { contract_address };
-        erc721b.mint_from_bridge_uri(NEW_DUO_OWNER, 0, 'myuri'.into());
+        erc721b.mint_from_bridge_uri(NEW_DUO_OWNER, 0, "myuri");
     }
 
     /// Should transfer tokens.
     #[test]
-    #[available_gas(2000000000)]
     fn transfer_tokens() {
         let BRIDGE = bridge_addr_mock();
         let COLLECTION_OWNER = collection_owner_addr_mock();
@@ -396,17 +385,16 @@ mod tests {
         let erc721 = IERC721Dispatcher { contract_address };
 
         erc721.mint_free(FROM_DUO_OWNER, TOKEN_ID);
-        assert(erc721.owner_of(TOKEN_ID) == FROM_DUO_OWNER, 'mint failed');
+        assert!(erc721.owner_of(TOKEN_ID) == FROM_DUO_OWNER, "mint failed");
 
-        start_prank(contract_address, FROM_DUO_OWNER);
+        start_prank(CheatTarget::One(contract_address), FROM_DUO_OWNER);
         erc721.transfer_from(FROM_DUO_OWNER, TO_DUO_OWNER, TOKEN_ID);
-        assert(erc721.owner_of(TOKEN_ID) == TO_DUO_OWNER, 'transfer failed');
+        assert!(erc721.owner_of(TOKEN_ID) == TO_DUO_OWNER, "transfer failed");
     }
 
     /// Should get a token uri from contract call.
     /// This will try tokenURI and token_uri selectors.
     #[test]
-    #[available_gas(2000000000)]
     fn token_uri_from_contract_call() {
         let BRIDGE = bridge_addr_mock();
         let COLLECTION_OWNER = collection_owner_addr_mock();
@@ -417,12 +405,10 @@ mod tests {
 
         let erc721 = IERC721Dispatcher { contract_address };
 
-        let new_uri: LongString = 'https:...'.into();
-        erc721.mint_uri_free(NEW_DUO_OWNER, TOKEN_ID, new_uri);
-
+        let new_uri = "https:...";
+        erc721.mint_uri_free(NEW_DUO_OWNER, TOKEN_ID, new_uri.clone());
         let fetched_uri = collection_manager::token_uri_from_contract_call(contract_address, TOKEN_ID)
             .expect('token mint failed');
-
-        assert(fetched_uri == new_uri, 'bad uri');
+        assert_eq!(fetched_uri, new_uri, "bad uri");
     }
 }

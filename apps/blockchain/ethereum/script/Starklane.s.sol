@@ -73,8 +73,8 @@ contract Deposit is Script {
 
         Starklane(payable(proxyAddress)).depositTokens{value: 50000}(
             0x112233,
-            0x9156d2D0aad192859888919Cb91c1270BF21D881,
-            Cairo.snaddressWrap(0x01024e16519da35d35b0637c32d0611cc36b724f69cdea25e8007cd6a7cffa51),
+            0xC3e6f1F1d9d76A07E87b1F9625021a33efdbEa21,
+            Cairo.snaddressWrap(0x02d34A8edAdDBc0D6E6B10e4fd833d5A5A2161282aaDB3cA3d57f57820437C2A),
             ids,
             false
         );
