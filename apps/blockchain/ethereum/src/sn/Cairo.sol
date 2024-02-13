@@ -209,36 +209,143 @@ library Cairo {
         return ((len * 2) + 1, uints);
     }
 
+
+
     /**
-       @notice Computes the lengths of the packed cairo string.
+        @notice Unpacks a cairo string (byte array) into a string.
      
-       @dev Packed cairo string is represented as uint256[] and the length
-       is always preceding the array in serialization.
-       This is cheaper than packing the string to get the length.
+        @param buf Buffer where the string is packed as a cairo string.
+        @param offset Offset where the unpack must start.
+        
+        @return Unpacked string.
+     */
+    function cairoStringUnpack(
+        uint256[] memory buf, 
+        uint256 offset
+    ) 
+        internal 
+        pure 
+        returns (string memory) 
+    {
+        string memory s;
+        uint256 dataLen = buf[offset];
+        offset += 1;
+        for (uint256 i = offset; i < (offset + dataLen); ++i) {
+            s = string.concat(s, uint256AsciiNbcharsToString(buf[i], uint8(CAIRO_STR_LEN)));
+        }
+        offset += dataLen;
+        
+        // handle pending word
+        uint8 nbChars = uint8(buf[offset + 1] & 0xFF);
+        s = string.concat(s, uint256AsciiNbcharsToString(buf[offset], nbChars));
+        return s;
+    }
+
+    /**
+        @notice Packs a string into an array of uint256 (Cairo byte array string)
+
+        @dev Cairo (byte array) string are chunk by 31 bytes.
+     */
+    function cairoStringPack(
+        string memory str
+    )
+        internal
+        pure
+        returns (uint256[] memory)
+    {
+        bytes memory strBytes = bytes(str);
+        uint256 dataLen = strBytes.length / CAIRO_STR_LEN;
+        uint256 pendingLen = strBytes.length % CAIRO_STR_LEN;
+
+        uint256 packedLen = 1 + dataLen + 1 + 1;
+        uint256[] memory packedData = new uint256[](packedLen);
+        
+        uint256 index = 0;
+        uint256 v;
+        uint256 offset = 0x20; // length is first u256
+
+        packedData[index] = dataLen;
+        index++;
+
+        for (uint256 i = 0; i < dataLen; i ++) {
+            assembly { 
+                v := mload(add(strBytes, offset)) 
+                v := shr(8, v)
+                }
+
+            packedData[index] = v;
+            index++;
+            offset += CAIRO_STR_LEN;
+        }
+
+        // pending word
+        uint256 mask = (1 << ((pendingLen * 8) + 1)) - 1;
+
+        assembly { 
+            v := mload(add(strBytes, offset))
+            v := shr(8, v)
+        }
+        
+        mask = mask << ((31 - pendingLen) * 8);
+        v &= mask;
+        
+        packedData[index] = v;
+        index++;
+
+        packedData[index] = pendingLen;
+
+        return packedData;
+    }
+
+    /**
+        @notice Deserializes a cairo (byte array) string from the given buffer
+
+        @param buf Buffer where data is serialized.
+        @param offset Offset in `buf` where deserialization must start.
+
+        @return The offset increment applied to deserialize and the deserialized value.
     */
-    function shortStringSerializedLength(
+    function cairoStringDeserialize(
+        uint256[] memory buf,
+        uint256 offset
+    )
+        internal
+        pure
+        returns (uint256, string memory)
+    {
+        string memory s = cairoStringUnpack(buf, offset);
+        uint256 packedLen = 1 + buf[offset] + 1 + 1;
+        return (packedLen, s);
+    }
+
+    /** 
+        @notice Commputes the length of the packed cairo string.
+
+        @dev Same schema as Cairo byteArray serialize.
+    */
+    function cairoStringSerializedLength(
         string memory str
     )
         internal
         pure
         returns (uint256)
     {
-        // Even if the string is empty, we should return 1
-        // as the serialization is expecting a uint256 as length of the Span<felt>.
         bytes memory strBytes = bytes(str);
-        return ((strBytes.length + CAIRO_STR_LEN) / 32) + 1;
+        uint256 dataLen = strBytes.length / CAIRO_STR_LEN;
+        uint256 packedLen = 1 + dataLen + 1 + 1;
+        return packedLen;
     }
 
     /**
-       @notice Serializes a string into a cairo short string.
+        @notice Serializes a string into a cairo (byte array) string.
 
-       @param str String to be serialized.
-       @param buf Buffer where serialized form is saved.
-       @param offset Offset in `buf` where serialization must start.
+        @param str String to be serialized.
+        @param buf Buffer where serialized form is saved.
+        @param offset Offset in `buf` where serialization must start.
 
-       @return Offset increment applied to serialize the value.
-    */
-    function shortStringSerialize(
+        @return Offset increment applied to serialize the value.
+     */
+    function cairoStringSerialize(
         string memory str,
         uint256[] memory buf,
         uint256 offset
@@ -247,126 +354,51 @@ library Cairo {
         pure
         returns (uint256)
     {
-        uint256[] memory packed = shortStringPack(str);
-
-        if (packed.length == 0) {
-            buf[offset] = 0;
-            return 1;
-        } else {
-            buf[offset++] = packed.length;
-
-            for (uint256 i = 0; i < packed.length; i++) {
-                buf[offset + i] = packed[i];
-            }
-
-            return 1 + packed.length;
+        uint256[] memory packed = cairoStringPack(str);
+        for (uint256 i = 0; i < packed.length; i++) {
+            buf[offset + i] = packed[i];
         }
+        return packed.length;
     }
 
     /**
-       @notice Packs a string into an array of uint256 (Cairo Short String -> felt252).
-     
-       @dev Cairo short strings are 31 chars long, so here we pack every
-       31 chars into a uint256 (representing a felt).
-       To ensure there are no overflow of short string, the first byte is cleared
-       always cleared.
-    */
-    function shortStringPack(
-        string memory str
-    )
-        internal
-        pure
-        returns (uint256[] memory)
-    {
-        bytes memory strBytes = bytes(str);
-        uint256 packedLen = (strBytes.length + CAIRO_STR_LEN) / 32;
+        @notice Serializes an array for strings as cairo array of strings.
 
-        uint256[] memory packedData = new uint256[](packedLen);
+        @param arr Array to be serialized.
+        @param buf Buffer where serialized form is saved.
+        @param offset Offset in `buf` where serialization must start.
 
-        if (packedLen == 0) {
-            return packedData;
-        }
-
-        uint256 index = 0;
-        uint256 v;
-
-        for (uint256 i = 0; i < strBytes.length; i += CAIRO_STR_LEN) {
-
-            // We take only CAIRO_STR_LEN to ensure it fits in a felt252.
-            assembly { v := mload(add(add(strBytes, i), CAIRO_STR_LEN)) }
-
-            // The MSB must always be cleared to fit into a felt252.
-            v &= (type(uint256).max >> 8);
-
-            packedData[index] = v;
-            index++;
-        }
-
-        return packedData;
-    }
-
-    /**
-       @notice Deserializes a cairo short string from the given buffer.
-
-       @param buf Buffer where data is serialized.
-       @param offset Offset in `buf` where deserialization must start.
-
-       @return The offset increment applied to deserialize and the deserialized value.
-    */
-    function shortStringDeserialize(
-        uint256[] memory buf,
-        uint256 offset
-    )
-        internal
-        pure
-        returns (uint256, string memory)
-    {
-        uint256 len = buf[offset++];
-        string memory s = shortStringUnpack(buf, offset, len);
-
-        // +1 to take in account the array length that was also deserialized.
-        return (len + 1, s);
-    }
-
-    /**
-       @notice Serializes an array of strings as cairo array of short strings.
-
-       @param arr Array to be serialized.
-       @param buf Buffer where serialized form is saved.
-       @param offset Offset in `buf` where serialization must start.
-
-       @return Offset increment applied to serialize the value.
-    */
-    function shortStringArraySerialize(
+        @return Offset increment applied to serialize the value.
+     */
+    function cairoStringArraySerialize(
         string[] memory arr,
         uint256[] memory buf,
         uint256 offset
-    )
+    ) 
         internal
         pure
         returns (uint256)
     {
         uint256 _offset = offset;
 
-        // Arrays always have their length first in Cairo.
         buf[_offset++] = arr.length;
 
         for (uint256 i = 0; i < arr.length; i++) {
-            _offset += shortStringSerialize(arr[i], buf, _offset);
+            _offset += cairoStringSerialize(arr[i], buf, _offset);
         }
 
         return _offset - offset;
     }
 
     /**
-       @notice Deserializes an array of short string from the given buffer.
+        @notice Deserializes an array of cairo strin from the given buffer.
 
-       @param buf Buffer where data is serialized.
-       @param offset Offset in `buf` where deserialization must start.
+        @param buf Buffer where data is serialized.
+        @param offset Offset in `buf` where deserialization must start.
 
-       @return The offset increment applied to deserialize and the deserialized value.
-    */
-    function shortStringArrayDeserialize(
+        @return The offset increment applied to deserialize and the deserialized value.
+     */
+    function cairoStringArrayDeserialize(
         uint256[] memory buf,
         uint256 offset
     )
@@ -382,40 +414,14 @@ library Cairo {
         for (uint256 i = 0; i < len; i++) {
             (
                 uint256 inc,
-                string memory s
-            ) = shortStringDeserialize(buf, _offset);
+                string memory s 
+            ) = cairoStringDeserialize(buf, _offset);
 
             _offset += inc;
             strs[i] = s;
         }
 
         return (_offset - offset, strs);
-    }
-
-    /**
-       @notice Unpacks a cairo short string into a string.
-
-       @param buf Buffer where the string is packed as cairo short string.
-       @param offset Offset where the unpack must start.
-       @param len Length of the string to unpack.
-
-       @return Unpacked string.
-    */
-    function shortStringUnpack(
-        uint256[] memory buf,
-        uint256 offset,
-        uint256 len
-    )
-        internal
-        pure
-        returns (string memory)
-    {
-        string memory s;
-        for (uint256 i = offset; i < offset + len; i++) {
-            s = string.concat(s, uint256AsciiToString(buf[i]));
-        }
-
-        return s;
     }
 
     /**
@@ -431,32 +437,27 @@ library Cairo {
         pure
         returns (string memory)
     {
-        string memory s = new string(32);
-        bytes memory byteString = bytes(s);
-        uint256 notNullCharCount = 0;
+        return uint256AsciiNbcharsToString(value, uint8(CAIRO_STR_LEN));
+    }
 
-        // Extract all ascii values inside the uint256.
-        for (uint256 i = 0; i < 32; i++) {
-            uint256 asciiValue = (value >> (8 * (31 - i))) & 0xFF;
+    function uint256AsciiNbcharsToString(
+        uint256 value,
+        uint8 length
+    )
+        internal
+        pure
+        returns (string memory)
+    {
+        string memory s = new string(length);
+        bytes memory byteString = bytes(s);
+
+        // cairo string is 31 bytes with first character as MSB
+        for (uint256 i = 0; i < length; ++i) {
+            uint256 asciiValue = (value >> (8 * (CAIRO_STR_LEN - 1 - i))) & 0xFF;
             byteString[i] = bytes1(uint8(asciiValue));
-            if (asciiValue > 0) {
-                notNullCharCount++;
-            }
         }
 
-        // Only use the not null ascii character to rebuild the string.
-        bytes memory finalString = new bytes(notNullCharCount);
-
-        // Not opti, but accurate to remove all null chars in this situation.
-        uint256 finalIdx = 0;
-        for (uint256 i = 0; i < 32; i++) {
-            if (byteString[i] > 0) {
-                finalString[finalIdx] = byteString[i];
-                finalIdx += 1;
-            }
-        }        
-
-        return string(finalString);
+        return s;
     }
 
 

@@ -9,6 +9,9 @@ fs_permissions = [{ access = "read-write", path = "./logs"}]
 
 [rpc_endpoints]
 goerli = "${GOERLI_RPC_URL}"
+anvil = "http://127.0.0.1:8545" 
+
 
 [etherscan]
 goerli = { key = "${ETHERSCAN_API_KEY}" }
+anvil = { key = "${ETHERSCAN_API_KEY", chainId=31337}

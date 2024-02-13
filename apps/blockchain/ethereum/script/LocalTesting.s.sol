@@ -72,7 +72,7 @@ contract LocalSetup is Script {
                 "mintRangeFree(address,uint256,uint256)",
                 config.deployerAddress,
                 0,
-                10
+                20
             )
         );
 

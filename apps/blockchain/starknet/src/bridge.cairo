@@ -7,12 +7,13 @@ mod bridge {
     use option::OptionTrait;
     use debug::PrintTrait;
 
+    use core::starknet::SyscallResultTrait;
+
     use starknet::{ClassHash, ContractAddress, EthAddress};
     use starknet::contract_address::ContractAddressZeroable;
     use starknet::eth_address::EthAddressZeroable;
 
     use starklane::interfaces::{IStarklane, IUpgradeable};
-    use starklane::string::LongString;
     use starklane::request::{
         Request,
         compute_request_header_v1,
@@ -94,8 +95,8 @@ mod bridge {
         l1_addr: EthAddress,
         #[key]
         l2_addr: ContractAddress,
-        name: LongString,
-        symbol: LongString
+        name: ByteArray,
+        symbol: ByteArray
     }
 
     /// Process message from L1 to withdraw token.
@@ -239,7 +240,7 @@ mod bridge {
             let erc721_metadata = erc721_metadata(collection_l2, Option::Some(token_ids));
             let (name, symbol, base_uri, uris) = match erc721_metadata {
                 Option::Some(data) => (data.name, data.symbol, data.base_uri, data.uris),
-                Option::None => (''.into(), ''.into(), ''.into(), array![].span())
+                Option::None => ("", "", "", array![].span())
             };
 
             escrow_deposit_tokens(ref self, collection_l2, from, token_ids);
@@ -342,8 +343,8 @@ mod bridge {
         let l2_addr_from_deploy = deploy_erc721_bridgeable(
             self.erc721_bridgeable_class.read(),
             salt,
-            *req.name,
-            *req.symbol,
+            req.name.clone(),
+            req.symbol.clone(),
             starknet::get_contract_address(),
         );
 
@@ -355,8 +356,8 @@ mod bridge {
                 CollectionDeployedFromL1 {
                     l1_addr: *req.collection_l1,
                     l2_addr: l2_addr_from_deploy,
-                    name: *req.name,
-                    symbol: *req.symbol
+                    name: req.name.clone(),
+                    symbol: req.symbol.clone()
                 }
             );
 

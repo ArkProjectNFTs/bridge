@@ -9,7 +9,6 @@ use poseidon::poseidon_hash_span;
 use keccak::{keccak_u256s_be_inputs, keccak_u256s_le_inputs};
 
 use starklane::token::collection_manager::CollectionType;
-use starklane::string::LongString;
 
 // Byte 1 of the header.
 const HEADER_V1: u256 = 0x01;
@@ -25,7 +24,7 @@ const DEPOSIT_AUTO_BURN: u256 = 0x010000;
 // Byte 4 of the header: config for withdraw.
 const WITHDRAW_AUTO: u256 = 0x01000000;
 
-#[derive(Copy, Serde, Drop)]
+#[derive(Serde, Drop)]
 struct Request {
     // Header of the request with protocol information.
     header: felt252,
@@ -43,11 +42,11 @@ struct Request {
     owner_l2: ContractAddress,
 
     // Collection name (ERC1155: not used).
-    name: LongString,
+    name: ByteArray,
     // Collection symbol (ERC1155: not used).
-    symbol: LongString,
+    symbol: ByteArray,
     // Base URI for the collection.
-    base_uri: LongString,
+    base_uri: ByteArray,
 
     // Tokens to be bridged.
     ids: Span<u256>,
@@ -60,7 +59,7 @@ struct Request {
     // URIs for each individual token
     // ERC721: must be empty if `base_uri` is provided, else length must match `ids`.
     // ERC1155: not used.
-    uris: Span<LongString>,
+    uris: Span<ByteArray>,
 
     // New owners on starknet. This allows a batch migration of the tokens to
     // different owners.
@@ -234,12 +233,8 @@ mod tests {
     };
 
     use starklane::token::collection_manager::CollectionType;
-    use starklane::string::{
-        LongString, LongStringLenTrait,
-        LongStringIndexView, Felt252IntoLongString, LongStringLen
-    };
 
-    use snforge_std::{declare, deploy, PreparedContract};
+    use snforge_std::{declare, ContractClassTrait};
 
     #[test]
     fn can_use_withdraw_auto_test() {
@@ -280,13 +275,9 @@ mod tests {
         let to_l1_address: EthAddress = 1.try_into().unwrap();
         let ids: Array<u256> = array![88];
 
-        let class_hash = declare('contract_req_test');
-        let prepared = PreparedContract {
-            class_hash: class_hash,
-            constructor_calldata: @array![]
-        };
+        let contract = declare('contract_req_test');
 
-        let contract_address = deploy(prepared).unwrap();
+        let contract_address = contract.deploy(@array![]).unwrap();
         let disp = IContractRequestDispatcher { contract_address };
 
         let hash = disp.compute_request_hash_from_contract(
@@ -302,7 +293,6 @@ mod tests {
 
     /// Should deserialize from buffer.
     #[test]
-    #[available_gas(2000000000)]
     fn deserialize() {
         let buf = array![
             0x1, // hdr
@@ -312,19 +302,23 @@ mod tests {
             0x123, // collection_l2
             0xe00, // owner_l1
             0x456, // owner_l2
-            0x1, // name len
-            'name', // name
-            0x1, // symbol len
-            'symbol', // symbol
-            0x1, // base_uri len
-            'base_uri', // base_uri
+            0, // name len
+            'name', // name pending word
+            4, // name pending word length
+            0, // symbol len
+            'symbol', // symbol pending word
+            6, // symbol pending word length
+            0, // base_uri len
+            'base_uri', // base_uri pending word
+            8, // base_uri pending word length
             1, // ids len
             1, // id[0] low
             0, // id[0] high
             0, // values len
             1, // uris len
-            1, // uri[0] len
-            'uri_1', // uri[0] val
+            0, // uri[0] len
+            'uri_1', // uri[0] pending word
+            5, // uri[0] pending word len
             0, // new_owners len
         ];
 
@@ -337,25 +331,23 @@ mod tests {
         assert(req.collection_l2 == 0x123.try_into().unwrap(), 'collectionL2');
         assert(req.owner_l1 == 0xe00.try_into().unwrap(), 'ownerL1');
         assert(req.owner_l2 == 0x456.try_into().unwrap(), 'ownerL2');
-        assert(req.name == 'name'.into(), 'name');
-        assert(req.symbol == 'symbol'.into(), 'symbol');
-        assert(req.base_uri == 'base_uri'.into(), 'base_uri');
+        assert(req.name == "name", 'name');
+        assert(req.symbol == "symbol", 'symbol');
+        assert(req.base_uri == "base_uri", 'base_uri');
         assert(req.ids.len() == 1, 'ids len');
         assert(*req.ids[0] == 1_u256, 'ids 0');
         assert(req.values.len() == 0, 'values len');
         assert(req.uris.len() == 1, 'uris len');
-        assert((*req.uris[0]).len() == 1, 'uris[0] len');
-        assert(*req.uris[0] == 'uri_1'.into(), 'uris[0] content');
+        assert(req.uris[0].clone() == "uri_1", 'uris[0] content');
         assert(req.new_owners.len() == 0, 'new owners len');
     }
 
     /// Should serialize request into a buffer.
     #[test]
-    #[available_gas(2000000000)]
     fn serialize() {
         let ids: Span<u256> = array![1_u256].span();
         let values: Span<u256> = array![].span();
-        let uris: Span<LongString> = array!['uri_1'.into()].span();
+        let uris: Span<ByteArray> = array!["uri_1"].span();
         let new_owners: Span<ContractAddress> = array![].span();
 
         let req = Request {
@@ -365,9 +357,9 @@ mod tests {
             collection_l2: 0x123.try_into().unwrap(),
             owner_l1: 0xe00.try_into().unwrap(),
             owner_l2: 0x456.try_into().unwrap(),
-            name: 'name'.into(),
-            symbol: 'symbol'.into(),
-            base_uri: 'base_uri'.into(),
+            name: "name",
+            symbol: "symbol",
+            base_uri: "base_uri",
             ids,
             values,
             uris,
@@ -376,27 +368,30 @@ mod tests {
 
         let mut buf = array![];
         req.serialize(ref buf);
-
-        assert(*buf[0] == 0x1, 'header');
-        assert(*buf[1] == 0x1, 'hash low');
-        assert(*buf[2] == 0x0, 'hash high');
-        assert(*buf[3] == 0xe0c, 'collection_l1');
-        assert(*buf[4] == 0x123, 'collection_l2');
-        assert(*buf[5] == 0xe00, 'owner_l1');
-        assert(*buf[6] == 0x456, 'owner_l2');
-        assert(*buf[7] == 1, 'name len');
-        assert(*buf[8] == 'name', 'name content');
-        assert(*buf[9] == 1, 'symbol len');
-        assert(*buf[10] == 'symbol', 'symbol content');
-        assert(*buf[11] == 1, 'base_uri len');
-        assert(*buf[12] == 'base_uri', 'base_uri len');
-        assert(*buf[13] == 1, 'ids len');
-        assert(*buf[14] == 1, 'ids[0] low');
-        assert(*buf[15] == 0, 'ids[0] high');
-        assert(*buf[16] == 0, 'values len');
-        assert(*buf[17] == 1, 'uris len');
-        assert(*buf[18] == 1, 'uris[0] len');
-        assert(*buf[19] == 'uri_1', 'uris[0] content');
-        assert(*buf[20] == 0, 'new owner len');
+        assert_eq!(*buf[0], 0x1, "header");
+        assert_eq!(*buf[1], 0x1, "hash low");
+        assert_eq!(*buf[2], 0x0, "hash high");
+        assert_eq!(*buf[3], 0xe0c, "collection_l1");
+        assert_eq!(*buf[4], 0x123, "collection_l2");
+        assert_eq!(*buf[5], 0xe00, "owner_l1");
+        assert_eq!(*buf[6], 0x456, "owner_l2");
+        assert_eq!(*buf[7], 0, "name data len");
+        assert_eq!(*buf[8], 'name', "name pending word");
+        assert_eq!(*buf[9], 4, "name pending word length");
+        assert_eq!(*buf[10], 0, "symbol len");
+        assert_eq!(*buf[11], 'symbol', "symbol pending word");
+        assert_eq!(*buf[12], 6, "symbol pending word length");
+        assert_eq!(*buf[13], 0, "base_uri pending word");
+        assert_eq!(*buf[14], 'base_uri', "base_uri pending word");
+        assert_eq!(*buf[15], 8, "base_uri pending word length");
+        assert_eq!(*buf[16], 1, "ids len");
+        assert_eq!(*buf[17], 1, "ids[0] low");
+        assert_eq!(*buf[18], 0, "ids[0] high");
+        assert_eq!(*buf[19], 0, "values len");
+        assert_eq!(*buf[20], 1, "uris len");
+        assert_eq!(*buf[21], 0, "uris[0] len");
+        assert_eq!(*buf[22], 'uri_1', "uris[0] pending word");
+        assert_eq!(*buf[23], 5, "uris[0] pending word length");
+        assert_eq!(*buf[24], 0, "new owner len");
     }
 }
