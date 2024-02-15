@@ -1,5 +1,6 @@
 "use client";
 
+import clsx = require("clsx");
 import { Typography } from "./Typography";
 
 const colorVariants = {
@@ -49,15 +50,17 @@ export function Button({
 }: ButtonProps) {
   return (
     <button
-      className={`flex items-center justify-center rounded-full transition-colors
-        ${className}
-        ${colorVariants[color].containerClassName}
-        ${sizeVariants[size].containerClassName}`}
+      className={clsx(
+        className,
+        colorVariants[color].containerClassName,
+        sizeVariants[size].containerClassName,
+        "flex items-center justify-center rounded-full transition-colors",
+      )}
       onClick={onClick}
     >
       <Typography
         variant={sizeVariants[size].typographyVariant}
-        className={`${colorVariants[color].textClassName}`}
+        className={clsx(colorVariants[color].textClassName)}
       >
         {children}
       </Typography>

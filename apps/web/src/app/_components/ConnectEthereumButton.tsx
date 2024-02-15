@@ -39,7 +39,7 @@ export default function ConnectEthereumButton({
   return (
     <>
       <button
-        className="flex items-center gap-2.5 rounded-full bg-dark-blue-950 px-3 py-2 text-sm font-semibold text-white"
+        className="flex items-center gap-2.5 rounded-full bg-space-blue-900 py-2 pl-3 pr-2 text-sm font-semibold text-white dark:bg-space-blue-800"
         onClick={() => onOpenModalChange(!isModalOpen)}
       >
         <Typography variant="button_text_s">
@@ -60,7 +60,7 @@ export default function ConnectEthereumButton({
                 DEFAULT_ETHEREUM_CONNECTOR_LOGO
               }
               alt={`${connector.name} logo`}
-              className="-ml-2 rounded-full outline outline-2 outline-dark-blue-950"
+              className="-ml-2 rounded-full outline outline-2 outline-space-blue-900"
               height={28}
               width={28}
             />

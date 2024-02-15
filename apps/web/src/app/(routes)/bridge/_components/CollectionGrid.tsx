@@ -1,5 +1,7 @@
+import clsx from "clsx";
 import Link from "next/link";
 
+import ConditionalWrapper from "~/app/_components/ConditionalWrapper";
 import NftCard from "~/app/_components/NftCard/NftCard";
 import NftsEmptyState from "~/app/_components/NftsEmptyState";
 import NftsLoadingState from "~/app/_components/NftsLoadingState";
@@ -35,9 +37,19 @@ export default function CollectionGrid({
       {nftCollectionPages.map((nftCollectionPage) => {
         return nftCollectionPage.collections.map((nftCollection) => {
           return (
-            <Link
-              href={`/bridge/${nftCollection.contractAddress}`}
-              key={nftCollection.contractAddress}
+            <ConditionalWrapper
+              wrapper={(children) =>
+                nftCollection.isBridgeable ? (
+                  <Link
+                    href={`/bridge/${nftCollection.contractAddress}`}
+                    key={nftCollection.contractAddress}
+                  >
+                    {children}
+                  </Link>
+                ) : (
+                  <>{children}</>
+                )
+              }
             >
               <NftCard
                 isSelected={
@@ -45,12 +57,14 @@ export default function CollectionGrid({
                 }
                 cardType="collection"
                 chain={sourceChain}
+                className={clsx(!nftCollection.isBridgeable && "opacity-40")}
                 image={nftCollection.image}
+                isBridgeable={nftCollection.isBridgeable}
                 numberOfNfts={nftCollection.totalBalance}
                 onClick={() => {}}
                 title={nftCollection.name}
               />
-            </Link>
+            </ConditionalWrapper>
           );
         });
       })}

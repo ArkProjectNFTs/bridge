@@ -119,10 +119,9 @@ export default function StarknetSwitchNetwork() {
         Wrong Network
       </Typography>
       <Typography className="mx-7 mt-4" component="p" variant="body_text_14">
-        Arklane is not available on this chain.
-        <br />
-        Please open your Starknet wallet and switch to Starknet Mainnet to
-        transfer your Nfts.
+        Bridging is not available on this network.
+        <br /> Please open your Starknet wallet and switch to Ethereum Mainnet
+        to transfer your Nfts.
       </Typography>
     </Dialog>
   );

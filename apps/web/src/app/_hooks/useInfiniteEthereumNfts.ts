@@ -4,13 +4,15 @@ import { api } from "~/utils/api";
 
 export default function useInfiniteEthereumNfts(params?: {
   contractAddress?: string;
+  pageSize?: number;
 }) {
   const { address: ethereumAddress } = useAccount();
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    api.nfts.getL1OwnerNftsFromCollection.useInfiniteQuery(
+    api.l1Nfts.getOwnerNftsFromCollection.useInfiniteQuery(
       {
         contractAddress: params?.contractAddress,
+        pageSize: params?.pageSize,
         userAddress: ethereumAddress ?? "",
       },
       {

@@ -13,13 +13,12 @@ interface PageProps {
  * Page used when waiting for a deposit transaction to be detected by the bridge
  */
 export default function Page({ params: { transactionHash } }: PageProps) {
-  console.log(transactionHash);
   const { data: hasBridgeRequestBeenIndexed } =
     api.bridgeRequest.getHasBrigeRequestIndexed.useQuery(
       {
         transactionHash,
       },
-      { refetchInterval: 1000 }
+      { refetchInterval: 2500 }
     );
 
   useEffect(() => {

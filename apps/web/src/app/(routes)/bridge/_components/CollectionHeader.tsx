@@ -1,4 +1,4 @@
-import { Typography } from "design-system";
+import { HappyPurpleEmoji, Notification, Typography } from "design-system";
 
 import useCurrentChain from "~/app/_hooks/useCurrentChain";
 
@@ -11,7 +11,7 @@ export default function CollectionHeader({
   const { sourceChain, targetChain } = useCurrentChain();
 
   return (
-    <div className="mb-9 text-left">
+    <div className="mb-10 text-left">
       <div className="flex max-w-full items-center gap-3.5">
         <Typography ellipsable variant="heading_light_s">
           Collections on {sourceChain}
@@ -32,6 +32,15 @@ export default function CollectionHeader({
           ? `It looks like you have no nfts collection on ${sourceChain}...`
           : `Select the assets you want to transfer to ${targetChain}`}
       </Typography>
+      <Notification
+        className="mt-4"
+        icon={<HappyPurpleEmoji />}
+        variant="playground_purple"
+      >
+        {
+          "For now you can only select Everai collection! You'll soon be able to bridge other collections."
+        }
+      </Notification>
     </div>
   );
 }

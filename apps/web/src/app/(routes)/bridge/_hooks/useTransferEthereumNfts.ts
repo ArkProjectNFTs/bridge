@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { parseGwei } from "viem";
 import { erc721Abi } from "viem";
 import {
+  useBlockNumber,
   useAccount as useEthereumAccount,
   useReadContract,
   useWaitForTransactionReceipt,
@@ -22,7 +23,7 @@ export default function useTransferEthereumNfts() {
   const { address: ethereumAddress } = useEthereumAccount();
   const { address: starknetAddress } = useStarknetAccount();
 
-  const { data: isApprovedForAll } = useReadContract({
+  const { data: isApprovedForAll, refetch } = useReadContract({
     abi: erc721Abi,
     address: selectedCollectionAddress as `0x${string}`,
     args: [
@@ -109,6 +110,12 @@ export default function useTransferEthereumNfts() {
       value: parseGwei("40000"),
     });
   }
+
+  const { data: blockNumber } = useBlockNumber({ watch: true });
+
+  useEffect(() => {
+    void refetch();
+  }, [blockNumber, refetch]);
 
   useEffect(() => {
     if (depositHash !== undefined) {

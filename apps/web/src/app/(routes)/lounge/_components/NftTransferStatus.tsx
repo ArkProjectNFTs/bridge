@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import { Typography } from "design-system";
 
 import { type BridgeRequestEventStatus } from "~/server/api/routers/bridgeRequest";
@@ -34,7 +35,11 @@ export default function NftCardStatus({
   return (
     <>
       <Typography
-        className={`${variants[status]} ${className} rounded-full px-2 py-1 text-center`}
+        className={clsx(
+          className,
+          variants[status],
+          "rounded-full px-2 py-1 text-center"
+        )}
         component="p"
         variant="body_text_12"
       >

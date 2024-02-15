@@ -28,29 +28,16 @@ export default {
         "primary-800": "var(--color-primary-800)",
         "primary-900": "var(--color-primary-900)",
 
-        // dark-blue
-        "dark-blue-50": "#f2f9fd",
-        "dark-blue-100": "#e5f0f9",
-        "dark-blue-200": "#c5e2f2",
-        "dark-blue-300": "#92c9e7",
-        "dark-blue-400": "#58add8",
-        "dark-blue-500": "#3292c5",
-        "dark-blue-600": "#2376a6",
-        "dark-blue-700": "#1d5e87",
-        "dark-blue-800": "#1c5070",
-        "dark-blue-900": "#1c445e",
-        "dark-blue-950": "#163349",
-
         // space-blue
-        "space-blue-source": "#5cabe2",
+        "space-blue-source": "#53ACEC",
         "space-blue-50": "#f7fbff",
         "space-blue-100": "#e9f5fe",
         "space-blue-200": "#aad3f1",
         "space-blue-300": "#83bfe9",
-        "space-blue-400": "#5cabe2",
-        "space-blue-500": "#4c90be",
-        "space-blue-600": "#3d749b",
-        "space-blue-700": "#2d5977",
+        "space-blue-400": "#73B9EB",
+        "space-blue-500": "#4394CD",
+        "space-blue-600": "#3B7CA8",
+        "space-blue-700": "#306287",
         "space-blue-800": "#1e3d54",
         "space-blue-900": "#0e2230",
 
@@ -95,13 +82,13 @@ export default {
         // playground-purple
         "playground-purple-source": "#8c62f2",
         "playground-purple-50": "#f8f0ff",
-        "playground-purple-100": "#e9d3ff",
-        "playground-purple-200": "#d7b7ff",
+        "playground-purple-100": "#F4E9FF",
+        "playground-purple-200": "#DFC3FF",
         "playground-purple-300": "#c39cff",
-        "playground-purple-400": "#ad82ff",
-        "playground-purple-500": "#966bfa",
-        "playground-purple-600": "#7e56e4",
-        "playground-purple-700": "#6844c8",
+        "playground-purple-400": "#A774F4",
+        "playground-purple-500": "#7D56E5",
+        "playground-purple-600": "#754DDF",
+        "playground-purple-700": "#6540C6",
         "playground-purple-800": "#5335a6",
         "playground-purple-900": "#3f287f",
 
@@ -132,6 +119,9 @@ export default {
 
         // galaxy-blue
         "galaxy-blue": "#0e2230",
+
+        // void-black
+        "void-black": "#071117",
       },
       fontFamily: {
         "styrene-a": ["var(--font-styrene-a)"],

@@ -2,6 +2,7 @@ import {
   useAccount as useStarknetAccount,
   useBalance as useStarknetBalance,
 } from "@starknet-react/core";
+import clsx from "clsx";
 import { Dialog, Typography } from "design-system";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -33,7 +34,7 @@ function ChainButton({ chain, onClick }: ChainButtonProps) {
 
   return (
     <button
-      className="flex w-full items-center justify-between rounded-full bg-night-blue-source py-2 pl-3.5 pr-2 text-white transition-colors hover:bg-sunshine-yellow-400 hover:text-night-blue-source"
+      className="flex w-full items-center justify-between rounded-full bg-night-blue-source py-2 pl-3.5 pr-2 text-white transition-colors hover:bg-space-blue-source hover:text-night-blue-source"
       onClick={onClick}
     >
       <Typography className="w-full" variant="body_text_bold_14">
@@ -58,7 +59,7 @@ interface ConnectorButtonProps {
 function ConnectorButton({ id, onClick }: ConnectorButtonProps) {
   return (
     <button
-      className="flex w-full items-center justify-between rounded-full bg-night-blue-source py-2 pl-3.5 pr-2 text-white transition-colors hover:bg-sunshine-yellow-400 hover:text-night-blue-source"
+      className="flex w-full items-center justify-between rounded-full bg-night-blue-source py-2 pl-3.5 pr-2 text-white transition-colors hover:bg-space-blue-source hover:text-night-blue-source"
       onClick={onClick}
     >
       <Typography variant="body_text_bold_14">
@@ -123,21 +124,20 @@ function ConnectorList({ chain }: ConnectorListProps) {
         <Typography className="mt-6" component="h3" variant="heading_light_xxs">
           {chain} Wallet
         </Typography>
-        <Typography
-          className="mb-6 mt-2 min-h-5"
-          component="p"
-          variant="body_text_14"
-        >
-          {ethBalance?.formatted
-            ? `${parseFloat(ethBalance.formatted).toFixed(4)} ETH`
-            : null}
-        </Typography>
+        <div className="mb-6 mt-2 h-5">
+          <Typography component="p" variant="body_text_14">
+            {ethBalance?.formatted
+              ? `${parseFloat(ethBalance.formatted).toFixed(4)} ETH`
+              : null}
+          </Typography>
+        </div>
         <div
-          className={`mt-6 flex items-center justify-between rounded-full p-2 ${
+          className={clsx(
+            "mt-6 flex items-center justify-between rounded-full p-2",
             chain === "Ethereum"
               ? "bg-playground-purple-50  dark:bg-playground-purple-300"
               : "bg-folly-red-50 dark:bg-folly-red-300"
-          }`}
+          )}
         >
           {connectorId !== undefined && (
             <Image
@@ -172,7 +172,7 @@ function ConnectorList({ chain }: ConnectorListProps) {
           </button>
         </div>
         <button
-          className="mt-4 w-full rounded-full border-2 border-dark-blue-950 py-2"
+          className="mt-4 w-full rounded-full border-2 border-space-blue-900 py-2"
           onClick={() => disconnect()}
         >
           <Typography variant="body_text_bold_14">Disconnect</Typography>

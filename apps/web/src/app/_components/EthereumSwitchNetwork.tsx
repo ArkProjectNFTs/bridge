@@ -119,7 +119,7 @@ export default function EthereumSwitchNetwork() {
         Wrong Network
       </Typography>
       <Typography className="mx-7 mt-4" component="p" variant="body_text_14">
-        Arklane is not available on this chain.
+        The bridge is not available on this chain.
         <br />
         You must switch to Ethereum Mainnet to transfer your Nfts.
       </Typography>

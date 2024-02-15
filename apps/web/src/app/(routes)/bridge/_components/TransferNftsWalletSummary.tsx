@@ -8,7 +8,7 @@ import useCurrentChain from "~/app/_hooks/useCurrentChain";
 import { type Chain } from "../../../_types";
 import TargetChainButton from "./TargetChainButton";
 
-export default function WalletsTransferSummary() {
+export default function TransferNftsWalletSummary() {
   const { sourceChain, targetChain } = useCurrentChain();
 
   const { address: ethereumAddress } = useEthereumAccount();
@@ -37,7 +37,7 @@ export default function WalletsTransferSummary() {
   };
 
   return (
-    <div className="mt-8 grid grid-cols-[1fr_4rem_1fr] rounded-xl bg-space-blue-50 px-3 py-3 dark:bg-space-blue-900">
+    <div className="mt-8 grid grid-cols-[1fr_4rem_1fr] rounded-xl bg-space-blue-50 px-3 py-3 dark:bg-void-black">
       <div className="flex flex-col items-start">
         <Typography
           className="mb-1 rounded-[4px] bg-space-blue-100 p-1 text-asteroid-grey-600 dark:bg-space-blue-300 dark:text-space-blue-900"
@@ -45,7 +45,7 @@ export default function WalletsTransferSummary() {
         >
           From wallet
         </Typography>
-        <Typography variant="body_text_14">
+        <Typography variant="button_text_s">
           {shortAddressByChain[sourceChain]}
         </Typography>
       </div>
@@ -57,7 +57,7 @@ export default function WalletsTransferSummary() {
         >
           To wallet
         </Typography>
-        <Typography variant="body_text_14">
+        <Typography variant="button_text_s">
           {shortAddressByChain[targetChain]}
         </Typography>
       </div>

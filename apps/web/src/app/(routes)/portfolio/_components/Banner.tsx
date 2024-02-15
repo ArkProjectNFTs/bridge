@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export default function Banner() {
   return (
-    <div className="mt-6 flex flex-col-reverse items-center rounded-3xl bg-sunshine-yellow-400 px-5 pt-8 text-center text-dark-blue-950 md:mt-18 md:flex-row md:gap-11 md:px-8 md:pt-0 md:text-left">
+    <div className="mt-6 flex flex-col-reverse items-center rounded-3xl bg-space-blue-source px-5 pt-8 text-center text-space-blue-900 md:mt-18 md:flex-row md:gap-11 md:px-8 md:pt-0 md:text-left">
       <Image
         alt="portfolio banner illustration"
         height={300}

@@ -11,18 +11,17 @@ export default function TargetChainSwitch() {
 
   return (
     <div className=" my-8 inline-flex gap-0.5">
-      <div
-        className={`flex w-40 items-center gap-2 rounded-l-2xl bg-white py-4 pl-4 pr-8 dark:bg-space-blue-800`}
-      >
+      <div className="flex w-40 items-center gap-2 rounded-l-2xl bg-white py-4 pl-4 pr-8 dark:bg-space-blue-800">
         <Image
           alt={`${sourceChain} logo`}
-          height={32}
+          className="rounded-full border-4 border-space-blue-50 dark:border-galaxy-blue"
+          height={40}
           src={CHAIN_LOGOS_BY_NAME[sourceChain]}
-          width={32}
+          width={40}
         />
         <div className="flex flex-col items-start text-left">
           <Typography
-            className="rounded bg-dark-blue-100 p-1 dark:bg-space-blue-300 dark:text-space-blue-900"
+            className="rounded bg-space-blue-100 p-1 text-asteroid-grey-600 dark:bg-space-blue-300 dark:text-space-blue-900"
             component="p"
             variant="body_text_12"
           >
@@ -38,7 +37,7 @@ export default function TargetChainSwitch() {
       <div className="flex w-40 items-center gap-2 rounded-r-2xl bg-white py-4 pl-8 pr-4 dark:bg-space-blue-800">
         <div className="flex flex-col items-start text-left">
           <Typography
-            className="rounded bg-dark-blue-100 p-1 dark:bg-space-blue-300 dark:text-space-blue-900"
+            className="rounded bg-space-blue-100 p-1 text-asteroid-grey-600 dark:bg-space-blue-300 dark:text-space-blue-900"
             component="p"
             variant="body_text_12"
           >
@@ -49,9 +48,10 @@ export default function TargetChainSwitch() {
 
         <Image
           alt={`${targetChain} logo`}
-          height={32}
+          className="rounded-full border-4 border-space-blue-50 dark:border-galaxy-blue"
+          height={40}
           src={CHAIN_LOGOS_BY_NAME[targetChain]}
-          width={32}
+          width={40}
         />
       </div>
     </div>

@@ -8,7 +8,7 @@ export default function useInfiniteStarknetNfts(params?: {
   const { address: starknetAddress } = useAccount();
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    api.nfts.getL2OwnerNftsFromCollection.useInfiniteQuery(
+    api.l2Nfts.getOwnerNftsFromCollection.useInfiniteQuery(
       {
         contractAddress: params?.contractAddress,
         userAddress: starknetAddress ?? "",

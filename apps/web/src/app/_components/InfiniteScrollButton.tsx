@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 
 interface InfiniteScrollButtonProps {
   className: string;
+  fetchAuto?: boolean;
   fetchNextPage: () => void;
   hasNextPage: boolean | undefined;
   isFetchingNextPage: boolean;
@@ -11,6 +12,7 @@ interface InfiniteScrollButtonProps {
 
 export default function InfiniteScrollButton({
   className,
+  fetchAuto = true,
   fetchNextPage,
   hasNextPage,
   isFetchingNextPage,
@@ -20,10 +22,10 @@ export default function InfiniteScrollButton({
   const isInView = useInView(ref);
 
   useEffect(() => {
-    if (isInView && hasNextPage) {
+    if (fetchAuto && isInView && hasNextPage) {
       fetchNextPage();
     }
-  }, [fetchNextPage, hasNextPage, isInView]);
+  }, [fetchNextPage, hasNextPage, isInView, fetchAuto]);
 
   return (
     <div className={className} ref={ref}>

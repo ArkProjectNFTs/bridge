@@ -16,7 +16,7 @@ function AllNftsTabsContent() {
     fetchNextPage: fetchNextL1NftsPage,
     hasNextPage: hasNextL1NftsPage,
     isFetchingNextPage: isFetchingNextL1NftsPage,
-  } = useInfiniteEthereumNfts();
+  } = useInfiniteEthereumNfts({ pageSize: 5 });
 
   const {
     data: l2NftsData,
@@ -77,6 +77,7 @@ function AllNftsTabsContent() {
       </div>
       <InfiniteScrollButton
         className="mx-auto mt-14 flex w-full justify-center"
+        fetchAuto={false}
         fetchNextPage={() => fetchNextL1NftsPage()}
         hasNextPage={hasNextL1NftsPage}
         isFetchingNextPage={isFetchingNextL1NftsPage}
@@ -145,6 +146,7 @@ function CollectionsTabsContent() {
       </div>
       <InfiniteScrollButton
         className="mx-auto mt-14 flex w-full justify-center"
+        fetchAuto={false}
         fetchNextPage={() => fetchNextL1CollectionsPage()}
         hasNextPage={hasNextL1CollectionsPage}
         isFetchingNextPage={isFetchingNextL1CollectionsPage}
@@ -159,7 +161,7 @@ function EthereumNTabsContent() {
     fetchNextPage: fetchNextL1NftsPage,
     hasNextPage: hasNextL1NftsPage,
     isFetchingNextPage: isFetchingNextL1NftsPage,
-  } = useInfiniteEthereumNfts();
+  } = useInfiniteEthereumNfts({ pageSize: 5 });
 
   if (l1NftsData === undefined) {
     return (
@@ -195,6 +197,7 @@ function EthereumNTabsContent() {
       </div>
       <InfiniteScrollButton
         className="mx-auto mt-14 flex w-full justify-center"
+        fetchAuto={false}
         fetchNextPage={() => fetchNextL1NftsPage()}
         hasNextPage={hasNextL1NftsPage}
         isFetchingNextPage={isFetchingNextL1NftsPage}

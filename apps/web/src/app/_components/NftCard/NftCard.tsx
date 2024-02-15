@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import { Typography } from "design-system";
 
 import { type Chain } from "../../_types";
@@ -7,6 +8,7 @@ import NftCardStackBackground from "./NftCardStackBackground";
 
 type NftCardProps = {
   chain?: Chain;
+  className?: string;
   image?: string;
   isSelected: boolean;
   onClick?: () => void;
@@ -14,6 +16,7 @@ type NftCardProps = {
 } & (
   | {
       cardType: "collection";
+      isBridgeable?: boolean;
       numberOfNfts: number;
     }
   | { cardType: "nft"; numberOfNfts?: never }
@@ -22,6 +25,7 @@ type NftCardProps = {
 export default function NftCard({
   cardType,
   chain,
+  className,
   image,
   isSelected,
   numberOfNfts,
@@ -29,7 +33,13 @@ export default function NftCard({
   title,
 }: NftCardProps) {
   return (
-    <div className={`${onClick !== undefined ? "group" : ""} relative w-full`}>
+    <div
+      className={clsx(
+        className,
+        onClick !== undefined && "group",
+        "relative w-full"
+      )}
+    >
       {cardType === "collection" && (
         <NftCardStackBackground isSelected={isSelected} />
       )}
@@ -37,20 +47,17 @@ export default function NftCard({
       <ConditionalWrapper
         wrapper={(children) =>
           onClick === undefined ? (
-            <div
-              className={`h-full w-full overflow-hidden rounded-2xl border border-neutral-300 bg-white p-3 dark:border-dark-blue-600 dark:bg-dark-blue-950`}
-            >
+            <div className="h-full w-full overflow-hidden rounded-2xl border border-neutral-300 bg-white p-3 dark:border-space-blue-700 dark:bg-space-blue-900">
               {children}
             </div>
           ) : (
             <button
-              className={`h-full w-full overflow-hidden rounded-2xl border bg-white p-3 outline outline-1 transition-[outline_border] dark:bg-dark-blue-950 ${
+              className={clsx(
+                "dark:hover:outline-primary-sourc h-full w-full overflow-hidden rounded-2xl border bg-white p-3 outline outline-1 transition-[outline_border] hover:border-primary-source hover:outline-primary-source dark:bg-space-blue-900 dark:hover:border-primary-source",
                 isSelected
                   ? "border-primary-source outline-primary-source"
-                  : "border-neutral-300 outline-transparent dark:border-dark-blue-600"
-              }
-              hover:border-primary-source hover:outline-primary-source
-              dark:hover:border-primary-source dark:hover:outline-primary-source`}
+                  : "border-neutral-300 outline-transparent dark:border-space-blue-600"
+              )}
               onClick={onClick}
             >
               {children}
@@ -71,17 +78,18 @@ export default function NftCard({
             </Typography>
             {cardType === "nft" && onClick !== undefined && (
               <div
-                className={`h-5 w-5 rounded-full ${
+                className={clsx(
+                  "h-5 w-5 rounded-full",
                   isSelected
                     ? "border-[6px] border-primary-source bg-white "
-                    : "bg-neutral-300 dark:bg-dark-blue-300"
-                }`}
+                    : "bg-neutral-300 dark:bg-space-blue-300"
+                )}
               />
             )}
           </div>
           {cardType === "collection" ? (
             <Typography
-              className="dark:text-dark-blue-300"
+              className="dark:text-space-blue-300"
               variant="body_text_14"
             >
               {numberOfNfts}

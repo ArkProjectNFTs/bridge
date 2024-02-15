@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import { Typography } from "design-system";
 
 import useAccountFromChain from "~/app/_hooks/useAccountFromChain";
@@ -5,18 +6,28 @@ import useCurrentChain from "~/app/_hooks/useCurrentChain";
 import { api } from "~/utils/api";
 
 import NftTransferItem from "./NftTransferItem";
+import NftTransferListLoadingState from "./NftTransferListLoadingState";
 
 interface NftTransferHeaderProps {
   className?: string;
+  status: "past" | "transit";
+  totalCount: number;
 }
 
-function NftTransferHeader({ className }: NftTransferHeaderProps) {
+function NftTransferHeader({
+  className,
+  status,
+  totalCount,
+}: NftTransferHeaderProps) {
   return (
     <div
-      className={`${className} grid grid-cols-[1fr_1fr_1fr_1fr_2.25rem] place-items-start px-6 text-galaxy-blue dark:text-space-blue-300`}
+      className={clsx(
+        className,
+        "grid grid-cols-[1fr_1fr_1fr_1fr_2.25rem] place-items-start px-6 text-galaxy-blue dark:text-space-blue-300"
+      )}
     >
       <Typography component="p" variant="button_text_l">
-        Nfts transfered (8)
+        Nfts {status === "past" ? "transfered" : "in transit"} ({totalCount})
       </Typography>
       <Typography className="ml-3" component="p" variant="button_text_l">
         Transfer status
@@ -41,43 +52,84 @@ export default function NftTransferListt({ className }: NftTransferListProps) {
       {
         address: address ?? "",
       },
-      { enabled: address !== undefined, refetchInterval: 3000 }
+      { enabled: address !== undefined, refetchInterval: 5000 }
     );
 
   if (bridgeRequests === undefined) {
     // Loading state
-    return <></>;
+    return <NftTransferListLoadingState />;
   }
 
-  if (bridgeRequests.length === 0) {
+  if (
+    bridgeRequests.inTransit.requests.length === 0 &&
+    bridgeRequests.past.requests.length === 0
+  ) {
     // Empty state
     return <></>;
   }
+  const { inTransit, past } = bridgeRequests;
 
   return (
     <div className={className}>
-      <Typography
-        className="text-left"
-        component="h3"
-        variant="heading_light_s"
-      >
-        Your past transactions
-      </Typography>
-      <hr className="my-5 border-asteroid-grey-100 dark:border-space-blue-700" />
+      {inTransit.requests.length > 0 && (
+        <>
+          <NftTransferHeader
+            className="mb-5"
+            status="transit"
+            totalCount={inTransit.totalCount}
+          />
+          <div className="mb-16 flex flex-col gap-4">
+            {inTransit.requests.map((bridgeRequest) => {
+              return (
+                <NftTransferItem
+                  collectionImage={bridgeRequest.collectionImage}
+                  collectionName={bridgeRequest.collectionName}
+                  contractAddress={bridgeRequest.collectionSourceAddress}
+                  key={bridgeRequest.statusTimestamp}
+                  status={bridgeRequest.status}
+                  tokenIds={bridgeRequest.tokenIds}
+                  totalCount={bridgeRequest.totalCount}
+                />
+              );
+            })}
+          </div>
+        </>
+      )}
 
-      <NftTransferHeader className="mb-5" />
+      {past.requests.length > 0 && (
+        <>
+          <Typography
+            className="text-left"
+            component="h3"
+            variant="heading_light_s"
+          >
+            Your past transactions
+          </Typography>
+          <hr className="my-5 border-asteroid-grey-100 dark:border-space-blue-700" />
 
-      <div className="flex flex-col gap-4">
-        {bridgeRequests.map((bridgeRequest) => {
-          return (
-            <NftTransferItem
-              contractAddress={bridgeRequest.collectionSourceAddress}
-              tokenIds={bridgeRequest.tokenIds}
-              totalCount={bridgeRequest.totalCount}
-            />
-          );
-        })}
-      </div>
+          <NftTransferHeader
+            className="mb-5"
+            status="past"
+            totalCount={past.totalCount}
+          />
+
+          <div className="flex flex-col gap-4">
+            {past.requests.map((bridgeRequest) => {
+              return (
+                <NftTransferItem
+                  collectionImage={bridgeRequest.collectionImage}
+                  collectionName={bridgeRequest.collectionName}
+                  contractAddress={bridgeRequest.collectionSourceAddress}
+                  key={bridgeRequest.statusTimestamp}
+                  status={bridgeRequest.status}
+                  tokenIds={bridgeRequest.tokenIds}
+                  totalCount={bridgeRequest.totalCount}
+                />
+              );
+            })}
+          </div>
+        </>
+      )}
     </div>
   );
 }

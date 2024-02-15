@@ -6,7 +6,7 @@ export default function useInfiniteStarknetCollections() {
   const { address: starknetAddress } = useAccount();
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    api.nfts.getL2NftCollectionsByWallet.useInfiniteQuery(
+    api.l2Nfts.getNftCollectionsByWallet.useInfiniteQuery(
       {
         address: starknetAddress ?? "",
       },

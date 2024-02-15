@@ -1,5 +1,6 @@
 "use client";
 
+import clsx from "clsx";
 import localFont from "next/font/local";
 
 import "~/styles/globals.css";
@@ -66,17 +67,21 @@ function RootLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <html
-      className={`${arkProjectFont.variable} ${styreneAFont.variable}`}
+      className={clsx(arkProjectFont.variable, styreneAFont.variable)}
       lang="en"
       // suppresHydrationWarning only applies one level deep, necessary because <html> is updated before page load by next-themes
       suppressHydrationWarning
     >
       <body
-        className={`min-h-screen bg-[#F7FBFA] text-night-blue-source dark:bg-galaxy-blue  dark:text-white ${targetChain}`}
+        className={clsx(
+          "bg-space-blue-50 text-night-blue-source dark:bg-void-black dark:text-white",
+          targetChain
+        )}
       >
         <Providers>
           <Header />
-          {children}
+          <div className="hidden min-h-screen md:block">{children}</div>
+          <div className="block md:hidden"></div>
         </Providers>
       </body>
     </html>

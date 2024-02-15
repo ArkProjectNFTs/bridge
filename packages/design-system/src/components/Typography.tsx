@@ -8,6 +8,9 @@
 // font-extrabold	font-weight: 800;
 // font-black	    font-weight: 900;
 
+// import clsx = require("clsx");
+import clsx from "clsx";
+
 // text-xs	    font-size: 0.75rem; /* 12px */
 // text-sm	    font-size: 0.875rem; /* 14px */
 // text-base	font-size: 1rem; /* 16px */
@@ -87,9 +90,11 @@ export function Typography({
   return (
     // TODO @YohanTz: Use tailwind-merge
     <Component
-      className={`${variants[variant]} ${className ?? ""} ${
-        ellipsable ? ellipsableClasses : ""
-      }`}
+      className={clsx(
+        variants[variant],
+        className,
+        ellipsable && ellipsableClasses,
+      )}
     >
       {children}
     </Component>

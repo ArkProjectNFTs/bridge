@@ -14,12 +14,13 @@ import BridgeCountIndicator from "./BridgeCountIndicator";
 import ConnectEthereumButton from "./ConnectEthereumButton";
 import ConnectStarkNetButton from "./ConnectStarkNetButton";
 import EthereumSwitchNetwork from "./EthereumSwitchNetwork";
+import Logo from "./Logo";
 import StarknetSwitchNetwork from "./StarknetSwitchNetwork";
 
 const connectedPages = [
   { name: "Portfolio", path: "/portfolio" },
   { name: "Bridge", path: "/bridge" },
-  { name: "Lounge room", path: "/lounge" },
+  { name: "Lounge", path: "/lounge" },
 ];
 
 export default function Header() {
@@ -58,9 +59,9 @@ export default function Header() {
   }
 
   return (
-    <header className="fixed z-20 flex h-23 w-full items-center  justify-between bg-white p-6 dark:bg-galaxy-blue">
+    <header className="fixed z-20 flex h-23 w-full items-center justify-center bg-white p-6 dark:bg-void-black md:justify-between">
       <Link href="/">
-        <Typography variant="logo">arklane</Typography>
+        <Logo />
       </Link>
       {isFullyConnected && (
         <div className="hidden items-center gap-8 md:flex">
@@ -71,7 +72,7 @@ export default function Header() {
                   className={
                     pathname?.includes(connectedPage.path)
                       ? pathname === "/portfolio"
-                        ? "text-sunshine-yellow-600"
+                        ? "text-space-blue-source"
                         : "text-primary-source"
                       : ""
                   }
@@ -84,8 +85,8 @@ export default function Header() {
           })}
         </div>
       )}
-      <div className="flex gap-4">
-        <div className="hidden gap-4 md:flex">
+      <div className="hidden gap-4 md:flex">
+        <div className="flex gap-4">
           {/* TODO @YohanTz: Modal context? */}
           <ConnectEthereumButton
             onOpenModalChange={(open) => {

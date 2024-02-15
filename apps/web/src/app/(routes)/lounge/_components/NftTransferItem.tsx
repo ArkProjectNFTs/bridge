@@ -1,18 +1,31 @@
 import * as Collapsible from "@radix-ui/react-collapsible";
+import clsx from "clsx";
 import { Typography } from "design-system";
+import Image from "next/image";
 import { useState } from "react";
 
 import NftTransferItemContent from "./NftTransferItemContent";
 import NftTransferStatus from "./NftTransferStatus";
 
 interface NftTransferItemProps {
+  collectionImage: string | undefined;
+  collectionName: string;
   contractAddress: string;
+  status:
+    | "deposit_initiated_l1"
+    | "deposit_initiated_l2"
+    | "error"
+    | "withdraw_completed_l1"
+    | "withdraw_completed_l2";
   tokenIds: Array<string>;
   totalCount: number;
 }
 
 export default function NftTransferItem({
+  collectionImage,
+  collectionName,
   contractAddress,
+  status,
   tokenIds,
   totalCount,
 }: NftTransferItemProps) {
@@ -21,18 +34,41 @@ export default function NftTransferItem({
   return (
     <Collapsible.Root onOpenChange={setOpen} open={open}>
       <div
-        className={`grid grid-cols-[1fr_1fr_1fr_1fr_2.25rem] place-items-start items-center border border-asteroid-grey-100 bg-white p-6 dark:border-space-blue-700 dark:bg-space-blue-800 ${
+        className={clsx(
+          "grid grid-cols-[1fr_1fr_1fr_1fr_2.25rem] place-items-start items-center border border-asteroid-grey-100 bg-white p-6 dark:border-space-blue-800 dark:bg-space-blue-900",
           open ? "rounded-t-2xl" : "rounded-2xl"
-        }`}
+        )}
       >
         <div className="flex items-center gap-4">
-          <div className="h-16 w-16  flex-shrink-0 rounded-md bg-space-blue-700" />
+          {collectionImage ? (
+            <Image
+              alt="nft"
+              className="rounded-lg"
+              height={62}
+              src={collectionImage}
+              width={62}
+            />
+          ) : (
+            <>
+              <Image
+                alt="empty Nft image"
+                className="hidden aspect-square rounded-lg object-cover dark:block"
+                height={62}
+                src={`/medias/dark/empty_nft.png`}
+                width={62}
+              />
+              <Image
+                alt="empty Nft image"
+                className="aspect-square rounded-lg object-cover dark:hidden"
+                height={62}
+                src={`/medias/empty_nft.png`}
+                width={62}
+              />
+            </>
+          )}
           <div className="text-left">
             <Typography component="p" variant="body_text_bold_14">
-              Everai Collection
-            </Typography>
-            <Typography component="p" variant="body_text_14">
-              ID: 123121312
+              {collectionName} Collection
             </Typography>
             <Typography
               className="dark:text-space-blue-300"
@@ -44,7 +80,7 @@ export default function NftTransferItem({
           </div>
         </div>
 
-        <NftTransferStatus className="ml-3" status="withdraw_completed_l1" />
+        <NftTransferStatus className="ml-3" status={status} />
 
         <div className="ml-2 flex items-center gap-2">
           <Typography component="p" variant="button_text_s">
@@ -64,6 +100,7 @@ export default function NftTransferItem({
       <NftTransferItemContent
         contractAddress={contractAddress}
         open={open}
+        status={status}
         tokenIds={tokenIds}
       />
     </Collapsible.Root>

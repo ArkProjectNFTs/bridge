@@ -13,7 +13,7 @@ export default function Page({ params: { address } }: PageProps) {
       {/* TODO @YohanTz: Refacto to be a variant in the Button component */}
       <div className="flex items-start">
         <Link
-          className="mb-10 flex h-12 items-center  gap-1.5 rounded-full border-2 border-asteroid-grey-600 px-6 py-3 text-asteroid-grey-600 dark:border-space-blue-300 dark:text-space-blue-300"
+          className="mb-10 flex h-12 items-center gap-1.5 rounded-full border-2 border-asteroid-grey-600 px-6 py-3 text-asteroid-grey-600 dark:border-space-blue-300 dark:text-space-blue-300"
           href="/bridge"
         >
           {/* TODO @YohanTz: Export svg to icons file */}

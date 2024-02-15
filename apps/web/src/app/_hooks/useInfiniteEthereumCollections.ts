@@ -6,7 +6,7 @@ export default function useInfiniteEthereumCollections() {
   const { address: ethereumAddress } = useAccount();
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
-    api.nfts.getL1NftCollectionsByWallet.useInfiniteQuery(
+    api.l1Nfts.getNftCollectionsByWallet.useInfiniteQuery(
       {
         address: ethereumAddress ?? "",
       },

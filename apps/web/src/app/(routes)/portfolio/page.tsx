@@ -19,7 +19,7 @@ export default function Page() {
         >
           Your past transactions
         </Typography>
-        <hr className="mt-5 border-[#e4edec] dark:border-dark-blue-900" />
+        <hr className="mt-5 border-[#e4edec] dark:border-space-blue-900" />
         <NftTransferList /> */}
       </MainPageContainer>
     </div>

@@ -8,6 +8,7 @@ export type Nft = {
 export type Collection = {
   contractAddress: string;
   image: string | undefined;
+  isBridgeable: boolean;
   name: string;
   totalBalance: number;
 };
