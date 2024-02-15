@@ -303,6 +303,18 @@ mod bridge {
         fn is_white_listed(self: @ContractState, collection: ContractAddress) -> bool {
             _is_white_listed(self, collection)
         }
+
+        fn enable(ref self: ContractState, enable: bool) {
+            ensure_is_admin(@self);
+            self.enabled.write(enable);
+            self.emit(BridgeEnabled {
+                enable: enable
+            });
+        }
+
+        fn is_enabled(self: @ContractState) -> bool {
+            self.enabled.read()
+        }
     }
 
     // *** INTERNALS ***
