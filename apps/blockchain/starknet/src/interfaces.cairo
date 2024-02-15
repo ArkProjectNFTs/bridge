@@ -29,6 +29,8 @@ trait IStarklane<T> {
     fn white_list_collection(ref self: T, collection: ContractAddress, enabled: bool);
     fn is_white_listed(self: @T, collection: ContractAddress) -> bool;
 
+    fn enable(ref self: T, enable: bool);
+    fn is_enabled(self: @T) -> bool;
 }
 
 /// Upgradeable contract.
@@ -72,4 +74,10 @@ struct CollectionDeployedFromL1 {
     l2_addr: ContractAddress,
     name: ByteArray,
     symbol: ByteArray
+}
+
+
+#[derive(Drop, starknet::Event)]
+struct BridgeEnabled {
+    enable: bool,
 }

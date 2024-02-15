@@ -44,7 +44,13 @@ mod tests {
 
         let contract = declare('bridge');
 
-        contract.deploy(@calldata).unwrap()
+        let bridge_address = contract.deploy(@calldata).unwrap();
+
+        // enable bridge for tests
+        start_prank(CheatTarget::One(bridge_address), bridge_admin);
+        IStarklaneDispatcher { contract_address: bridge_address }.enable(true);
+        stop_prank(CheatTarget::One(bridge_address));
+        bridge_address
     }
 
     /// Deploy a ERC721Bridgeable instance, reusable in tests.
@@ -241,7 +247,6 @@ mod tests {
             false,
             false);
         stop_prank(CheatTarget::One(bridge_address));
-
     }
 
     #[test]
@@ -287,6 +292,86 @@ mod tests {
             false,
             false);
         stop_prank(CheatTarget::One(bridge_address));
+    }
+
+    #[test]
+    #[should_panic]
+    fn deposit_token_not_enabled() {
+        // Need to declare here to get the class hash before deploy anything.
+        let erc721b_contract_class = declare('erc721_bridgeable');
+
+        let BRIDGE_ADMIN = starknet::contract_address_const::<'starklane'>();
+        let BRIDGE_L1 = EthAddress { address: 'starklane_l1' };
+        let COLLECTION_OWNER = starknet::contract_address_const::<'collection owner'>();
+        let OWNER_L1 = EthAddress { address: 'owner_l1' };
+
+        let bridge_address = deploy_starklane(BRIDGE_ADMIN, BRIDGE_L1, erc721b_contract_class.class_hash);
+
+        let erc721b_address = deploy_erc721b(
+            erc721b_contract_class,
+            "everai",
+            "DUO",
+            bridge_address,
+            COLLECTION_OWNER
+        );
+
+        let erc721 = IERC721Dispatcher { contract_address: erc721b_address };
+
+        erc721.mint_range_free(COLLECTION_OWNER, 0, 10);
+
+        let bridge = IStarklaneDispatcher { contract_address: bridge_address };
+        start_prank(CheatTarget::One(bridge_address), BRIDGE_ADMIN);
+        bridge.enable(false);
+        stop_prank(CheatTarget::One(bridge_address));
+
+
+        start_prank(CheatTarget::One(bridge_address), COLLECTION_OWNER);
+        bridge.deposit_tokens(
+            0x123,
+            erc721b_address,
+            OWNER_L1,
+            array![0, 1].span(),
+            false,
+            false);
+        stop_prank(CheatTarget::One(bridge_address));
+    }
+
+    #[test]
+    fn test_enable() {
+        // Need to declare here to get the class hash before deploy anything.
+        let erc721b_contract_class = declare('erc721_bridgeable');
+
+        let BRIDGE_ADMIN = starknet::contract_address_const::<'starklane'>();
+        let BRIDGE_L1 = EthAddress { address: 'starklane_l1' };
+        let COLLECTION_OWNER = starknet::contract_address_const::<'collection owner'>();
+        let OWNER_L1 = EthAddress { address: 'owner_l1' };
+
+        let bridge_address = deploy_starklane(BRIDGE_ADMIN, BRIDGE_L1, erc721b_contract_class.class_hash);
+        let bridge = IStarklaneDispatcher { contract_address: bridge_address};
+        start_prank(CheatTarget::One(bridge_address), BRIDGE_ADMIN);
+        bridge.enable(true);
+        assert!(bridge.is_enabled());
+        bridge.enable(false);
+        assert!(!bridge.is_enabled());
+        stop_prank(CheatTarget::One(bridge_address));  
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_enable_as_not_admin() {
+        // Need to declare here to get the class hash before deploy anything.
+        let erc721b_contract_class = declare('erc721_bridgeable');
+
+        let BRIDGE_ADMIN = starknet::contract_address_const::<'starklane'>();
+        let BRIDGE_L1 = EthAddress { address: 'starklane_l1' };
+        let COLLECTION_OWNER = starknet::contract_address_const::<'collection owner'>();
+        let OWNER_L1 = EthAddress { address: 'owner_l1' };
+        let alice = starknet::contract_address_const::<'alice'>();
+
+        let bridge_address = deploy_starklane(BRIDGE_ADMIN, BRIDGE_L1, erc721b_contract_class.class_hash);
+        start_prank(CheatTarget::One(bridge_address), alice);
+        IStarklaneDispatcher { contract_address: bridge_address }.enable(true);
+        stop_prank(CheatTarget::One(bridge_address));        
     }
 
     #[test]

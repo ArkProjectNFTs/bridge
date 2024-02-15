@@ -19,7 +19,8 @@ mod bridge {
         DepositRequestInitiated,
         WithdrawRequestCompleted,
         CollectionDeployedFromL1,
-        ReplacedClassHash
+        ReplacedClassHash,
+        BridgeEnabled,
     };
 
     use starklane::request::{
@@ -59,6 +60,9 @@ mod bridge {
         white_list_enabled: bool,
         // Registry of whitelisted collections
         white_list: LegacyMap::<ContractAddress, bool>,
+
+        // Bridge enabled flag
+        enabled: bool,
     }
 
     #[constructor]
@@ -74,6 +78,7 @@ mod bridge {
         self.bridge_l1_address.write(bridge_l1_address);
         self.erc721_bridgeable_class.write(erc721_bridgeable_class);
         self.white_list_enabled.write(false);
+        self.enabled.write(false); // disalbed by default
     }
 
     #[event]
@@ -83,6 +88,7 @@ mod bridge {
         CollectionDeployedFromL1: CollectionDeployedFromL1,
         WithdrawRequestCompleted: WithdrawRequestCompleted,
         ReplacedClassHash: ReplacedClassHash,
+        BridgeEnabled: BridgeEnabled,
     }
 
 
@@ -102,6 +108,7 @@ mod bridge {
         from_address: felt252,
         req: Request
     ) {
+        ensure_is_enabled(@self);
         assert(self.bridge_l1_address.read().into() == from_address,
                'Invalid L1 msg sender');
 
@@ -215,6 +222,7 @@ mod bridge {
             use_withdraw_auto: bool,
             use_deposit_burn_auto: bool,
         ) {
+            ensure_is_enabled(@self);
             assert(!self.bridge_l1_address.read().is_zero(), 'Bridge is not open');
 
             // TODO: we may have the "from" into the params, to allow an operator
@@ -289,6 +297,18 @@ mod bridge {
         fn is_white_listed(self: @ContractState, collection: ContractAddress) -> bool {
             _is_white_listed(self, collection)
         }
+
+        fn enable(ref self: ContractState, enable: bool) {
+            ensure_is_admin(@self);
+            self.enabled.write(enable);
+            self.emit(BridgeEnabled {
+                enable: enable
+            });
+        }
+
+        fn is_enabled(self: @ContractState) -> bool {
+            self.enabled.read()
+        }
     }
 
     // *** INTERNALS ***
@@ -296,6 +316,11 @@ mod bridge {
     /// Ensures the caller is the bridge admin. Revert if it's not.
     fn ensure_is_admin(self: @ContractState) {
         assert(starknet::get_caller_address() == self.bridge_admin.read(), 'Unauthorized call');
+    }
+
+    /// Ensures the bridge is enabled
+    fn ensure_is_enabled(self: @ContractState) {
+        assert!(self.enabled.read(), "Bridge disabled");
     }
 
     /// Deposit the given tokens into escrow.
