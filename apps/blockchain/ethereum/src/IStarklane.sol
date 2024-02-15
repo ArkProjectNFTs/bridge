@@ -92,4 +92,18 @@ interface IStarklane {
      * @return array of white listed collections
      */
     function getWhiteListedCollections() external view returns (address[] memory);
+
+    /**
+        @notice Enable bridge
+
+        @param enable enabled if true
+     */
+    function enableBridge(
+        bool enable
+    ) external;
+
+    /**
+     * @return true if bridge is enabled
+     */
+    function isEnabled() external view returns (bool);
 }

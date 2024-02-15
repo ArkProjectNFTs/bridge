@@ -57,6 +57,7 @@ contract BridgeTest is Test, IStarklaneEvent {
         );
 
         bridge = address(new ERC1967Proxy(impl, dataInit));
+        IStarklane(bridge).enableBridge(true);
     }
 
     //
@@ -132,6 +133,31 @@ contract BridgeTest is Test, IStarklaneEvent {
         vm.stopPrank();
 
         // TODO: test event emission to verify the request.
+    }
+
+    function test_depositTokenERC721_notEnabled() public {
+        IStarklane(bridge).enableBridge(false);
+
+        IERC721MintRangeFree(erc721C1).mintRangeFree(alice, 0, 10);
+
+        uint256[] memory ids = new uint256[](2);
+        ids[0] = 0;
+        ids[1] = 9;
+
+        uint256 salt = 0x1;
+        snaddress to = Cairo.snaddressWrap(0x1);
+
+        vm.startPrank(alice);
+        IERC721(erc721C1).setApprovalForAll(address(bridge), true);
+        vm.expectRevert(BridgeNotEnabledError.selector);
+        IStarklane(bridge).depositTokens{value: 30000}(
+            salt,
+            address(erc721C1),
+            to,
+            ids,
+            false
+        );
+        vm.stopPrank();
     }
 
     function test_depositTokenERC721_notWhiteListed() public {
@@ -279,6 +305,13 @@ contract BridgeTest is Test, IStarklaneEvent {
         IStarklane(bridge).withdrawTokens(reqSerialized);
     }
 
+    function test_enableBridge() public {
+        IStarklane(bridge).enableBridge(true);
+        assert(IStarklane(bridge).isEnabled());
+
+        IStarklane(bridge).enableBridge(false);
+        assert(!IStarklane(bridge).isEnabled());
+    }
     // Build a request that should trigger a deploy of a new collection on L1.
     function buildRequestDeploy(
         felt252 header,

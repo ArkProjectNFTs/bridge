@@ -19,6 +19,7 @@ import "./IStarklaneEvent.sol";
 error NotSupportedYetError();
 error CollectionMappingError();
 error NotWhiteListedError();
+error BridgeNotEnabledError();
 
 /**
    @title Starklane bridge contract.
@@ -28,7 +29,7 @@ contract Starklane is IStarklaneEvent, UUPSOwnableProxied, StarklaneState, Stark
     // Mapping (collectionAddress => bool)
     mapping(address => bool) _whiteList;
     address[] _collections;
-
+    bool _enabled;
     bool _whiteListEnabled;
 
     /**
@@ -70,7 +71,7 @@ contract Starklane is IStarklaneEvent, UUPSOwnableProxied, StarklaneState, Stark
             data,
             (address, IStarknetMessaging, uint256, uint256)
         );
-
+        _enabled = false;
         _starknetCoreAddress = starknetCoreAddress;
 
         _transferOwnership(owner);
@@ -99,6 +100,10 @@ contract Starklane is IStarklaneEvent, UUPSOwnableProxied, StarklaneState, Stark
         external
         payable
     {
+        if (!_enabled) {
+            revert BridgeNotEnabledError();
+        }
+
         CollectionType ctype = TokenUtil.detectInterface(collectionL1);
         if (ctype == CollectionType.ERC1155) {
             revert NotSupportedYetError();
@@ -162,6 +167,10 @@ contract Starklane is IStarklaneEvent, UUPSOwnableProxied, StarklaneState, Stark
         payable
         returns (address)
     {
+        if (!_enabled) {
+            revert BridgeNotEnabledError();
+        }
+
         // Header is always the first uint256 of the serialized request.
         uint256 header = request[0];
 
@@ -291,5 +300,15 @@ contract Starklane is IStarklaneEvent, UUPSOwnableProxied, StarklaneState, Stark
         address collection
     ) internal view returns (bool) {
         return !_whiteListEnabled || _whiteList[collection];
+    }
+
+    function enableBridge(
+        bool enable
+    ) external onlyOwner {
+        _enabled = enable;
+    }
+
+    function isEnabled() external view returns(bool) {
+        return _enabled;
     }
 }
