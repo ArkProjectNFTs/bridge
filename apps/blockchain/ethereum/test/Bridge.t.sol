@@ -387,6 +387,7 @@ contract BridgeTest is Test, IStarklaneEvent {
         assert(IERC721(erc721C1).ownerOf(ids[1]) == alice);
     }
 
+
     // Build a request that should trigger a deploy of a new collection on L1.
     function buildRequestDeploy(
         felt252 header,
