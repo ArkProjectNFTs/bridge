@@ -205,6 +205,94 @@ mod tests {
     }
 
     #[test]
+    fn withdraw_token_with_uri() {
+        // Need to declare here to get the class hash before deploy anything.
+        let erc721b_contract_class = declare('erc721_bridgeable');
+
+        let BRIDGE_ADMIN = starknet::contract_address_const::<'starklane'>();
+        let BRIDGE_L1 = EthAddress { address: 'starklane_l1' };
+        let OWNER_L1 = EthAddress { address: 'owner_l1' };
+        let OWNER_L2 = starknet::contract_address_const::<'owner_l2'>();
+
+        let bridge_address = deploy_starklane(BRIDGE_ADMIN, BRIDGE_L1, erc721b_contract_class.class_hash);
+
+        let buf = array![
+            0x0101, // hdr ERC721
+            0x1, // hash
+            0x0, // hash
+            0xe0c, // collection_l1
+            0x0, // collection_l2 0 => should trigger deploy.
+            0xe00, // owner_l1
+            OWNER_L2.into(), // owner_l2
+            0, // name len
+            'name', // name pending word
+            4, // name pending word leng
+            0, // symbol len
+            'symbol', // symbol pending word
+            6, // symbol pending word len
+            0, // base_uri len
+            'base_uri', // base_uri pending word
+            8, // base_uri pending word len
+            2, // ids len
+            0, // id[0] low
+            0, // id[0] high
+            1, // id[0] low
+            0, // id[0] high
+            0, // values len
+            2, // uris len
+            0, // uris[0] len
+            'tokenA', // uris[0] pending word
+            6, // uris[0] pending word len
+            0, // uris[1] len
+            'tokenB', // uris[1] pending word
+            6,// uris[1] pending word len
+            0, // new_owners len
+        ];
+
+        
+        let mut l1_handler = L1Handler {
+            contract_address: bridge_address,
+            // selector: 0x03593216f3a8b22f4cf375e5486e3d13bfde9d0f26976d20ac6f653c73f7e507,
+            function_name: 'withdraw_auto_from_l1', 
+            from_address: BRIDGE_L1.into(),
+            payload: buf.span()
+        };
+        let mut spy = spy_events(SpyOn::One(bridge_address));
+
+        l1_handler.execute().unwrap();
+        let bridge = IStarklaneDispatcher { contract_address: bridge_address };
+
+        // Deserialize the request and check some expected values.
+        let mut sp = buf.span();
+        let req = Serde::<Request>::deserialize(ref sp).unwrap();
+
+        let deployed_address = bridge.get_l2_collection_address(req.collection_l1.into());
+        assert!(!deployed_address.is_zero(), "Expected deployed erc721");
+
+        let erc721 = IERC721Dispatcher { contract_address: deployed_address };
+
+        assert!(erc721.owner_of(0) == OWNER_L2, "Wrong owner after req");
+        assert!(erc721.owner_of(1) == OWNER_L2, "Wrong owner after req");
+        
+        assert!(erc721.token_uri(0) == "tokenA", "Wrong token uri");
+        assert!(erc721.token_uri(1) == "tokenB", "Wrong token uri");
+
+        spy.assert_emitted(@array![
+            (
+                bridge_address,
+                bridge::Event::WithdrawRequestCompleted(
+                    bridge::WithdrawRequestCompleted {
+                        hash: req.hash,
+                        block_timestamp: starknet::info::get_block_timestamp(),
+                        req_content: req,
+                    }
+                )
+
+        )]);
+    }
+
+
+    #[test]
     #[should_panic]
     fn deposit_token_not_whitelisted() {
         // Need to declare here to get the class hash before deploy anything.

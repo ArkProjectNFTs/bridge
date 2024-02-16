@@ -1,5 +1,6 @@
 #[starknet::contract]
 mod bridge {
+    use core::byte_array::ByteArrayTrait;
     use array::{ArrayTrait, SpanTrait};
     use traits::{Into, TryInto};
     use zeroable::Zeroable;
@@ -137,8 +138,14 @@ mod bridge {
                 IERC721Dispatcher { contract_address: collection_l2 }
                 .transfer_from(from, to, token_id);
             } else {
-                IERC721BridgeableDispatcher { contract_address: collection_l2 }
-                .mint_from_bridge(to, token_id);
+                if (req.uris.len() != 0) {
+                    let token_uri = req.uris[i];
+                    IERC721BridgeableDispatcher { contract_address: collection_l2 }
+                    .mint_from_bridge_uri(to, token_id, token_uri.clone());
+                } else {
+                    IERC721BridgeableDispatcher { contract_address: collection_l2 }
+                    .mint_from_bridge(to, token_id);
+                }
             }
 
             i += 1;
