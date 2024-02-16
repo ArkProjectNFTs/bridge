@@ -159,7 +159,7 @@ contract ProtocolTest is Test {
         assertEq(buf[11], 0); // symbol pending word
         assertEq(buf[12], 0); // symbol pending word len
         assertEq(buf[13], 0); // base_uri data len
-        assertEq(buf[14], 0x0041424344000000000000000000000000000000000000000000000000000000); // base_uri pending word
+        assertEq(buf[14], 0x0041424344); // base_uri pending word
         assertEq(buf[15], 4); // base_uri pending word len
         assertEq(buf[16], 1); // ids len
         assertEq(buf[17], 1); // ids[0] low
@@ -186,7 +186,7 @@ contract ProtocolTest is Test {
         data[11] = 0; // symbol pending word
         data[12] = 0; // symbol pending word len
         data[13] = 0; // base_uri data len
-        data[14] = 0x0041424344000000000000000000000000000000000000000000000000000000; // base_uri pending word
+        data[14] = 0x0041424344; // base_uri pending word
         data[15] = 4; // base_uri pending word len
         data[16] = 1; // ids len
         data[17] = 1; // ids[0] low
