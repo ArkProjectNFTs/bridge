@@ -8,7 +8,7 @@
 // font-extrabold	font-weight: 800;
 // font-black	    font-weight: 900;
 
-// import clsx = require("clsx");
+// import clsx from "clsx";
 import clsx from "clsx";
 
 // text-xs	    font-size: 0.75rem; /* 12px */

@@ -1,6 +1,6 @@
 "use client";
 
-import clsx = require("clsx");
+import clsx from "clsx";
 
 interface IconButtonProps {
   className?: string;

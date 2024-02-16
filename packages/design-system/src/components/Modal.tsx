@@ -2,7 +2,7 @@
 
 import * as Dialog from "@radix-ui/react-dialog";
 import { XMarkIcon } from "@heroicons/react/24/solid";
-import clsx = require("clsx");
+import clsx from "clsx";
 
 interface ModalProps {
   backdropClassName?: string;
