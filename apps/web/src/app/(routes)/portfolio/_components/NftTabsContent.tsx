@@ -28,7 +28,7 @@ function AllNftsTabsContent() {
   if (l1NftsData === undefined || l2NftsData === undefined) {
     return (
       <Tabs.Content value="all">
-        <NftsLoadingState />
+        <NftsLoadingState type="token" />
       </Tabs.Content>
     );
   } else if (
@@ -37,7 +37,7 @@ function AllNftsTabsContent() {
   ) {
     return (
       <Tabs.Content value="all">
-        <NftsEmptyState />
+        <NftsEmptyState type="token" />
       </Tabs.Content>
     );
   }
@@ -45,21 +45,6 @@ function AllNftsTabsContent() {
   return (
     <Tabs.Content value="all">
       <div className="grid grid-cols-2 gap-5 sm:grid-cols-5">
-        {l2NftsData.pages.map((page) => {
-          return page.ownedNfts.map((nft) => {
-            return (
-              <NftCard
-                cardType="nft"
-                chain="Starknet"
-                image={nft.image}
-                isSelected={false}
-                key={`${nft.contractAddress}-${nft.tokenId}`}
-                title={nft.name}
-              />
-            );
-          });
-        })}
-
         {l1NftsData.pages.map((page) => {
           return page.ownedNfts.map((nft) => {
             return (
@@ -74,6 +59,22 @@ function AllNftsTabsContent() {
             );
           });
         })}
+
+        {!hasNextL1NftsPage &&
+          l2NftsData.pages.map((page) => {
+            return page.ownedNfts.map((nft) => {
+              return (
+                <NftCard
+                  cardType="nft"
+                  chain="Starknet"
+                  image={nft.image}
+                  isSelected={false}
+                  key={`${nft.contractAddress}-${nft.tokenId}`}
+                  title={nft.name}
+                />
+              );
+            });
+          })}
       </div>
       <InfiniteScrollButton
         className="mx-auto mt-14 flex w-full justify-center"
@@ -92,7 +93,7 @@ function CollectionsTabsContent() {
     fetchNextPage: fetchNextL1CollectionsPage,
     hasNextPage: hasNextL1CollectionsPage,
     isFetchingNextPage: isFetchingNextL1CollectionsPage,
-  } = useInfiniteEthereumCollections();
+  } = useInfiniteEthereumCollections({ pageSize: 5 });
 
   const {
     data: l2CollectionsData,
@@ -104,30 +105,22 @@ function CollectionsTabsContent() {
   if (l1CollectionsData === undefined || l2CollectionsData === undefined) {
     return (
       <Tabs.Content value="collections">
-        <NftsLoadingState />
+        <NftsLoadingState type="collection" />
+      </Tabs.Content>
+    );
+  } else if (
+    l1CollectionsData.pages[0]?.collections.length === 0 &&
+    l2CollectionsData.pages[0]?.collections.length === 0
+  ) {
+    return (
+      <Tabs.Content value="collections">
+        <NftsEmptyState type="collection" />
       </Tabs.Content>
     );
   }
-
   return (
     <Tabs.Content value="collections">
       <div className="grid grid-cols-2 gap-5 sm:grid-cols-5">
-        {l2CollectionsData.pages.map((page) => {
-          return page.collections.map((collection) => {
-            return (
-              <NftCard
-                cardType="collection"
-                chain="Starknet"
-                image={collection.image}
-                isSelected={false}
-                key={collection.contractAddress}
-                numberOfNfts={collection.totalBalance}
-                title={collection.name}
-              />
-            );
-          });
-        })}
-
         {l1CollectionsData.pages.map((page) => {
           return page.collections.map((collection) => {
             return (
@@ -143,6 +136,22 @@ function CollectionsTabsContent() {
             );
           });
         })}
+        {!hasNextL1CollectionsPage &&
+          l2CollectionsData.pages.map((page) => {
+            return page.collections.map((collection) => {
+              return (
+                <NftCard
+                  cardType="collection"
+                  chain="Starknet"
+                  image={collection.image}
+                  isSelected={false}
+                  key={collection.contractAddress}
+                  numberOfNfts={collection.totalBalance}
+                  title={collection.name}
+                />
+              );
+            });
+          })}
       </div>
       <InfiniteScrollButton
         className="mx-auto mt-14 flex w-full justify-center"
@@ -166,13 +175,13 @@ function EthereumNTabsContent() {
   if (l1NftsData === undefined) {
     return (
       <Tabs.Content value="ethereum">
-        <NftsLoadingState />
+        <NftsLoadingState type="token" />
       </Tabs.Content>
     );
   } else if (l1NftsData.pages[0]?.totalCount === 0) {
     return (
       <Tabs.Content value="ethereum">
-        <NftsEmptyState />
+        <NftsEmptyState type="token" />
       </Tabs.Content>
     );
   }
@@ -217,13 +226,13 @@ function StarknetTabsContent() {
   if (l2NftsData === undefined) {
     return (
       <Tabs.Content value="starknet">
-        <NftsLoadingState />
+        <NftsLoadingState type="token" />
       </Tabs.Content>
     );
   } else if (l2NftsData.pages[0]?.ownedNfts.length === 0) {
     return (
       <Tabs.Content value="starknet">
-        <NftsEmptyState />
+        <NftsEmptyState type="token" />
       </Tabs.Content>
     );
   }
@@ -253,7 +262,7 @@ function StarknetTabsContent() {
 
 export default function NftTabsContent() {
   return (
-    <div className="mb-4 mt-10.5">
+    <div className="mt-10.5">
       <AllNftsTabsContent />
       <CollectionsTabsContent />
       <EthereumNTabsContent />

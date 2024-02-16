@@ -40,10 +40,21 @@ function NftTransferItemLoadingState({
   );
 }
 
-export default function NftTransferListLoadingState() {
+interface NftTransferListLoadingStateProps {
+  className?: string;
+}
+
+export default function NftTransferListLoadingState({
+  className,
+}: NftTransferListLoadingStateProps) {
   return (
     <>
-      <div className="mb-5 mt-14 grid grid-cols-[1fr_1fr_1fr_1fr_2.25rem] place-items-start px-6 text-galaxy-blue dark:text-space-blue-300">
+      <div
+        className={clsx(
+          className,
+          "mb-5 mt-14 grid grid-cols-[1fr_1fr_1fr_1fr_2.25rem] place-items-start px-6 text-galaxy-blue dark:text-space-blue-300"
+        )}
+      >
         <Typography component="p" variant="button_text_l">
           Nfts in transit
         </Typography>
@@ -55,7 +66,7 @@ export default function NftTransferListLoadingState() {
         </Typography>
       </div>
 
-      <div className="flex flex-col gap-4">
+      <div className="mb-5 flex flex-col gap-4">
         <NftTransferItemLoadingState />
         <NftTransferItemLoadingState />
         <NftTransferItemLoadingState className="opacity-70" />

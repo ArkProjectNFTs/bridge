@@ -27,17 +27,27 @@ export default function NftTabsList() {
   return (
     <Tabs.List className="flex items-center gap-4 overflow-x-scroll">
       <NftTabsTrigger
+        totalCount={
+          l1CollectionsTotalCount === undefined ||
+          l2CollectionsTotalCount === undefined
+            ? undefined
+            : (l1NftsTotalCount ?? 0) + (l2NftsTotalCount ?? 0)
+        }
         className="ml-auto"
         isLoading={isl1NftsLoading || isl2NftsLoading}
         tabName="All nfts"
         tabValue="all"
-        totalCount={l1NftsTotalCount + l2NftsTotalCount}
       />
       <NftTabsTrigger
+        totalCount={
+          l1CollectionsTotalCount === undefined ||
+          l2CollectionsTotalCount === undefined
+            ? undefined
+            : (l1CollectionsTotalCount ?? 0) + (l2CollectionsTotalCount ?? 0)
+        }
         isLoading={isl1CollectionsLoading || isl2CollectionsLoading}
         tabName="Collections"
         tabValue="collections"
-        totalCount={l1CollectionsTotalCount + l2CollectionsTotalCount}
       />
       <NftTabsTrigger
         isLoading={isl1NftsLoading}

@@ -1,6 +1,8 @@
+"use client";
 import clsx from "clsx";
 import { Typography } from "design-system";
 
+import NftsEmptyState from "~/app/_components/NftsEmptyState";
 import useAccountFromChain from "~/app/_hooks/useAccountFromChain";
 import useCurrentChain from "~/app/_hooks/useCurrentChain";
 import { api } from "~/utils/api";
@@ -41,9 +43,13 @@ function NftTransferHeader({
 
 interface NftTransferListProps {
   className?: string;
+  showPending?: boolean;
 }
 
-export default function NftTransferListt({ className }: NftTransferListProps) {
+export default function NftTransferList({
+  className,
+  showPending = true,
+}: NftTransferListProps) {
   const { targetChain } = useCurrentChain();
   const { address } = useAccountFromChain(targetChain);
 
@@ -64,14 +70,20 @@ export default function NftTransferListt({ className }: NftTransferListProps) {
     bridgeRequests.inTransit.requests.length === 0 &&
     bridgeRequests.past.requests.length === 0
   ) {
-    // Empty state
-    return <></>;
+    return (
+      <>
+        <NftsEmptyState className="mb-5 mt-14" type="collection" />
+        <Typography className="my-14" component="p" variant="body_text_18">
+          There is nothing there...
+        </Typography>
+      </>
+    );
   }
   const { inTransit, past } = bridgeRequests;
 
   return (
     <div className={className}>
-      {inTransit.requests.length > 0 && (
+      {inTransit.requests.length > 0 && showPending && (
         <>
           <NftTransferHeader
             className="mb-5"
@@ -113,7 +125,7 @@ export default function NftTransferListt({ className }: NftTransferListProps) {
             totalCount={past.totalCount}
           />
 
-          <div className="flex flex-col gap-4">
+          <div className="mb-5 flex flex-col gap-4">
             {past.requests.map((bridgeRequest) => {
               return (
                 <NftTransferItem

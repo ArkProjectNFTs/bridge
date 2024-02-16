@@ -32,15 +32,17 @@ export default function CollectionHeader({
           ? `It looks like you have no nfts collection on ${sourceChain}...`
           : `Select the assets you want to transfer to ${targetChain}`}
       </Typography>
-      <Notification
-        className="mt-4"
-        icon={<HappyPurpleEmoji />}
-        variant="playground_purple"
-      >
-        {
-          "For now you can only select Everai collection! You'll soon be able to bridge other collections."
-        }
-      </Notification>
+      {collectionTotalCount !== undefined && collectionTotalCount > 0 && (
+        <Notification
+          className="mt-4"
+          icon={<HappyPurpleEmoji />}
+          variant="playground_purple"
+        >
+          {
+            "For now you can only select Everai collection! You'll soon be able to bridge other collections."
+          }
+        </Notification>
+      )}
     </div>
   );
 }

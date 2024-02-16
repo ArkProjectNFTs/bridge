@@ -1,12 +1,13 @@
 import clsx from "clsx";
 import { Drawer, IconButton, Modal, Typography } from "design-system";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 import { api } from "~/utils/api";
 
 import useNftSelection from "../_hooks/useNftSelection";
-import BridgingQuestBanner from "./BridgingQuestBanner";
+import SmallBridgingQuestBanner from "./SmallBridgingQuestBanner";
 import TransferNftsAction from "./TransferNftsAction";
 import TransferNftsWalletSummary from "./TransferNftsWalletSummary";
 
@@ -17,6 +18,7 @@ function TransferSummary() {
     selectedTokenIds,
     totalSelectedNfts,
   } = useNftSelection();
+  const pathname = usePathname();
 
   const { data: selectedNfts } = api.l1Nfts.getNftMetadataBatch.useQuery(
     {
@@ -29,6 +31,7 @@ function TransferSummary() {
   );
 
   const hasSelectedNfts = totalSelectedNfts > 0;
+  const showBridgingQuestBanner = pathname === "/bridge";
 
   return (
     <>
@@ -136,7 +139,7 @@ function TransferSummary() {
         </div>
       )}
       <TransferNftsAction />
-      <BridgingQuestBanner className="mt-8" />
+      {showBridgingQuestBanner && <SmallBridgingQuestBanner className="mt-8" />}
     </>
   );
 }

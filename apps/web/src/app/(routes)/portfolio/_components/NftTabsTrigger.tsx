@@ -7,7 +7,7 @@ interface NftTabsTriggerProps {
   isLoading: boolean;
   tabName: string;
   tabValue: string;
-  totalCount: number;
+  totalCount: number | undefined;
 }
 
 export default function NftTabsTrigger({

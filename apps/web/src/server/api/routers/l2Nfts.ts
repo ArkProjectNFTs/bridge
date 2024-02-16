@@ -28,7 +28,37 @@ type ArkCollectionsApiResponse = {
   total_count: number;
 };
 
+type ArkCollectionInfoApiResponse = {
+  result: { contract_address: string; name: string; symbol: string };
+};
+
 export const l2NftsRouter = createTRPCRouter({
+  getCollectionInfo: publicProcedure
+    .input(z.object({ contractAddress: z.string() }))
+    .query(async ({ input }) => {
+      const { contractAddress } = input;
+
+      try {
+        const url = `${
+          process.env.NEXT_PUBLIC_ARK_API_DOMAIN ?? ""
+        }/v1/contracts/${validateAndParseAddress(contractAddress)}`;
+
+        const contractInfoResponse = await fetch(url, {
+          headers: {
+            "Content-Type": "application/json",
+            "X-API-KEY": process.env.ARK_API_KEY ?? "",
+          },
+        });
+
+        const contractInfo =
+          (await contractInfoResponse.json()) as ArkCollectionInfoApiResponse;
+
+        return { name: contractInfo.result.name };
+      } catch (error) {
+        return { name: "" };
+      }
+    }),
+
   getNftCollectionsByWallet: publicProcedure
     .input(z.object({ address: z.string(), cursor: z.string().optional() }))
     .query(async ({ input }) => {
@@ -55,9 +85,11 @@ export const l2NftsRouter = createTRPCRouter({
           (contract) => ({
             contractAddress: contract.contract_address,
             image: undefined,
-            isBridgeable:
-              contract.contract_address ===
-              process.env.EVERAI_L2_CONTRACT_ADDRESS,
+
+            isBridgeable: true,
+            // isBridgeable:
+            //   contract.contract_address ===
+            //   process.env.EVERAI_L2_CONTRACT_ADDRESS,
             name: contract.name ?? contract.symbol,
             totalBalance: contract.tokens_count,
           })

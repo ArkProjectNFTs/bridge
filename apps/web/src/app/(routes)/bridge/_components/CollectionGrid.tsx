@@ -26,14 +26,16 @@ export default function CollectionGrid({
   const { sourceChain } = useCurrentChain();
   const { selectedCollectionAddress } = useNftSelection();
 
+  console.log(nftCollectionPages);
+
   if (nftCollectionPages === undefined) {
-    return <NftsLoadingState />;
-  } else if (nftCollectionPages.length === 0) {
-    return <NftsEmptyState />;
+    return <NftsLoadingState type="collection" />;
+  } else if (nftCollectionPages[0]?.collections.length === 0) {
+    return <NftsEmptyState type="collection" />;
   }
 
   return (
-    <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-5">
+    <div className="mb-8 grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-5">
       {nftCollectionPages.map((nftCollectionPage) => {
         return nftCollectionPage.collections.map((nftCollection) => {
           return (

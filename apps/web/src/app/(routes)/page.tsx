@@ -1,16 +1,22 @@
 import { Typography } from "design-system";
+import Image from "next/image";
 
 import ConnectWalletsButton from "../_components/ConnectWalletsButton";
 import Footer from "../_components/Footer";
-import MainPageContainer from "../_components/MainPageContainer";
 
 export default function Page() {
   return (
     <>
       <div className="flex">
-        {/* TODO @YohanTz: Extract magic values like this to CSS variable (top-[5.75rem]) */}
-        <MainPageContainer>
-          <div className="flex h-[calc(100vh-12.875rem)] flex-col items-center justify-center gap-8">
+        <main className="mx-auto mt-[5.75rem] flex w-full text-center">
+          <div className="flex h-[calc(100vh-12.875rem)] w-full flex-col items-center justify-center gap-8">
+            <Image
+              alt="background"
+              className="absolute inset-0 -z-10 h-full w-full object-cover"
+              height={674}
+              src="/medias/home_background.png"
+              width={1510}
+            />
             <div className="flex items-center gap-2 rounded-full bg-void-black px-3 py-2 text-white">
               <Typography
                 className="rounded-full bg-space-blue-source px-1.5 py-0.5"
@@ -19,24 +25,40 @@ export default function Page() {
                 New
               </Typography>
               <Typography component="p" variant="body_text_14">
-                ArkProject Missions opened!
+                Bridging is an ArkProject Quest
               </Typography>
+              <a className="" href="/">
+                <Typography
+                  className="text-space-blue-source underline"
+                  variant="body_text_14"
+                >
+                  See more quests
+                </Typography>
+              </a>
             </div>
 
-            <Typography component="h1" variant="heading_light_l">
+            <Typography
+              className="text-white"
+              component="h1"
+              variant="heading_light_l"
+            >
               Start moving your Everai
               <br />
               on Starknet
             </Typography>
 
-            <Typography component="p" variant="body_text_20">
-              Bridge Everai NFTs and enter the competition by
+            <Typography
+              className="text-asteroid-grey-200"
+              component="p"
+              variant="body_text_16"
+            >
+              Bridge your Everai NFTs and complete your first
               <br />
-              completing the ArkProject missions.
+              ArkProject quests.
             </Typography>
             <ConnectWalletsButton />
           </div>
-        </MainPageContainer>
+        </main>
       </div>
       <Footer />
     </>

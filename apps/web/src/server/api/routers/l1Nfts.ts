@@ -12,14 +12,31 @@ const alchemy = new Alchemy({
 });
 
 export const l1NftsRouter = createTRPCRouter({
-  getNftCollectionsByWallet: publicProcedure
-    .input(z.object({ address: z.string(), cursor: z.string().optional() }))
+  getCollectionInfo: publicProcedure
+    .input(z.object({ contractAddress: z.string() }))
     .query(async ({ input }) => {
-      const { address, cursor } = input;
+      const { contractAddress } = input;
+
+      const { name } = await alchemy.nft.getContractMetadata(contractAddress);
+
+      return { name: name ?? "" };
+    }),
+
+  getNftCollectionsByWallet: publicProcedure
+    .input(
+      z.object({
+        address: z.string(),
+        cursor: z.string().optional(),
+        pageSize: z.number().min(1).max(100).optional(),
+      })
+    )
+    .query(async ({ input }) => {
+      const { address, cursor, pageSize } = input;
       const { contracts, pageKey, totalCount } =
         await alchemy.nft.getContractsForOwner(address.toLowerCase(), {
           excludeFilters: [NftFilters.SPAM],
           pageKey: cursor,
+          pageSize,
         });
 
       const collections: Array<Collection> = contracts.map((contract) => ({
@@ -58,7 +75,6 @@ export const l1NftsRouter = createTRPCRouter({
         tokenName: nft.title.length > 0 ? nft.title : `#${nft.tokenId}`,
       }));
     }),
-
   getOwnerNftsFromCollection: publicProcedure
     .input(
       z.object({

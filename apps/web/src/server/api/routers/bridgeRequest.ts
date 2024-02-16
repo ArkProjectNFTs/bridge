@@ -82,6 +82,12 @@ export const bridgeRequestRouter = createTRPCRouter({
         const bridgeRequests =
           (await bridgeRequestsResponse.json()) as BridgeRequestApiResponse;
 
+        if (bridgeRequests.length === 0) {
+          return {
+            inTransit: { requests: [], totalCount: 0 },
+            past: { requests: [], totalCount: 0 },
+          };
+        }
         // if (
         //   bridgeRequests[0] !== undefined &&
         //   bridgeRequests[0]?.req.chain_src === "eth"

@@ -21,7 +21,7 @@ export default function useInfiniteEthereumNfts(params?: {
       }
     );
 
-  const totalCount = data?.pages[0]?.totalCount ?? 0;
+  const totalCount = data?.pages[0]?.totalCount;
 
   return {
     data,

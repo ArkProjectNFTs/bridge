@@ -1,10 +1,13 @@
 import {
+  useBlockNumber,
   useContract,
   useContractRead,
   useContractWrite,
   useAccount as useStarknetAccount,
   useWaitForTransaction,
 } from "@starknet-react/core";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { CallData } from "starknet";
 import { useAccount as useEthereumAccount } from "wagmi";
 
@@ -18,9 +21,10 @@ export default function useTransferStarknetNfts() {
 
   const { address: ethereumAddress } = useEthereumAccount();
   const { address: starknetAddress } = useStarknetAccount();
+  const { data: blockNumber } = useBlockNumber();
 
   // TODO @YohanTz: Cast type
-  const { data: isApprovedForAll } = useContractRead({
+  const { data: isApprovedForAll, refetch } = useContractRead({
     abi: [
       {
         inputs: [
@@ -99,6 +103,9 @@ export default function useTransferStarknetNfts() {
 
   const { isLoading: isApproveLoading } = useWaitForTransaction({
     hash: approveData?.transaction_hash,
+    refetchInterval: 2000,
+    retry: true,
+    watch: true,
   });
 
   // TODO @YohanTz: Refacto
@@ -129,10 +136,21 @@ export default function useTransferStarknetNfts() {
     ],
   });
 
+  const router = useRouter();
+
   // const { isLoading: isDepositLoading, isSuccess: isDepositSuccess } =
   //   useWaitForTransaction({
   //     hash: depositData?.transaction_hash,
   //   });
+  useEffect(() => {
+    void refetch();
+  }, [blockNumber, refetch, isApproveLoading]);
+
+  useEffect(() => {
+    if (depositData?.transaction_hash !== undefined) {
+      void router.push(`lounge/${depositData.transaction_hash}`);
+    }
+  }, [depositData, router]);
 
   return {
     approveForAll: () => approveForAll(),
