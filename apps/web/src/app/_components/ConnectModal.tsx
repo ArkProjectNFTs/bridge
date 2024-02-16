@@ -34,7 +34,7 @@ function ChainButton({ chain, onClick }: ChainButtonProps) {
 
   return (
     <button
-      className="flex w-full items-center justify-between rounded-full bg-night-blue-source py-2 pl-3.5 pr-2 text-white transition-colors hover:bg-space-blue-source hover:text-night-blue-source"
+      className="flex w-full items-center justify-between rounded-full bg-night-blue-source py-2 pl-3.5 pr-2 text-white transition-colors hover:bg-space-blue-source hover:text-night-blue-source dark:bg-white dark:text-galaxy-blue dark:hover:bg-space-blue-source"
       onClick={onClick}
     >
       <Typography className="w-full" variant="body_text_bold_14">
@@ -59,7 +59,7 @@ interface ConnectorButtonProps {
 function ConnectorButton({ id, onClick }: ConnectorButtonProps) {
   return (
     <button
-      className="flex w-full items-center justify-between rounded-full bg-night-blue-source py-2 pl-3.5 pr-2 text-white transition-colors hover:bg-space-blue-source hover:text-night-blue-source"
+      className="flex w-full items-center justify-between rounded-full bg-night-blue-source py-2 pl-3.5 pr-2 text-white transition-colors hover:bg-space-blue-source hover:text-night-blue-source dark:bg-white dark:text-galaxy-blue dark:hover:bg-space-blue-source"
       onClick={onClick}
     >
       <Typography variant="body_text_bold_14">

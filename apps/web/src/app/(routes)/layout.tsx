@@ -1,6 +1,7 @@
 "use client";
 
 import clsx from "clsx";
+// import { type Metadata } from "next";
 import localFont from "next/font/local";
 
 import "~/styles/globals.css";
@@ -9,6 +10,28 @@ import { api } from "~/utils/api";
 import Header from "../_components/Header";
 import useCurrentChain from "../_hooks/useCurrentChain";
 import Providers from "./providers";
+
+// export const metadata: Metadata = {
+//   description: "",
+//   // openGraph: {
+//   //   description:
+//   //     "",
+//   //   images: [""],
+//   //   title: "ArkProject",
+//   //   type: "website",
+//   //   url: "https://www.arkproject.dev",
+//   // },
+//   title: "ArkProject Bridge",
+//   // twitter: {
+//   //   card: "summary_large_image",
+//   //   creator: "@ArkProjectNFTs",
+//   //   description:
+//   //     "",
+//   //   images: [""],
+//   //   site: "@ArkProjectNFTs",
+//   //   title: "ArkProject",
+//   // },
+// };
 
 const arkProjectFont = localFont({
   src: [
