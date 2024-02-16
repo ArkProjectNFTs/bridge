@@ -133,7 +133,7 @@ function ConnectorList({ chain }: ConnectorListProps) {
         </div>
         <div
           className={clsx(
-            "mt-6 flex items-center justify-between rounded-full p-2",
+            "mt-6 flex items-center justify-between rounded-full p-2 dark:text-galaxy-blue",
             chain === "Ethereum"
               ? "bg-playground-purple-50  dark:bg-playground-purple-300"
               : "bg-folly-red-50 dark:bg-folly-red-300"
@@ -172,7 +172,7 @@ function ConnectorList({ chain }: ConnectorListProps) {
           </button>
         </div>
         <button
-          className="mt-4 w-full rounded-full border-2 border-space-blue-900 py-2"
+          className="mt-4 w-full rounded-full border-2 border-space-blue-900 py-2 dark:border-space-blue-400 dark:text-space-blue-400"
           onClick={() => disconnect()}
         >
           <Typography variant="body_text_bold_14">Disconnect</Typography>

@@ -45,14 +45,14 @@ export function Button({
   children,
   className,
   onClick,
-  color = "default",
+  color,
   size,
 }: ButtonProps) {
   return (
     <button
       className={clsx(
         className,
-        colorVariants[color].containerClassName,
+        colorVariants[color]?.containerClassName,
         sizeVariants[size].containerClassName,
         "flex items-center justify-center rounded-full transition-colors",
       )}
@@ -60,7 +60,7 @@ export function Button({
     >
       <Typography
         variant={sizeVariants[size].typographyVariant}
-        className={clsx(colorVariants[color].textClassName)}
+        className={clsx(colorVariants[color]?.textClassName)}
       >
         {children}
       </Typography>

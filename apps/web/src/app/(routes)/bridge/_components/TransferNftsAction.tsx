@@ -14,7 +14,11 @@ export default function TransferNftsAction() {
     useTransferNftsFromChain(sourceChain);
 
   return isApprovedForAll ? (
-    <Button className="mt-8" onClick={() => depositTokens()} size="small">
+    <Button
+      className="mt-8 bg-galaxy-blue text-white dark:bg-primary-400 dark:text-galaxy-blue"
+      onClick={() => depositTokens()}
+      size="small"
+    >
       <Typography variant="button_text_s">
         Confirm transfer to {targetChain}
       </Typography>
@@ -61,11 +65,10 @@ export default function TransferNftsAction() {
         className={clsx(
           "mt-8",
           totalSelectedNfts === 0
-            ? "cursor-no-drop bg-[#1c2f55] opacity-30 dark:bg-space-blue-900"
+            ? "cursor-no-drop bg-asteroid-grey-300 text-white opacity-50 dark:bg-primary-source dark:text-galaxy-blue"
             : "bg-space-blue-900 dark:bg-space-blue-700"
         )}
         // disabled={numberOfSelectedNfts === 0}
-        color="default"
         onClick={() => totalSelectedNfts > 0 && approveForAll()}
         size="small"
       >
