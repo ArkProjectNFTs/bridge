@@ -19,6 +19,7 @@ enum CollectionType {
 
 error UnsupportedTokenStandard();
 
+
 /**
    @title Utils functions for token related stuff.
 */
@@ -73,31 +74,33 @@ library TokenUtil {
     )
         internal
         view
-        returns (string memory, string memory)
-    {
+        returns (string memory, string memory, string memory, string[] memory)
+    {        
         bool supportsMetadata = ERC165Checker.supportsInterface(
             collection,
             type(IERC721Metadata).interfaceId
         );
         
         if (!supportsMetadata) {
-            return ("", "");
+            return ("", "", "", new string[](0));
         }
 
         IERC721Metadata c = IERC721Metadata(collection);
-
-        // TODO: check how the URI must be handled.
-        // a base URI is already present, we can ignore individual URI?
-        // Or, each token URI must be bridged and then the owner of the collection
-        // can decide what to do?
-
-        /* string[] memory URIs = new string[](tokenIds.length); */
-
-        /* for (uint256 i = 0; i < tokenIds.length; i++) { */
-        /*     URIs[i] = c.tokenURI(tokenIds[i]); */
-        /* } */
-
-        return (c.name(), c.symbol());
+        // How the URI must be handled.
+        // if a base URI is already present, we ignore individual URI
+        // else, each token URI must be bridged and then the owner of the collection
+        // can decide what to do
+        (bool success, string memory _baseUri) = _callBaseUri(collection);
+        if (success) {
+            return (c.name(), c.symbol(), _baseUri, new string[](0));
+        }
+        else {
+            string[] memory URIs = new string[](tokenIds.length);
+            for (uint256 i = 0; i < tokenIds.length; i++) {
+                URIs[i] = c.tokenURI(tokenIds[i]);
+            }
+            return (c.name(), c.symbol(), "", URIs);
+        }
     }
 
     /**
@@ -131,5 +134,38 @@ library TokenUtil {
         /*     return "TODO"; */
         /* } */
 
-    }    
+    }
+
+    function _callBaseUri(
+        address collection
+    )
+        internal
+        view
+        returns (bool, string memory)
+    {
+        bool success;
+        uint256 returnSize;
+        bytes memory ret;
+        bytes[2] memory encodedSignatures = [abi.encodeWithSignature("_baseUri()"), abi.encodeWithSignature("baseUri()")];
+
+        for (uint256 i = 0; i < 2; i++) {
+            bytes memory encodedParams = encodedSignatures[i];
+            assembly {
+                success := staticcall(gas(), collection, add(encodedParams, 0x20), mload(encodedParams), 0x00, 0x00)
+                if success {
+                    returnSize := returndatasize()
+                    ret := mload(0x40)
+                    mstore(ret, returnSize)
+                    returndatacopy(add(ret, 0x20), 0, returnSize)
+                    // update free memory pointer
+                    mstore(0x40, add(add(ret, 0x20), add(returnSize, 0x20)))
+                }
+            }
+            if (success && returnSize >= 0x20) {
+                return (true, abi.decode(ret, (string)));
+            }
+        }
+        return (false, "");
+    }
+
 }

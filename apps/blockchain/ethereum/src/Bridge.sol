@@ -130,7 +130,7 @@ contract Starklane is IStarklaneEvent, UUPSOwnableProxied, StarklaneState, Stark
         req.ownerL2 = ownerL2;
 
         if (ctype == CollectionType.ERC721) {
-            (req.name, req.symbol) = TokenUtil.erc721Metadata(
+            (req.name, req.symbol, req.uri, req.tokenURIs) = TokenUtil.erc721Metadata(
                 collectionL1,
                 ids
             );
