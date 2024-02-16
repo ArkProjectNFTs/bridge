@@ -69,5 +69,10 @@ contract TokenUtilTest is Test {
         (success, uri) = TokenUtil._callBaseUri(toCheck);
         assert(!success);
         assert(keccak256(abi.encodePacked(uri)) == keccak256(abi.encodePacked("")));
+
+        toCheck = address(new WithInternaBaseUri());
+        (success, uri) = TokenUtil._callBaseUri(toCheck);
+        assert(!success);
+        assert(keccak256(abi.encodePacked(uri)) == keccak256(abi.encodePacked("")));
     }
 }

@@ -145,15 +145,17 @@ library TokenUtil {
     {
         bool success;
         uint256 returnSize;
+        uint256 returnValue;
         bytes memory ret;
         bytes[2] memory encodedSignatures = [abi.encodeWithSignature("_baseUri()"), abi.encodeWithSignature("baseUri()")];
 
         for (uint256 i = 0; i < 2; i++) {
             bytes memory encodedParams = encodedSignatures[i];
             assembly {
-                success := staticcall(gas(), collection, add(encodedParams, 0x20), mload(encodedParams), 0x00, 0x00)
+                success := staticcall(gas(), collection, add(encodedParams, 0x20), mload(encodedParams), 0x00, 0x20)
                 if success {
                     returnSize := returndatasize()
+                    returnValue := mload(0x00)
                     ret := mload(0x40)
                     mstore(ret, returnSize)
                     returndatacopy(add(ret, 0x20), 0, returnSize)
@@ -161,7 +163,7 @@ library TokenUtil {
                     mstore(0x40, add(add(ret, 0x20), add(returnSize, 0x20)))
                 }
             }
-            if (success && returnSize >= 0x20) {
+            if (success && returnSize >= 0x20 && returnValue > 0) {
                 return (true, abi.decode(ret, (string)));
             }
         }
