@@ -66,7 +66,7 @@ library TokenUtil {
        @param collection Address of the ERC721 contract.
        @param tokenIds Ids of the tokens to get tokenURI from.
 
-       @return (name, symbol, tokenURIs).
+       @return (name, symbol, baseuri, tokenURIs).
      */
     function erc721Metadata(
         address collection,

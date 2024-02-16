@@ -312,6 +312,53 @@ contract BridgeTest is Test, IStarklaneEvent {
         IStarklane(bridge).enableBridge(false);
         assert(!IStarklane(bridge).isEnabled());
     }
+
+    function test_cancelRequest() public {
+        IERC721MintRangeFree(erc721C1).mintRangeFree(alice, 0, 10);
+
+        uint256[] memory ids = new uint256[](2);
+        ids[0] = 0;
+        ids[1] = 9;
+
+        uint256 salt = 0x1;
+        snaddress to = Cairo.snaddressWrap(0x1);
+
+        vm.startPrank(alice);
+        IERC721(erc721C1).setApprovalForAll(address(bridge), true);
+        vm.recordLogs();
+        IStarklane(bridge).depositTokens{value: 30000}(
+            salt,
+            address(erc721C1),
+            to,
+            ids,
+            false
+        );
+        Vm.Log[] memory entries = vm.getRecordedLogs();
+        vm.stopPrank();
+        assert(IERC721(erc721C1).ownerOf(0) != alice);
+        assert(IERC721(erc721C1).ownerOf(2) == alice);
+
+        // Transfer - Transfer - LogMessageToL2 - DepositRequestInitialized
+        assertEq(entries.length, 4);
+        Vm.Log memory logMessageToL2 = entries[2];
+        Vm.Log memory depositRequestEvent = entries[3];
+        (uint256[] memory payload, uint256 nonce, ) = abi.decode(logMessageToL2.data, (uint256[], uint256, uint256));
+        ( ,uint256[] memory reqContent) = abi.decode(depositRequestEvent.data, (uint256, uint256[]));
+        assert(payload.length == reqContent.length);
+        Request memory req = Protocol.requestDeserialize(payload, 0);
+
+        vm.expectEmit(true, false, false, false, bridge);
+        emit CancelRequestStarted(req.hash, 42);
+        IStarklane(bridge).startRequestCancellation(payload, nonce);
+
+        vm.expectEmit(true, false, false, false, bridge);
+        emit CancelRequestCompleted(req.hash, 42);
+        IStarklane(bridge).cancelRequest(payload, nonce);
+
+        assert(IERC721(erc721C1).ownerOf(0) == alice);
+        assert(IERC721(erc721C1).ownerOf(2) == alice);
+    }
+
     // Build a request that should trigger a deploy of a new collection on L1.
     function buildRequestDeploy(
         felt252 header,

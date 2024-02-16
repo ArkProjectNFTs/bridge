@@ -41,6 +41,28 @@ interface IStarklane {
         returns (address);
 
     /**
+        @notice Start the cancellation of a given request.
+     
+        @param payload Request to cancel
+        @param nonce Nonce used for request sending.
+     */
+    function startRequestCancellation(
+        uint256[] memory payload,
+        uint256 nonce
+    ) external;
+
+    /**
+        @notice Cancel a given request.
+
+        @param payload Request to cancel
+        @param nonce Nonce used for request sending.
+     */
+    function cancelRequest(
+        uint256[] memory payload,
+        uint256 nonce
+    ) external;
+
+    /**
        @notice Adds the hash of a message that can be consumed with the auto
        method.
 

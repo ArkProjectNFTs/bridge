@@ -32,24 +32,6 @@ contract Starklane is IStarklaneEvent, UUPSOwnableProxied, StarklaneState, Stark
     bool _enabled;
     bool _whiteListEnabled;
 
-    /**
-       @notice Request initiated on L1.
-    */
-    event DepositRequestInitiated(
-        uint256 indexed hash,
-        uint256 block_timestamp,
-        uint256[] reqContent
-    );
-
-    /**
-       @notice Request initiated on L1.
-    */
-    event WithdrawRequestCompleted(
-        uint256 indexed hash,
-        uint256 block_timestamp,
-        uint256[] reqContent
-    );
-
 
     /**
        @notice Initializes the implementation, only callable once.
@@ -221,6 +203,57 @@ contract Starklane is IStarklaneEvent, UUPSOwnableProxied, StarklaneState, Stark
     }
 
     /**
+        @notice Start the cancellation of a given request.
+     
+        @param payload Request to cancel
+        @param nonce Nonce used for request sending.
+     */
+    function startRequestCancellation(
+        uint256[] memory payload,
+        uint256 nonce
+    ) external onlyOwner {
+        IStarknetMessaging(_starknetCoreAddress).startL1ToL2MessageCancellation(
+            snaddress.unwrap(_starklaneL2Address), 
+            felt252.unwrap(_starklaneL2Selector), 
+            payload,
+            nonce
+        );
+        Request memory req = Protocol.requestDeserialize(payload, 0);
+        emit CancelRequestStarted(req.hash, block.timestamp);
+    }
+
+    /**
+        @notice Cancel a given request.
+
+        @param payload Request to cancel
+        @param nonce Nonce used for request sending.
+     */
+    function cancelRequest(
+        uint256[] memory payload,
+        uint256 nonce
+    ) external {
+        IStarknetMessaging(_starknetCoreAddress).cancelL1ToL2Message(
+            snaddress.unwrap(_starklaneL2Address), 
+            felt252.unwrap(_starklaneL2Selector), 
+            payload,
+            nonce
+        );
+        Request memory req = Protocol.requestDeserialize(payload, 0);
+        _cancelRequest(req);
+        emit CancelRequestCompleted(req.hash, block.timestamp);
+    }
+
+    function _cancelRequest(Request memory req) internal {
+        uint256 header = felt252.unwrap(req.header);
+        CollectionType ctype = Protocol.collectionTypeFromHeader(header);
+        address collectionL1 = req.collectionL1;
+        for (uint256 i = 0; i < req.tokenIds.length; i++) {
+            uint256 id = req.tokenIds[i];
+            _withdrawFromEscrow(ctype, collectionL1, req.ownerL1, id);
+        }
+    }
+
+    /**
         @notice Enable collection whitelist for deposit
 
         @param enable white list is enabled if true
@@ -257,24 +290,28 @@ contract Starklane is IStarklaneEvent, UUPSOwnableProxied, StarklaneState, Stark
     
     
     /**
-        @return true if white list is enabled
+        @notice Check if white list is globally enabled
+
+        @return true if enabled
     */
     function isWhiteListEnabled() external view returns (bool) {
         return _whiteListEnabled;
     }
 
     /**
-        @notice Check if a collection is whitelisted
+        @notice Check if a collection is white listed
     
         @param collection Address of collection
-        @return true if given collection is white listed
+        @return true if white listed
      */
     function isWhiteListed(address collection) external view returns (bool) {
         return _isWhiteListed(collection);
     }
     
-        /**
-     * @return array of white listed collections
+    /**
+        @notice Get list of white listed collections
+
+        @return array of white listed collections
      */
     function getWhiteListedCollections() external view returns (address[] memory) {
         uint256 offset = 0;
