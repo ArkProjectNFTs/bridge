@@ -14,4 +14,7 @@ interface IStarknetMessagingLocal {
         external
         payable;
 
+    function setMessageCancellationDelay(
+        uint256 delayInSeconds
+    ) external;
 }

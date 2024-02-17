@@ -43,4 +43,9 @@ contract StarknetMessagingLocal is StarknetMessaging {
         l2ToL1Messages()[hash] += 1;
     }
 
+    // expose internal for testing purpose
+    function setMessageCancellationDelay(uint256 delayInSeconds) external {
+        messageCancellationDelay(delayInSeconds);
+    }
+
 }
