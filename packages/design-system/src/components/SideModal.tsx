@@ -12,7 +12,7 @@ interface ModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export function Modal({
+export function SideModal({
   backdropClassName,
   children,
   className,
@@ -25,7 +25,7 @@ export function Modal({
         <div
           className={clsx(
             backdropClassName,
-            "fixed inset-0 bg-[#16334999] backdrop-blur-lg",
+            "fixed inset-0 bg-void-black opacity-80 backdrop-blur-lg",
           )}
         />
         <Dialog.Content

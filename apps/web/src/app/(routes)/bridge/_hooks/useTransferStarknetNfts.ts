@@ -7,7 +7,7 @@ import {
   useWaitForTransaction,
 } from "@starknet-react/core";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { CallData } from "starknet";
 import { useAccount as useEthereumAccount } from "wagmi";
 
@@ -22,6 +22,7 @@ export default function useTransferStarknetNfts() {
   const { address: ethereumAddress } = useEthereumAccount();
   const { address: starknetAddress } = useStarknetAccount();
   const { data: blockNumber } = useBlockNumber();
+  console.log(blockNumber);
 
   // TODO @YohanTz: Cast type
   const { data: isApprovedForAll, refetch } = useContractRead({
@@ -108,28 +109,28 @@ export default function useTransferStarknetNfts() {
     watch: true,
   });
 
-  // TODO @YohanTz: Refacto
-  let depositCallData = undefined;
-  if (
-    bridgeContract?.abi !== undefined &&
-    ethereumAddress !== undefined &&
-    selectedCollectionAddress !== undefined
-  ) {
-    depositCallData = new CallData(bridgeContract?.abi);
-    depositCallData = depositCallData.compile("deposit_tokens", {
-      collection_l2: selectedCollectionAddress ?? "",
-      owner_l1: ethereumAddress,
-      salt: Date.now(),
-      token_ids: selectedTokenIds,
-      use_deposit_burn_auto: false,
-      use_withdraw_auto: true,
-    });
-  }
+  const getDepositCalldata = useCallback(() => {
+    if (
+      bridgeContract?.abi !== undefined &&
+      ethereumAddress !== undefined &&
+      selectedCollectionAddress !== undefined
+    ) {
+      let depositCallData = new CallData(bridgeContract?.abi);
+      return depositCallData.compile("deposit_tokens", {
+        collection_l2: selectedCollectionAddress,
+        owner_l1: ethereumAddress,
+        salt: Date.now(),
+        token_ids: selectedTokenIds,
+        use_deposit_burn_auto: false,
+        use_withdraw_auto: false,
+      });
+    }
+  }, [ethereumAddress, selectedCollectionAddress, bridgeContract]);
 
   const { data: depositData, write: depositTokens } = useContractWrite({
     calls: [
       {
-        calldata: depositCallData,
+        calldata: getDepositCalldata(),
         contractAddress: L2_BRIDGE_ADDRESS,
         entrypoint: "deposit_tokens",
       },
@@ -142,6 +143,7 @@ export default function useTransferStarknetNfts() {
   //   useWaitForTransaction({
   //     hash: depositData?.transaction_hash,
   //   });
+
   useEffect(() => {
     void refetch();
   }, [blockNumber, refetch, isApproveLoading]);

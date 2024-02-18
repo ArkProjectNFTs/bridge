@@ -1,5 +1,5 @@
 import { useAccount, useNetwork } from "@starknet-react/core";
-import { Dialog, Typography } from "design-system";
+import { SideDialog, Typography } from "design-system";
 import { useEffect, useState } from "react";
 
 export default function StarknetSwitchNetwork() {
@@ -16,7 +16,7 @@ export default function StarknetSwitchNetwork() {
   }, [walletChainId, chain]);
 
   return (
-    <Dialog isOpen={isOpen} onOpenChange={setIsOpen}>
+    <SideDialog isOpen={isOpen} onOpenChange={setIsOpen}>
       <svg
         fill="none"
         height="100"
@@ -123,6 +123,6 @@ export default function StarknetSwitchNetwork() {
         <br /> Please open your Starknet wallet and switch to Ethereum Mainnet
         to transfer your Nfts.
       </Typography>
-    </Dialog>
+    </SideDialog>
   );
 }

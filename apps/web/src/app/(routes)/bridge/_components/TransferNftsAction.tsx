@@ -27,7 +27,7 @@ export default function TransferNftsAction() {
     <>
       {totalSelectedNfts > 0 && isApprovedForAll !== undefined && (
         <Typography
-          className="mt-8 flex gap-2.5 rounded-xl bg-playground-purple-100 p-3 text-space-blue-900 dark:bg-playground-purple-400"
+          className="mt-8 flex gap-2.5 rounded-xl bg-playground-purple-100 p-3 text-playground-purple-800 dark:bg-playground-purple-400 dark:text-space-blue-900"
           component="p"
           variant="body_text_14"
         >
@@ -66,10 +66,12 @@ export default function TransferNftsAction() {
           "mt-8",
           totalSelectedNfts === 0
             ? "cursor-no-drop bg-asteroid-grey-300 text-white opacity-50 dark:bg-primary-source dark:text-galaxy-blue"
-            : "bg-space-blue-900 dark:bg-space-blue-700"
+            : "bg-space-blue-900 text-white dark:bg-primary-source dark:text-galaxy-blue"
         )}
         // disabled={numberOfSelectedNfts === 0}
-        onClick={() => totalSelectedNfts > 0 && approveForAll()}
+        onClick={() =>
+          !isApproveLoading && totalSelectedNfts > 0 && approveForAll()
+        }
         size="small"
       >
         <Typography variant="button_text_s">

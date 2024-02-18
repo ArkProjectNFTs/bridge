@@ -14,18 +14,16 @@ interface PageProps {
  */
 export default function Page({ params: { transactionHash } }: PageProps) {
   const { data: hasBridgeRequestBeenIndexed } =
-    api.bridgeRequest.getHasBrigeRequestIndexed.useQuery(
+    api.bridgeRequest.getHasBridgeRequestIndexed.useQuery(
       {
         transactionHash,
       },
       { refetchInterval: 2500 }
     );
 
-  useEffect(() => {
-    if (hasBridgeRequestBeenIndexed) {
-      redirect("/lounge");
-    }
-  }, [hasBridgeRequestBeenIndexed]);
+  if (hasBridgeRequestBeenIndexed) {
+    redirect("/lounge?fromTransfer=true");
+  }
 
   return (
     <Image

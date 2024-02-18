@@ -34,12 +34,13 @@ export default function InfiniteScrollButton({
   return (
     <div className={className} ref={ref}>
       {isFetchingNextPage ? (
-        <Button size="small">
-          <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-r-transparent" />
+        <Button color="default" size="small">
+          Loading...
         </Button>
       ) : hasNextPage ? (
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
         <Button
+          color="default"
           onClick={() => !isFetchingNextPage && fetchNextPage()}
           size="small"
         >

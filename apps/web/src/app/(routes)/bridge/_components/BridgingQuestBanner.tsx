@@ -15,10 +15,10 @@ export default function BridgingQuestBanner({
     <div
       className={clsx(
         className,
-        "flex items-center justify-between rounded-2xl bg-galaxy-blue pl-8 text-white"
+        "flex items-center justify-between rounded-2xl bg-galaxy-blue pl-6 text-white"
       )}
     >
-      <div className="flex flex-col items-start gap-4 px-4 text-left">
+      <div className="flex flex-col items-start gap-4 text-left">
         <Typography component="h4" variant="heading_light_xs">
           Everai Bridging Quests
         </Typography>
@@ -31,7 +31,7 @@ export default function BridgingQuestBanner({
           ArkProject quests.
         </Typography>
         <a
-          className="flex h-12 items-center justify-center rounded-full bg-space-blue-source px-6 text-white"
+          className="flex h-[2.625rem] items-center justify-center rounded-full bg-space-blue-source px-6 text-white"
           href="/"
         >
           <Typography variant="button_text_s">View quests</Typography>

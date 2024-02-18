@@ -3,7 +3,7 @@ import {
   useBalance as useStarknetBalance,
 } from "@starknet-react/core";
 import clsx from "clsx";
-import { Dialog, Typography } from "design-system";
+import { SideDialog, Typography } from "design-system";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useCopyToClipboard } from "usehooks-ts";
@@ -135,7 +135,7 @@ function ConnectorList({ chain }: ConnectorListProps) {
           className={clsx(
             "mt-6 flex items-center justify-between rounded-full p-2 dark:text-galaxy-blue",
             chain === "Ethereum"
-              ? "bg-playground-purple-50  dark:bg-playground-purple-300"
+              ? "bg-playground-purple-50 dark:bg-playground-purple-300"
               : "bg-folly-red-50 dark:bg-folly-red-300"
           )}
         >
@@ -249,7 +249,7 @@ export default function ConnectModal({
   }, [address]);
 
   return (
-    <Dialog isOpen={isOpen} onOpenChange={onOpenChange}>
+    <SideDialog isOpen={isOpen} onOpenChange={onOpenChange}>
       {displayedChain === undefined ? (
         <>
           <Image
@@ -294,6 +294,6 @@ export default function ConnectModal({
       ) : (
         <ConnectorList chain={displayedChain} />
       )}
-    </Dialog>
+    </SideDialog>
   );
 }

@@ -1,4 +1,3 @@
-import clsx from "clsx";
 import Link from "next/link";
 
 import ConditionalWrapper from "~/app/_components/ConditionalWrapper";
@@ -26,8 +25,6 @@ export default function CollectionGrid({
   const { sourceChain } = useCurrentChain();
   const { selectedCollectionAddress } = useNftSelection();
 
-  console.log(nftCollectionPages);
-
   if (nftCollectionPages === undefined) {
     return <NftsLoadingState type="collection" />;
   } else if (nftCollectionPages[0]?.collections.length === 0) {
@@ -40,12 +37,10 @@ export default function CollectionGrid({
         return nftCollectionPage.collections.map((nftCollection) => {
           return (
             <ConditionalWrapper
+              key={nftCollection.contractAddress}
               wrapper={(children) =>
                 nftCollection.isBridgeable ? (
-                  <Link
-                    href={`/bridge/${nftCollection.contractAddress}`}
-                    key={nftCollection.contractAddress}
-                  >
+                  <Link href={`/bridge/${nftCollection.contractAddress}`}>
                     {children}
                   </Link>
                 ) : (
@@ -59,7 +54,7 @@ export default function CollectionGrid({
                 }
                 cardType="collection"
                 chain={sourceChain}
-                className={clsx(!nftCollection.isBridgeable && "opacity-40")}
+                disabled={!nftCollection.isBridgeable}
                 image={nftCollection.image}
                 isBridgeable={nftCollection.isBridgeable}
                 numberOfNfts={nftCollection.totalBalance}

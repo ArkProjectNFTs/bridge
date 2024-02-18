@@ -1,11 +1,24 @@
 import "./styles.css";
 
 export { Button } from "./components/Button";
-export { Dialog } from "./components/Dialog";
+export { SideDialog } from "./components/SideDialog";
 export { Drawer } from "./components/Drawer";
 export { IconButton } from "./components/IconButton";
-export { Modal } from "./components/Modal";
+export { SideModal } from "./components/SideModal";
 export { Notification } from "./components/Notification";
 export { Typography } from "./components/Typography";
+
+export {
+  Dialog,
+  DialogPortal,
+  DialogOverlay,
+  DialogClose,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+  DialogDescription,
+} from "./components/Dialog";
 
 export { HappyPurpleEmoji } from "./icons/HappyPurpleEmoji";

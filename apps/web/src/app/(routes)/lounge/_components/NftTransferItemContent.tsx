@@ -16,6 +16,7 @@ interface NftTransferItemContentProps {
     | "withdraw_completed_l1"
     | "withdraw_completed_l2";
   tokenIds: Array<string>;
+  displayedArrivalAddress: string;
 }
 
 export default function NftTransferItemContent({
@@ -23,6 +24,7 @@ export default function NftTransferItemContent({
   open,
   status,
   tokenIds,
+  displayedArrivalAddress,
 }: NftTransferItemContentProps) {
   const { data: nfts } = api.l1Nfts.getNftMetadataBatch.useQuery(
     {
@@ -87,7 +89,7 @@ export default function NftTransferItemContent({
 
                   <div className="flex items-center gap-2">
                     <Typography component="p" variant="button_text_s">
-                      kwiss.stark
+                      {displayedArrivalAddress}
                     </Typography>
                   </div>
                 </div>

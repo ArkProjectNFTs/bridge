@@ -9,6 +9,7 @@ import NftCardStackBackground from "./NftCardStackBackground";
 type NftCardProps = {
   chain?: Chain;
   className?: string;
+  disabled?: boolean;
   image?: string;
   isSelected: boolean;
   onClick?: () => void;
@@ -26,6 +27,7 @@ export default function NftCard({
   cardType,
   chain,
   className,
+  disabled,
   image,
   isSelected,
   numberOfNfts,
@@ -36,7 +38,8 @@ export default function NftCard({
     <div
       className={clsx(
         className,
-        onClick !== undefined && "group",
+        onClick !== undefined && !disabled && "group",
+        disabled && "opacity-40",
         "relative w-full"
       )}
     >
@@ -46,7 +49,7 @@ export default function NftCard({
       {/* TODO @YohanTz: handle focus visible style properly */}
       <ConditionalWrapper
         wrapper={(children) =>
-          onClick === undefined ? (
+          onClick === undefined || disabled ? (
             <div className="h-full w-full overflow-hidden rounded-2xl border border-neutral-300 bg-white p-3 dark:border-space-blue-700 dark:bg-space-blue-900">
               {children}
             </div>

@@ -44,6 +44,7 @@ type BridgeRequestResponse = {
   statusTimestamp: number;
   tokenIds: Array<string>;
   totalCount: number;
+  arrivalAddress: string;
 };
 
 export const bridgeRequestRouter = createTRPCRouter({
@@ -114,6 +115,7 @@ export const bridgeRequestRouter = createTRPCRouter({
               statusTimestamp: lastBridgeRequestEvent?.block_timestamp ?? 0,
               tokenIds: bridgeRequest.token_ids,
               totalCount: bridgeRequest.token_ids.length,
+              arrivalAddress: bridgeRequest.req.to,
             };
           }
         );
@@ -150,7 +152,7 @@ export const bridgeRequestRouter = createTRPCRouter({
         };
       }
     ),
-  getHasBrigeRequestIndexed: publicProcedure
+  getHasBridgeRequestIndexed: publicProcedure
     .input(z.object({ transactionHash: z.string() }))
     .query(async ({ input }): Promise<boolean> => {
       const { transactionHash } = input;

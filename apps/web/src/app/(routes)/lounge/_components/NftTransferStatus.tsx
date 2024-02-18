@@ -38,12 +38,17 @@ export default function NftCardStatus({
         className={clsx(
           className,
           variants[status],
-          "rounded-full px-2 py-1 text-center"
+          "flex items-center justify-center rounded-full px-2 py-1 text-center"
         )}
         component="p"
         variant="body_text_12"
       >
         {variantsToStatusText[status]}
+        {/* <div className="ml-1 flex items-center gap-0.5">
+          <div className="h-1 w-1 animate-bounce rounded-full bg-playground-purple-700" />
+          <div className="h-1 w-1 animate-bounce rounded-full bg-playground-purple-700 delay-[0.5s]" />
+          <div className="h-1 w-1 animate-bounce rounded-full bg-playground-purple-700" />
+        </div> */}
       </Typography>
     </>
   );

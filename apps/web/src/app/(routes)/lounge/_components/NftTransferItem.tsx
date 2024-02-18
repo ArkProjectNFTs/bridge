@@ -2,10 +2,12 @@ import * as Collapsible from "@radix-ui/react-collapsible";
 import clsx from "clsx";
 import { Typography } from "design-system";
 import Image from "next/image";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import NftTransferItemContent from "./NftTransferItemContent";
 import NftTransferStatus from "./NftTransferStatus";
+import { useStarkName } from "@starknet-react/core";
+import { useEnsName } from "wagmi";
 
 interface NftTransferItemProps {
   collectionImage: string | undefined;
@@ -19,6 +21,7 @@ interface NftTransferItemProps {
     | "withdraw_completed_l2";
   tokenIds: Array<string>;
   totalCount: number;
+  arrivalAddress: string;
 }
 
 export default function NftTransferItem({
@@ -28,8 +31,22 @@ export default function NftTransferItem({
   status,
   tokenIds,
   totalCount,
+  arrivalAddress,
 }: NftTransferItemProps) {
   const [open, setOpen] = useState(false);
+
+  const arrivalShortAddress = useMemo(() => {
+    return arrivalAddress
+      ? `${arrivalAddress.slice(0, 8)}...${arrivalAddress.slice(-6)}`
+      : "";
+  }, [arrivalAddress]);
+
+  const { data: starkName } = useStarkName({ address: arrivalAddress });
+  const { data: ens } = useEnsName({
+    address: arrivalAddress as `0x${string}`,
+  });
+
+  const displayedArrivalAddress = starkName ?? ens ?? arrivalShortAddress;
 
   return (
     <Collapsible.Root onOpenChange={setOpen} open={open}>
@@ -84,7 +101,7 @@ export default function NftTransferItem({
 
         <div className="ml-2 flex items-center gap-2">
           <Typography component="p" variant="button_text_s">
-            kwiss.stark
+            {displayedArrivalAddress}
           </Typography>
         </div>
 
@@ -102,6 +119,7 @@ export default function NftTransferItem({
         open={open}
         status={status}
         tokenIds={tokenIds}
+        displayedArrivalAddress={displayedArrivalAddress}
       />
     </Collapsible.Root>
   );

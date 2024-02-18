@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { Drawer, IconButton, Modal, Typography } from "design-system";
+import { Drawer, IconButton, SideModal, Typography } from "design-system";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -10,6 +10,51 @@ import useNftSelection from "../_hooks/useNftSelection";
 import SmallBridgingQuestBanner from "./SmallBridgingQuestBanner";
 import TransferNftsAction from "./TransferNftsAction";
 import TransferNftsWalletSummary from "./TransferNftsWalletSummary";
+import useCurrentChain from "~/app/_hooks/useCurrentChain";
+
+function NoNftsImage() {
+  const { sourceChain } = useCurrentChain();
+
+  if (sourceChain === "Starknet") {
+    return (
+      <>
+        <Image
+          alt="no nft selected nft image"
+          height={68}
+          src="/medias/dark/nft_selection_starknet_empty.png"
+          width={62}
+          className="hidden dark:block"
+        />
+        <Image
+          alt="no nft selected nft image"
+          height={68}
+          src="/medias/nft_selection_starknet_empty.png"
+          width={62}
+          className="dark:hidden"
+        />
+      </>
+    );
+  }
+
+  return (
+    <>
+      <Image
+        alt="no nft selected nft image"
+        height={68}
+        src="/medias/dark/nft_selection_eth_empty.png"
+        width={62}
+        className="hidden dark:block"
+      />
+      <Image
+        alt="no nft selected nft image"
+        height={68}
+        src="/medias/nft_selection_eth_empty.png"
+        width={62}
+        className="dark:hidden"
+      />
+    </>
+  );
+}
 
 function TransferSummary() {
   const {
@@ -51,16 +96,11 @@ function TransferSummary() {
         </Typography>
       ) : (
         <div className="mt-8 flex w-full items-center gap-4">
-          <Image
-            alt="no nft selected nft image"
-            height={68}
-            src="/medias/nft_selection_empty.png"
-            width={62}
-          />
+          <NoNftsImage />
           <Typography component="p" variant="body_text_14">
             No Nfts selected yet...
             <br />
-            Select a collection to start.
+            For now you can only select Everai collection!
           </Typography>
         </div>
       )}
@@ -154,7 +194,7 @@ export default function TransferSummaryContainer() {
         <TransferSummary />
       </Drawer>
       {totalSelectedNfts > 0 && (
-        <Modal
+        <SideModal
           backdropClassName={clsx("md:hidden", !showMobileSummary && "hidden")}
           className="text-left md:hidden"
           isOpen
@@ -183,7 +223,7 @@ export default function TransferSummaryContainer() {
               </div>
             </>
           )}
-        </Modal>
+        </SideModal>
       )}
     </>
   );

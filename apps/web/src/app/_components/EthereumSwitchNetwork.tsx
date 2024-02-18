@@ -1,4 +1,4 @@
-import { Button, Dialog, Typography } from "design-system";
+import { Button, SideDialog, Typography } from "design-system";
 import { useEffect, useState } from "react";
 import { useAccount, useSwitchChain } from "wagmi";
 
@@ -16,7 +16,7 @@ export default function EthereumSwitchNetwork() {
   }, [chainId, chains]);
 
   return (
-    <Dialog isOpen={isOpen} onOpenChange={setIsOpen}>
+    <SideDialog isOpen={isOpen} onOpenChange={setIsOpen}>
       <svg
         fill="none"
         height="100"
@@ -126,12 +126,13 @@ export default function EthereumSwitchNetwork() {
       <div className="w-full px-7">
         <Button
           className="mt-6 w-full"
+          color="default"
           onClick={() => switchChain({ chainId: chains[0].id })}
           size="small"
         >
           Switch network
         </Button>
       </div>
-    </Dialog>
+    </SideDialog>
   );
 }
