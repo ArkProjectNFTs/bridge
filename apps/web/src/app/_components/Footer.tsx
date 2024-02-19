@@ -30,21 +30,32 @@ export default function Footer() {
         <Typography variant="button_text_l">
           © {new Date().getFullYear()} ArkProject
         </Typography>
-        <a
-          className="hover:text-white"
-          href="https://github.com/ArkProjectNFTs"
-        >
-          <GitHubIcon />
-        </a>
-        <a className="hover:text-white" href="https://t.me/arkprojectnfts">
-          <TelegramIcon />
-        </a>
-        <a
-          className="hover:text-white"
-          href="https://twitter.com/ArkProjectNFTs"
-        >
-          <TwitterIcon />
-        </a>
+        <div className="flex items-center gap-3">
+          <a
+            className="hover:text-white"
+            href="https://github.com/ArkProjectNFTs"
+            rel="noreferrer"
+            target="_blank"
+          >
+            <GitHubIcon />
+          </a>
+          <a
+            className="hover:text-white"
+            href="https://t.me/arkprojectnfts"
+            rel="noreferrer"
+            target="_blank"
+          >
+            <TelegramIcon />
+          </a>
+          <a
+            className="hover:text-white"
+            href="https://twitter.com/ArkProjectNFTs"
+            rel="noreferrer"
+            target="_blank"
+          >
+            <TwitterIcon />
+          </a>
+        </div>
       </div>
     </footer>
   );
