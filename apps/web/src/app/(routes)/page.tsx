@@ -14,7 +14,7 @@ export default function Page() {
             width={549}
             src="/medias/everai_samourai_1.png"
             alt="Everai"
-            className="-mr-8 h-full w-auto"
+            className="-mr-8 mt-8 h-full w-auto"
           />
           <div className="flex w-full min-w-[35.125rem] flex-col items-center justify-center gap-8">
             <Image
@@ -70,7 +70,7 @@ export default function Page() {
             width={549}
             src="/medias/everai_samourai_2.png"
             alt="Everai"
-            className="-ml-8 h-full w-auto"
+            className="-ml-8 mt-8 h-full w-auto"
           />
         </main>
       </div>
