@@ -1,4 +1,9 @@
-import { Typography } from "design-system";
+import {
+  GitHubIcon,
+  TelegramIcon,
+  TwitterIcon,
+  Typography,
+} from "design-system";
 import Image from "next/image";
 
 import Logo from "./Logo";
@@ -25,6 +30,21 @@ export default function Footer() {
         <Typography variant="button_text_l">
           © {new Date().getFullYear()} ArkProject
         </Typography>
+        <a
+          className="hover:text-white"
+          href="https://github.com/ArkProjectNFTs"
+        >
+          <GitHubIcon />
+        </a>
+        <a className="hover:text-white" href="https://t.me/arkprojectnfts">
+          <TelegramIcon />
+        </a>
+        <a
+          className="hover:text-white"
+          href="https://twitter.com/ArkProjectNFTs"
+        >
+          <TwitterIcon />
+        </a>
       </div>
     </footer>
   );

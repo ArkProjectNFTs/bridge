@@ -59,6 +59,7 @@ export function Button({
       onClick={onClick}
     >
       <Typography
+        component="p"
         variant={sizeVariants[size].typographyVariant}
         className={clsx(
           color !== undefined && colorVariants[color]?.textClassName,

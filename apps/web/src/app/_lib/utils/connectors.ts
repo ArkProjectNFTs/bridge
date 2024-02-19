@@ -42,6 +42,7 @@ export const WALLET_LOGOS_BY_ID: Record<string, StaticImageData> = {
   coinbaseWallet: coinbaseLogo,
   coinbaseWalletSDK: coinbaseLogo,
   injected: metaMaskLogo,
+  "io.metamask": metaMaskLogo,
   walletConnect: walletConnectLogo,
 };
 

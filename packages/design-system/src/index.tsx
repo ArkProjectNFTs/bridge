@@ -22,3 +22,10 @@ export {
 } from "./components/Dialog";
 
 export { HappyPurpleEmoji } from "./icons/HappyPurpleEmoji";
+export { ArrowIcon } from "./icons/ArrowIcon";
+export { DarkModeIcon } from "./icons/DarkModeIcon";
+export { LightModeIcon } from "./icons/LightModeIcon";
+export { BridgeIcon } from "./icons/BridgeIcon";
+export { TwitterIcon } from "./icons/TwitterIcon";
+export { TelegramIcon } from "./icons/TelegramIcon";
+export { GitHubIcon } from "./icons/GitHubIcon";

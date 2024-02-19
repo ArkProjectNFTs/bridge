@@ -22,7 +22,6 @@ export default function useTransferStarknetNfts() {
   const { address: ethereumAddress } = useEthereumAccount();
   const { address: starknetAddress } = useStarknetAccount();
   const { data: blockNumber } = useBlockNumber();
-  console.log(blockNumber);
 
   // TODO @YohanTz: Cast type
   const { data: isApprovedForAll, refetch } = useContractRead({

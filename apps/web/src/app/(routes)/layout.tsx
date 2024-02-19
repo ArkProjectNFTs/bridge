@@ -8,6 +8,7 @@ import "~/styles/globals.css";
 import { api } from "~/utils/api";
 
 import Header from "../_components/Header";
+import MobilePlaceholder from "../_components/MobilePlaceholder";
 import useCurrentChain from "../_hooks/useCurrentChain";
 import Providers from "./providers";
 
@@ -104,7 +105,9 @@ function RootLayout({ children }: { children: React.ReactNode }) {
         <Providers>
           <Header />
           <div className="hidden min-h-screen md:block">{children}</div>
-          <div className="block md:hidden"></div>
+          <div className="block h-screen md:hidden">
+            <MobilePlaceholder />
+          </div>
         </Providers>
       </body>
     </html>

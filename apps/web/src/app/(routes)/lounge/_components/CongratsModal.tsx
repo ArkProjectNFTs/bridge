@@ -2,6 +2,7 @@
 
 import clsx from "clsx";
 import {
+  ArrowIcon,
   Dialog,
   DialogContent,
   DialogDescription,
@@ -141,32 +142,56 @@ export default function CongratsModal({ isFromTransfer }: CongratsModalProps) {
         </Typography>
         <div className="mt-2 grid grid-cols-2 gap-4">
           <a
-            className="flex h-14 items-center justify-between rounded-xl border border-galaxy-blue pl-2 pr-4"
+            className="flex h-14 items-center justify-between rounded-xl border border-galaxy-blue pl-2 pr-4 dark:bg-space-blue-800"
             href="/"
           >
-            test
-            <Image alt="go" height={24} src="/icons/arrow.svg" width={24} />
+            <Image
+              alt="Element"
+              className="h-9 w-auto"
+              height={97}
+              src="/logos/element.png"
+              width={399}
+            />
+            <ArrowIcon className="flex-shrink-0" />
           </a>
           <a
-            className="flex h-14 items-center justify-between rounded-xl border border-galaxy-blue pl-2 pr-4"
+            className="flex h-14 items-center justify-between rounded-xl border border-galaxy-blue pl-2 pr-4 dark:bg-space-blue-800"
             href="/"
           >
-            test
-            <Image alt="go" height={24} src="/icons/arrow.svg" width={24} />
+            <Image
+              alt="Unframed"
+              className="h-9 w-auto"
+              height={97}
+              src="/logos/unframed.png"
+              width={389}
+            />
+            <ArrowIcon className="flex-shrink-0" />
           </a>
           <a
-            className="flex h-14 items-center justify-between rounded-xl border border-galaxy-blue pl-2 pr-4"
+            className="flex h-14 items-center justify-between rounded-xl border border-galaxy-blue pl-2 pr-4 dark:bg-space-blue-800"
             href="/"
           >
-            test
-            <Image alt="go" height={24} src="/icons/arrow.svg" width={24} />
+            <Image
+              alt="Pyramid"
+              className="h-9 w-auto"
+              height={108}
+              src="/logos/pyramid.png"
+              width={390}
+            />
+            <ArrowIcon className="flex-shrink-0" />
           </a>
           <a
-            className="flex h-14 items-center justify-between rounded-xl border border-galaxy-blue pl-2 pr-4"
+            className="flex h-14 items-center justify-between rounded-xl border border-galaxy-blue pl-2 pr-4 dark:bg-space-blue-800"
             href="/"
           >
-            test
-            <Image alt="go" height={24} src="/icons/arrow.svg" width={24} />
+            <Image
+              alt="Flex"
+              className="h-9 w-auto"
+              height={138}
+              src="/logos/flex.png"
+              width={189}
+            />
+            <ArrowIcon className="flex-shrink-0" />
           </a>
         </div>
 

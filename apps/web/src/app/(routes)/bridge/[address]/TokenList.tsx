@@ -103,8 +103,27 @@ export default function TokenList({ nftContractAddress }: TokenListProps) {
           </Typography>
         </div>
         {isAllSelected ? (
-          <Button color="default" onClick={deselectAllNfts} size="small">
+          <Button
+            className="flex bg-primary-source text-white"
+            onClick={deselectAllNfts}
+            size="small"
+          >
             Deselect All
+            <svg
+              fill="none"
+              height="16"
+              viewBox="0 0 16 16"
+              width="16"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M4 12L8 8M8 8L12 4M8 8L4 4M8 8L12 12"
+                stroke="white"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+              />
+            </svg>
           </Button>
         ) : (
           <Button

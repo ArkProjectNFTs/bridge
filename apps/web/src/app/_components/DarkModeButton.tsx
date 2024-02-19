@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { DarkModeIcon, LightModeIcon } from "design-system";
 import { useTheme } from "next-themes";
 
 import { useIsSSR } from "~/app/_hooks/useIsSSR";
@@ -21,14 +21,7 @@ export default function DarkModeButton() {
 
   return (
     <button className="shrink-0" onClick={toggleTheme}>
-      <Image
-        src={
-          theme === "light" ? "/icons/light_mode.svg" : "/icons/dark_mode.svg"
-        }
-        alt="light mode icon"
-        height={32}
-        width={32}
-      />
+      {theme === "light" ? <LightModeIcon /> : <DarkModeIcon />}
     </button>
   );
 }

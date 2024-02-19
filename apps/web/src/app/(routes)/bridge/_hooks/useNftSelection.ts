@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useLocalStorage } from "usehooks-ts";
 
 import useAccountFromChain from "~/app/_hooks/useAccountFromChain";
@@ -18,17 +19,22 @@ export default function useNftSelection() {
       >
     >("selectedTokensByUserAddress", {});
 
-  const selectedTokenIds =
-    userAddress !== undefined
-      ? selectedTokensByUserAddress[userAddress]?.tokenIds ?? []
-      : [];
+  const { selectedCollectionAddress, selectedTokenIds } = useMemo(
+    () => ({
+      selectedCollectionAddress: userAddress
+        ? selectedTokensByUserAddress[userAddress]?.collectionAddress
+        : undefined,
+      selectedTokenIds: userAddress
+        ? selectedTokensByUserAddress[userAddress]?.tokenIds ?? []
+        : [],
+    }),
+    [selectedTokensByUserAddress, userAddress]
+  );
 
-  const selectedCollectionAddress =
-    userAddress !== undefined
-      ? selectedTokensByUserAddress[userAddress]?.collectionAddress
-      : undefined;
-
-  const totalSelectedNfts = selectedTokenIds.length;
+  const totalSelectedNfts = useMemo(
+    () => selectedTokenIds.length,
+    [selectedTokenIds]
+  );
 
   function selectNft(tokenId: string, collectionAddress: string) {
     if (
