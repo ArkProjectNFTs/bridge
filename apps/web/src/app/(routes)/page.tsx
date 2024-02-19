@@ -8,8 +8,15 @@ export default function Page() {
   return (
     <>
       <div className="flex">
-        <main className="mx-auto mt-[5.75rem] flex w-full text-center">
-          <div className="flex h-[calc(100vh-12.875rem)] w-full flex-col items-center justify-center gap-8">
+        <main className="mx-auto mt-[5.75rem] flex h-[calc(100vh-12.875rem)] w-full justify-center overflow-hidden text-center">
+          <Image
+            height={580}
+            width={549}
+            src="/medias/everai_samourai_1.png"
+            alt="Everai"
+            className="-mr-8 h-full w-auto"
+          />
+          <div className="flex w-full min-w-[35.125rem] flex-col items-center justify-center gap-8">
             <Image
               alt="background"
               className="absolute inset-0 -z-10 h-full w-full object-cover"
@@ -58,6 +65,13 @@ export default function Page() {
             </Typography>
             <ConnectWalletsButton />
           </div>
+          <Image
+            height={580}
+            width={549}
+            src="/medias/everai_samourai_2.png"
+            alt="Everai"
+            className="-ml-8 h-full w-auto"
+          />
         </main>
       </div>
       <Footer />
