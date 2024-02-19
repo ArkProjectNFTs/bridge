@@ -10,11 +10,11 @@ export default function Page() {
       <div className="flex">
         <main className="mx-auto mt-[5.75rem] flex h-[calc(100vh-12.875rem)] w-full justify-center overflow-hidden text-center">
           <Image
-            height={580}
-            width={549}
-            src="/medias/everai_samourai_1.png"
             alt="Everai"
             className="-mr-8 mt-8 h-full w-auto"
+            height={580}
+            src="/medias/everai_samourai_1.png"
+            width={549}
           />
           <div className="flex w-full min-w-[35.125rem] flex-col items-center justify-center gap-8">
             <Image
@@ -66,11 +66,11 @@ export default function Page() {
             <ConnectWalletsButton />
           </div>
           <Image
-            height={580}
-            width={549}
-            src="/medias/everai_samourai_2.png"
             alt="Everai"
             className="-ml-8 mt-8 h-full w-auto"
+            height={580}
+            src="/medias/everai_samourai_2.png"
+            width={549}
           />
         </main>
       </div>

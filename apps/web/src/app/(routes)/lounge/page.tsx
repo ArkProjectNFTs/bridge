@@ -1,13 +1,13 @@
+import Link from "next/link";
+
 import Footer from "~/app/_components/Footer";
 
 import MainPageContainer from "../../_components/MainPageContainer";
 import Banner from "./_components/Banner";
 import ChainSwitch from "./_components/ChainSwitch";
+import CongratsModal from "./_components/CongratsModal";
 // import NftTransferList from "./_components/NftTransferList";
 import NftTransferList from "./_components/NftTransferList";
-import Link from "next/link";
-import { useState } from "react";
-import CongratsModal from "./_components/CongratsModal";
 
 interface LoungePageProps {
   searchParams: {

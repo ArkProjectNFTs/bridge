@@ -115,7 +115,7 @@ export default function useTransferStarknetNfts() {
       ethereumAddress !== undefined &&
       selectedCollectionAddress !== undefined
     ) {
-      let depositCallData = new CallData(bridgeContract?.abi);
+      const depositCallData = new CallData(bridgeContract?.abi);
       return depositCallData.compile("deposit_tokens", {
         collection_l2: selectedCollectionAddress,
         owner_l1: ethereumAddress,

@@ -1,15 +1,16 @@
 import * as Collapsible from "@radix-ui/react-collapsible";
+import { useStarkName } from "@starknet-react/core";
 import clsx from "clsx";
 import { Typography } from "design-system";
 import Image from "next/image";
 import { useMemo, useState } from "react";
+import { useEnsName } from "wagmi";
 
 import NftTransferItemContent from "./NftTransferItemContent";
 import NftTransferStatus from "./NftTransferStatus";
-import { useStarkName } from "@starknet-react/core";
-import { useEnsName } from "wagmi";
 
 interface NftTransferItemProps {
+  arrivalAddress: string;
   collectionImage: string | undefined;
   collectionName: string;
   contractAddress: string;
@@ -21,17 +22,16 @@ interface NftTransferItemProps {
     | "withdraw_completed_l2";
   tokenIds: Array<string>;
   totalCount: number;
-  arrivalAddress: string;
 }
 
 export default function NftTransferItem({
+  arrivalAddress,
   collectionImage,
   collectionName,
   contractAddress,
   status,
   tokenIds,
   totalCount,
-  arrivalAddress,
 }: NftTransferItemProps) {
   const [open, setOpen] = useState(false);
 
@@ -116,10 +116,10 @@ export default function NftTransferItem({
 
       <NftTransferItemContent
         contractAddress={contractAddress}
+        displayedArrivalAddress={displayedArrivalAddress}
         open={open}
         status={status}
         tokenIds={tokenIds}
-        displayedArrivalAddress={displayedArrivalAddress}
       />
     </Collapsible.Root>
   );

@@ -37,6 +37,7 @@ type BridgeRequestApiResponse = Array<{
 }>;
 
 type BridgeRequestResponse = {
+  arrivalAddress: string;
   collectionImage: string | undefined;
   collectionName: string;
   collectionSourceAddress: string;
@@ -44,7 +45,6 @@ type BridgeRequestResponse = {
   statusTimestamp: number;
   tokenIds: Array<string>;
   totalCount: number;
-  arrivalAddress: string;
 };
 
 export const bridgeRequestRouter = createTRPCRouter({
@@ -108,6 +108,7 @@ export const bridgeRequestRouter = createTRPCRouter({
               bridgeRequest.events[bridgeRequest.events.length - 1];
 
             return {
+              arrivalAddress: bridgeRequest.req.to,
               collectionImage: requestMetadata[index]?.media[0]?.thumbnail,
               collectionName: requestMetadata[index]?.contract.name ?? "",
               collectionSourceAddress: bridgeRequest.req.collection_src,
@@ -115,7 +116,6 @@ export const bridgeRequestRouter = createTRPCRouter({
               statusTimestamp: lastBridgeRequestEvent?.block_timestamp ?? 0,
               tokenIds: bridgeRequest.token_ids,
               totalCount: bridgeRequest.token_ids.length,
-              arrivalAddress: bridgeRequest.req.to,
             };
           }
         );

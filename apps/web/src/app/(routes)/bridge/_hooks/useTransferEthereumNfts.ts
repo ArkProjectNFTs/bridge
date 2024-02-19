@@ -2,7 +2,7 @@
 
 import { useAccount as useStarknetAccount } from "@starknet-react/core";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { parseGwei } from "viem";
 import { erc721Abi } from "viem";
 import {

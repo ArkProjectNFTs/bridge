@@ -4,13 +4,13 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 
+import useCurrentChain from "~/app/_hooks/useCurrentChain";
 import { api } from "~/utils/api";
 
 import useNftSelection from "../_hooks/useNftSelection";
 import SmallBridgingQuestBanner from "./SmallBridgingQuestBanner";
 import TransferNftsAction from "./TransferNftsAction";
 import TransferNftsWalletSummary from "./TransferNftsWalletSummary";
-import useCurrentChain from "~/app/_hooks/useCurrentChain";
 
 function NoNftsImage() {
   const { sourceChain } = useCurrentChain();
@@ -20,17 +20,17 @@ function NoNftsImage() {
       <>
         <Image
           alt="no nft selected nft image"
+          className="hidden dark:block"
           height={68}
           src="/medias/dark/nft_selection_starknet_empty.png"
           width={62}
-          className="hidden dark:block"
         />
         <Image
           alt="no nft selected nft image"
+          className="dark:hidden"
           height={68}
           src="/medias/nft_selection_starknet_empty.png"
           width={62}
-          className="dark:hidden"
         />
       </>
     );
@@ -40,17 +40,17 @@ function NoNftsImage() {
     <>
       <Image
         alt="no nft selected nft image"
+        className="hidden dark:block"
         height={68}
         src="/medias/dark/nft_selection_eth_empty.png"
         width={62}
-        className="hidden dark:block"
       />
       <Image
         alt="no nft selected nft image"
+        className="dark:hidden"
         height={68}
         src="/medias/nft_selection_eth_empty.png"
         width={62}
-        className="dark:hidden"
       />
     </>
   );

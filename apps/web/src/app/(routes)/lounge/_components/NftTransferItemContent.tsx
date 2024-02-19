@@ -8,6 +8,7 @@ import NftTransferStatus from "./NftTransferStatus";
 
 interface NftTransferItemContentProps {
   contractAddress: string;
+  displayedArrivalAddress: string;
   open: boolean;
   status:
     | "deposit_initiated_l1"
@@ -16,15 +17,14 @@ interface NftTransferItemContentProps {
     | "withdraw_completed_l1"
     | "withdraw_completed_l2";
   tokenIds: Array<string>;
-  displayedArrivalAddress: string;
 }
 
 export default function NftTransferItemContent({
   contractAddress,
+  displayedArrivalAddress,
   open,
   status,
   tokenIds,
-  displayedArrivalAddress,
 }: NftTransferItemContentProps) {
   const { data: nfts } = api.l1Nfts.getNftMetadataBatch.useQuery(
     {

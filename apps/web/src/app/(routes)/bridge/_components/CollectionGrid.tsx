@@ -37,7 +37,6 @@ export default function CollectionGrid({
         return nftCollectionPage.collections.map((nftCollection) => {
           return (
             <ConditionalWrapper
-              key={nftCollection.contractAddress}
               wrapper={(children) =>
                 nftCollection.isBridgeable ? (
                   <Link href={`/bridge/${nftCollection.contractAddress}`}>
@@ -47,6 +46,7 @@ export default function CollectionGrid({
                   <>{children}</>
                 )
               }
+              key={nftCollection.contractAddress}
             >
               <NftCard
                 isSelected={
