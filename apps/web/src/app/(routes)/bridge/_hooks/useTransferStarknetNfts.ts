@@ -125,7 +125,12 @@ export default function useTransferStarknetNfts() {
         use_withdraw_auto: false,
       });
     }
-  }, [ethereumAddress, selectedCollectionAddress, bridgeContract]);
+  }, [
+    bridgeContract?.abi,
+    ethereumAddress,
+    selectedCollectionAddress,
+    selectedTokenIds,
+  ]);
 
   const { data: depositData, write: depositTokens } = useContractWrite({
     calls: [

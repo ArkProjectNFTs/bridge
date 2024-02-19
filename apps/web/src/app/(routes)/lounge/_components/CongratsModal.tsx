@@ -101,7 +101,7 @@ export default function CongratsModal({ isFromTransfer }: CongratsModalProps) {
 
   useEffect(() => {
     router.push("/lounge");
-  }, []);
+  }, [router]);
 
   return (
     <Dialog onOpenChange={setOpen} open={open}>
