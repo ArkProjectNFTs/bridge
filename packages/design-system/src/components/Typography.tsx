@@ -56,6 +56,7 @@ const variants = {
   body_text_bold_14: "font-bold text-sm font-styrene-a",
   body_text_12: "font-normal text-xs font-styrene-a",
   body_text_bold_12: "font-bold text-xs font-styrene-a",
+  body_text_11: "font-normal text-[0.6875rem] font-styrene-a",
 
   /* Logo */
   logo: "font-semibold text-2xl font-ark-project",

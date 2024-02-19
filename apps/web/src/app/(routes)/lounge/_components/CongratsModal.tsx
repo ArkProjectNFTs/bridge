@@ -72,9 +72,7 @@ function EveraiCard({ className }: EveraiCardProps) {
           <Typography component="p" variant="heading_light_s">
             123
           </Typography>
-          <Typography className="text-[11px]" variant="body_text_12">
-            Everais bridged
-          </Typography>
+          <Typography variant="body_text_11">Everais bridged</Typography>
         </div>
       </div>
     </div>
