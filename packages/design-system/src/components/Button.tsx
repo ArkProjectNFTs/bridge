@@ -63,6 +63,7 @@ export function Button({
         variant={sizeVariants[size].typographyVariant}
         className={clsx(
           color !== undefined && colorVariants[color]?.textClassName,
+          "flex items-center gap-1",
         )}
       >
         {children}

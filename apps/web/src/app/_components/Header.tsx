@@ -1,16 +1,13 @@
 "use client";
 
-import { useAccount as useStarknetAccount } from "@starknet-react/core";
 import { Typography } from "design-system";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { useAccount as useEthereumAccount } from "wagmi";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
 
 import DarkModeButton from "~/app/_components/DarkModeButton";
 
 import { type Chain } from "../_types";
-import BridgeCountIndicator from "./BridgeCountIndicator";
 import ConnectEthereumButton from "./ConnectEthereumButton";
 import ConnectStarkNetButton from "./ConnectStarkNetButton";
 import EthereumSwitchNetwork from "./EthereumSwitchNetwork";
@@ -25,30 +22,8 @@ const connectedPages = [
 
 export default function Header() {
   const [openedModal, setOpenedModal] = useState<Chain | undefined>(undefined);
-  const {
-    isConnected: isEthereumConnected,
-    // isConnecting: isEthereumConnecting,
-  } = useEthereumAccount();
-  const { isConnected: isStarknetConnected } = useStarknetAccount();
 
-  const router = useRouter();
   const pathname = usePathname();
-
-  const isFullyConnected = isEthereumConnected && isStarknetConnected;
-  // TODO @YohanTz: fix isConnecting in starknet-react
-  const isConnecting = false;
-  // const isConnecting = isEthereumConnecting;
-
-  useEffect(() => {
-    if (pathname === "/" && isFullyConnected) {
-      router.push("/bridge");
-      return;
-    }
-
-    if (pathname !== "/" && !isFullyConnected && !isConnecting) {
-      router.push("/");
-    }
-  }, [pathname, isFullyConnected, router, isConnecting]);
 
   function openModal(chain: Chain) {
     setOpenedModal(chain);
@@ -63,28 +38,26 @@ export default function Header() {
       <Link href="/">
         <Logo />
       </Link>
-      {isFullyConnected && (
-        <div className="hidden items-center gap-8 md:flex">
-          {connectedPages.map((connectedPage) => {
-            return (
-              <Link href={connectedPage.path} key={connectedPage.name}>
-                <Typography
-                  className={
-                    pathname?.includes(connectedPage.path)
-                      ? pathname === "/portfolio"
-                        ? "text-space-blue-source"
-                        : "text-primary-source"
-                      : ""
-                  }
-                  variant="heading_light_xxs"
-                >
-                  {connectedPage.name}
-                </Typography>
-              </Link>
-            );
-          })}
-        </div>
-      )}
+      <div className="hidden items-center gap-8 md:flex">
+        {connectedPages.map((connectedPage) => {
+          return (
+            <Link href={connectedPage.path} key={connectedPage.name}>
+              <Typography
+                className={
+                  pathname?.includes(connectedPage.path)
+                    ? pathname === "/portfolio"
+                      ? "text-space-blue-source"
+                      : "text-primary-source"
+                    : ""
+                }
+                variant="heading_light_xxs"
+              >
+                {connectedPage.name}
+              </Typography>
+            </Link>
+          );
+        })}
+      </div>
       <div className="hidden gap-4 md:flex">
         <div className="flex gap-4">
           {/* TODO @YohanTz: Modal context? */}
@@ -102,7 +75,6 @@ export default function Header() {
           />
         </div>
         <DarkModeButton />
-        <BridgeCountIndicator />
       </div>
       <EthereumSwitchNetwork />
       <StarknetSwitchNetwork />

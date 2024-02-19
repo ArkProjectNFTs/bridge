@@ -76,7 +76,7 @@ export default function TransferNftsAction() {
       >
         <Typography variant="button_text_s">
           {isApproveLoading
-            ? "Approve in progress..."
+            ? "Approval in progress..."
             : totalSelectedNfts === 0
             ? `Confirm transfer to ${targetChain}`
             : "Approve the selected Nfts"}
