@@ -1,13 +1,11 @@
 import {
-  useBlockNumber,
   useContract,
   useContractRead,
   useContractWrite,
   useAccount as useStarknetAccount,
-  useWaitForTransaction,
 } from "@starknet-react/core";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { CallData } from "starknet";
 import { useAccount as useEthereumAccount } from "wagmi";
 
@@ -15,16 +13,13 @@ import useNftSelection from "./useNftSelection";
 
 const L2_BRIDGE_ADDRESS = process.env.NEXT_PUBLIC_L2_BRIDGE_ADDRESS || "";
 
-// TODO @YohanTz: Divide this hook in 2 (approve / deposit)
 export default function useTransferStarknetNfts() {
   const { selectedCollectionAddress, selectedTokenIds } = useNftSelection();
 
   const { address: ethereumAddress } = useEthereumAccount();
   const { address: starknetAddress } = useStarknetAccount();
-  const { data: blockNumber } = useBlockNumber();
 
-  // TODO @YohanTz: Cast type
-  const { data: isApprovedForAll, refetch } = useContractRead({
+  const { data: isApprovedForAll } = useContractRead({
     abi: [
       {
         inputs: [
@@ -91,23 +86,6 @@ export default function useTransferStarknetNfts() {
     address: L2_BRIDGE_ADDRESS,
   });
 
-  const { data: approveData, write: approveForAll } = useContractWrite({
-    calls: [
-      {
-        calldata: [L2_BRIDGE_ADDRESS, 1],
-        contractAddress: selectedCollectionAddress ?? "",
-        entrypoint: "set_approval_for_all",
-      },
-    ],
-  });
-
-  const { isLoading: isApproveLoading } = useWaitForTransaction({
-    hash: approveData?.transaction_hash,
-    refetchInterval: 2000,
-    retry: true,
-    watch: true,
-  });
-
   const getDepositCalldata = useCallback(() => {
     if (
       bridgeContract?.abi !== undefined &&
@@ -131,26 +109,31 @@ export default function useTransferStarknetNfts() {
     selectedTokenIds,
   ]);
 
+  const depositCalls = useMemo(() => {
+    const approveCall = {
+      calldata: [L2_BRIDGE_ADDRESS, 1],
+      contractAddress: selectedCollectionAddress ?? "",
+      entrypoint: "set_approval_for_all",
+    };
+
+    const depositCall = {
+      calldata: getDepositCalldata(),
+      contractAddress: L2_BRIDGE_ADDRESS,
+      entrypoint: "deposit_tokens",
+    };
+
+    if (!isApprovedForAll) {
+      return [approveCall, depositCall];
+    }
+
+    return [depositCall];
+  }, [getDepositCalldata, isApprovedForAll, selectedCollectionAddress]);
+
   const { data: depositData, write: depositTokens } = useContractWrite({
-    calls: [
-      {
-        calldata: getDepositCalldata(),
-        contractAddress: L2_BRIDGE_ADDRESS,
-        entrypoint: "deposit_tokens",
-      },
-    ],
+    calls: depositCalls,
   });
 
   const router = useRouter();
-
-  // const { isLoading: isDepositLoading, isSuccess: isDepositSuccess } =
-  //   useWaitForTransaction({
-  //     hash: depositData?.transaction_hash,
-  //   });
-
-  useEffect(() => {
-    void refetch();
-  }, [blockNumber, refetch, isApproveLoading]);
 
   useEffect(() => {
     if (depositData?.transaction_hash !== undefined) {
@@ -159,11 +142,7 @@ export default function useTransferStarknetNfts() {
   }, [depositData, router]);
 
   return {
-    approveForAll: () => approveForAll(),
     depositTokens: () => depositTokens(),
     depositTransactionHash: depositData?.transaction_hash,
-    isApproveLoading:
-      isApproveLoading && approveData?.transaction_hash !== undefined,
-    isApprovedForAll,
   };
 }

@@ -29,7 +29,7 @@ function NftTransferHeader({
       )}
     >
       <Typography component="p" variant="button_text_l">
-        Nfts {status === "past" ? "transfered" : "in transit"} ({totalCount})
+        Nfts {status === "past" ? "transferred" : "in transit"} ({totalCount})
       </Typography>
       <Typography className="ml-3" component="p" variant="button_text_l">
         Transfer status
@@ -90,7 +90,7 @@ export default function NftTransferList({
             status="transit"
             totalCount={inTransit.totalCount}
           />
-          <div className="mb-16 flex flex-col gap-4">
+          <div className="mb-20 flex flex-col gap-4">
             {inTransit.requests.map((bridgeRequest) => {
               return (
                 <NftTransferItem
@@ -126,7 +126,7 @@ export default function NftTransferList({
             totalCount={past.totalCount}
           />
 
-          <div className="mb-5 flex flex-col gap-4">
+          <div className="mb-20 flex flex-col gap-4">
             {past.requests.map((bridgeRequest) => {
               return (
                 <NftTransferItem

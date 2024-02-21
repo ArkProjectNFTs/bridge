@@ -24,10 +24,10 @@ export default function Footer() {
         </div>
       </div>
       <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:gap-8">
-        <Typography variant="button_text_l">Terms of use</Typography>
-        <Typography variant="button_text_l">FAQ</Typography>
+        <Typography variant="body_text_14">Terms of use</Typography>
+        <Typography variant="body_text_14">FAQ</Typography>
         {/* <Typography variant="button_text_l">Documentation</Typography> */}
-        <Typography variant="button_text_l">
+        <Typography variant="body_text_14">
           © {new Date().getFullYear()} ArkProject
         </Typography>
         <div className="flex items-center gap-3">

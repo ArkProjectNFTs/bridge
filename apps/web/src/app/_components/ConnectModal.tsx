@@ -62,7 +62,7 @@ function ConnectorButton({ id, onClick }: ConnectorButtonProps) {
       className="flex w-full items-center justify-between rounded-full bg-night-blue-source py-2 pl-3.5 pr-2 text-white transition-colors hover:bg-space-blue-source hover:text-night-blue-source dark:bg-white dark:text-galaxy-blue dark:hover:bg-space-blue-source"
       onClick={onClick}
     >
-      <Typography variant="body_text_bold_14">
+      <Typography variant="button_text_s">
         {CONNECTOR_LABELS_BY_ID[id]}
       </Typography>
       <Image
@@ -133,7 +133,7 @@ function ConnectorList({ chain }: ConnectorListProps) {
         </div>
         <div
           className={clsx(
-            "mt-6 flex items-center justify-between rounded-full p-2 dark:text-galaxy-blue",
+            "mt-6 flex h-11 items-center justify-between rounded-full p-2 dark:text-galaxy-blue",
             chain === "Ethereum"
               ? "bg-playground-purple-50 dark:bg-playground-purple-300"
               : "bg-folly-red-50 dark:bg-folly-red-300"

@@ -66,7 +66,7 @@ export default function NftTransferListLoadingState({
         </Typography>
       </div>
 
-      <div className="mb-5 flex flex-col gap-4">
+      <div className="mb-20 flex flex-col gap-4">
         <NftTransferItemLoadingState />
         <NftTransferItemLoadingState />
         <NftTransferItemLoadingState className="opacity-70" />

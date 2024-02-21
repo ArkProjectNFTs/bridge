@@ -4,55 +4,14 @@ import { useAccount as useStarknetAccount } from "@starknet-react/core";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { parseGwei } from "viem";
-import { erc721Abi } from "viem";
-import {
-  useBlockNumber,
-  useAccount as useEthereumAccount,
-  useReadContract,
-  useWaitForTransactionReceipt,
-  useWriteContract,
-} from "wagmi";
+import { useWriteContract } from "wagmi";
 
 import useNftSelection from "./useNftSelection";
 
-// TODO @YohanTz: Divide this hook in 2 (approve / deposit)
-export default function useTransferEthereumNfts() {
-  const { selectedCollectionAddress, selectedTokenIds, totalSelectedNfts } =
-    useNftSelection();
+export default function useEthereumNftDeposit() {
+  const { selectedCollectionAddress, selectedTokenIds } = useNftSelection();
 
-  const { address: ethereumAddress } = useEthereumAccount();
   const { address: starknetAddress } = useStarknetAccount();
-
-  const { data: isApprovedForAll, refetch } = useReadContract({
-    abi: erc721Abi,
-    address: selectedCollectionAddress as `0x${string}`,
-    args: [
-      ethereumAddress ?? "0xa",
-      process.env.NEXT_PUBLIC_L1_BRIDGE_ADDRESS as `0x${string}`,
-    ],
-    functionName: "isApprovedForAll",
-    query: {
-      enabled: totalSelectedNfts > 0,
-    },
-    // watch: true,
-    // TODO @YohanTz: https://wagmi.sh/react/guides/migrate-from-v1-to-v2#removed-watch-property
-  });
-
-  const { data: approveHash, writeContract: writeContractApprove } =
-    useWriteContract();
-
-  function approveForAll() {
-    writeContractApprove({
-      abi: erc721Abi,
-      address: selectedCollectionAddress as `0x${string}`,
-      args: [process.env.NEXT_PUBLIC_L1_BRIDGE_ADDRESS as `0x${string}`, true],
-      functionName: "setApprovalForAll",
-    });
-  }
-
-  const { isLoading: isApproveLoading } = useWaitForTransactionReceipt({
-    hash: approveHash,
-  });
 
   const { data: depositHash, writeContract: writeContractDeposit } =
     useWriteContract();
@@ -111,26 +70,13 @@ export default function useTransferEthereumNfts() {
     });
   }
 
-  const { data: blockNumber } = useBlockNumber({ watch: true });
-
-  useEffect(() => {
-    void refetch();
-  }, [blockNumber, refetch]);
-
   useEffect(() => {
     if (depositHash !== undefined) {
       void router.push(`lounge/${depositHash}`);
     }
   }, [depositHash, router]);
 
-  // const { isLoading: isDepositLoading, isSuccess: isDepositSuccess } =
-  //   useWaitForTransactionReceipt({ hash: depositHash });
-
   return {
-    approveForAll: () => approveForAll(),
     depositTokens: () => depositTokens(),
-    depositTransactionHash: depositHash,
-    isApproveLoading: isApproveLoading && approveHash !== undefined,
-    isApprovedForAll,
   };
 }

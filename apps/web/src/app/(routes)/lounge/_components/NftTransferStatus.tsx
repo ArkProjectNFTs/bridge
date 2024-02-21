@@ -19,8 +19,8 @@ const variantsToStatusText: Record<BridgeRequestEventStatus, string> = {
   deposit_initiated_l1: "Transfer in progress",
   deposit_initiated_l2: "Transfer in progress",
   error: "Error transfer",
-  withdraw_completed_l1: "Successfully transfered",
-  withdraw_completed_l2: "Successfully transfered",
+  withdraw_completed_l1: "Successfully transferred",
+  withdraw_completed_l2: "Successfully transferred",
 };
 
 interface NftCardStatusProps {

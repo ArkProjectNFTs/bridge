@@ -1,7 +1,7 @@
 import * as Collapsible from "@radix-ui/react-collapsible";
 import { useStarkName } from "@starknet-react/core";
 import clsx from "clsx";
-import { Typography } from "design-system";
+import { MinusIcon, PlusIcon, Typography } from "design-system";
 import Image from "next/image";
 import { useMemo, useState } from "react";
 import { useEnsName } from "wagmi";
@@ -109,7 +109,7 @@ export default function NftTransferItem({
 
         <Collapsible.Trigger asChild>
           <button className="flex h-9 w-9 items-center justify-center justify-self-end rounded-md border-2 border-asteroid-grey-600 text-2xl text-asteroid-grey-600 dark:border-space-blue-300 dark:text-space-blue-300">
-            {open ? "-" : "+"}
+            {open ? <MinusIcon /> : <PlusIcon />}
           </button>
         </Collapsible.Trigger>
       </div>

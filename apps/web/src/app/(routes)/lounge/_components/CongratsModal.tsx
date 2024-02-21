@@ -116,8 +116,10 @@ export default function CongratsModal({ isFromTransfer }: CongratsModalProps) {
               component={DialogDescription}
               variant="body_text_16"
             >
-              Your Everais have joined 123 others Everais on Starknet and you
-              completed the quest “Bridge 1 Everai Nft” on ArkProject Missions.
+              {/* Your Everai(s) have joined 123 others Everais on Starknet and you
+              completed the quest “Bridge 1 Everai Nft” on ArkProject Missions. */}
+              Your Everai(s) have joined 123 others Everais on Starknet. Start
+              exploring this new world.
             </Typography>
             <a className="mt-6 flex h-12 items-center rounded-full bg-space-blue-source px-5 text-white">
               <Typography variant="button_text_s">Share on </Typography>

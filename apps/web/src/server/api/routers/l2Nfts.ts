@@ -21,6 +21,7 @@ type ArkCollectionsApiResponse = {
   result: Array<{
     contract_address: string;
     contract_type: string;
+    image?: string;
     name: string;
     symbol: string;
     tokens_count: number;
@@ -84,7 +85,7 @@ export const l2NftsRouter = createTRPCRouter({
         const collections: Array<Collection> = contracts.result.map(
           (contract) => ({
             contractAddress: contract.contract_address,
-            image: undefined,
+            image: contract.image,
 
             isBridgeable:
               contract.contract_address ===

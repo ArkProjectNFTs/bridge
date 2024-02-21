@@ -41,7 +41,7 @@ export default function ConnectStarknetButton({
         className="flex items-center gap-2.5 rounded-full bg-space-blue-900 py-2 pl-3 pr-2 text-sm font-semibold text-white dark:bg-space-blue-800"
         onClick={() => onOpenModalChange(!isModalOpen)}
       >
-        <Typography variant="button_text_s">
+        <Typography variant="button_text_xs">
           {isConnected ? starkName ?? shortAddress : "Connect Starknet Wallet"}
         </Typography>
         <div className="flex">

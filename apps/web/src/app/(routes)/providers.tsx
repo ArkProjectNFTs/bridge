@@ -41,6 +41,7 @@ export default function Providers({ children }: ProvidersProps) {
       chains={[starknetGoerli]}
       // chains={[starknetMainnet]}
       connectors={starknetConnectors}
+      // provider={jsonRpcProvider({ rpc: starknetRpc })}
       provider={jsonRpcProvider({ rpc: starknetRpc })}
     >
       <WagmiProvider config={wagmiConfig}>

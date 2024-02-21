@@ -70,11 +70,16 @@ const styreneAFont = localFont({
     {
       path: "../../font/StyreneA-Regular-Web.woff2",
       style: "normal",
-      weight: "500",
+      weight: "400",
     },
     {
       path: "../../font/StyreneA-RegularItalic-Web.woff2",
       style: "italic",
+      weight: "400",
+    },
+    {
+      path: "../../font/StyreneA-Medium-Web.woff2",
+      style: "normal",
       weight: "500",
     },
     {
