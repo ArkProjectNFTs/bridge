@@ -119,11 +119,15 @@ async fn main() -> Result<()> {
 
         let app_state = AppState {
             store: Arc::clone(&mongo_store),
+            l1_address: config.ethereum.bridge_address,
+            l2_address: config.starknet.bridge_address,
+            chains_blocks: Arc::clone(&chains_blocks),
         };
 
         let app = Router::new()
             .route("/requests/:wallet", get(requests::reqs_info_from_wallet))
             .route("/tx/:txhash", get(requests::transaction))
+            .route("/info", get(requests::info))
             .layer(axum::middleware::from_fn(version_header))
             .with_state(app_state);
 

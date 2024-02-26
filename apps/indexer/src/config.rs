@@ -24,7 +24,7 @@ pub struct XchainTxConfig {
 }
 
 ///
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct StarklaneIndexerConfig {
     pub ethereum: ChainConfig,
     pub starknet: ChainConfig,

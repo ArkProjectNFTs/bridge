@@ -66,3 +66,24 @@ pub async fn transaction(
     } 
     StatusCode::NOT_FOUND
 }
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct IndexerInfo {
+    l1_address: String,
+    l2_address: String,
+    l1_block_number: u64,
+    l2_block_number: u64,
+}
+
+pub async fn info(
+    state: State<AppState>
+) -> Result<Json<IndexerInfo>, (StatusCode, String)> {
+    let chains_blocks = state.chains_blocks.read().await;
+    let info = IndexerInfo {
+        l1_address: state.l1_address.clone(),
+        l2_address: state.l2_address.clone(),
+        l1_block_number: chains_blocks.eth,
+        l2_block_number: chains_blocks.sn,
+    };
+    Ok(Json(info))
+}
