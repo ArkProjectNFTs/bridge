@@ -7,9 +7,11 @@ import { useAccount as useEthereumAccount } from "wagmi";
 import ConnectModal from "./ConnectModal";
 
 export default function PageConnectModal() {
-  const [isModalOpen, setIsModalOpen] = useState(true);
   const { address: starknetAddress } = useStarknetAccount();
   const { address: ethereumAddress } = useEthereumAccount();
+  const [isModalOpen, setIsModalOpen] = useState(
+    starknetAddress === undefined || ethereumAddress === undefined
+  );
 
   useEffect(() => {
     if (
