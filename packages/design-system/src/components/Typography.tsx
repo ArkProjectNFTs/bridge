@@ -66,6 +66,9 @@ const variants = {
   button_text_l: "font-medium sm:text-base text-sm font-styrene-a",
   button_text_s: "font-medium text-sm font-styrene-a",
   button_text_xs: "font-medium text-xs font-styrene-a",
+
+  /* Exceptions */
+  quests_banner: "font-black text-4xl font-ark-project",
 };
 
 const ellipsableClasses = "whitespace-nowrap text-ellipsis overflow-hidden";

@@ -29,6 +29,15 @@ type ArkCollectionsApiResponse = {
   total_count: number;
 };
 
+type ArkBatchNftsApiResponse = {
+  result: Array<{
+    contract_address: string;
+    metadata?: { normalized: { image?: string; name?: string } };
+    owner: string;
+    token_id: string;
+  }>;
+};
+
 type ArkCollectionInfoApiResponse = {
   result: { contract_address: string; name: string; symbol: string };
 };
@@ -59,7 +68,6 @@ export const l2NftsRouter = createTRPCRouter({
         return { name: "" };
       }
     }),
-
   getNftCollectionsByWallet: publicProcedure
     .input(z.object({ address: z.string(), cursor: z.string().optional() }))
     .query(async ({ input }) => {
@@ -99,6 +107,59 @@ export const l2NftsRouter = createTRPCRouter({
       } catch (error) {
         console.error("getL2NftCollectionsByWallet error: ", error);
         return { collections: [], totalCount: 0 };
+      }
+    }),
+
+  getNftMetadataBatch: publicProcedure
+    .input(
+      z.object({
+        contractAddress: z.string(),
+        ownerAddress: z.string(),
+        tokenIds: z.array(z.string()),
+      })
+    )
+    .query(async ({ input }) => {
+      const { contractAddress, ownerAddress, tokenIds } = input;
+      if (tokenIds.length === 0) {
+        return [];
+      }
+
+      try {
+        const url = `${
+          process.env.NEXT_PUBLIC_ARK_API_DOMAIN ?? ""
+        }/v1/tokens/batch`;
+
+        const nftsResponse = await fetch(url, {
+          body: JSON.stringify({
+            tokens: tokenIds.map((tokenId) => ({
+              contract_address: contractAddress,
+              token_id: tokenId,
+            })),
+          }),
+          headers: {
+            "Content-Type": "application/json",
+            "X-API-KEY": process.env.ARK_API_KEY ?? "",
+          },
+          method: "POST",
+        });
+
+        const nfts = (await nftsResponse.json()) as ArkBatchNftsApiResponse;
+
+        return nfts.result
+          .filter(
+            (nft) =>
+              validateAndParseAddress(nft.owner) ===
+              validateAndParseAddress(ownerAddress)
+          )
+          .map((nft) => ({
+            collectionName: "EveraiDuo",
+            image: nft.metadata?.normalized.image,
+            tokenId: nft.token_id,
+            tokenName: nft.metadata?.normalized.name ?? `#${nft.token_id}`,
+          }));
+      } catch (error) {
+        console.error("getL2NftMetadataBatch error:", error);
+        return [];
       }
     }),
 

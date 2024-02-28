@@ -1,6 +1,5 @@
 "use client";
 
-import clsx from "clsx";
 import {
   ArrowIcon,
   Dialog,
@@ -13,69 +12,40 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import BridgingQuestBanner from "../../bridge/_components/BridgingQuestBanner";
-
-interface EveraiCardProps {
-  className?: string;
-}
-
-function EveraiCard({ className }: EveraiCardProps) {
+function ArkQuestsBanner() {
   return (
-    <div
-      className={clsx(
-        className,
-        "w-40 rounded-xl border border-space-blue-600 bg-space-blue-900 p-2.5"
-      )}
-    >
+    <div className="relative flex h-40 flex-col items-center justify-center gap-2 overflow-hidden rounded-2xl">
       <Image
-        alt="Success Everai"
-        className="mb-2 w-full rounded-md"
-        height={140}
-        src="/medias/everai_congrats.png"
-        width={140}
+        alt="Quest banner"
+        className="absolute inset-0 -z-10"
+        height={160}
+        src="/medias/quest_banner.png"
+        width={583}
       />
-      <div className="flex items-center gap-2">
-        <svg
-          className="flex-shrink-0"
-          fill="none"
-          height="34"
-          viewBox="0 0 34 34"
-          width="34"
-          xmlns="http://www.w3.org/2000/svg"
+      <div>
+        <Typography
+          className="ml-10 text-white"
+          component="p"
+          variant="button_text_s"
         >
-          <circle
-            cx="16.9152"
-            cy="16.9152"
-            fill="#1E3D54"
-            r="15.6257"
-            stroke="#071117"
-            stroke-width="0.748603"
-            transform="rotate(-1.35673 16.9152 16.9152)"
-          />
-          <path
-            d="M14.2101 21.0301L7.8239 16.7907L14.0028 12.278L10.8781 16.7184L14.2101 21.0301ZM18.928 20.9184L22.0024 16.4549L18.7207 12.1663L25.1311 16.3808L18.928 20.9184Z"
-            fill="#FFFF80"
-          />
-          <path
-            d="M16.2303 8.77053L10.8689 12.6557L16.1584 5.73626L21.7697 12.3976L16.2303 8.77053Z"
-            fill="#FFFF80"
-          />
-          <path
-            d="M16.602 24.4622L11.0626 20.8352L16.6738 27.4965L21.9634 20.577L16.602 24.4622Z"
-            fill="#FFFF80"
-          />
-          <path
-            d="M16.3059 12.047L13.3757 16.6838L16.5226 21.1993L19.5213 16.5383L16.3059 12.047Z"
-            fill="#FFFF80"
-          />
-        </svg>
-        <div className="text-space-blue-200">
-          <Typography component="p" variant="heading_light_s">
-            123
-          </Typography>
-          <Typography variant="body_text_11">Everais bridged</Typography>
-        </div>
+          Ark
+        </Typography>
+        <Typography
+          className="text-sunshine-yellow-source"
+          component="p"
+          variant="quests_banner"
+        >
+          QUESTS
+        </Typography>
       </div>
+      <a
+        className="flex h-[2.625rem] items-center justify-center rounded-full bg-sunshine-yellow-source px-6"
+        href="/"
+      >
+        <Typography className="text-void-black" variant="button_text_s">
+          Join now
+        </Typography>
+      </a>
     </div>
   );
 }
@@ -83,8 +53,98 @@ function EveraiCard({ className }: EveraiCardProps) {
 function EveraiCards() {
   return (
     <div className="relative flex-shrink-0">
-      <EveraiCard className="mx-5 my-3 rotate-12" />
-      <EveraiCard className="absolute inset-0 mx-5 my-3" />
+      <div className="absolute inset-0 mx-5 my-3 w-40 rotate-12 rounded-xl border border-space-blue-600 bg-space-blue-900 p-2.5" />
+      <div className="relative z-10 mx-5 my-3 w-40 rounded-xl border border-space-blue-600 bg-space-blue-900 p-2.5">
+        <svg
+          className="absolute -left-3 top-12"
+          fill="none"
+          height="31"
+          viewBox="0 0 31 31"
+          width="31"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M23.6964 9.35851H18.7591L16.774 5.22689L15.4163 3.087C14.6193 1.83097 12.7263 2.04142 12.2247 3.44183L8.97161 12.5235L1.98774 17.1656C0.994434 17.8259 0.914263 19.2553 1.82751 20.0225L4.2638 22.0691L9.77124 21.652L14.7881 27.8051C15.3677 28.516 16.4996 28.3327 16.8253 27.4753L20.1704 18.6703L27.1992 12.4865L25.0534 9.98271C24.7139 9.58653 24.2182 9.35851 23.6964 9.35851Z"
+            fill="#FFFEEB"
+            stroke="#163349"
+            stroke-width="1.55847"
+          />
+          <path
+            d="M25.9313 12.0059L20.5723 12.1104L17.1696 5.73108C16.4398 4.36284 14.4331 4.50963 13.9101 5.96951L10.7848 14.6946L4.22376 19.0842C2.86656 19.9923 3.33759 22.0949 4.95248 22.3371L10.9887 23.2424L16.0055 29.3954C16.5852 30.1063 17.717 29.9231 18.0428 29.0657L21.3879 20.2606L27.1544 15.1278C28.3943 14.0241 27.591 11.9736 25.9313 12.0059Z"
+            fill="#F8545C"
+            stroke="#163349"
+          />
+          <path
+            d="M10.8035 14.8095L9.01648 12.7769L4.54883 15.6807L6.63373 17.423L10.8035 14.8095Z"
+            fill="#163349"
+          />
+        </svg>
+
+        <svg
+          className="absolute -right-6 top-2"
+          fill="none"
+          height="47"
+          viewBox="0 0 54 47"
+          width="54"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M25.5329 12.8829L20.0873 11.2979C18.1746 10.7412 16.1378 10.8174 14.2824 11.5151L10.7307 12.8506L28.4327 41.4784L33.1368 39.2666C34.443 38.6525 35.345 37.4189 35.5351 35.9869L36.7143 27.1039L45.6184 22.9949C47.673 22.0468 47.4218 19.0498 45.2351 18.4215L36.6888 15.966L37.083 7.00836C37.179 4.8251 35.0156 3.23086 32.9617 3.97141L29.0435 5.38409L25.5329 12.8829Z"
+            fill="#FFFEEB"
+            stroke="#163349"
+            strokeLinecap="round"
+            strokeWidth="1.30201"
+          />
+          <path
+            d="M14.2072 24.8735L7.36872 33.401C6.23857 34.8103 7.63475 36.8439 9.365 36.3087L19.2754 33.243L25.4971 41.3097C26.4715 42.5731 28.4742 42.101 28.7581 40.5411L30.7372 29.6649L41.1304 24.8706C42.6713 24.1598 42.4824 21.9121 40.8422 21.4406L30.7092 18.5277L31.0651 7.38852C31.12 5.66855 28.9857 4.80787 27.8476 6.09102L19.5526 15.4426L11.9284 13.0398C9.76454 12.3579 7.93381 14.7119 9.1261 16.6432L14.2072 24.8735Z"
+            fill="#FCDA29"
+            stroke="#163349"
+            strokeLinecap="round"
+            strokeWidth="1.30201"
+          />
+          <path
+            d="M36.9894 27.0511L30.7404 29.3269L29.9789 35.8746L35.7985 33.0409L36.9894 27.0511Z"
+            fill="#163349"
+          />
+          <path
+            d="M37.4888 15.8235L31.0254 18.4501L31.5815 11.2098L36.9719 9.01466L37.4888 15.8235Z"
+            fill="#163349"
+          />
+        </svg>
+
+        <Image
+          alt="Success Everai"
+          className="mb-2 w-full rounded-md"
+          height={140}
+          src="/medias/everai_congrats.png"
+          width={140}
+        />
+        <div className="flex items-center justify-between">
+          <div>
+            <Typography
+              className="text-sunshine-yellow-source"
+              component="p"
+              variant="heading_light_s"
+            >
+              123
+            </Typography>
+            <Typography
+              className="text-white"
+              component="p"
+              variant="body_text_11"
+            >
+              Everais bridged
+            </Typography>
+          </div>
+          <Image
+            alt="Starknet Logo"
+            className="flex-shrink-0"
+            height={30}
+            src="/logos/starknet.svg"
+            width={30}
+          />
+        </div>
+      </div>
     </div>
   );
 }
@@ -116,12 +176,16 @@ export default function CongratsModal({ isFromTransfer }: CongratsModalProps) {
               component={DialogDescription}
               variant="body_text_16"
             >
-              {/* Your Everai(s) have joined 123 others Everais on Starknet and you
-              completed the quest “Bridge 1 Everai Nft” on ArkProject Missions. */}
-              Your Everai(s) have joined 123 others Everais on Starknet. Start
-              exploring this new world.
+              Your Everai(s) have joined <b>356</b> others Everais on Starknet!
+              Check now your eligibility and achievements on{" "}
+              <a className="text-space-blue-source underline">Ark Quests</a>.
             </Typography>
-            <a className="mt-6 flex h-12 items-center rounded-full bg-space-blue-source px-5 text-white">
+            <a
+              className="mt-6 flex h-12 items-center rounded-full bg-space-blue-source px-5 text-white"
+              href="https://twitter.com/intent/tweet?text=I've just transferred my @Everai(s) on @Starknet using the ArkProject Bridge! Let's come together, holders and hit a new milestone on Ark Quests!"
+              rel="noreferrer"
+              target="_blank"
+            >
               <Typography variant="button_text_s">Share on </Typography>
               <svg
                 className="ml-2.5"
@@ -196,8 +260,7 @@ export default function CongratsModal({ isFromTransfer }: CongratsModalProps) {
             <ArrowIcon className="flex-shrink-0" />
           </a>
         </div>
-
-        <BridgingQuestBanner className="mt-2 h-48 overflow-hidden" />
+        <ArkQuestsBanner />
       </DialogContent>
     </Dialog>
   );

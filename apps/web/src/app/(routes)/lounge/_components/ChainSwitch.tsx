@@ -11,7 +11,7 @@ export default function ChainSwitch() {
   const { setTargetChain, targetChain } = useCurrentChain();
 
   return (
-    <div className="mt-8 inline-flex gap-1 rounded-full border border-[#d3e2e1] bg-[#e4edec] dark:border-space-blue-600 dark:bg-space-blue-900 sm:mt-9">
+    <div className="mt-8 inline-flex gap-1 rounded-full border border-asteroid-grey-200 bg-asteroid-grey-100 dark:border-space-blue-600 dark:bg-space-blue-900 sm:mt-9">
       <button
         className={clsx(
           "rounded-full border-8",

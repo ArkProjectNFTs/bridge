@@ -5,7 +5,11 @@ import {
   goerli as starknetGoerli,
   // mainnet as starknetMainnet,
 } from "@starknet-react/chains";
-import { StarknetConfig, jsonRpcProvider } from "@starknet-react/core";
+import {
+  StarknetConfig,
+  jsonRpcProvider,
+  // publicProvider,
+} from "@starknet-react/core";
 import { ThemeProvider } from "next-themes";
 import { WagmiProvider, createConfig, http } from "wagmi";
 import { goerli } from "wagmi/chains";
@@ -18,6 +22,7 @@ import {
 const wagmiConfig = createConfig({
   chains: [goerli],
   connectors: ethereumConnectors,
+  ssr: true,
   transports: {
     [goerli.id]: http(),
   },
@@ -30,6 +35,8 @@ function starknetRpc(chain: Chain) {
   return { nodeUrl: `https://juno.mainnet.arkproject.dev/` };
 }
 
+// const starknetProvider = publicProvider();
+
 interface ProvidersProps {
   children: React.ReactNode;
 }
@@ -41,8 +48,8 @@ export default function Providers({ children }: ProvidersProps) {
       chains={[starknetGoerli]}
       // chains={[starknetMainnet]}
       connectors={starknetConnectors}
-      // provider={jsonRpcProvider({ rpc: starknetRpc })}
       provider={jsonRpcProvider({ rpc: starknetRpc })}
+      // provider={starknetProvider}
     >
       <WagmiProvider config={wagmiConfig}>
         <ThemeProvider attribute="class">{children}</ThemeProvider>

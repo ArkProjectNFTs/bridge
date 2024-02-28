@@ -17,16 +17,6 @@ export default function Page() {
         <BridgingQuestBanner className="mt-10" />
 
         <NftTransferList className="mt-10" showPending={false} />
-
-        {/* <Typography
-          className="mt-18 text-left"
-          component="h2"
-          variant="heading_light_s"
-        >
-          Your past transactions
-        </Typography>
-        <hr className="mt-5 border-[#e4edec] dark:border-space-blue-900" />
-        <NftTransferList /> */}
       </MainPageContainer>
     </div>
   );

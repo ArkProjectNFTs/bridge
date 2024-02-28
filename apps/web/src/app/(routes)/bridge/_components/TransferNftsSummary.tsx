@@ -4,6 +4,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 
+import useAccountFromChain from "~/app/_hooks/useAccountFromChain";
 import useCurrentChain from "~/app/_hooks/useCurrentChain";
 import { api } from "~/utils/api";
 
@@ -65,15 +66,34 @@ function TransferSummary() {
   } = useNftSelection();
   const pathname = usePathname();
 
-  const { data: selectedNfts } = api.l1Nfts.getNftMetadataBatch.useQuery(
+  const { sourceChain } = useCurrentChain();
+  const { address } = useAccountFromChain(sourceChain);
+
+  const { data: l1SelectedNfts } = api.l1Nfts.getNftMetadataBatch.useQuery(
     {
       contractAddress: selectedCollectionAddress ?? "",
       tokenIds: selectedTokenIds,
     },
     {
+      enabled: sourceChain === "Ethereum",
       keepPreviousData: true,
     }
   );
+
+  const { data: l2SelectedNfts } = api.l2Nfts.getNftMetadataBatch.useQuery(
+    {
+      contractAddress: selectedCollectionAddress ?? "",
+      ownerAddress: address ?? "",
+      tokenIds: selectedTokenIds,
+    },
+    {
+      enabled: sourceChain === "Starknet",
+      keepPreviousData: true,
+    }
+  );
+
+  const selectedNfts =
+    sourceChain === "Ethereum" ? l1SelectedNfts : l2SelectedNfts;
 
   const hasSelectedNfts = totalSelectedNfts > 0;
   const showBridgingQuestBanner = pathname === "/bridge";

@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { useLocalStorage } from "usehooks-ts";
 
 import useAccountFromChain from "~/app/_hooks/useAccountFromChain";
@@ -34,6 +34,16 @@ export default function useNftSelection() {
   const totalSelectedNfts = useMemo(
     () => selectedTokenIds.length,
     [selectedTokenIds]
+  );
+
+  const isNftSelected = useCallback(
+    (tokenId: string, collectionAddress: string) => {
+      return (
+        selectedTokenIds.includes(tokenId) &&
+        collectionAddress === selectedCollectionAddress
+      );
+    },
+    [selectedCollectionAddress, selectedTokenIds]
   );
 
   function selectNft(tokenId: string, collectionAddress: string) {
@@ -72,32 +82,40 @@ export default function useNftSelection() {
     }));
   }
 
-  function deselectNft(tokenId: string, collectionAddress: string) {
-    if (
-      !isNftSelected(tokenId, collectionAddress) ||
-      userAddress === undefined
-    ) {
-      return;
-    }
+  const deselectNft = useCallback(
+    (tokenId: string, collectionAddress: string) => {
+      if (
+        !isNftSelected(tokenId, collectionAddress) ||
+        userAddress === undefined
+      ) {
+        return;
+      }
 
-    if (selectedTokenIds.length === 1) {
+      if (selectedTokenIds.length === 1) {
+        setSelectedTokensByUserAddress((previousValue) => ({
+          ...previousValue,
+          [userAddress]: undefined,
+        }));
+        return;
+      }
+
       setSelectedTokensByUserAddress((previousValue) => ({
         ...previousValue,
-        [userAddress]: undefined,
+        [userAddress]: {
+          collectionAddress,
+          tokenIds: selectedTokenIds.filter(
+            (selectedTokenId) => selectedTokenId !== tokenId
+          ),
+        },
       }));
-      return;
-    }
-
-    setSelectedTokensByUserAddress((previousValue) => ({
-      ...previousValue,
-      [userAddress]: {
-        collectionAddress,
-        tokenIds: selectedTokenIds.filter(
-          (selectedTokenId) => selectedTokenId !== tokenId
-        ),
-      },
-    }));
-  }
+    },
+    [
+      isNftSelected,
+      selectedTokenIds,
+      setSelectedTokensByUserAddress,
+      userAddress,
+    ]
+  );
 
   function selectBatchNfts(nfts: Array<Nft>) {
     if (nfts.length === 0 || userAddress === undefined) {
@@ -122,13 +140,6 @@ export default function useNftSelection() {
       ...previousValue,
       [userAddress]: undefined,
     }));
-  }
-
-  function isNftSelected(tokenId: string, collectionAddress: string) {
-    return (
-      selectedTokenIds.includes(tokenId) &&
-      collectionAddress === selectedCollectionAddress
-    );
   }
 
   function toggleNftSelection(tokenId: string, collectionAddress: string) {

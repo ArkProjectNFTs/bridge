@@ -19,7 +19,7 @@ export default function Banner() {
         </Typography>
 
         <Link
-          className="mx-auto mt-6 inline-flex items-center gap-2.5 rounded-full bg-night-blue-source px-8 py-5 md:mt-11"
+          className="mx-auto mt-6 inline-flex items-center gap-2.5 rounded-full bg-galaxy-blue px-8 py-5 transition-colors hover:bg-space-blue-700 md:mt-11"
           href="/bridge"
         >
           <Image

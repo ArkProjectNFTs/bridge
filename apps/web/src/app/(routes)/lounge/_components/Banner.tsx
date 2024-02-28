@@ -41,7 +41,7 @@ export default function Banner() {
         </Typography>
         <div className="mt-6 flex flex-col gap-6 md:flex-row">
           <Link
-            className="flex items-center justify-center rounded-full bg-space-blue-900 px-6 py-3.5 text-white"
+            className="flex items-center justify-center rounded-full bg-space-blue-900 px-6 py-3.5 text-white transition-colors hover:bg-space-blue-800"
             href="/bridge"
           >
             <Typography variant="button_text_s">Move other NFTs</Typography>

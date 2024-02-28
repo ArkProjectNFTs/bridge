@@ -9,7 +9,8 @@ import { useWriteContract } from "wagmi";
 import useNftSelection from "./useNftSelection";
 
 export default function useEthereumNftDeposit() {
-  const { selectedCollectionAddress, selectedTokenIds } = useNftSelection();
+  const { deselectAllNfts, selectedCollectionAddress, selectedTokenIds } =
+    useNftSelection();
 
   const { address: starknetAddress } = useStarknetAccount();
 
@@ -74,7 +75,7 @@ export default function useEthereumNftDeposit() {
     if (depositHash !== undefined) {
       void router.push(`lounge/${depositHash}`);
     }
-  }, [depositHash, router]);
+  }, [depositHash, deselectAllNfts, router]);
 
   return {
     depositTokens: () => depositTokens(),

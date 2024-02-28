@@ -62,16 +62,15 @@ export const bridgeRequestRouter = createTRPCRouter({
       }> => {
         const { address } = input;
 
-        const bridgeRequestsResponse = await fetch(
-          `${
-            process.env.NEXT_PUBLIC_ARKLANE_API_DOMAIN ?? ""
-          }/requests/${address}`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
+        const url = `${
+          process.env.NEXT_PUBLIC_ARKLANE_API_DOMAIN ?? ""
+        }/requests/${address}`;
+
+        const bridgeRequestsResponse = await fetch(url, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
 
         if (bridgeRequestsResponse.status !== 200) {
           return {

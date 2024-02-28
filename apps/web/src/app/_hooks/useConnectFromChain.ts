@@ -13,6 +13,7 @@ export default function useConnectFromChain(chain: Chain) {
   const accountValuesByChain = {
     Ethereum: {
       connectors: ethereumConnectors.map((connector) => {
+        console.log(connector.icon);
         {
           return {
             connect() {

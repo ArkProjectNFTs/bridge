@@ -13,7 +13,7 @@ export default function TargetChainButton() {
       {!isSSR && (
         <Link href="/bridge">
           <button
-            className="absolute right-1/2 top-1/2 flex h-11 w-11 -translate-y-1/2 translate-x-1/2 items-center justify-center rounded-full border-4 border-[#F7FBFA] bg-primary-source transition-[background-color] hover:bg-primary-400 dark:border-galaxy-blue "
+            className="absolute right-1/2 top-1/2 flex h-11 w-11 -translate-y-1/2 translate-x-1/2 items-center justify-center rounded-full border-4 border-space-blue-50 bg-primary-source transition-[background-color] hover:bg-primary-400 dark:border-void-black"
             onClick={toggle}
           >
             <svg

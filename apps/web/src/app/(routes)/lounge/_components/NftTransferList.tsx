@@ -58,11 +58,10 @@ export default function NftTransferList({
       {
         address: address ?? "",
       },
-      { enabled: address !== undefined, refetchInterval: 5000 }
+      { enabled: address !== undefined, refetchInterval: 10000 }
     );
 
   if (bridgeRequests === undefined) {
-    // Loading state
     return <NftTransferListLoadingState />;
   }
 

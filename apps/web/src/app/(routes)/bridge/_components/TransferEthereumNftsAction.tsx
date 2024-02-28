@@ -11,7 +11,7 @@ function ApproveNfts() {
   return (
     <>
       <Typography
-        className="mt-8 flex gap-2.5 rounded-xl bg-playground-purple-100 p-3 text-playground-purple-800 dark:bg-playground-purple-400 dark:text-space-blue-900"
+        className="mt-8 flex gap-2.5 rounded-xl bg-playground-purple-100 p-3 text-playground-purple-800 dark:bg-playground-purple-200 dark:text-space-blue-900"
         component="p"
         variant="body_text_14"
       >
@@ -52,10 +52,17 @@ function ApproveNfts() {
         onClick={() => !isApproveLoading && approveForAll()}
         size="small"
       >
-        <Typography variant="button_text_s">
+        <Typography
+          className="flex items-center gap-3"
+          component="p"
+          variant="button_text_s"
+        >
           {isApproveLoading
             ? "Approval in progress..."
             : "Approve the selected Nfts"}
+          {isApproveLoading && (
+            <div className="h-3 w-3 animate-spin rounded-full border-2 border-current border-r-transparent" />
+          )}
         </Typography>
       </Button>
     </>
@@ -75,7 +82,7 @@ function TransferNfts({ disabled }: TransferNftsProps) {
         "mt-8",
         disabled
           ? "cursor-no-drop bg-asteroid-grey-300 text-white opacity-50 dark:bg-primary-source dark:text-galaxy-blue"
-          : "bg-galaxy-blue text-white dark:bg-primary-400 dark:text-galaxy-blue"
+          : "bg-galaxy-blue text-white hover:bg-space-blue-700 dark:bg-primary-source dark:text-galaxy-blue dark:hover:bg-primary-400"
       )}
       onClick={() => depositTokens()}
       size="small"

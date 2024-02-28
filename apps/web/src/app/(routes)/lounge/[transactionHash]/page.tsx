@@ -1,8 +1,11 @@
 "use client";
 import Image from "next/image";
 import { redirect } from "next/navigation";
+import { useEffect } from "react";
 
 import { api } from "~/utils/api";
+
+import useNftSelection from "../../bridge/_hooks/useNftSelection";
 
 interface PageProps {
   params: { transactionHash: string };
@@ -19,6 +22,12 @@ export default function Page({ params: { transactionHash } }: PageProps) {
       },
       { refetchInterval: 2500 }
     );
+  const { deselectAllNfts } = useNftSelection();
+
+  useEffect(() => {
+    console.log("SHIT");
+    deselectAllNfts();
+  }, [deselectAllNfts]);
 
   if (hasBridgeRequestBeenIndexed) {
     redirect("/lounge?fromTransfer=true");

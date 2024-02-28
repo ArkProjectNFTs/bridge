@@ -6,6 +6,8 @@ import Image from "next/image";
 import { useMemo, useState } from "react";
 import { useEnsName } from "wagmi";
 
+import useCurrentChain from "~/app/_hooks/useCurrentChain";
+
 import NftTransferItemContent from "./NftTransferItemContent";
 import NftTransferStatus from "./NftTransferStatus";
 
@@ -34,6 +36,7 @@ export default function NftTransferItem({
   totalCount,
 }: NftTransferItemProps) {
   const [open, setOpen] = useState(false);
+  const { targetChain } = useCurrentChain();
 
   const arrivalShortAddress = useMemo(() => {
     return arrivalAddress
@@ -100,6 +103,22 @@ export default function NftTransferItem({
         <NftTransferStatus className="ml-3" status={status} />
 
         <div className="ml-2 flex items-center gap-2">
+          {targetChain === "Ethereum" ? (
+            <Image
+              alt="Ethereum"
+              height={24}
+              src="/logos/ethereum.svg"
+              width={24}
+            />
+          ) : (
+            <Image
+              alt="Starknet"
+              height={24}
+              src="/logos/starknet.svg"
+              width={24}
+            />
+          )}
+
           <Typography component="p" variant="button_text_s">
             {displayedArrivalAddress}
           </Typography>

@@ -28,9 +28,18 @@ export const ethereumConnectors = [
   // }),
 ];
 
+export const DOWNLOAD_LINK_BY_CONNECTOR_ID: Record<string, string> = {
+  argentX: "https://www.argent.xyz/argent-x/",
+  braavos: "https://braavos.app/download-braavos-wallet/",
+};
+
 export const starknetConnectors = [
-  new InjectedStarknetConnector({ options: { id: "braavos" } }),
-  new InjectedStarknetConnector({ options: { id: "argentX" } }),
+  new InjectedStarknetConnector({
+    options: { id: "braavos", name: "Braavos" },
+  }),
+  new InjectedStarknetConnector({
+    options: { id: "argentX", name: "Argent X" },
+  }),
 ];
 
 export const DEFAULT_ETHEREUM_CONNECTOR_LOGO = metaMaskLogo;

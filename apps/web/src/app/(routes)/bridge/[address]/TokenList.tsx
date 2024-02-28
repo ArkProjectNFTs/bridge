@@ -167,6 +167,7 @@ export default function TokenList({ nftContractAddress }: TokenListProps) {
       </div>
       <InfiniteScrollButton
         className="mx-auto mt-14"
+        fetchAuto
         fetchNextPage={() => fetchNextPage()}
         hasNextPage={hasNextPage}
         isFetchingNextPage={isFetchingNextPage}

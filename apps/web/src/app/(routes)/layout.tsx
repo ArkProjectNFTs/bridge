@@ -103,7 +103,7 @@ function RootLayout({ children }: { children: React.ReactNode }) {
     >
       <body
         className={clsx(
-          "bg-space-blue-50 text-night-blue-source dark:bg-void-black dark:text-white",
+          "bg-space-blue-50 text-galaxy-blue dark:bg-void-black dark:text-white",
           targetChain
         )}
       >

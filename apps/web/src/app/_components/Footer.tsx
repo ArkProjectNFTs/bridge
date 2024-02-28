@@ -6,13 +6,10 @@ import {
 } from "design-system";
 import Image from "next/image";
 
-import Logo from "./Logo";
-
 export default function Footer() {
   return (
-    <footer className="sticky bottom-0 left-0 top-[100vh] flex w-full flex-col bg-void-black px-6 py-9 text-night-blue-200 sm:h-[7.125rem] sm:flex-row sm:items-center sm:justify-between">
+    <footer className="sticky bottom-0 left-0 top-[100vh] flex w-full flex-col bg-void-black px-6 py-9 text-asteroid-grey-200 sm:h-[7.125rem] sm:flex-row sm:items-center sm:justify-between">
       <div className="flex items-center gap-9 text-white">
-        <Logo />
         <div className="flex items-center gap-2">
           <Typography variant="body_text_14">In Partnership with</Typography>
           <Image
@@ -25,6 +22,7 @@ export default function Footer() {
       </div>
       <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:gap-8">
         <Typography variant="body_text_14">Terms of use</Typography>
+        <Typography variant="body_text_14">Legal Notice</Typography>
         <Typography variant="body_text_14">FAQ</Typography>
         {/* <Typography variant="button_text_l">Documentation</Typography> */}
         <Typography variant="body_text_14">

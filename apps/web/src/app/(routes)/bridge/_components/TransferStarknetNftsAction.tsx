@@ -14,13 +14,13 @@ export default function TransferStarknetNftsAction() {
         "mt-8",
         totalSelectedNfts === 0
           ? "cursor-no-drop bg-asteroid-grey-300 text-white opacity-50 dark:bg-primary-source dark:text-galaxy-blue"
-          : "bg-galaxy-blue text-white dark:bg-primary-400 dark:text-galaxy-blue"
+          : "bg-galaxy-blue text-white hover:bg-space-blue-700 dark:bg-primary-source dark:text-galaxy-blue dark:hover:bg-primary-400"
       )}
       onClick={depositTokens}
       size="small"
     >
       <Typography variant="button_text_s">
-        Confirm transfer to Starknet
+        Confirm transfer to Ethereum
       </Typography>
     </Button>
   );

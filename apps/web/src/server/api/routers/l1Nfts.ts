@@ -44,7 +44,6 @@ export const l1NftsRouter = createTRPCRouter({
         image: contract.media[0]?.thumbnail,
         isBridgeable:
           contract.address === process.env.EVERAI_L1_CONTRACT_ADDRESS,
-        // isBridgeable: true,
         name: contract.name ?? contract.symbol ?? "Unknown",
         totalBalance: contract.totalBalance,
       }));
