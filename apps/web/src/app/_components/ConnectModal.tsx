@@ -1,27 +1,11 @@
-import {
-  useAccount as useStarknetAccount,
-  useBalance as useStarknetBalance,
-} from "@starknet-react/core";
-import clsx from "clsx";
+import { useAccount as useStarknetAccount } from "@starknet-react/core";
 import { SideDialog, Typography } from "design-system";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { useCopyToClipboard } from "usehooks-ts";
-import {
-  useAccountEffect,
-  useAccount as useEthereumAccount,
-  useBalance as useEthereumBalance,
-} from "wagmi";
+import { useAccountEffect } from "wagmi";
 
 import useAccountFromChain from "../_hooks/useAccountFromChain";
-import useConnectFromChain from "../_hooks/useConnectFromChain";
-import useDisconnectFromChain from "../_hooks/useDisconnectFromChain";
-import {
-  CHAIN_LOGOS_BY_NAME,
-  CHAIN_WALLET_ILLUSTRATION_BY_NAME,
-  CONNECTOR_LABELS_BY_ID,
-  WALLET_LOGOS_BY_ID,
-} from "../_lib/utils/connectors";
+import { CHAIN_LOGOS_BY_NAME } from "../_lib/utils/connectors";
 import { type Chain } from "../_types";
 import EthereumConnectorsList from "./EthereumConnectorsList";
 import StarknetConnectorList from "./StarknetConnectorList";
@@ -47,31 +31,6 @@ function ChainButton({ chain, onClick }: ChainButtonProps) {
         height={32}
         priority
         src={CHAIN_LOGOS_BY_NAME[chain] ?? ""}
-        width={32}
-      />
-    </button>
-  );
-}
-
-interface ConnectorButtonProps {
-  id: string;
-  onClick: () => void;
-}
-
-function ConnectorButton({ id, onClick }: ConnectorButtonProps) {
-  return (
-    <button
-      className="flex w-full items-center justify-between rounded-full bg-galaxy-blue py-2 pl-3.5 pr-2 text-white transition-colors hover:bg-space-blue-source hover:text-galaxy-blue dark:bg-white dark:text-galaxy-blue dark:hover:bg-space-blue-source"
-      onClick={onClick}
-    >
-      <Typography variant="button_text_s">
-        {CONNECTOR_LABELS_BY_ID[id]}
-      </Typography>
-      <Image
-        alt={`${CONNECTOR_LABELS_BY_ID[id] ?? ""} logo`}
-        height={32}
-        priority
-        src={WALLET_LOGOS_BY_ID[id] ?? ""}
         width={32}
       />
     </button>
