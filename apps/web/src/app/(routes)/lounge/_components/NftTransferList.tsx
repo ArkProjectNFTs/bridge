@@ -69,13 +69,15 @@ export default function NftTransferList({
     bridgeRequests.inTransit.requests.length === 0 &&
     bridgeRequests.past.requests.length === 0
   ) {
-    return (
+    return showPending ? (
       <>
         <NftsEmptyState className="mb-5 mt-14" type="collection" />
         <Typography className="my-14" component="p" variant="body_text_18">
           There is nothing there...
         </Typography>
       </>
+    ) : (
+      <></>
     );
   }
   const { inTransit, past } = bridgeRequests;

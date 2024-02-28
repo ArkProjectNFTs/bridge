@@ -114,7 +114,7 @@ export const l2NftsRouter = createTRPCRouter({
     .input(
       z.object({
         contractAddress: z.string(),
-        ownerAddress: z.string(),
+        ownerAddress: z.string().optional(),
         tokenIds: z.array(z.string()),
       })
     )
@@ -132,7 +132,7 @@ export const l2NftsRouter = createTRPCRouter({
         const nftsResponse = await fetch(url, {
           body: JSON.stringify({
             tokens: tokenIds.map((tokenId) => ({
-              contract_address: contractAddress,
+              contract_address: validateAndParseAddress(contractAddress),
               token_id: tokenId,
             })),
           }),
@@ -148,8 +148,9 @@ export const l2NftsRouter = createTRPCRouter({
         return nfts.result
           .filter(
             (nft) =>
+              ownerAddress === undefined ||
               validateAndParseAddress(nft.owner) ===
-              validateAndParseAddress(ownerAddress)
+                validateAndParseAddress(ownerAddress)
           )
           .map((nft) => ({
             collectionName: "EveraiDuo",

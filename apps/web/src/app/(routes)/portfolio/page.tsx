@@ -1,4 +1,4 @@
-// import { Typography } from "design-system";
+import PageConnectModal from "~/app/_components/PageConnectModal";
 
 import MainPageContainer from "../../_components/MainPageContainer";
 import BridgingQuestBanner from "../bridge/_components/BridgingQuestBanner";
@@ -8,16 +8,20 @@ import NftsTabs from "./_components/NftsTabs";
 
 export default function Page() {
   return (
-    <div className="flex">
-      <MainPageContainer>
-        <Banner />
+    <>
+      <div className="flex">
+        <MainPageContainer>
+          <Banner />
 
-        <NftsTabs />
+          <NftsTabs />
 
-        <BridgingQuestBanner className="mt-10" />
+          <BridgingQuestBanner className="mt-10" />
 
-        <NftTransferList className="mt-10" showPending={false} />
-      </MainPageContainer>
-    </div>
+          <NftTransferList className="mt-10" showPending={false} />
+        </MainPageContainer>
+      </div>
+
+      <PageConnectModal />
+    </>
   );
 }

@@ -1,4 +1,4 @@
-import { Alchemy, Network } from "alchemy-sdk";
+import { Alchemy, Network, type Nft } from "alchemy-sdk";
 import { z } from "zod";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
@@ -93,13 +93,15 @@ export const bridgeRequestRouter = createTRPCRouter({
         //   bridgeRequests[0]?.req.chain_src === "eth"
         // ) {
         // }
-
-        const requestMetadata = await alchemy.nft.getNftMetadataBatch(
-          bridgeRequests.reverse().map((bridgeRequest) => ({
-            contractAddress: bridgeRequest.req.collection_src,
-            tokenId: bridgeRequest.token_ids[0],
-          }))
-        );
+        let requestMetadata: Array<Nft> = [];
+        if (bridgeRequests[0]?.req.chain_src === "eth") {
+          requestMetadata = await alchemy.nft.getNftMetadataBatch(
+            bridgeRequests.reverse().map((bridgeRequest) => ({
+              contractAddress: bridgeRequest.req.collection_src,
+              tokenId: bridgeRequest.token_ids[0],
+            }))
+          );
+        }
 
         const bridgeRequestsWithMetadata = bridgeRequests.map(
           (bridgeRequest, index) => {

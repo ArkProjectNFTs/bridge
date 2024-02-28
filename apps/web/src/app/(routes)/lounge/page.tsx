@@ -1,4 +1,5 @@
 import Footer from "~/app/_components/Footer";
+import PageConnectModal from "~/app/_components/PageConnectModal";
 
 import MainPageContainer from "../../_components/MainPageContainer";
 import Banner from "./_components/Banner";
@@ -26,6 +27,7 @@ export default function LoungePage({ searchParams }: LoungePageProps) {
         </MainPageContainer>
       </div>
       <Footer />
+      <PageConnectModal />
     </>
   );
 }

@@ -51,15 +51,26 @@ export default function NftTransferItemContent({
   tokenIds,
 }: NftTransferItemContentProps) {
   const { targetChain } = useCurrentChain();
-  const { data: nfts } = api.l1Nfts.getNftMetadataBatch.useQuery(
+  const { data: l1Nfts } = api.l1Nfts.getNftMetadataBatch.useQuery(
     {
       contractAddress,
       tokenIds,
     },
     {
-      enabled: open,
+      enabled: open && targetChain === "Starknet",
     }
   );
+  const { data: l2Nfts } = api.l2Nfts.getNftMetadataBatch.useQuery(
+    {
+      contractAddress,
+      tokenIds,
+    },
+    {
+      enabled: open && targetChain === "Ethereum",
+    }
+  );
+
+  const nfts = targetChain === "Starknet" ? l1Nfts : l2Nfts;
 
   if (nfts === undefined) {
     return <NftTransferItemContentLoadingState />;

@@ -46,8 +46,6 @@ export default function StarknetConnectorList() {
       });
   }
 
-  console.log(pendingConnector);
-
   return isConnected ? (
     <>
       <Image

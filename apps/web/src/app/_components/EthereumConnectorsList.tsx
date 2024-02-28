@@ -2,9 +2,15 @@
 import clsx from "clsx";
 import { Typography } from "design-system";
 import Image from "next/image";
-import { Fragment, useMemo } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { useCopyToClipboard } from "usehooks-ts";
-import { useAccount, useBalance, useConnect, useDisconnect } from "wagmi";
+import {
+  type Connector,
+  useAccount,
+  useBalance,
+  useConnect,
+  useDisconnect,
+} from "wagmi";
 
 import {
   CHAIN_WALLET_ILLUSTRATION_BY_NAME,
@@ -13,7 +19,7 @@ import {
 
 export default function EthereumConnectorsList() {
   const { address, isConnected } = useAccount();
-  const { connect, connectors } = useConnect();
+  const { connectAsync, connectors } = useConnect();
   const { disconnect } = useDisconnect();
   const { connector: activeConnector } = useAccount();
 
@@ -24,6 +30,18 @@ export default function EthereumConnectorsList() {
   const shortAddress = useMemo(() => {
     return address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "";
   }, [address]);
+
+  const [pendingConnector, setPendingConnector] = useState<string | undefined>(
+    undefined
+  );
+
+  async function connect(connector: Connector) {
+    setPendingConnector(connector.id);
+    try {
+      await connectAsync({ connector });
+    } catch {}
+    setPendingConnector(undefined);
+  }
 
   function handleCopy() {
     if (address === undefined) {
@@ -128,13 +146,22 @@ export default function EthereumConnectorsList() {
             return <Fragment key="injected" />;
           }
 
+          const isConnecting = pendingConnector === connector.id;
+
           return (
             <button
               className="flex w-full items-center justify-between rounded-full bg-galaxy-blue py-2 pl-3.5 pr-2 text-white transition-colors hover:bg-space-blue-source hover:text-galaxy-blue dark:bg-white dark:text-galaxy-blue dark:hover:bg-space-blue-source"
               key={connector.id}
-              onClick={() => connect({ connector })}
+              onClick={() => void connect(connector)}
             >
-              <Typography variant="button_text_s">{connector.name}</Typography>
+              <div className="flex items-center gap-3">
+                {isConnecting && (
+                  <div className="h-3 w-3 animate-spin rounded-full border-2 border-current border-r-transparent" />
+                )}
+                <Typography variant="button_text_s">
+                  {connector.name}
+                </Typography>
+              </div>
               {WALLET_LOGOS_BY_ID[connector.id] !== undefined ? (
                 <Image
                   alt={`${connector.name} logo`}

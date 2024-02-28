@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import * as Tabs from "@radix-ui/react-tabs";
+import { Typography } from "design-system";
 
 import InfiniteScrollButton from "~/app/_components/InfiniteScrollButton";
 import NftCard from "~/app/_components/NftCard/NftCard";
@@ -37,6 +38,11 @@ function AllNftsTabsContent() {
   ) {
     return (
       <Tabs.Content value="all">
+        <Typography className="pb-12" component="p" variant="body_text_18">
+          {
+            "You have no nft in your portfolio because you haven't bridged anything yet..."
+          }
+        </Typography>
         <NftsEmptyState type="token" />
       </Tabs.Content>
     );
@@ -114,6 +120,11 @@ function CollectionsTabsContent() {
   ) {
     return (
       <Tabs.Content value="collections">
+        <Typography className="pb-12" component="p" variant="body_text_18">
+          {
+            "You have no nft in your portfolio because you haven't bridged anything yet..."
+          }
+        </Typography>
         <NftsEmptyState type="collection" />
       </Tabs.Content>
     );
@@ -181,6 +192,11 @@ function EthereumNTabsContent() {
   } else if (l1NftsData.pages[0]?.totalCount === 0) {
     return (
       <Tabs.Content value="ethereum">
+        <Typography className="pb-12" component="p" variant="body_text_18">
+          {
+            "You have no nft in your portfolio because you haven't bridged anything yet..."
+          }
+        </Typography>
         <NftsEmptyState type="token" />
       </Tabs.Content>
     );
@@ -232,6 +248,11 @@ function StarknetTabsContent() {
   } else if (l2NftsData.pages[0]?.ownedNfts.length === 0) {
     return (
       <Tabs.Content value="starknet">
+        <Typography className="pb-12" component="p" variant="body_text_18">
+          {
+            "You have no nft in your portfolio because you haven't bridged anything yet..."
+          }
+        </Typography>
         <NftsEmptyState type="token" />
       </Tabs.Content>
     );

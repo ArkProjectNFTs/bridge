@@ -25,7 +25,6 @@ export default function Page({ params: { transactionHash } }: PageProps) {
   const { deselectAllNfts } = useNftSelection();
 
   useEffect(() => {
-    console.log("SHIT");
     deselectAllNfts();
   }, [deselectAllNfts]);
 

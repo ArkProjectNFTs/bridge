@@ -30,8 +30,11 @@ export default function useEthereumCollectionApproval() {
     },
   });
 
-  const { data: approveHash, writeContract: writeContractApprove } =
-    useWriteContract();
+  const {
+    data: approveHash,
+    isLoading: isSigning,
+    writeContract: writeContractApprove,
+  } = useWriteContract();
 
   function approveForAll() {
     writeContractApprove({
@@ -56,5 +59,6 @@ export default function useEthereumCollectionApproval() {
     approveForAll: () => approveForAll(),
     isApproveLoading: isApproveLoading && approveHash !== undefined,
     isApprovedForAll,
+    isSigning,
   };
 }

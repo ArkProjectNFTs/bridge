@@ -6,7 +6,8 @@ import useEthereumNftDeposit from "../_hooks/useEthereumNftDeposit";
 import useNftSelection from "../_hooks/useNftSelection";
 
 function ApproveNfts() {
-  const { approveForAll, isApproveLoading } = useEthereumCollectionApproval();
+  const { approveForAll, isApproveLoading, isSigning } =
+    useEthereumCollectionApproval();
 
   return (
     <>
@@ -52,18 +53,22 @@ function ApproveNfts() {
         onClick={() => !isApproveLoading && approveForAll()}
         size="small"
       >
-        <Typography
-          className="flex items-center gap-3"
-          component="p"
-          variant="button_text_s"
-        >
-          {isApproveLoading
-            ? "Approval in progress..."
-            : "Approve the selected Nfts"}
-          {isApproveLoading && (
-            <div className="h-3 w-3 animate-spin rounded-full border-2 border-current border-r-transparent" />
-          )}
-        </Typography>
+        {isSigning ? (
+          <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-r-transparent" />
+        ) : (
+          <Typography
+            className="flex items-center gap-3"
+            component="p"
+            variant="button_text_s"
+          >
+            {isApproveLoading
+              ? "Approval in progress..."
+              : "Approve the selected Nfts"}
+            {isApproveLoading && (
+              <div className="h-3 w-3 animate-spin rounded-full border-2 border-current border-r-transparent" />
+            )}
+          </Typography>
+        )}
       </Button>
     </>
   );
