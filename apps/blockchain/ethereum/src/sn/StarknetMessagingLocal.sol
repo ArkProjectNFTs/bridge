@@ -50,9 +50,4 @@ contract StarknetMessagingLocal is StarknetMessaging {
         messageCancellationDelay(delayInSeconds);
     }
 
-    // expose internal for testing purpose
-    function setMessageCancellationDelay(uint256 delayInSeconds) external {
-        messageCancellationDelay(delayInSeconds);
-    }
-
 }
