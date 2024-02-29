@@ -7,11 +7,11 @@ use super::events;
 
 use crate::config::ChainConfig;
 use crate::storage::protocol::ProtocolParser;
-use crate::storage::{EventLabel, PendingWithdraw};
 use crate::storage::{
     store::{BlockStore, CrossChainTxStore, EventStore, PendingWithdrawStore, RequestStore},
     BlockIndex, BridgeChain, CrossChainTxKind,
 };
+use crate::storage::{EventLabel, PendingWithdraw};
 use crate::utils;
 use crate::ChainsBlocks;
 
@@ -20,7 +20,9 @@ use tokio::sync::RwLock as AsyncRwLock;
 use tokio::time::{self, Duration};
 
 ///
-pub struct StarknetIndexer<T: RequestStore + EventStore + BlockStore + CrossChainTxStore + PendingWithdrawStore> {
+pub struct StarknetIndexer<
+    T: RequestStore + EventStore + BlockStore + CrossChainTxStore + PendingWithdrawStore,
+> {
     client: StarknetClient,
     config: ChainConfig,
     store: Arc<T>,
@@ -123,7 +125,6 @@ where
                 self.process_events(block_number, events).await?;
             }
 
-
             // The block range was fetched and processed.
             // If any block has an error, an other instance of the indexer
             // must be restarted on a the specific range.
@@ -153,8 +154,7 @@ where
         );
 
         // TODO: start a database transaction/session.
-        
-        
+
         let sn_bridge_address = &self.config.clone().bridge_address;
         let eth_bridge_address = &self.eth_bridge_address;
 
@@ -181,13 +181,17 @@ where
 
                         if ev.label == EventLabel::DepositInitiatedL2 {
                             log::debug!("DepositInitiatedL2");
-                            let _ = self.store.insert_pending_withdraw(PendingWithdraw {
-                                req_hash: req.clone().hash,
-                                tx_hash: ev.tx_hash,
-                                chain_src: req.clone().chain_src,
-                                timestamp: ev.block_timestamp,
-                                message_hash: req.message_to_l1_hash(sn_bridge_address, eth_bridge_address),
-                            }).await?;
+                            let _ = self
+                                .store
+                                .insert_pending_withdraw(PendingWithdraw {
+                                    req_hash: req.clone().hash,
+                                    tx_hash: ev.tx_hash,
+                                    chain_src: req.clone().chain_src,
+                                    timestamp: ev.block_timestamp,
+                                    message_hash: req
+                                        .message_to_l1_hash(sn_bridge_address, eth_bridge_address),
+                                })
+                                .await?;
                         }
 
                         if let Some(tx) = xchain_tx {
@@ -195,14 +199,19 @@ where
                                 CrossChainTxKind::WithdrawAuto => {
                                     // First check if the tx is not already inserted to not overwrite
                                     // an event already indexed on ethereum.
-                                    if self.store.tx_from_request_kind(
-                                        &tx.req_hash.clone(),
-                                        CrossChainTxKind::WithdrawAuto).await?.is_none()
+                                    if self
+                                        .store
+                                        .tx_from_request_kind(
+                                            &tx.req_hash.clone(),
+                                            CrossChainTxKind::WithdrawAuto,
+                                        )
+                                        .await?
+                                        .is_none()
                                     {
                                         self.store.insert_tx(tx).await?;
                                     }
                                 }
-                                _ => ()
+                                _ => (),
                             }
                         }
                     }

@@ -46,7 +46,9 @@ pub struct ChainsBlocks {
 
 async fn version_header<B>(req: Request<B>, next: Next<B>) -> Response {
     let mut response = next.run(req).await;
-    response.headers_mut().insert("X-INDEXER-VERSION", env!("GIT_HASH").parse().unwrap());
+    response
+        .headers_mut()
+        .insert("X-INDEXER-VERSION", env!("GIT_HASH").parse().unwrap());
     response
 }
 

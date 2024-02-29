@@ -3,7 +3,9 @@
 use anyhow::Result;
 use async_trait::async_trait;
 
-use crate::storage::{BlockIndex, BridgeChain, CrossChainTx, Event, Request, CrossChainTxKind, PendingWithdraw};
+use crate::storage::{
+    BlockIndex, BridgeChain, CrossChainTx, CrossChainTxKind, Event, PendingWithdraw, Request,
+};
 
 /// Store related to cross chain transactions.
 #[async_trait]
@@ -21,7 +23,11 @@ pub trait CrossChainTxStore {
     async fn pending_xtxs(&self, chain: BridgeChain) -> Result<Vec<CrossChainTx>>;
 
     ///
-    async fn tx_from_request_kind(&self, req_hash: &str, kind: CrossChainTxKind) -> Result<Option<CrossChainTx>>;
+    async fn tx_from_request_kind(
+        &self,
+        req_hash: &str,
+        kind: CrossChainTxKind,
+    ) -> Result<Option<CrossChainTx>>;
 }
 
 /// Store related to the indexing state.
@@ -60,7 +66,7 @@ pub trait EventStore {
     ///
     async fn events_by_request(&self, req_hash: &str) -> Result<Vec<Event>>;
 
-    /// 
+    ///
     async fn event_by_tx(&self, tx_hash: &str) -> Result<Option<Event>>;
 }
 
@@ -77,7 +83,6 @@ pub trait CollectionStore {
         req_hash: &str,
     ) -> Result<()>;
 }
-
 
 #[async_trait]
 pub trait PendingWithdrawStore {

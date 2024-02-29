@@ -11,7 +11,9 @@ use super::MongoStore;
 #[async_trait]
 impl PendingWithdrawStore for MongoStore {
     async fn insert_pending_withdraw(&self, pending_withdraw: PendingWithdraw) -> Result<()> {
-        self.pending_withdraws.insert_one(pending_withdraw, None).await?;
+        self.pending_withdraws
+            .insert_one(pending_withdraw, None)
+            .await?;
         Ok(())
     }
 
@@ -28,7 +30,9 @@ impl PendingWithdrawStore for MongoStore {
 
     async fn remove_pending_withdraw(&self, pending_withdraw: PendingWithdraw) -> Result<()> {
         // tx_hash shall be unique
-        self.pending_withdraws.delete_one(doc! { "tx_hash": pending_withdraw.tx_hash}, None).await?;
+        self.pending_withdraws
+            .delete_one(doc! { "tx_hash": pending_withdraw.tx_hash}, None)
+            .await?;
         Ok(())
     }
 }

@@ -61,7 +61,7 @@ impl CrossChainTxStore for MongoStore {
     async fn tx_from_request_kind(
         &self,
         req_hash: &str,
-        kind: CrossChainTxKind
+        kind: CrossChainTxKind,
     ) -> Result<Option<CrossChainTx>> {
         let filter = doc! { "req_hash": req_hash, "kind": kind.to_string() };
 

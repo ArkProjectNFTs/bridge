@@ -172,7 +172,7 @@ impl EthereumClient {
 
             filters.block_option = FilterBlockOption::Range {
                 from_block: Some(BlockNumber::Number(from_block.into())),
-                to_block: Some(BlockNumber::Number(to_block_range.into()))
+                to_block: Some(BlockNumber::Number(to_block_range.into())),
             };
         }
 
@@ -180,7 +180,8 @@ impl EthereumClient {
     }
 
     pub async fn query_message_status(&self, msg_hash: [u8; 32]) -> Result<u64> {
-        let messaging = StarknetMessaging::new(self.messaging_address, Arc::new(self.provider.clone()));
+        let messaging =
+            StarknetMessaging::new(self.messaging_address, Arc::new(self.provider.clone()));
         let status = messaging.l2_to_l1_messages(msg_hash).call().await?;
         Ok(status.try_into().unwrap())
     }

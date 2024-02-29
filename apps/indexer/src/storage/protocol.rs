@@ -5,9 +5,7 @@ use starknet::core::types::{FieldElement, MsgToL1};
 
 use super::Request;
 
-
 pub type MessageHash = [u8; 32];
-
 
 pub trait ProtocolParser {
     fn get_token_ids_offset(&self) -> usize;
@@ -106,10 +104,8 @@ mod tests {
                 "0x0164cba33fb7152531f6b4cfc3fff26b4d7b26b4900e0881042edd607b428a92",
             )
             .unwrap(),
-            to_address: FieldElement::from_hex_be(
-                "0xb6dbfaa86bb683152e4fc2401260f9ca249519c0",
-            )
-            .unwrap(),
+            to_address: FieldElement::from_hex_be("0xb6dbfaa86bb683152e4fc2401260f9ca249519c0")
+                .unwrap(),
             payload: vec![
                 FieldElement::from_hex_be("0x0").unwrap(),
                 FieldElement::from_hex_be("0x0").unwrap(),

@@ -7,9 +7,9 @@ use serde::{Deserialize, Serialize};
 
 use super::AppState;
 use crate::storage::{
+    protocol::ProtocolParser,
     store::{EventStore, RequestStore},
     Event, Request,
-    protocol::ProtocolParser,
 };
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -55,15 +55,12 @@ pub async fn reqs_info_from_wallet(
     Ok(Json(dtos))
 }
 
-pub async fn transaction(
-    Path(txhash): Path<String>,
-    state: State<AppState>,
-) -> StatusCode {
+pub async fn transaction(Path(txhash): Path<String>, state: State<AppState>) -> StatusCode {
     if let Ok(event) = state.store.event_by_tx(&txhash.to_lowercase()).await {
         if event.is_some() {
             return StatusCode::OK;
         }
-    } 
+    }
     StatusCode::NOT_FOUND
 }
 
@@ -75,9 +72,7 @@ pub struct IndexerInfo {
     l2_block_number: u64,
 }
 
-pub async fn info(
-    state: State<AppState>
-) -> Result<Json<IndexerInfo>, (StatusCode, String)> {
+pub async fn info(state: State<AppState>) -> Result<Json<IndexerInfo>, (StatusCode, String)> {
     let chains_blocks = state.chains_blocks.read().await;
     let info = IndexerInfo {
         l1_address: state.l1_address.clone(),

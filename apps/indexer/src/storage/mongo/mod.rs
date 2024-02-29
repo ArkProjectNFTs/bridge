@@ -9,9 +9,9 @@ use super::PendingWithdraw;
 
 mod block_store;
 mod event_store;
+mod pending_withdraw_store;
 mod request_store;
 mod xchain_tx_store;
-mod pending_withdraw_store;
 
 /// Mongo db abstraction.
 ///
@@ -45,7 +45,7 @@ impl MongoStore {
         let blocks = db.collection::<BlockIndex>("blocks");
         let xchain_txs = db.collection::<CrossChainTx>("xchain_txs");
         let pending_withdraws = db.collection::<PendingWithdraw>("pending_withdraws");
-        
+
         Ok(MongoStore {
             requests,
             events,

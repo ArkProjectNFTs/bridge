@@ -4,8 +4,8 @@
 use serde::{Deserialize, Serialize};
 
 pub mod mongo;
-pub mod store;
 pub mod protocol;
+pub mod store;
 
 ///
 #[derive(Debug, Default, Serialize, Deserialize, Clone)]
@@ -159,5 +159,5 @@ pub struct PendingWithdraw {
     // timestamp
     pub timestamp: u64,
 
-    pub message_hash: [u8;32],
+    pub message_hash: [u8; 32],
 }
