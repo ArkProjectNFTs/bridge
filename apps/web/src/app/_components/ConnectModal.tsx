@@ -23,7 +23,7 @@ function ChainButton({ chain, onClick }: ChainButtonProps) {
       className="flex w-full items-center justify-between rounded-full bg-galaxy-blue py-2 pl-3.5 pr-2 text-white transition-colors hover:bg-space-blue-source hover:text-galaxy-blue dark:bg-white dark:text-galaxy-blue dark:hover:bg-space-blue-source"
       onClick={onClick}
     >
-      <Typography className="w-full" variant="body_text_bold_14">
+      <Typography className="w-full" variant="button_text_s">
         {isConnected ? shortAddress : `Connect ${chain} wallet`}
       </Typography>
       <Image
@@ -124,13 +124,6 @@ export default function ConnectModal({
               onClick={() => setDisplayedChain("Starknet")}
             />
           </div>
-          <Typography
-            className="mt-6"
-            component="p"
-            variant="body_text_bold_14"
-          >
-            {"I don't have a wallet"}
-          </Typography>
         </>
       ) : (
         <ConnectorList chain={displayedChain} />

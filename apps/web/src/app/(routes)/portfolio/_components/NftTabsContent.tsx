@@ -39,9 +39,7 @@ function AllNftsTabsContent() {
     return (
       <Tabs.Content value="all">
         <Typography className="pb-12" component="p" variant="body_text_18">
-          {
-            "You have no nft in your portfolio because you haven't bridged anything yet..."
-          }
+          {"You have no nft in your wallets..."}
         </Typography>
         <NftsEmptyState type="token" />
       </Tabs.Content>
@@ -121,9 +119,7 @@ function CollectionsTabsContent() {
     return (
       <Tabs.Content value="collections">
         <Typography className="pb-12" component="p" variant="body_text_18">
-          {
-            "You have no nft in your portfolio because you haven't bridged anything yet..."
-          }
+          {"You have no nft in your wallets..."}
         </Typography>
         <NftsEmptyState type="collection" />
       </Tabs.Content>
@@ -193,9 +189,7 @@ function EthereumNTabsContent() {
     return (
       <Tabs.Content value="ethereum">
         <Typography className="pb-12" component="p" variant="body_text_18">
-          {
-            "You have no nft in your portfolio because you haven't bridged anything yet..."
-          }
+          {"You have no nft in your Ethereum wallet..."}
         </Typography>
         <NftsEmptyState type="token" />
       </Tabs.Content>
@@ -249,9 +243,7 @@ function StarknetTabsContent() {
     return (
       <Tabs.Content value="starknet">
         <Typography className="pb-12" component="p" variant="body_text_18">
-          {
-            "You have no nft in your portfolio because you haven't bridged anything yet..."
-          }
+          {"You have no nft in your Starknet wallet"}
         </Typography>
         <NftsEmptyState type="token" />
       </Tabs.Content>

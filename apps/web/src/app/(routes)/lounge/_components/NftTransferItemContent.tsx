@@ -20,23 +20,31 @@ interface NftTransferItemContentProps {
   tokenIds: Array<string>;
 }
 
-function NftTransferItemContentLoadingState() {
+interface NftTransferItemContentLoadingStateProps {
+  totalCount: number;
+}
+
+function NftTransferItemContentLoadingState({
+  totalCount,
+}: NftTransferItemContentLoadingStateProps) {
   return (
     <Collapsible.Content asChild>
       <div className="flex rounded-b-2xl border-x border-b border-asteroid-grey-100 bg-white px-6 py-8 dark:border-space-blue-800 dark:bg-space-blue-900">
         <div className="mr-4 w-0.5 rounded-full bg-asteroid-grey-100 dark:bg-space-blue-800" />
         <div className="flex w-full flex-col gap-4">
-          {[0, 1, 2].map((item) => {
-            return (
-              <div className="flex items-center gap-4" key={item}>
-                <div className="h-13 w-13 rounded-[0.25rem] bg-asteroid-grey-100 dark:bg-space-blue-800" />
-                <div className="flex flex-col gap-2">
-                  <div className="h-4 w-44 rounded-full bg-asteroid-grey-100 dark:bg-space-blue-800" />
-                  <div className="h-4 w-18 rounded-full bg-asteroid-grey-100 dark:bg-space-blue-800" />
+          {Array(totalCount)
+            .fill(0)
+            .map((_, index) => {
+              return (
+                <div className="flex items-center gap-4" key={index}>
+                  <div className="h-13 w-13 rounded-[0.25rem] bg-asteroid-grey-100 dark:bg-space-blue-800" />
+                  <div className="flex flex-col gap-2">
+                    <div className="h-4 w-44 rounded-full bg-asteroid-grey-100 dark:bg-space-blue-800" />
+                    <div className="h-4 w-18 rounded-full bg-asteroid-grey-100 dark:bg-space-blue-800" />
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
         </div>
       </div>
     </Collapsible.Content>
@@ -73,7 +81,7 @@ export default function NftTransferItemContent({
   const nfts = targetChain === "Starknet" ? l1Nfts : l2Nfts;
 
   if (nfts === undefined) {
-    return <NftTransferItemContentLoadingState />;
+    return <NftTransferItemContentLoadingState totalCount={tokenIds.length} />;
   }
 
   return (

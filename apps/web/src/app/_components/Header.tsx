@@ -26,16 +26,19 @@ function BridgeLink() {
   return (
     <Link className="flex items-center gap-1" href="/bridge">
       <Typography
-        className={clsx(pathname?.includes("/bridge") && "text-primary-source")}
+        className={clsx(
+          pathname?.includes("/bridge") && "text-space-blue-source",
+          "transition-colors hover:text-space-blue-source"
+        )}
         variant="heading_light_xxs"
       >
         Bridge
       </Typography>
 
       {totalSelectedNfts > 0 && (
-        <div className="flex h-5 items-center rounded-full bg-primary-100 px-2 dark:bg-primary-400">
+        <div className="flex h-5 items-center rounded-full bg-space-blue-100 px-2 dark:bg-space-blue-400">
           <Typography
-            className="text-primary-source dark:text-galaxy-blue"
+            className="text-space-blue-source dark:text-galaxy-blue"
             variant="button_text_xs"
           >
             {totalSelectedNfts}
@@ -63,15 +66,18 @@ function LoungeLink() {
   return (
     <Link className="flex items-center gap-1" href="/lounge">
       <Typography
-        className={clsx(pathname === "/lounge" && "text-primary-source")}
+        className={clsx(
+          pathname === "/lounge" && "text-space-blue-source",
+          "transition-colors hover:text-space-blue-source"
+        )}
         variant="heading_light_xxs"
       >
         Lounge
       </Typography>
       {(bridgeRequests?.inTransit.totalCount ?? 0) > 0 && (
-        <div className="flex h-5 items-center rounded-full bg-primary-100 px-2 dark:bg-primary-400">
+        <div className="flex h-5 items-center rounded-full bg-space-blue-100 px-2 dark:bg-space-blue-400">
           <Typography
-            className="text-primary-source dark:text-galaxy-blue"
+            className="text-space-blue-source dark:text-galaxy-blue"
             variant="button_text_xs"
           >
             {bridgeRequests?.inTransit.totalCount}
@@ -104,7 +110,8 @@ export default function Header() {
         <Link href="/portfolio">
           <Typography
             className={clsx(
-              pathname === "/portfolio" && "text-space-blue-source"
+              pathname === "/portfolio" && "text-space-blue-source",
+              "transition-colors hover:text-space-blue-source"
             )}
             variant="heading_light_xxs"
           >

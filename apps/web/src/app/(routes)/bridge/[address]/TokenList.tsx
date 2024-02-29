@@ -95,7 +95,7 @@ export default function TokenList({ nftContractAddress }: TokenListProps) {
             {collectionData ? collectionData.name : ""} Collection
           </Typography>
           <Typography
-            className="shrink-0 rounded-full bg-primary-source px-2 py-1.5 text-white"
+            className="shrink-0 rounded-full bg-primary-source px-2 py-1.5 text-galaxy-blue"
             variant="body_text_12"
           >
             {totalCount}
@@ -104,7 +104,7 @@ export default function TokenList({ nftContractAddress }: TokenListProps) {
         </div>
         {isAllSelected ? (
           <Button
-            className="flex bg-primary-source text-white"
+            className="flex bg-primary-source text-galaxy-blue"
             onClick={deselectAllNfts}
             size="small"
           >
@@ -118,7 +118,7 @@ export default function TokenList({ nftContractAddress }: TokenListProps) {
             >
               <path
                 d="M4 12L8 8M8 8L12 4M8 8L4 4M8 8L12 12"
-                stroke="white"
+                stroke="currentColor"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth="2"
