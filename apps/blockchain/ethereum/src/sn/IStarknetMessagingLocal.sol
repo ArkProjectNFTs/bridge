@@ -8,8 +8,8 @@ interface IStarknetMessagingLocal {
 
     /**
      */
-    function addMessageHashFromL2(
-        uint256 msgHash
+    function addMessageHashesFromL2(
+        uint256[] calldata msgHashes
     )
         external
         payable;

@@ -293,7 +293,9 @@ contract BridgeTest is Test, IStarklaneEvent {
 
         // The message must be simulated to come from starknet verifier contract
         // on L1 and pushed to starknet core.
-        IStarknetMessagingLocal(snCore).addMessageHashFromL2(uint256(msgHash));
+        uint256[] memory hashes = new uint256[](1);
+        hashes[0] = uint256(msgHash);
+        IStarknetMessagingLocal(snCore).addMessageHashesFromL2(hashes);
         address collection = IStarklane(bridge).withdrawTokens(reqSerialized);
 
         // TODO: add verification of event emission.
