@@ -3,7 +3,7 @@
 use anyhow::Result;
 use async_trait::async_trait;
 
-use crate::storage::{BlockIndex, BridgeChain, CrossChainTx, Event, Request, CrossChainTxKind};
+use crate::storage::{BlockIndex, BridgeChain, CrossChainTx, Event, Request, CrossChainTxKind, PendingWithdraw};
 
 /// Store related to cross chain transactions.
 #[async_trait]
@@ -76,4 +76,14 @@ pub trait CollectionStore {
         time: u64,
         req_hash: &str,
     ) -> Result<()>;
+}
+
+
+#[async_trait]
+pub trait PendingWithdrawStore {
+    async fn insert_pending_withdraw(&self, pending_withdraw: PendingWithdraw) -> Result<()>;
+
+    async fn get_pending_withdraws(&self) -> Result<Vec<PendingWithdraw>>;
+
+    async fn remove_pending_withdraw(&self, pending_withdraw: PendingWithdraw) -> Result<()>;
 }

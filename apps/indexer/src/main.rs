@@ -91,6 +91,7 @@ async fn main() -> Result<()> {
         config.starknet.clone(),
         Arc::clone(&mongo_store),
         Arc::clone(&chains_blocks),
+        config.ethereum.clone().bridge_address,
     )
     .await?;
 

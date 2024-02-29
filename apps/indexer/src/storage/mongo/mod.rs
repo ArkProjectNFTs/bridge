@@ -5,10 +5,13 @@ use crate::storage::{
     BlockIndex, BridgeChain, CrossChainTx, CrossChainTxKind, Event, EventLabel, Request,
 };
 
+use super::PendingWithdraw;
+
 mod block_store;
 mod event_store;
 mod request_store;
 mod xchain_tx_store;
+mod pending_withdraw_store;
 
 /// Mongo db abstraction.
 ///
@@ -23,6 +26,7 @@ pub struct MongoStore {
     events: Collection<Event>,
     blocks: Collection<BlockIndex>,
     xchain_txs: Collection<CrossChainTx>,
+    pending_withdraws: Collection<PendingWithdraw>,
 }
 
 ///
@@ -40,12 +44,14 @@ impl MongoStore {
         let events = db.collection::<Event>("events");
         let blocks = db.collection::<BlockIndex>("blocks");
         let xchain_txs = db.collection::<CrossChainTx>("xchain_txs");
-
+        let pending_withdraws = db.collection::<PendingWithdraw>("pending_withdraws");
+        
         Ok(MongoStore {
             requests,
             events,
             blocks,
             xchain_txs,
+            pending_withdraws,
         })
     }
 }

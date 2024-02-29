@@ -11,6 +11,9 @@ pub struct ChainConfig {
     pub to_block: Option<String>,
     pub bridge_address: String,
     pub fetch_interval: u64,
+    pub messaging_address: Option<String>,
+    pub messaging_timeout: Option<u64>,
+    /// For auto withdraw
     pub account_address: Option<String>,
     pub account_private_key: Option<String>,
 }

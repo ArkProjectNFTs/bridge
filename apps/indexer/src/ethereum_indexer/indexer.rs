@@ -3,8 +3,8 @@ use ethers::types::{BlockNumber, Log, U256};
 
 use crate::config::{ChainConfig, XchainTxConfig};
 use crate::storage::{
-    store::{BlockStore, CrossChainTxStore, EventStore, RequestStore},
-    BlockIndex, BridgeChain, CrossChainTxKind, EventLabel, Event,
+    store::{BlockStore, CrossChainTxStore, EventStore, PendingWithdrawStore, RequestStore},
+    BlockIndex, BridgeChain, CrossChainTxKind, Event, EventLabel,
 };
 use crate::utils;
 
@@ -18,7 +18,9 @@ use tokio::sync::RwLock as AsyncRwLock;
 use tokio::time::{self, Duration};
 
 ///
-pub struct EthereumIndexer<T: RequestStore + EventStore + BlockStore + CrossChainTxStore> {
+pub struct EthereumIndexer<
+    T: RequestStore + EventStore + BlockStore + CrossChainTxStore + PendingWithdrawStore,
+> {
     client: EthereumClient,
     config: ChainConfig,
     store: Arc<T>,
@@ -28,7 +30,7 @@ pub struct EthereumIndexer<T: RequestStore + EventStore + BlockStore + CrossChai
 
 impl<T> EthereumIndexer<T>
 where
-    T: RequestStore + EventStore + BlockStore + CrossChainTxStore,
+    T: RequestStore + EventStore + BlockStore + CrossChainTxStore + PendingWithdrawStore,
 {
     ///
     pub async fn new(
@@ -87,6 +89,14 @@ where
                 Err(e) => log::warn!("Error sending xchain_txs {:?}", e),
             };
 
+            //
+            // Check for pending withdraw
+            match self.process_pending_withdraws(to).await {
+                Ok(_) => (),
+                Err(e) => log::warn!("Error processing pending transactions {:?}", e),
+            };
+
+            //
             // The block range was fetched and processed.
             // If any block has an error, an other instance of the indexer
             // must be restarted on a the specific range.
@@ -101,13 +111,18 @@ where
     async fn xchain_txs_send(&self) -> Result<()> {
         if !self.xchain_txor_config.enabled {
             log::debug!("xchain_txor is disabled in config, skipping");
-            return Ok(())
+            return Ok(());
         }
 
         let cbs = self.chains_blocks.read().await;
-        if cbs.sn < self.xchain_txor_config.sn_min_block || cbs.eth < self.xchain_txor_config.eth_min_block {
-            log::debug!("xchain_txor skipped due to unmet blocks requirements {:?}", cbs);
-            return Ok(())
+        if cbs.sn < self.xchain_txor_config.sn_min_block
+            || cbs.eth < self.xchain_txor_config.eth_min_block
+        {
+            log::debug!(
+                "xchain_txor skipped due to unmet blocks requirements {:?}",
+                cbs
+            );
+            return Ok(());
         }
 
         let txs = self.store.pending_xtxs(BridgeChain::Ethereum).await?;
@@ -131,8 +146,14 @@ where
                 CrossChainTxKind::WithdrawAuto => {
                     // If the withdraw event is already registered on L1, tx sending can be skipped.
                     let req_events: Vec<Event> = self.store.events_by_request(&tx.req_hash).await?;
-                    if req_events.iter().any(|e| e.label == EventLabel::WithdrawCompletedL1) {
-                        log::debug!("Request already withdrawn on L1 {:?}, skipping", tx.req_hash);
+                    if req_events
+                        .iter()
+                        .any(|e| e.label == EventLabel::WithdrawCompletedL1)
+                    {
+                        log::debug!(
+                            "Request already withdrawn on L1 {:?}, skipping",
+                            tx.req_hash
+                        );
                         continue;
                     }
 
@@ -211,15 +232,21 @@ where
                         match tx.kind {
                             CrossChainTxKind::WithdrawAuto => {
                                 // Force insert or update to ensure no more tx are fired.
-                                match self.store.tx_from_request_kind(
-                                    &tx.req_hash.clone(),
-                                    CrossChainTxKind::WithdrawAuto).await?
+                                match self
+                                    .store
+                                    .tx_from_request_kind(
+                                        &tx.req_hash.clone(),
+                                        CrossChainTxKind::WithdrawAuto,
+                                    )
+                                    .await?
                                 {
-                                    Some(_) => self.store.set_tx_as_sent(tx.req_hash, tx.tx_hash).await?,
+                                    Some(_) => {
+                                        self.store.set_tx_as_sent(tx.req_hash, tx.tx_hash).await?
+                                    }
                                     None => self.store.insert_tx(tx).await?,
                                 }
                             }
-                            _ => ()
+                            _ => (),
                         }
                     }
 
@@ -240,6 +267,32 @@ where
         self.store.insert_block(block_idx).await?;
         // TODO: end the database transaction/session.
 
+        Ok(())
+    }
+
+    async fn process_pending_withdraws(&self, block_number: u64) -> Result<()> {
+        let pendings = self.store.get_pending_withdraws().await?;
+        for pending in pendings {
+            let status = self
+                .client
+                .query_message_status(pending.message_hash)
+                .await?;
+            log::debug!("{:?}: {:?}", pending.message_hash, status);
+            if status != 0 {
+                if let Some(mut event) = self.store.event_by_tx(&pending.tx_hash).await? {
+                    if event.label != EventLabel::WithdrawCompletedL1 {
+                        // FIXME: update time stamp
+                        event.block_number = block_number;
+                        event.label = EventLabel::WithdrawAvailableL1;
+                        // TODO: which transaction hash we should set?
+                        event.tx_hash = "0x435553544f4d5f5452414e53414354494f4e".to_owned(); // CUSTOM_TRANSACTION
+                        
+                        self.store.insert_event(event).await?;
+                        self.store.remove_pending_withdraw(pending).await?;
+                    }
+                }
+            }
+        }
         Ok(())
     }
 }
