@@ -1,9 +1,7 @@
+use crate::storage::{BridgeChain, CrossChainTx, CrossChainTxKind, Event, EventLabel, Request};
 use anyhow::{anyhow, Result};
 use ethers::prelude::*;
-
 use serde_json::{json, Value};
-
-use crate::storage::{BridgeChain, Event, EventLabel, Request, CrossChainTx, CrossChainTxKind};
 
 // TODO: refacto this to be common with starknet.
 pub const REQUEST_HEADER_WITHDRAW_AUTO: u128 = 0x01000000;
@@ -73,13 +71,14 @@ pub fn get_store_data(log: Log) -> Result<(Option<Request>, Option<Event>, Optio
             event.label = EventLabel::WithdrawCompletedL1;
             event.block_timestamp = data.block_timestamp.try_into().unwrap();
 
-            let h: u128 = data.req_content[0].try_into().expect("Can't convert header to u128");
+            let h: u128 = data.req_content[0]
+                .try_into()
+                .expect("Can't convert header to u128");
             let is_withdraw_auto = h & REQUEST_HEADER_WITHDRAW_AUTO == REQUEST_HEADER_WITHDRAW_AUTO;
 
             request = request_from_log_data(&event.label, data.req_content)?;
 
-            if event.label == EventLabel::WithdrawCompletedL1 && is_withdraw_auto
-            {
+            if event.label == EventLabel::WithdrawCompletedL1 && is_withdraw_auto {
                 tx = Some(CrossChainTx {
                     chain: BridgeChain::Ethereum,
                     kind: CrossChainTxKind::WithdrawAuto,
@@ -90,7 +89,6 @@ pub fn get_store_data(log: Log) -> Result<(Option<Request>, Option<Event>, Optio
             } else {
                 tx = None;
             }
-
         }
         COLLECTION_DEPOYED_FROM_L2_SIG => {
             // TODO: return event only.

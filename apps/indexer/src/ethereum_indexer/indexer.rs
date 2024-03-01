@@ -1,17 +1,14 @@
-use anyhow::Result;
-use ethers::types::{BlockNumber, Log, U256};
-
+use super::client::EthereumClient;
+use super::events;
 use crate::config::{ChainConfig, XchainTxConfig};
 use crate::storage::{
     store::{BlockStore, CrossChainTxStore, EventStore, RequestStore},
-    BlockIndex, BridgeChain, CrossChainTxKind, EventLabel, Event,
+    BlockIndex, BridgeChain, CrossChainTxKind, Event, EventLabel,
 };
 use crate::utils;
-
-use super::client::EthereumClient;
-use super::events;
 use crate::ChainsBlocks;
-
+use anyhow::Result;
+use ethers::types::{BlockNumber, Log, U256};
 use std::str::FromStr;
 use std::sync::Arc;
 use tokio::sync::RwLock as AsyncRwLock;
@@ -101,13 +98,18 @@ where
     async fn xchain_txs_send(&self) -> Result<()> {
         if !self.xchain_txor_config.enabled {
             log::debug!("xchain_txor is disabled in config, skipping");
-            return Ok(())
+            return Ok(());
         }
 
         let cbs = self.chains_blocks.read().await;
-        if cbs.sn < self.xchain_txor_config.sn_min_block || cbs.eth < self.xchain_txor_config.eth_min_block {
-            log::debug!("xchain_txor skipped due to unmet blocks requirements {:?}", cbs);
-            return Ok(())
+        if cbs.sn < self.xchain_txor_config.sn_min_block
+            || cbs.eth < self.xchain_txor_config.eth_min_block
+        {
+            log::debug!(
+                "xchain_txor skipped due to unmet blocks requirements {:?}",
+                cbs
+            );
+            return Ok(());
         }
 
         let txs = self.store.pending_xtxs(BridgeChain::Ethereum).await?;
@@ -131,8 +133,14 @@ where
                 CrossChainTxKind::WithdrawAuto => {
                     // If the withdraw event is already registered on L1, tx sending can be skipped.
                     let req_events: Vec<Event> = self.store.events_by_request(&tx.req_hash).await?;
-                    if req_events.iter().any(|e| e.label == EventLabel::WithdrawCompletedL1) {
-                        log::debug!("Request already withdrawn on L1 {:?}, skipping", tx.req_hash);
+                    if req_events
+                        .iter()
+                        .any(|e| e.label == EventLabel::WithdrawCompletedL1)
+                    {
+                        log::debug!(
+                            "Request already withdrawn on L1 {:?}, skipping",
+                            tx.req_hash
+                        );
                         continue;
                     }
 
@@ -211,15 +219,21 @@ where
                         match tx.kind {
                             CrossChainTxKind::WithdrawAuto => {
                                 // Force insert or update to ensure no more tx are fired.
-                                match self.store.tx_from_request_kind(
-                                    &tx.req_hash.clone(),
-                                    CrossChainTxKind::WithdrawAuto).await?
+                                match self
+                                    .store
+                                    .tx_from_request_kind(
+                                        &tx.req_hash.clone(),
+                                        CrossChainTxKind::WithdrawAuto,
+                                    )
+                                    .await?
                                 {
-                                    Some(_) => self.store.set_tx_as_sent(tx.req_hash, tx.tx_hash).await?,
+                                    Some(_) => {
+                                        self.store.set_tx_as_sent(tx.req_hash, tx.tx_hash).await?
+                                    }
                                     None => self.store.insert_tx(tx).await?,
                                 }
                             }
-                            _ => ()
+                            _ => (),
                         }
                     }
 
