@@ -22,11 +22,13 @@ export default function Page({ params: { transactionHash } }: PageProps) {
       },
       { refetchInterval: 2500 }
     );
-  const { deselectAllNfts } = useNftSelection();
+  const { deselectAllNfts, totalSelectedNfts } = useNftSelection();
 
   useEffect(() => {
-    deselectAllNfts();
-  }, [deselectAllNfts]);
+    if (totalSelectedNfts > 0) {
+      deselectAllNfts();
+    }
+  }, [totalSelectedNfts, deselectAllNfts]);
 
   if (hasBridgeRequestBeenIndexed) {
     redirect("/lounge?fromTransfer=true");

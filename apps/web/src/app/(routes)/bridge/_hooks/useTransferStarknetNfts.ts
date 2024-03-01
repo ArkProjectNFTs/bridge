@@ -5,7 +5,7 @@ import {
   useAccount as useStarknetAccount,
 } from "@starknet-react/core";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { CallData } from "starknet";
 import { useAccount as useEthereumAccount } from "wagmi";
 
@@ -14,6 +14,7 @@ import useNftSelection from "./useNftSelection";
 const L2_BRIDGE_ADDRESS = process.env.NEXT_PUBLIC_L2_BRIDGE_ADDRESS || "";
 
 export default function useTransferStarknetNfts() {
+  const [isSigning, setIsSigning] = useState(false);
   const { selectedCollectionAddress, selectedTokenIds } = useNftSelection();
 
   const { address: ethereumAddress } = useEthereumAccount();
@@ -129,9 +130,21 @@ export default function useTransferStarknetNfts() {
     return [depositCall];
   }, [getDepositCalldata, isApprovedForAll, selectedCollectionAddress]);
 
-  const { data: depositData, write: depositTokens } = useContractWrite({
+  const {
+    data: depositData,
+    // write: depositTokens,
+    writeAsync,
+  } = useContractWrite({
     calls: depositCalls,
   });
+
+  async function depositTokens() {
+    setIsSigning(true);
+    try {
+      await writeAsync();
+    } catch {}
+    setIsSigning(false);
+  }
 
   const router = useRouter();
 
@@ -141,8 +154,12 @@ export default function useTransferStarknetNfts() {
     }
   }, [depositData, router]);
 
+  console.log("depositData: ", depositData);
+
   return {
     depositTokens: () => depositTokens(),
     depositTransactionHash: depositData?.transaction_hash,
+    // isSigning: isSigning && depositData?.transaction_hash !== undefined,
+    isSigning,
   };
 }

@@ -113,6 +113,7 @@ export const bridgeRequestRouter = createTRPCRouter({
               collectionImage: requestMetadata[index]?.media[0]?.thumbnail,
               collectionName: requestMetadata[index]?.contract.name ?? "",
               collectionSourceAddress: bridgeRequest.req.collection_src,
+              // requestHash: bridgeRequest.req.hash,
               status: lastBridgeRequestEvent?.label ?? "error",
               statusTimestamp: lastBridgeRequestEvent?.block_timestamp ?? 0,
               tokenIds: bridgeRequest.token_ids,

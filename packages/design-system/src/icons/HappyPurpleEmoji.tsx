@@ -17,14 +17,14 @@ export function HappyPurpleEmoji() {
         <path
           d="M25.8054 14.2177C25.6899 12.2932 24.0361 10.8267 22.1116 10.9422C20.1871 11.0577 18.7206 12.7115 18.8361 14.636"
           stroke="#0E2230"
-          stroke-linecap="round"
-          stroke-linejoin="round"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         />
         <path
           d="M14.676 15.4138C14.135 13.5633 12.1963 12.5018 10.3457 13.0428C8.49525 13.5839 7.43371 15.5226 7.97475 17.3731"
           stroke="#0E2230"
-          stroke-linecap="round"
-          stroke-linejoin="round"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         />
       </svg>
       <svg
@@ -43,14 +43,14 @@ export function HappyPurpleEmoji() {
         <path
           d="M25.8054 14.2174C25.6899 12.2929 24.0361 10.8264 22.1116 10.9419C20.1871 11.0574 18.7206 12.7112 18.8361 14.6357"
           stroke="#0E2230"
-          stroke-linecap="round"
-          stroke-linejoin="round"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         />
         <path
           d="M14.6758 15.4135C14.1347 13.563 12.196 12.5014 10.3455 13.0425C8.495 13.5835 7.43347 15.5222 7.9745 17.3727"
           stroke="#0E2230"
-          stroke-linecap="round"
-          stroke-linejoin="round"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         />
       </svg>
     </>

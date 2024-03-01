@@ -14,8 +14,11 @@ export default function useEthereumNftDeposit() {
 
   const { address: starknetAddress } = useStarknetAccount();
 
-  const { data: depositHash, writeContract: writeContractDeposit } =
-    useWriteContract();
+  const {
+    data: depositTransactionHash,
+    isLoading,
+    writeContract: writeContractDeposit,
+  } = useWriteContract();
 
   const router = useRouter();
 
@@ -72,12 +75,14 @@ export default function useEthereumNftDeposit() {
   }
 
   useEffect(() => {
-    if (depositHash !== undefined) {
-      void router.push(`lounge/${depositHash}`);
+    if (depositTransactionHash !== undefined) {
+      void router.push(`lounge/${depositTransactionHash}`);
     }
-  }, [depositHash, deselectAllNfts, router]);
+  }, [depositTransactionHash, deselectAllNfts, router]);
 
   return {
     depositTokens: () => depositTokens(),
+    depositTransactionHash,
+    isSigning: isLoading && depositTransactionHash === undefined,
   };
 }

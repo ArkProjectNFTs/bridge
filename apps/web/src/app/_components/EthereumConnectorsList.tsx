@@ -125,7 +125,7 @@ export default function EthereumConnectorsList() {
           className="mt-4 w-full rounded-full border-2 border-space-blue-900 py-2 transition-colors hover:border-space-blue-700 hover:text-space-blue-700 dark:border-space-blue-400 dark:text-space-blue-400 dark:hover:border-space-blue-200 dark:hover:text-space-blue-200"
           onClick={() => disconnect()}
         >
-          <Typography variant="body_text_bold_14">Disconnect</Typography>
+          <Typography variant="button_text_s">Disconnect</Typography>
         </button>
       </div>
     </>

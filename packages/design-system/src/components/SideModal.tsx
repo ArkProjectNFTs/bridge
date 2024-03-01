@@ -37,7 +37,10 @@ export function SideModal({
         >
           <div className="flex w-full justify-end">
             <Dialog.Close asChild>
-              <button aria-label="Close" className="dark:text-space-blue-400">
+              <button
+                aria-label="Close"
+                className="dark:text-space-blue-400 dark:hover:text-space-blue-200 transition-colors hover:text-space-blue-700"
+              >
                 <XMarkIcon className="h-6 w-6" />
               </button>
             </Dialog.Close>

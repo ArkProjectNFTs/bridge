@@ -131,7 +131,7 @@ export default function useNftSelection() {
     }));
   }
 
-  function deselectAllNfts() {
+  const deselectAllNfts = useCallback(() => {
     if (userAddress === undefined) {
       return;
     }
@@ -140,7 +140,7 @@ export default function useNftSelection() {
       ...previousValue,
       [userAddress]: undefined,
     }));
-  }
+  }, [setSelectedTokensByUserAddress, userAddress]);
 
   function toggleNftSelection(tokenId: string, collectionAddress: string) {
     if (userAddress === undefined) {

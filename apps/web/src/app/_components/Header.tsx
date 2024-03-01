@@ -67,7 +67,7 @@ function LoungeLink() {
     <Link className="flex items-center gap-1" href="/lounge">
       <Typography
         className={clsx(
-          pathname === "/lounge" && "text-space-blue-source",
+          pathname?.includes("/lounge") && "text-space-blue-source",
           "transition-colors hover:text-space-blue-source"
         )}
         variant="heading_light_xxs"

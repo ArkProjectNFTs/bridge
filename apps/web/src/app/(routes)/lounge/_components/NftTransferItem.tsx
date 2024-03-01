@@ -127,7 +127,7 @@ export default function NftTransferItem({
         <div></div>
 
         <Collapsible.Trigger asChild>
-          <button className="flex h-9 w-9 items-center justify-center justify-self-end rounded-md border-2 border-asteroid-grey-600 text-2xl text-asteroid-grey-600 dark:border-space-blue-300 dark:text-space-blue-300">
+          <button className="flex h-9 w-9 items-center justify-center justify-self-end rounded-md border-2 border-asteroid-grey-600 text-2xl text-asteroid-grey-600 transition-colors hover:border-asteroid-grey-800 hover:text-asteroid-grey-800 dark:border-space-blue-400 dark:text-space-blue-400 dark:hover:border-space-blue-200 dark:hover:text-space-blue-200">
             {open ? <MinusIcon /> : <PlusIcon />}
           </button>
         </Collapsible.Trigger>

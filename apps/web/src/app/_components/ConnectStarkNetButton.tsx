@@ -38,7 +38,7 @@ export default function ConnectStarknetButton({
   return (
     <>
       <button
-        className="flex items-center gap-2.5 rounded-full bg-space-blue-900 py-2 pl-3 pr-2 text-sm font-semibold text-white transition-colors hover:bg-space-blue-800 dark:bg-space-blue-800 dark:hover:bg-space-blue-900"
+        className="group flex items-center gap-2.5 rounded-full bg-space-blue-900 py-2 pl-3 pr-2 text-sm font-semibold text-white transition-colors hover:bg-space-blue-800 dark:bg-space-blue-800 dark:hover:bg-space-blue-900"
         onClick={() => onOpenModalChange(!isModalOpen)}
       >
         <Typography variant="button_text_xs">
@@ -60,7 +60,7 @@ export default function ConnectStarknetButton({
               }
               // eslint-disable-next-line @typescript-eslint/restrict-template-expressions, @typescript-eslint/unbound-method
               alt={`${connector.name} logo`}
-              className="-ml-2 rounded-full outline outline-2 outline-space-blue-900"
+              className="-ml-2 rounded-full outline outline-2 outline-space-blue-900 transition-colors group-hover:outline-space-blue-800 dark:outline-space-blue-800 group-hover:dark:outline-space-blue-900"
               height={28}
               width={28}
             />

@@ -104,7 +104,7 @@ export default function TokenList({ nftContractAddress }: TokenListProps) {
         </div>
         {isAllSelected ? (
           <Button
-            className="flex bg-primary-source text-galaxy-blue"
+            className="flex bg-primary-source text-galaxy-blue hover:bg-primary-400"
             onClick={deselectAllNfts}
             size="small"
           >

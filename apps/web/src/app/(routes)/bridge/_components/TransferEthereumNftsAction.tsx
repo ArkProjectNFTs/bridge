@@ -9,6 +9,8 @@ function ApproveNfts() {
   const { approveForAll, isApproveLoading, isSigning } =
     useEthereumCollectionApproval();
 
+  const disabled = isApproveLoading || isSigning;
+
   return (
     <>
       <Typography
@@ -48,9 +50,12 @@ function ApproveNfts() {
 
       <Button
         className={clsx(
-          "mt-8 bg-space-blue-900 text-white dark:bg-primary-source dark:text-galaxy-blue"
+          "mt-8 h-12 flex-shrink-0 transition-colors",
+          disabled
+            ? "cursor-no-drop bg-asteroid-grey-300 text-white opacity-50 dark:bg-primary-source dark:text-galaxy-blue"
+            : "bg-galaxy-blue text-white hover:bg-space-blue-700 dark:bg-primary-source dark:text-galaxy-blue dark:hover:bg-primary-400"
         )}
-        onClick={() => !isApproveLoading && approveForAll()}
+        onClick={() => !disabled && approveForAll()}
         size="small"
       >
         {isSigning ? (
@@ -58,7 +63,7 @@ function ApproveNfts() {
         ) : (
           <Typography
             className="flex items-center gap-3"
-            component="p"
+            component="div"
             variant="button_text_s"
           >
             {isApproveLoading
@@ -74,27 +79,30 @@ function ApproveNfts() {
   );
 }
 
-interface TransferNftsProps {
-  disabled: boolean;
-}
+function TransferNfts() {
+  const { depositTokens, isSigning } = useEthereumNftDeposit();
+  const { totalSelectedNfts } = useNftSelection();
 
-function TransferNfts({ disabled }: TransferNftsProps) {
-  const { depositTokens } = useEthereumNftDeposit();
+  const disabled = totalSelectedNfts === 0 || isSigning;
 
   return (
     <Button
       className={clsx(
-        "mt-8",
+        "mt-8 h-12 flex-shrink-0 transition-colors",
         disabled
           ? "cursor-no-drop bg-asteroid-grey-300 text-white opacity-50 dark:bg-primary-source dark:text-galaxy-blue"
           : "bg-galaxy-blue text-white hover:bg-space-blue-700 dark:bg-primary-source dark:text-galaxy-blue dark:hover:bg-primary-400"
       )}
-      onClick={() => depositTokens()}
+      onClick={() => !disabled && depositTokens()}
       size="small"
     >
-      <Typography variant="button_text_s">
-        Confirm transfer to Starknet
-      </Typography>
+      {isSigning ? (
+        <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-r-transparent" />
+      ) : (
+        <Typography variant="button_text_s">
+          Confirm transfer to Starknet
+        </Typography>
+      )}
     </Button>
   );
 }
@@ -104,7 +112,7 @@ export default function TransferEthereumNftsAction() {
   const { isApprovedForAll } = useEthereumCollectionApproval();
 
   return isApprovedForAll || totalSelectedNfts === 0 ? (
-    <TransferNfts disabled={totalSelectedNfts === 0} />
+    <TransferNfts />
   ) : (
     <ApproveNfts />
   );
