@@ -161,10 +161,8 @@ where
                 Ok(store_data) => match store_data {
                     (Some(req), Some(ev), xchain_tx) => {
                         log::debug!("Request/Event/Tx\n{:?}\n{:?}\n{:?}", req, ev, xchain_tx);
-
                         self.store.insert_event(ev.clone()).await?;
 
-                        // TODO: insert StarknetBridgeRequest document
                         if ev.label == EventLabel::WithdrawCompletedL2 {
                             self.store.insert_request(ev.tx_hash, req.clone()).await?;
                         }

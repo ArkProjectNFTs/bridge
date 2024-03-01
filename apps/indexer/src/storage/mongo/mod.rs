@@ -1,11 +1,9 @@
-use anyhow::Result;
-use mongodb::{bson::Bson, options::ClientOptions, Client, Collection};
-
+use super::StarknetBridgeRequest;
 use crate::storage::{
     BlockIndex, BridgeChain, CrossChainTx, CrossChainTxKind, Event, EventLabel, Request,
 };
-
-use super::StarknetBridgeRequest;
+use anyhow::Result;
+use mongodb::{bson::Bson, options::ClientOptions, Client, Collection};
 
 mod block_store;
 mod event_store;
