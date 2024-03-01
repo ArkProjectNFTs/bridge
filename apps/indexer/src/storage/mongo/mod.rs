@@ -1,13 +1,14 @@
-use anyhow::Result;
-use mongodb::{bson::Bson, options::ClientOptions, Client, Collection};
-
+use super::StarknetBridgeRequest;
 use crate::storage::{
     BlockIndex, BridgeChain, CrossChainTx, CrossChainTxKind, Event, EventLabel, Request,
 };
+use anyhow::Result;
+use mongodb::{bson::Bson, options::ClientOptions, Client, Collection};
 
 mod block_store;
 mod event_store;
 mod request_store;
+mod starknet_bridge_request_store;
 mod xchain_tx_store;
 
 /// Mongo db abstraction.
@@ -23,6 +24,7 @@ pub struct MongoStore {
     events: Collection<Event>,
     blocks: Collection<BlockIndex>,
     xchain_txs: Collection<CrossChainTx>,
+    starknet_bridge_requests: Collection<StarknetBridgeRequest>,
 }
 
 ///
@@ -40,12 +42,15 @@ impl MongoStore {
         let events = db.collection::<Event>("events");
         let blocks = db.collection::<BlockIndex>("blocks");
         let xchain_txs = db.collection::<CrossChainTx>("xchain_txs");
+        let starknet_bridge_requests =
+            db.collection::<StarknetBridgeRequest>("starknet_bridge_requests");
 
         Ok(MongoStore {
             requests,
             events,
             blocks,
             xchain_txs,
+            starknet_bridge_requests,
         })
     }
 }
