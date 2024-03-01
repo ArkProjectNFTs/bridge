@@ -1,10 +1,5 @@
-use anyhow::Result;
-use starknet::core::types::{BlockId, BlockTag, EmittedEvent};
-use starknet::macros::selector;
-
 use super::client::StarknetClient;
 use super::events;
-
 use crate::config::ChainConfig;
 use crate::storage::{
     store::{BlockStore, CrossChainTxStore, EventStore, RequestStore},
@@ -12,7 +7,9 @@ use crate::storage::{
 };
 use crate::utils;
 use crate::ChainsBlocks;
-
+use anyhow::Result;
+use starknet::core::types::{BlockId, BlockTag, EmittedEvent};
+use starknet::macros::selector;
 use std::sync::Arc;
 use tokio::sync::RwLock as AsyncRwLock;
 use tokio::time::{self, Duration};
@@ -174,14 +171,19 @@ where
                                 CrossChainTxKind::WithdrawAuto => {
                                     // First check if the tx is not already inserted to not overwrite
                                     // an event already indexed on ethereum.
-                                    if self.store.tx_from_request_kind(
-                                        &tx.req_hash.clone(),
-                                        CrossChainTxKind::WithdrawAuto).await?.is_none()
+                                    if self
+                                        .store
+                                        .tx_from_request_kind(
+                                            &tx.req_hash.clone(),
+                                            CrossChainTxKind::WithdrawAuto,
+                                        )
+                                        .await?
+                                        .is_none()
                                     {
                                         self.store.insert_tx(tx).await?;
                                     }
                                 }
-                                _ => ()
+                                _ => (),
                             }
                         }
                     }

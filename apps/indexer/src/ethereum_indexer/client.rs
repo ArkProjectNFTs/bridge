@@ -160,7 +160,7 @@ impl EthereumClient {
 
             filters.block_option = FilterBlockOption::Range {
                 from_block: Some(BlockNumber::Number(from_block.into())),
-                to_block: Some(BlockNumber::Number(to_block_range.into()))
+                to_block: Some(BlockNumber::Number(to_block_range.into())),
             };
         }
 
