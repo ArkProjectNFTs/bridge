@@ -5,8 +5,6 @@ use crate::storage::{
 use anyhow::Result;
 use mongodb::{bson::Bson, options::ClientOptions, Client, Collection};
 
-use super::StarknetBridgeRequest;
-
 mod block_store;
 mod event_store;
 mod request_store;
