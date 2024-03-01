@@ -19,3 +19,4 @@ clap = { version = "4.3.19", features = ["derive", "env", "string"] }
 regex = "1.9.1"
 env_logger = "0.10.0"
 log = "0.4.17"
+num-bigint = "0.4.4"

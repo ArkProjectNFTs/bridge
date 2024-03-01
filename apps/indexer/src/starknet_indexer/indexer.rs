@@ -1,6 +1,8 @@
 use super::client::StarknetClient;
 use super::events;
 use crate::config::ChainConfig;
+use crate::storage::store::StarknetBridgeRequestStore;
+use crate::storage::EventLabel;
 use crate::storage::{
     store::{BlockStore, CrossChainTxStore, EventStore, RequestStore},
     BlockIndex, BridgeChain, CrossChainTxKind,
@@ -24,7 +26,7 @@ pub struct StarknetIndexer<T: RequestStore + EventStore + BlockStore + CrossChai
 
 impl<T> StarknetIndexer<T>
 where
-    T: RequestStore + EventStore + BlockStore + CrossChainTxStore,
+    T: RequestStore + EventStore + BlockStore + CrossChainTxStore + StarknetBridgeRequestStore,
 {
     ///
     pub async fn new(
@@ -159,8 +161,11 @@ where
                 Ok(store_data) => match store_data {
                     (Some(req), Some(ev), xchain_tx) => {
                         log::debug!("Request/Event/Tx\n{:?}\n{:?}\n{:?}", req, ev, xchain_tx);
-
                         self.store.insert_event(ev.clone()).await?;
+
+                        if ev.label == EventLabel::WithdrawCompletedL2 {
+                            self.store.insert_request(ev.tx_hash, req.clone()).await?;
+                        }
 
                         if self.store.req_by_hash(&req.hash).await?.is_none() {
                             self.store.insert_req(req).await?;

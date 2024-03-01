@@ -4,6 +4,7 @@
 use serde::{Deserialize, Serialize};
 
 pub mod mongo;
+pub mod protocol;
 pub mod store;
 
 ///
@@ -106,6 +107,16 @@ pub struct Event {
     pub block_number: u64,
     // Transaction hash of the transaction which triggered the event.
     pub tx_hash: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct StarknetBridgeRequest {
+    pub collection_src: String,
+    pub token_ids: Vec<String>,
+    pub from: String,
+    pub to: String,
+    pub tx_hash: String,
+    pub is_checked: bool,
 }
 
 ///

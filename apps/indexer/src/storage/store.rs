@@ -27,6 +27,12 @@ pub trait CrossChainTxStore {
     ) -> Result<Option<CrossChainTx>>;
 }
 
+#[async_trait]
+pub trait StarknetBridgeRequestStore {
+    ///
+    async fn insert_request(&self, tx_hash: String, request: Request) -> Result<()>;
+}
+
 /// Store related to the indexing state.
 #[async_trait]
 pub trait BlockStore {

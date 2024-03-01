@@ -1,3 +1,4 @@
+use crate::config::ChainConfig;
 use anyhow::{anyhow, Result};
 use regex::Regex;
 use starknet::{
@@ -9,8 +10,6 @@ use starknet::{
 use std::collections::HashMap;
 use std::sync::Arc;
 use url::Url;
-
-use crate::config::ChainConfig;
 
 ///
 pub struct StarknetClient {
