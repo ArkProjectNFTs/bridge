@@ -1,9 +1,7 @@
+use crate::storage::{BridgeChain, CrossChainTx, CrossChainTxKind, Event, EventLabel, Request};
 use anyhow::{anyhow, Result};
 use ethers::prelude::*;
-
 use serde_json::{json, Value};
-
-use crate::storage::{BridgeChain, CrossChainTx, CrossChainTxKind, Event, EventLabel, Request};
 
 // TODO: refacto this to be common with starknet.
 pub const REQUEST_HEADER_WITHDRAW_AUTO: u128 = 0x01000000;

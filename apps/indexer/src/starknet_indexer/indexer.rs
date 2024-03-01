@@ -1,20 +1,16 @@
-use anyhow::Result;
-use starknet::core::types::{BlockId, BlockTag, EmittedEvent};
-use starknet::macros::selector;
-
 use super::client::StarknetClient;
 use super::events;
-
 use crate::config::ChainConfig;
 use crate::storage::protocol::ProtocolParser;
 use crate::storage::{
-    store::{BlockStore, CrossChainTxStore, EventStore, PendingWithdrawStore, RequestStore},
-    BlockIndex, BridgeChain, CrossChainTxKind,
+    store::{BlockStore, CrossChainTxStore, EventStore, PendingWithdrawStore, RequestStore, StarknetBridgeRequestStore},
+    BlockIndex, BridgeChain, CrossChainTxKind, EventLabel, PendingWithdraw
 };
-use crate::storage::{EventLabel, PendingWithdraw};
 use crate::utils;
 use crate::ChainsBlocks;
-
+use anyhow::Result;
+use starknet::core::types::{BlockId, BlockTag, EmittedEvent};
+use starknet::macros::selector;
 use std::sync::Arc;
 use tokio::sync::RwLock as AsyncRwLock;
 use tokio::time::{self, Duration};
@@ -32,7 +28,7 @@ pub struct StarknetIndexer<
 
 impl<T> StarknetIndexer<T>
 where
-    T: RequestStore + EventStore + BlockStore + CrossChainTxStore + PendingWithdrawStore,
+    T: RequestStore + EventStore + BlockStore + CrossChainTxStore + StarknetBridgeRequestStore + PendingWithdrawStore,
 {
     ///
     pub async fn new(
@@ -172,16 +168,18 @@ where
                 Ok(store_data) => match store_data {
                     (Some(req), Some(ev), xchain_tx) => {
                         log::debug!("Request/Event/Tx\n{:?}\n{:?}\n{:?}", req, ev, xchain_tx);
-
                         self.store.insert_event(ev.clone()).await?;
 
                         if self.store.req_by_hash(&req.hash).await?.is_none() {
                             self.store.insert_req(req.clone()).await?;
                         }
 
+                        if ev.label == EventLabel::WithdrawCompletedL2 {
+                            self.store.insert_request(ev.tx_hash.clone(), req.clone()).await?;
+                        }
+
                         if ev.label == EventLabel::DepositInitiatedL2 {
-                            log::debug!("DepositInitiatedL2");
-                            let _ = self
+                            self
                                 .store
                                 .insert_pending_withdraw(PendingWithdraw {
                                     req_hash: req.clone().hash,

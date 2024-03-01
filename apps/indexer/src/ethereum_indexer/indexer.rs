@@ -1,17 +1,14 @@
-use anyhow::Result;
-use ethers::types::{BlockNumber, Log, U256};
-
+use super::client::EthereumClient;
+use super::events;
 use crate::config::{ChainConfig, XchainTxConfig};
 use crate::storage::{
     store::{BlockStore, CrossChainTxStore, EventStore, PendingWithdrawStore, RequestStore},
     BlockIndex, BridgeChain, CrossChainTxKind, Event, EventLabel,
 };
 use crate::utils;
-
-use super::client::EthereumClient;
-use super::events;
 use crate::ChainsBlocks;
-
+use anyhow::Result;
+use ethers::types::{BlockNumber, Log, U256};
 use std::str::FromStr;
 use std::sync::Arc;
 use tokio::sync::RwLock as AsyncRwLock;

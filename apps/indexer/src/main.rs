@@ -1,19 +1,16 @@
 //! Starklane indexer main entry point.
 extern crate config as external_crate_config;
 
+use crate::config::StarklaneIndexerConfig;
 use anyhow::Result;
 use axum::{http::Request, middleware::Next, response::Response, routing::get, Router, Server};
 use clap::Parser;
-use std::sync::Arc;
-use tokio::sync::RwLock as AsyncRwLock;
-
-use crate::config as starklane_config;
 use ethereum_indexer::EthereumIndexer;
-use starklane_config::StarklaneIndexerConfig;
-use starknet_indexer::StarknetIndexer;
-use storage::mongo::MongoStore;
-
 use handlers::{requests, AppState};
+use starknet_indexer::StarknetIndexer;
+use std::sync::Arc;
+use storage::mongo::MongoStore;
+use tokio::sync::RwLock as AsyncRwLock;
 
 pub mod config;
 pub mod ethereum_indexer;

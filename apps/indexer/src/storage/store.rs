@@ -1,11 +1,8 @@
 //! Structs and traits related to data to be stored
 //! after indexing Starklane bridge events.
+use crate::storage::{BlockIndex, BridgeChain, CrossChainTx, CrossChainTxKind, Event, PendingWithdraw, Request};
 use anyhow::Result;
 use async_trait::async_trait;
-
-use crate::storage::{
-    BlockIndex, BridgeChain, CrossChainTx, CrossChainTxKind, Event, PendingWithdraw, Request,
-};
 
 /// Store related to cross chain transactions.
 #[async_trait]
@@ -28,6 +25,12 @@ pub trait CrossChainTxStore {
         req_hash: &str,
         kind: CrossChainTxKind,
     ) -> Result<Option<CrossChainTx>>;
+}
+
+#[async_trait]
+pub trait StarknetBridgeRequestStore {
+    ///
+    async fn insert_request(&self, tx_hash: String, request: Request) -> Result<()>;
 }
 
 /// Store related to the indexing state.

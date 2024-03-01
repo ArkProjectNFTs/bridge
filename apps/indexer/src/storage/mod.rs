@@ -109,6 +109,16 @@ pub struct Event {
     pub tx_hash: String,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct StarknetBridgeRequest {
+    pub collection_src: String,
+    pub token_ids: Vec<String>,
+    pub from: String,
+    pub to: String,
+    pub tx_hash: String,
+    pub is_checked: bool,
+}
+
 ///
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, PartialOrd, Eq, Ord, Copy)]
 #[serde(rename_all = "snake_case")]
