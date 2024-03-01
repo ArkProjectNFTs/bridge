@@ -89,6 +89,7 @@ fn hash(msg: &MsgToL1) -> MessageHash {
     unsafe { *(hash[..].as_ptr() as *const [u8; 32]) }
 }
 
+#[cfg(test)]
 mod tests {
     use starknet::core::types::{FieldElement, MsgToL1};
 
