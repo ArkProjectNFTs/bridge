@@ -1,9 +1,8 @@
+use crate::storage::{BridgeChain, CrossChainTx, CrossChainTxKind, Event, EventLabel, Request};
 use anyhow::{anyhow, Result};
 use serde_json::{json, Value};
 use starknet::core::{types::FieldElement, types::*};
 use starknet::macros::selector;
-
-use crate::storage::{BridgeChain, CrossChainTx, CrossChainTxKind, Event, EventLabel, Request};
 
 pub const DEPOSIT_REQUEST_INITIATED_SELECTOR: &str =
     "0x1682ccdc90fbee2d6cc3e930539cb4ca29390a438db1c2e4c7d493e01a61abb";

@@ -1,0 +1,24 @@
+{
+  "name": "quests-cron",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "node dist/index.js",
+    "build": "tsc",
+    "dev": "ts-node ./src/index.ts | pino-pretty"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.11.19",
+    "@types/node-cron": "^3.0.11",
+    "pino-pretty": "^10.3.1",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "node-cron": "^3.0.3",
+    "pino": "^8.19.0"
+  }
+}
