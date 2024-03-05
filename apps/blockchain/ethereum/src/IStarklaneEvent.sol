@@ -52,4 +52,12 @@ interface IStarklaneEvent {
         address indexed collection,
         bool enable
     );
+
+    /**
+        @notice L1 L2 collection mapping updated
+     */
+    event L1L2CollectionMappingUpdated(
+        address indexed colllectionL1,
+        uint256 indexed collectionL2
+    );
 }

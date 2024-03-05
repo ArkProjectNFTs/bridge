@@ -350,4 +350,14 @@ contract Starklane is IStarklaneEvent, UUPSOwnableProxied, StarklaneState, Stark
     function isEnabled() external view returns(bool) {
         return _enabled;
     }
+
+    function setL1L2CollectionMapping(
+        address collectionL1,
+        snaddress collectionL2,
+        bool force
+    ) external onlyOwner {
+        _setL1L2AddressMapping(collectionL1, collectionL2, force);
+        emit L1L2CollectionMappingUpdated(collectionL1, snaddress.unwrap(collectionL2));
+    }
+
 }
