@@ -10,6 +10,7 @@ import "../sn/Cairo.sol";
 error InvalidCollectionL1Address();
 error InvalidCollectionL2Address();
 error ErrorVerifyingAddressMapping();
+error CollectionMappingAlreadySet();
 
 /**
    @title Collection manager to verify collection address matching and deploy them.
@@ -145,6 +146,22 @@ contract CollectionManager {
         }
 
         revert ErrorVerifyingAddressMapping();
+    }
+
+    function _setL1L2AddressMapping(
+        address collectionL1,
+        snaddress collectionL2,
+        bool force
+    )
+        internal
+    {
+        if (((snaddress.unwrap(_l1ToL2Addresses[collectionL1]) == 0) && (_l2ToL1Addresses[collectionL2] == address(0)))
+            || (force == true)) {
+            _l1ToL2Addresses[collectionL1] = collectionL2;
+            _l2ToL1Addresses[collectionL2] = collectionL1;
+        } else {
+            revert CollectionMappingAlreadySet();
+        }
     }
 
 }
