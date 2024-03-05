@@ -128,4 +128,17 @@ interface IStarklane {
      * @return true if bridge is enabled
      */
     function isEnabled() external view returns (bool);
+
+    /**
+     * 
+     * @param collectionL1 Collection address on L1
+     * @param collectionL2 Collection address on L2
+     * @param force Force flag
+     */
+    function setL1L2CollectionMapping(
+        address collectionL1,
+        snaddress collectionL2,
+        bool force
+    ) external;
+
 }
