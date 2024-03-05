@@ -8,6 +8,7 @@ export default function useL1Withdraw() {
   } = useWriteContract();
 
   function withdraw(requestContent: Array<string>) {
+    console.log(requestContent);
     writeContractWithdraw({
       abi: [
         {
@@ -20,7 +21,7 @@ export default function useL1Withdraw() {
           type: "function",
         },
       ],
-      address: process.env.EVERAI_L1_CONTRACT_ADDRESS as `0x${string}`,
+      address: process.env.NEXT_PUBLIC_L1_BRIDGE_ADDRESS as `0x${string}`,
       args: [requestContent],
       functionName: "withdrawTokens",
     });
