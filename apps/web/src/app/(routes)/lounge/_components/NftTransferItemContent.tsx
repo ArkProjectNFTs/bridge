@@ -86,7 +86,7 @@ export default function NftTransferItemContent({
   }
 
   return (
-    <Collapsible.Content className="data-[state=closed]:animate-[collapsible-up_300ms_ease] data-[state=open]:animate-[collapsible-down_300ms_ease]">
+    <Collapsible.Content className="data-[state=closed]:animate-[collapsible-up_150ms_ease] data-[state=open]:animate-[collapsible-down_150ms_ease]">
       <div className="flex overflow-hidden rounded-b-2xl border-x border-b border-asteroid-grey-100 bg-white px-6 py-8  dark:border-space-blue-800 dark:bg-space-blue-900">
         <div className="mr-4 w-0.5 rounded-full bg-asteroid-grey-100 dark:bg-space-blue-800" />
         <div className="flex w-full flex-col gap-4 ">

@@ -255,7 +255,7 @@ function StarknetTabsContent() {
     return (
       <Tabs.Content value="starknet">
         <Typography className="pb-12" component="p" variant="body_text_18">
-          {"You have no nft in your Starknet wallet"}
+          {"You have no nft in your Starknet wallet..."}
         </Typography>
         <NftsEmptyState type="token" />
       </Tabs.Content>
