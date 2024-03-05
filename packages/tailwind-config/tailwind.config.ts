@@ -13,6 +13,27 @@ export default {
       "3xl": "2460px",
     },
     extend: {
+      keyframes: {
+        loading: {
+          "0%": { height: "0rem", width: "0rem" },
+          "30%": { height: "0.5rem", width: "0.5rem" },
+          "60%, 100%": { height: "0rem", width: "0rem" },
+        },
+        "collapsible-down": {
+          from: { height: "0", opacity: "0" },
+          to: {
+            height: "var(--radix-collapsible-content-height)",
+            opacity: "1",
+          },
+        },
+        "collapsible-up": {
+          from: {
+            height: "var(--radix-collapsible-content-height)",
+            opacity: "1",
+          },
+          to: { height: "0", opacity: "0" },
+        },
+      },
       // TODO @YohanTz: Move the colors object away from the extend property once all colors are defined
       colors: {
         // primary

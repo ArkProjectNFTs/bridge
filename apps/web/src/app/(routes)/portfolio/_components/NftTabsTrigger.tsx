@@ -2,6 +2,8 @@ import * as Tabs from "@radix-ui/react-tabs";
 import clsx from "clsx";
 import { Typography } from "design-system";
 
+import useIsFullyConnected from "~/app/_hooks/useIsFullyConnected";
+
 interface NftTabsTriggerProps {
   className?: string;
   isLoading: boolean;
@@ -17,6 +19,8 @@ export default function NftTabsTrigger({
   tabValue,
   totalCount,
 }: NftTabsTriggerProps) {
+  const isFullyConnected = useIsFullyConnected();
+
   return (
     <Tabs.Trigger
       className={clsx(
@@ -30,7 +34,9 @@ export default function NftTabsTrigger({
         className="grid h-[18px] min-w-[18px] place-items-center rounded-full bg-space-blue-source px-1 text-white dark:text-space-blue-900 dark:group-data-[state=active]:bg-galaxy-blue dark:group-data-[state=active]:text-space-blue-source"
         variant="button_text_xs"
       >
-        {isLoading ? (
+        {!isFullyConnected ? (
+          0
+        ) : isLoading ? (
           <div className="h-3 w-3 animate-spin rounded-full border-2 border-current border-r-transparent" />
         ) : (
           totalCount

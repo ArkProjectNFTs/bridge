@@ -5,6 +5,7 @@ import NftCard from "~/app/_components/NftCard/NftCard";
 import NftsEmptyState from "~/app/_components/NftsEmptyState";
 import NftsLoadingState from "~/app/_components/NftsLoadingState";
 import useCurrentChain from "~/app/_hooks/useCurrentChain";
+import useIsFullyConnected from "~/app/_hooks/useIsFullyConnected";
 import { type Collection } from "~/server/api/types";
 
 import useNftSelection from "../_hooks/useNftSelection";
@@ -24,16 +25,19 @@ export default function CollectionGrid({
 }: CollectionGridProps) {
   const { sourceChain } = useCurrentChain();
   const { selectedCollectionAddress } = useNftSelection();
+  const isFullyConnected = useIsFullyConnected();
+
+  if (nftCollectionPages?.[0]?.collections.length === 0 || !isFullyConnected) {
+    return <NftsEmptyState type="collection" />;
+  }
 
   if (nftCollectionPages === undefined) {
     return <NftsLoadingState type="collection" />;
-  } else if (nftCollectionPages[0]?.collections.length === 0) {
-    return <NftsEmptyState type="collection" />;
   }
 
   return (
     <div className="mb-8 grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-5">
-      {nftCollectionPages.map((nftCollectionPage) => {
+      {nftCollectionPages?.map((nftCollectionPage) => {
         return nftCollectionPage.collections.map((nftCollection) => {
           return (
             <ConditionalWrapper

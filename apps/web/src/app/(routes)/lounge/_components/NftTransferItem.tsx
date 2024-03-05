@@ -10,27 +10,45 @@ import useCurrentChain from "~/app/_hooks/useCurrentChain";
 
 import NftTransferItemContent from "./NftTransferItemContent";
 import NftTransferStatus from "./NftTransferStatus";
+import WithdrawButton from "./WithdrawButton";
 
 interface NftTransferItemProps {
   arrivalAddress: string;
+  arrivalTimestamp?: number;
   collectionImage: string | undefined;
   collectionName: string;
   contractAddress: string;
+  requestContent: Array<string>;
   status:
     | "deposit_initiated_l1"
     | "deposit_initiated_l2"
     | "error"
+    | "withdraw_available_l1"
     | "withdraw_completed_l1"
     | "withdraw_completed_l2";
   tokenIds: Array<string>;
   totalCount: number;
 }
 
+function getDisplayedDate(timestamp?: number) {
+  if (timestamp === undefined) {
+    return;
+  }
+
+  const date = new Date(timestamp * 1000);
+
+  return `${
+    date.getMonth() + 1
+  }/${date.getDate()}/${date.getFullYear()} - ${date.getHours()}:${date.getMinutes()}`;
+}
+
 export default function NftTransferItem({
   arrivalAddress,
+  arrivalTimestamp,
   collectionImage,
   collectionName,
   contractAddress,
+  requestContent,
   status,
   tokenIds,
   totalCount,
@@ -102,29 +120,38 @@ export default function NftTransferItem({
 
         <NftTransferStatus className="ml-3" status={status} />
 
-        <div className="ml-2 flex items-center gap-2">
-          {targetChain === "Ethereum" ? (
-            <Image
-              alt="Ethereum"
-              height={24}
-              src="/logos/ethereum.svg"
-              width={24}
-            />
-          ) : (
-            <Image
-              alt="Starknet"
-              height={24}
-              src="/logos/starknet.svg"
-              width={24}
-            />
-          )}
-
-          <Typography component="p" variant="button_text_s">
-            {displayedArrivalAddress}
+        <div className="ml-2 flex flex-col items-start gap-1">
+          <Typography variant="button_text_s">
+            {getDisplayedDate(arrivalTimestamp)}
           </Typography>
+          <div className="flex items-center gap-2">
+            {targetChain === "Ethereum" ? (
+              <Image
+                alt="Ethereum"
+                height={24}
+                src="/logos/ethereum.svg"
+                width={24}
+              />
+            ) : (
+              <Image
+                alt="Starknet"
+                height={24}
+                src="/logos/starknet.svg"
+                width={24}
+              />
+            )}
+
+            <Typography component="p" variant="button_text_s">
+              {displayedArrivalAddress}
+            </Typography>
+          </div>
         </div>
 
-        <div></div>
+        <div>
+          {status === "withdraw_available_l1" && (
+            <WithdrawButton requestContent={requestContent} />
+          )}
+        </div>
 
         <Collapsible.Trigger asChild>
           <button className="flex h-9 w-9 items-center justify-center justify-self-end rounded-md border-2 border-asteroid-grey-600 text-2xl text-asteroid-grey-600 transition-colors hover:border-asteroid-grey-800 hover:text-asteroid-grey-800 dark:border-space-blue-400 dark:text-space-blue-400 dark:hover:border-space-blue-200 dark:hover:text-space-blue-200">

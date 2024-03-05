@@ -154,8 +154,6 @@ export default function useTransferStarknetNfts() {
     }
   }, [depositData, router]);
 
-  console.log("depositData: ", depositData);
-
   return {
     depositTokens: () => depositTokens(),
     depositTransactionHash: depositData?.transaction_hash,

@@ -9,6 +9,8 @@ const variants: Record<BridgeRequestEventStatus, string> = {
   deposit_initiated_l2:
     "bg-playground-purple-50 text-playground-purple-600 dark:bg-playground-purple-200 dark:text-playground-purple-900",
   error: "bg-folly-red-50 text-folly-red-source",
+  withdraw_available_l1:
+    "bg-space-blue-50 text-space-blue-400 dark:bg-space-blue-400 dark:text-space-blue-900",
   withdraw_completed_l1:
     "bg-mantis-green-50 text-mantis-green-500 dark:bg-mantis-green-200 dark:text-mantis-green-900",
   withdraw_completed_l2:
@@ -19,6 +21,7 @@ const variantsToStatusText: Record<BridgeRequestEventStatus, string> = {
   deposit_initiated_l1: "Transfer in progress",
   deposit_initiated_l2: "Transfer in progress",
   error: "Error transfer",
+  withdraw_available_l1: "Ready for withdrawal",
   withdraw_completed_l1: "Successfully transferred",
   withdraw_completed_l2: "Successfully transferred",
 };
@@ -33,16 +36,14 @@ export default function NftCardStatus({
   status,
 }: NftCardStatusProps) {
   return (
-    <>
-      <Typography
-        className={clsx(
-          className,
-          variants[status],
-          "flex items-center justify-center rounded-full px-2 py-1 text-center"
-        )}
-        component="p"
-        variant="body_text_12"
-      >
+    <div
+      className={clsx(
+        className,
+        variants[status],
+        "flex items-center justify-center gap-2 rounded-full px-2 py-1 text-center"
+      )}
+    >
+      <Typography component="p" variant="body_text_12">
         {variantsToStatusText[status]}
         {/* <div className="ml-1 flex items-center gap-0.5">
           <div className="h-1 w-1 animate-bounce rounded-full bg-playground-purple-700" />
@@ -50,6 +51,20 @@ export default function NftCardStatus({
           <div className="h-1 w-1 animate-bounce rounded-full bg-playground-purple-700" />
         </div> */}
       </Typography>
-    </>
+      {(status === "deposit_initiated_l1" ||
+        status === "deposit_initiated_l2") && (
+        <div className="flex items-center justify-between">
+          <div className="flex w-2 justify-center">
+            <div className="h-0 w-0 animate-[loading_1.5s_linear_infinite] rounded-full bg-current" />
+          </div>
+          <div className="flex w-2 justify-center">
+            <div className="h-0 w-0 animate-[loading_1.5s_linear_0.25s_infinite] rounded-full bg-current" />
+          </div>
+          <div className="flex w-2 justify-center">
+            <div className="h-0 w-0 animate-[loading_1.5s_linear_0.5s_infinite] rounded-full bg-current" />
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

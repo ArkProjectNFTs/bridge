@@ -13,6 +13,7 @@ export type BridgeRequestEventStatus =
   | "deposit_initiated_l1"
   | "deposit_initiated_l2"
   | "error"
+  | "withdraw_available_l1"
   | "withdraw_completed_l1"
   | "withdraw_completed_l2";
 
@@ -38,9 +39,11 @@ type BridgeRequestApiResponse = Array<{
 
 type BridgeRequestResponse = {
   arrivalAddress: string;
+  arrivalTimestamp?: number;
   collectionImage: string | undefined;
   collectionName: string;
   collectionSourceAddress: string;
+  requestContent: Array<string>;
   status: BridgeRequestEventStatus;
   statusTimestamp: number;
   tokenIds: Array<string>;
@@ -107,12 +110,22 @@ export const bridgeRequestRouter = createTRPCRouter({
           (bridgeRequest, index) => {
             const lastBridgeRequestEvent =
               bridgeRequest.events[bridgeRequest.events.length - 1];
+            const isArrived =
+              lastBridgeRequestEvent?.label === "withdraw_available_l1" ||
+              lastBridgeRequestEvent?.label === "withdraw_completed_l1" ||
+              lastBridgeRequestEvent?.label === "withdraw_completed_l2";
 
             return {
               arrivalAddress: bridgeRequest.req.to,
+              arrivalTimestamp: isArrived
+                ? lastBridgeRequestEvent?.block_timestamp
+                : undefined,
               collectionImage: requestMetadata[index]?.media[0]?.thumbnail,
               collectionName: requestMetadata[index]?.contract.name ?? "",
               collectionSourceAddress: bridgeRequest.req.collection_src,
+              requestContent: JSON.parse(
+                bridgeRequest.req.content
+              ) as Array<string>,
               // requestHash: bridgeRequest.req.hash,
               status: lastBridgeRequestEvent?.label ?? "error",
               statusTimestamp: lastBridgeRequestEvent?.block_timestamp ?? 0,

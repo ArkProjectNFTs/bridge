@@ -10,6 +10,7 @@ import useInfiniteEthereumCollections from "~/app/_hooks/useInfiniteEthereumColl
 import useInfiniteEthereumNfts from "~/app/_hooks/useInfiniteEthereumNfts";
 import useInfiniteStarknetCollections from "~/app/_hooks/useInfiniteStarknetCollections";
 import useInfiniteStarknetNfts from "~/app/_hooks/useInfiniteStarknetNfts";
+import useIsFullyConnected from "~/app/_hooks/useIsFullyConnected";
 
 function AllNftsTabsContent() {
   const {
@@ -26,15 +27,12 @@ function AllNftsTabsContent() {
     // isFetchingNextPage: isFetchingNextL2NftsPage,
   } = useInfiniteStarknetNfts();
 
-  if (l1NftsData === undefined || l2NftsData === undefined) {
-    return (
-      <Tabs.Content value="all">
-        <NftsLoadingState type="token" />
-      </Tabs.Content>
-    );
-  } else if (
-    l1NftsData.pages[0]?.totalCount === 0 &&
-    l2NftsData.pages[0]?.ownedNfts.length === 0
+  const isFullyConnected = useIsFullyConnected();
+
+  if (
+    (l1NftsData?.pages[0]?.totalCount === 0 &&
+      l2NftsData?.pages[0]?.ownedNfts.length === 0) ||
+    !isFullyConnected
   ) {
     return (
       <Tabs.Content value="all">
@@ -42,6 +40,14 @@ function AllNftsTabsContent() {
           {"You have no nft in your wallets..."}
         </Typography>
         <NftsEmptyState type="token" />
+      </Tabs.Content>
+    );
+  }
+
+  if (l1NftsData === undefined || l2NftsData === undefined) {
+    return (
+      <Tabs.Content value="all">
+        <NftsLoadingState type="token" />
       </Tabs.Content>
     );
   }
@@ -106,15 +112,12 @@ function CollectionsTabsContent() {
     // isFetchingNextPage: isFetchingNextL2CollectionsPage,
   } = useInfiniteStarknetCollections();
 
-  if (l1CollectionsData === undefined || l2CollectionsData === undefined) {
-    return (
-      <Tabs.Content value="collections">
-        <NftsLoadingState type="collection" />
-      </Tabs.Content>
-    );
-  } else if (
-    l1CollectionsData.pages[0]?.collections.length === 0 &&
-    l2CollectionsData.pages[0]?.collections.length === 0
+  const isFullyConnected = useIsFullyConnected();
+
+  if (
+    (l1CollectionsData?.pages[0]?.collections.length === 0 &&
+      l2CollectionsData?.pages[0]?.collections.length === 0) ||
+    !isFullyConnected
   ) {
     return (
       <Tabs.Content value="collections">
@@ -125,6 +128,15 @@ function CollectionsTabsContent() {
       </Tabs.Content>
     );
   }
+
+  if (l1CollectionsData === undefined || l2CollectionsData === undefined) {
+    return (
+      <Tabs.Content value="collections">
+        <NftsLoadingState type="collection" />
+      </Tabs.Content>
+    );
+  }
+
   return (
     <Tabs.Content value="collections">
       <div className="grid grid-cols-2 gap-5 sm:grid-cols-5">
@@ -179,19 +191,23 @@ function EthereumNTabsContent() {
     isFetchingNextPage: isFetchingNextL1NftsPage,
   } = useInfiniteEthereumNfts({ pageSize: 5 });
 
-  if (l1NftsData === undefined) {
-    return (
-      <Tabs.Content value="ethereum">
-        <NftsLoadingState type="token" />
-      </Tabs.Content>
-    );
-  } else if (l1NftsData.pages[0]?.totalCount === 0) {
+  const isFullyConnected = useIsFullyConnected();
+
+  if (l1NftsData?.pages[0]?.totalCount === 0 || !isFullyConnected) {
     return (
       <Tabs.Content value="ethereum">
         <Typography className="pb-12" component="p" variant="body_text_18">
           {"You have no nft in your Ethereum wallet..."}
         </Typography>
         <NftsEmptyState type="token" />
+      </Tabs.Content>
+    );
+  }
+
+  if (l1NftsData === undefined) {
+    return (
+      <Tabs.Content value="ethereum">
+        <NftsLoadingState type="token" />
       </Tabs.Content>
     );
   }
@@ -233,19 +249,23 @@ function StarknetTabsContent() {
     // isFetchingNextPage: isFetchingNextL2NftsPage,
   } = useInfiniteStarknetNfts();
 
-  if (l2NftsData === undefined) {
-    return (
-      <Tabs.Content value="starknet">
-        <NftsLoadingState type="token" />
-      </Tabs.Content>
-    );
-  } else if (l2NftsData.pages[0]?.ownedNfts.length === 0) {
+  const isFullyConnected = useIsFullyConnected();
+
+  if (l2NftsData?.pages[0]?.ownedNfts.length === 0 || !isFullyConnected) {
     return (
       <Tabs.Content value="starknet">
         <Typography className="pb-12" component="p" variant="body_text_18">
           {"You have no nft in your Starknet wallet"}
         </Typography>
         <NftsEmptyState type="token" />
+      </Tabs.Content>
+    );
+  }
+
+  if (l2NftsData === undefined) {
+    return (
+      <Tabs.Content value="starknet">
+        <NftsLoadingState type="token" />
       </Tabs.Content>
     );
   }

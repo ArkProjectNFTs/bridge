@@ -5,6 +5,7 @@ import { Typography } from "design-system";
 import NftsEmptyState from "~/app/_components/NftsEmptyState";
 import useAccountFromChain from "~/app/_hooks/useAccountFromChain";
 import useCurrentChain from "~/app/_hooks/useCurrentChain";
+import useIsFullyConnected from "~/app/_hooks/useIsFullyConnected";
 import { api } from "~/utils/api";
 
 import NftTransferItem from "./NftTransferItem";
@@ -52,16 +53,17 @@ export default function NftTransferList({
 }: NftTransferListProps) {
   const { targetChain } = useCurrentChain();
   const { address } = useAccountFromChain(targetChain);
+  const isFullyConnected = useIsFullyConnected();
 
   const { data: bridgeRequests } =
     api.bridgeRequest.getBridgeRequestsFromAddress.useQuery(
       {
         address: address ?? "",
       },
-      { enabled: address !== undefined, refetchInterval: 10000 }
+      { enabled: isFullyConnected, refetchInterval: 10000 }
     );
 
-  if (bridgeRequests === undefined) {
+  if (bridgeRequests === undefined || !isFullyConnected) {
     return <NftTransferListLoadingState />;
   }
 
@@ -100,6 +102,7 @@ export default function NftTransferList({
                   collectionName={bridgeRequest.collectionName}
                   contractAddress={bridgeRequest.collectionSourceAddress}
                   key={bridgeRequest.statusTimestamp}
+                  requestContent={bridgeRequest.requestContent}
                   status={bridgeRequest.status}
                   tokenIds={bridgeRequest.tokenIds}
                   totalCount={bridgeRequest.totalCount}
@@ -132,10 +135,12 @@ export default function NftTransferList({
               return (
                 <NftTransferItem
                   arrivalAddress={bridgeRequest.arrivalAddress}
+                  arrivalTimestamp={bridgeRequest.arrivalTimestamp}
                   collectionImage={bridgeRequest.collectionImage}
                   collectionName={bridgeRequest.collectionName}
                   contractAddress={bridgeRequest.collectionSourceAddress}
                   key={bridgeRequest.statusTimestamp}
+                  requestContent={bridgeRequest.requestContent}
                   status={bridgeRequest.status}
                   tokenIds={bridgeRequest.tokenIds}
                   totalCount={bridgeRequest.totalCount}

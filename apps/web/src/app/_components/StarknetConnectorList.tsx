@@ -7,8 +7,9 @@ import {
 } from "@starknet-react/core";
 import clsx from "clsx";
 import { Typography } from "design-system";
+import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useCopyToClipboard } from "usehooks-ts";
 
 import {
@@ -27,6 +28,17 @@ export default function StarknetConnectorList() {
   const { data: ethBalance } = useBalance({ address });
 
   const [, copy] = useCopyToClipboard();
+  const [showCopiedMessage, setShowCopiedMessage] = useState(false);
+
+  useEffect(() => {
+    if (showCopiedMessage) {
+      const timer = setTimeout(() => {
+        setShowCopiedMessage(false);
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [showCopiedMessage]);
 
   const shortAddress = useMemo(() => {
     return address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "";
@@ -39,7 +51,7 @@ export default function StarknetConnectorList() {
 
     copy(address ?? "")
       .then(() => {
-        console.log("copied");
+        setShowCopiedMessage(true);
       })
       .catch((error) => {
         console.error(error);
@@ -78,7 +90,58 @@ export default function StarknetConnectorList() {
               width={28}
             />
           )}
-          <Typography variant="button_text_s">{shortAddress}</Typography>
+          <div className="relative mx-auto">
+            <Typography className="mx-auto" variant="button_text_s">
+              {shortAddress}
+            </Typography>
+            <AnimatePresence>
+              {showCopiedMessage && (
+                <motion.div
+                  animate={{
+                    opacity: 1,
+                    transform: "translate(-50%,0)",
+                  }}
+                  exit={{
+                    opacity: 0,
+                    transform: "translate(-50%,-0.5rem)",
+                  }}
+                  initial={{
+                    opacity: 0,
+                    transform: "translate(-50%,-0.5rem)",
+                  }}
+                  transition={{
+                    duration: 0.1,
+                    ease: "easeInOut",
+                  }}
+                  className="absolute left-1/2 top-[calc(100%+0.25rem)] flex -translate-x-1/2 flex-col items-center text-galaxy-blue dark:text-void-black"
+                >
+                  <svg
+                    fill="none"
+                    height="5"
+                    viewBox="0 0 13 5"
+                    width="13"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <g clipPath="url(#clip0_52_4)">
+                      <path
+                        d="M-25 17C-25 10.3726 -19.6274 5 -13 5H0.929633C1.59834 5 2.2228 4.6658 2.59373 4.1094L4.43198 1.35203C5.19741 0.203882 6.86813 0.157509 7.69608 1.26144L9.9 4.2C10.2777 4.70361 10.8705 5 11.5 5H26.5C33.1274 5 38.5 10.3726 38.5 17V17C38.5 23.6274 33.1274 29 26.5 29H-13C-19.6274 29 -25 23.6274 -25 17V17Z"
+                        fill="currentColor"
+                      />
+                    </g>
+                    <defs>
+                      <clipPath id="clip0_52_4">
+                        <rect fill="white" height="5" width="13" />
+                      </clipPath>
+                    </defs>
+                  </svg>
+
+                  <div className="flex h-6 items-center justify-center rounded-full bg-galaxy-blue px-2 text-white dark:bg-void-black">
+                    <Typography variant="button_text_xs">Copied</Typography>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
 
           <button onClick={handleCopy}>
             <svg

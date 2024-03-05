@@ -15,7 +15,7 @@ export default function BridgingQuestBanner({
     <div
       className={clsx(
         className,
-        "flex items-center justify-between rounded-2xl bg-galaxy-blue pl-6 text-white"
+        "flex max-h-[14.5rem] items-center justify-between overflow-hidden rounded-2xl bg-galaxy-blue pl-6 text-white"
       )}
     >
       <div className="flex flex-col items-start gap-4 text-left">
@@ -39,7 +39,7 @@ export default function BridgingQuestBanner({
       </div>
       <Image
         alt="Bridging Quest"
-        className="max-h-[14.5rem] w-auto"
+        className="h-80 w-auto"
         height={508}
         src="/medias/bridging_quest_illustration.png"
         width={897}

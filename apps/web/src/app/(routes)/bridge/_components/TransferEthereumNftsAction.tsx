@@ -67,10 +67,20 @@ function ApproveNfts() {
             variant="button_text_s"
           >
             {isApproveLoading
-              ? "Approval in progress..."
+              ? "Approval in progress"
               : "Approve the selected Nfts"}
             {isApproveLoading && (
-              <div className="h-3 w-3 animate-spin rounded-full border-2 border-current border-r-transparent" />
+              <div className="flex items-center justify-between">
+                <div className="flex w-2 justify-center">
+                  <div className="h-0 w-0 animate-[loading_1.5s_linear_infinite] rounded-full bg-current" />
+                </div>
+                <div className="flex w-2 justify-center">
+                  <div className="h-0 w-0 animate-[loading_1.5s_linear_0.25s_infinite] rounded-full bg-current" />
+                </div>
+                <div className="flex w-2 justify-center">
+                  <div className="h-0 w-0 animate-[loading_1.5s_linear_0.5s_infinite] rounded-full bg-current" />
+                </div>
+              </div>
             )}
           </Typography>
         )}

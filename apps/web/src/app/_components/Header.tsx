@@ -12,6 +12,7 @@ import { api } from "~/utils/api";
 import useNftSelection from "../(routes)/bridge/_hooks/useNftSelection";
 import useAccountFromChain from "../_hooks/useAccountFromChain";
 import useCurrentChain from "../_hooks/useCurrentChain";
+import useIsFullyConnected from "../_hooks/useIsFullyConnected";
 import { type Chain } from "../_types";
 import ConnectEthereumButton from "./ConnectEthereumButton";
 import ConnectStarkNetButton from "./ConnectStarkNetButton";
@@ -23,19 +24,19 @@ function BridgeLink() {
   const pathname = usePathname();
   const { totalSelectedNfts } = useNftSelection();
 
-  return (
-    <Link className="flex items-center gap-1" href="/bridge">
-      <Typography
-        className={clsx(
-          pathname?.includes("/bridge") && "text-space-blue-source",
-          "transition-colors hover:text-space-blue-source"
-        )}
-        variant="heading_light_xxs"
-      >
-        Bridge
-      </Typography>
+  const isFullyConnected = useIsFullyConnected();
 
-      {totalSelectedNfts > 0 && (
+  return (
+    <Link
+      className={clsx(
+        pathname?.includes("/bridge") && "text-space-blue-source",
+        "flex items-center gap-1 transition-colors hover:text-space-blue-source"
+      )}
+      href="/bridge"
+    >
+      <Typography variant="heading_light_xxs">Bridge</Typography>
+
+      {isFullyConnected && totalSelectedNfts > 0 && (
         <div className="flex h-5 items-center rounded-full bg-space-blue-100 px-2 dark:bg-space-blue-400">
           <Typography
             className="text-space-blue-source dark:text-galaxy-blue"
@@ -55,6 +56,8 @@ function LoungeLink() {
 
   const pathname = usePathname();
 
+  const isFullyConnected = useIsFullyConnected();
+
   const { data: bridgeRequests } =
     api.bridgeRequest.getBridgeRequestsFromAddress.useQuery(
       {
@@ -64,17 +67,15 @@ function LoungeLink() {
     );
 
   return (
-    <Link className="flex items-center gap-1" href="/lounge">
-      <Typography
-        className={clsx(
-          pathname?.includes("/lounge") && "text-space-blue-source",
-          "transition-colors hover:text-space-blue-source"
-        )}
-        variant="heading_light_xxs"
-      >
-        Lounge
-      </Typography>
-      {(bridgeRequests?.inTransit.totalCount ?? 0) > 0 && (
+    <Link
+      className={clsx(
+        pathname?.includes("/lounge") && "text-space-blue-source",
+        "flex items-center gap-1 transition-colors hover:text-space-blue-source"
+      )}
+      href="/lounge"
+    >
+      <Typography variant="heading_light_xxs">Lounge</Typography>
+      {isFullyConnected && (bridgeRequests?.inTransit.totalCount ?? 0) > 0 && (
         <div className="flex h-5 items-center rounded-full bg-space-blue-100 px-2 dark:bg-space-blue-400">
           <Typography
             className="text-space-blue-source dark:text-galaxy-blue"
