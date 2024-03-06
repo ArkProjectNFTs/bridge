@@ -3,6 +3,8 @@ name = "starklane_indexer"
 version = "0.1.0"
 edition = "2021"
 
+build = "src/build.rs"
+
 [dependencies]
 anyhow = "1.0"
 axum = { version = "0.6.20", features = ["macros"] }
@@ -20,3 +22,5 @@ regex = "1.9.1"
 env_logger = "0.10.0"
 log = "0.4.17"
 num-bigint = "0.4.4"
+config = { version = "0.14.0", features = ["json"] }
+sha3 = "0.10.8"

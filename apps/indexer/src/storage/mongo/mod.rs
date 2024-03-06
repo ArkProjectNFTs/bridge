@@ -1,12 +1,16 @@
 use super::StarknetBridgeRequest;
+use super::PendingWithdraw;
+
 use crate::storage::{
     BlockIndex, BridgeChain, CrossChainTx, CrossChainTxKind, Event, EventLabel, Request,
 };
 use anyhow::Result;
 use mongodb::{bson::Bson, options::ClientOptions, Client, Collection};
 
+
 mod block_store;
 mod event_store;
+mod pending_withdraw_store;
 mod request_store;
 mod starknet_bridge_request_store;
 mod xchain_tx_store;
@@ -25,6 +29,7 @@ pub struct MongoStore {
     blocks: Collection<BlockIndex>,
     xchain_txs: Collection<CrossChainTx>,
     starknet_bridge_requests: Collection<StarknetBridgeRequest>,
+    pending_withdraws: Collection<PendingWithdraw>,
 }
 
 ///
@@ -44,6 +49,7 @@ impl MongoStore {
         let xchain_txs = db.collection::<CrossChainTx>("xchain_txs");
         let starknet_bridge_requests =
             db.collection::<StarknetBridgeRequest>("starknet_bridge_requests");
+        let pending_withdraws = db.collection::<PendingWithdraw>("pending_withdraws");
 
         Ok(MongoStore {
             requests,
@@ -51,6 +57,7 @@ impl MongoStore {
             blocks,
             xchain_txs,
             starknet_bridge_requests,
+            pending_withdraws,
         })
     }
 }

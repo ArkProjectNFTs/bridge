@@ -17,30 +17,37 @@ import "starknet/StarknetMessaging.sol";
 */
 contract StarknetMessagingLocal is StarknetMessaging {
 
-    /**
-       @notice A message hash was added directly.
+   /**
+       @notice Hashes were added.
     */
-    event AddedMessageHashFromL2(
-        bytes32 indexed messageHash
+    event MessageHashesAddedFromL2(
+        uint256[] hashes
     );
 
     /**
-       @notice Adds the hash of a validated messaged from L2.
+       @notice Adds the hashes of messages from L2.
 
-       @param msgHash Hash of the message to be considered as consumable.
+       @param msgHashes Hashes to register as consumable.
     */
-    function addMessageHashFromL2(
-        uint256 msgHash
+    function addMessageHashesFromL2(
+        uint256[] calldata msgHashes
     )
         external
         payable
     {
-        // TODO: add guard for whitelisted sender? Or not needed for now as it's
-        // only used for local testing.
+        // TODO: You can add here a whitelist of senders if you wish.
+        for (uint256 i = 0; i < msgHashes.length; i++) {
+            bytes32 hash = bytes32(msgHashes[i]);
+            l2ToL1Messages()[hash] += 1;
+        }
 
-        bytes32 hash = bytes32(msgHash);
-        emit AddedMessageHashFromL2(hash);
-        l2ToL1Messages()[hash] += 1;
+        emit MessageHashesAddedFromL2(msgHashes);
+    }
+
+
+    // expose internal for testing purpose
+    function setMessageCancellationDelay(uint256 delayInSeconds) external {
+        messageCancellationDelay(delayInSeconds);
     }
 
 }

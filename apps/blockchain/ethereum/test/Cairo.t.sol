@@ -127,14 +127,14 @@ contract CairoTest is Test {
         assertEq(bufEmpty.length, 3);
         uint256[] memory bufShort = Cairo.cairoStringPack("ABC");
         assertEq(bufShort[0], 0);
-        assertEq(bufShort[1], 0x0041424300000000000000000000000000000000000000000000000000000000);
+        assertEq(bufShort[1], 0x414243);
         assertEq(bufShort[2], 3);
         assertEq(bufShort.length, 3);
 
         uint256[] memory bufLong = Cairo.cairoStringPack("ABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890abcdefg");
         assertEq(bufLong[0], 1);
         assertEq(bufLong[1], 0x004142434445464748494a4b4c4d4e4f505152535455565758595a3031323334);
-        assertEq(bufLong[2], 0x0035363738393061626364656667000000000000000000000000000000000000);
+        assertEq(bufLong[2], 0x0035363738393061626364656667);
         assertEq(bufLong[3], 13);
         assertEq(bufLong.length, 4);
 
@@ -144,7 +144,7 @@ contract CairoTest is Test {
     function test_cairoStringUnpack() public {
         uint256[] memory buf = new uint256[](3);
         buf[0] = 0;
-        buf[1] = 0x0041424300000000000000000000000000000000000000000000000000000000;
+        buf[1] = 0x00414243;
         buf[2] = 3;
         string memory a = Cairo.cairoStringUnpack(buf, 0);
         assertEq(a, "ABC");
@@ -152,7 +152,7 @@ contract CairoTest is Test {
         uint256[] memory buf2 = new uint256[](4);
         buf2[0] = 1;
         buf2[1] = 0x00546869732070616c696e64726f6d65206973206e6f7420617320676f6f642c;
-        buf2[2] = 0x0020627574206174206c656173742069742773206c6f6e6720656e6f75676800;
+        buf2[2] = 0x0020627574206174206c656173742069742773206c6f6e6720656e6f756768;
         buf2[3] = 30;
         string memory b = Cairo.cairoStringUnpack(buf2, 0);
         assertEq(b, "This palindrome is not as good, but at least it's long enough");
@@ -168,7 +168,7 @@ contract CairoTest is Test {
         assertEq(buf[0], 0);
         assertEq(
             buf[1],
-            0x0041424344000000000000000000000000000000000000000000000000000000);
+            0x0041424344);
         assertEq(buf[2], 4);
     }
 
@@ -177,7 +177,7 @@ contract CairoTest is Test {
         uint256[] memory buf = new uint256[](4);
         buf[0] = 1;
         buf[1] = 0x004142434445464748494a4b4c4d4e4f505152535455565758595a3031323334;
-        buf[2] = 0x0035363738393061626364656667000000000000000000000000000000000000;
+        buf[2] = 0x0035363738393061626364656667;
         buf[3] = 13;
 
         (uint256 inc, string memory s) = Cairo.cairoStringDeserialize(buf, 0);
@@ -197,10 +197,10 @@ contract CairoTest is Test {
         assertEq(inc, 7);
         assertEq(buf[0], 2);
         assertEq(buf[1], 0);
-        assertEq(buf[2], 0x0041424344000000000000000000000000000000000000000000000000000000);
+        assertEq(buf[2], 0x0041424344);
         assertEq(buf[3], 4);
         assertEq(buf[4], 0);
-        assertEq(buf[5], 0x0061626364000000000000000000000000000000000000000000000000000000);
+        assertEq(buf[5], 0x0061626364);
         assertEq(buf[6], 4);
     }
 
@@ -209,10 +209,10 @@ contract CairoTest is Test {
         uint256[] memory buf = new uint256[](7);
         buf[0] = 2;
         buf[1] = 0;
-        buf[2] = 0x0041424344000000000000000000000000000000000000000000000000000000;
+        buf[2] = 0x0041424344;
         buf[3] = 4;
         buf[4] = 0;
-        buf[5] = 0x0061626364000000000000000000000000000000000000000000000000000000;
+        buf[5] = 0x0061626364;
         buf[6] = 4;
 
         (uint256 inc, string[] memory strs) = Cairo.cairoStringArrayDeserialize(buf, 0);

@@ -19,6 +19,16 @@ abigen!(
     event_derives(serde::Deserialize, serde::Serialize)
 );
 
+abigen!(
+    StarknetMessaging,
+    r"[
+        function l2ToL1Messages(bytes32 msgHash) external view returns (uint256)
+    ]",
+    methods {
+        l2ToL1Messages(bytes32) as l2_to_l1_messages;
+    },
+);
+
 // Max block range used to fetch ethereum logs.
 // If the value is too high, as there is no hard limit
 // for `fromBlock` and `toBlock`, the RPC may return an error.
@@ -30,6 +40,7 @@ pub struct EthereumClient {
     provider: Provider<Http>,
     provider_signer: Option<SignerMiddleware<Provider<Http>, Wallet<SigningKey>>>,
     bridge_address: Address,
+    messaging_address: Address,
 }
 
 impl EthereumClient {
@@ -47,11 +58,12 @@ impl EthereumClient {
         };
 
         let bridge_address = Address::from_str(&config.bridge_address)?;
-
+        let messaging_address = Address::from_str(&config.messaging_address.unwrap())?;
         Ok(EthereumClient {
             provider,
             provider_signer,
             bridge_address,
+            messaging_address,
         })
     }
 
@@ -165,5 +177,12 @@ impl EthereumClient {
         }
 
         Ok(logs)
+    }
+
+    pub async fn query_message_status(&self, msg_hash: [u8; 32]) -> Result<u64> {
+        let messaging =
+            StarknetMessaging::new(self.messaging_address, Arc::new(self.provider.clone()));
+        let status = messaging.l2_to_l1_messages(msg_hash).call().await?;
+        Ok(status.try_into().unwrap())
     }
 }

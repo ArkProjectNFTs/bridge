@@ -128,6 +128,9 @@ pub enum EventLabel {
     #[serde(rename = "deposit_initiated_l2")]
     DepositInitiatedL2,
 
+    #[serde(rename = "withdraw_available_l1")]
+    WithdrawAvailableL1,
+
     #[serde(rename = "withdraw_completed_l1")]
     WithdrawCompletedL1,
     #[serde(rename = "withdraw_completed_l2")]
@@ -144,6 +147,7 @@ impl ToString for EventLabel {
     fn to_string(&self) -> String {
         match self {
             EventLabel::DepositInitiatedL1 => String::from("deposit_initiated_l1"),
+            EventLabel::WithdrawAvailableL1 => String::from("withdraw_available_l1"),
             EventLabel::WithdrawCompletedL1 => String::from("withdraw_completed_l1"),
             EventLabel::TransitErrorL1L2 => String::from("transit_error_l1_l2"),
 
@@ -152,4 +156,18 @@ impl ToString for EventLabel {
             EventLabel::TransitErrorL2L1 => String::from("transit_error_l2_l1"),
         }
     }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct PendingWithdraw {
+    // Hash of the request associated with the event.
+    pub req_hash: String,
+    // Transaction hash on source chain
+    pub tx_hash: String,
+    // Source chain
+    pub chain_src: BridgeChain,
+    // timestamp
+    pub timestamp: u64,
+
+    pub message_hash: [u8; 32],
 }

@@ -7,6 +7,10 @@ import "openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import "./Deployer.sol";
 import "../sn/Cairo.sol";
 
+error InvalidCollectionL1Address();
+error InvalidCollectionL2Address();
+error ErrorVerifyingAddressMapping();
+
 /**
    @title Collection manager to verify collection address matching and deploy them.
 */
@@ -129,16 +133,16 @@ contract CollectionManager {
         // L2 address is present, and L1 address too.
         if (l2Req > 0 && l1Req > address(0)) {
             if (l1Mapping != l1Req) {
-                revert("Invalid collection L1 address.");
+                revert InvalidCollectionL1Address();
             } else if (l2Mapping != l2Req) {
-                revert("Invalid collection L2 address.");
+                revert InvalidCollectionL2Address();
             } else {
                 // All addresses match, we don't need to deploy anything.
                 return l1Mapping;
             }
         }
 
-        revert("Error verifying addresses mapping.");
+        revert ErrorVerifyingAddressMapping();
     }
 
 }

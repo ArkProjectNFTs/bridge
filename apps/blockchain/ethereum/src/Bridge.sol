@@ -14,31 +14,24 @@ import "./UUPSProxied.sol";
 
 import "starknet/IStarknetMessaging.sol";
 
+import "./IStarklaneEvent.sol";
+
 error NotSupportedYetError();
 error CollectionMappingError();
+error NotWhiteListedError();
+error BridgeNotEnabledError();
 
 /**
    @title Starklane bridge contract.
 */
-contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEscrow, StarklaneMessaging, CollectionManager {
+contract Starklane is IStarklaneEvent, UUPSOwnableProxied, StarklaneState, StarklaneEscrow, StarklaneMessaging, CollectionManager {
 
-    /**
-       @notice Request initiated on L1.
-    */
-    event DepositRequestInitiated(
-        uint256 indexed hash,
-        uint256 block_timestamp,
-        uint256[] reqContent
-    );
+    // Mapping (collectionAddress => bool)
+    mapping(address => bool) _whiteList;
+    address[] _collections;
+    bool _enabled;
+    bool _whiteListEnabled;
 
-    /**
-       @notice Request initiated on L1.
-    */
-    event WithdrawRequestCompleted(
-        uint256 indexed hash,
-        uint256 block_timestamp,
-        uint256[] reqContent
-    );
 
     /**
        @notice Initializes the implementation, only callable once.
@@ -60,7 +53,7 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEscrow, Stark
             data,
             (address, IStarknetMessaging, uint256, uint256)
         );
-
+        _enabled = false;
         _starknetCoreAddress = starknetCoreAddress;
 
         _transferOwnership(owner);
@@ -89,9 +82,17 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEscrow, Stark
         external
         payable
     {
+        if (!_enabled) {
+            revert BridgeNotEnabledError();
+        }
+
         CollectionType ctype = TokenUtil.detectInterface(collectionL1);
         if (ctype == CollectionType.ERC1155) {
             revert NotSupportedYetError();
+        }
+
+        if (!_isWhiteListed(collectionL1)) {
+            revert NotWhiteListedError();
         }
 
         Request memory req;
@@ -111,7 +112,7 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEscrow, Stark
         req.ownerL2 = ownerL2;
 
         if (ctype == CollectionType.ERC721) {
-            (req.name, req.symbol) = TokenUtil.erc721Metadata(
+            (req.name, req.symbol, req.uri, req.tokenURIs) = TokenUtil.erc721Metadata(
                 collectionL1,
                 ids
             );
@@ -148,6 +149,10 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEscrow, Stark
         payable
         returns (address)
     {
+        if (!_enabled) {
+            revert BridgeNotEnabledError();
+        }
+
         // Header is always the first uint256 of the serialized request.
         uint256 header = request[0];
 
@@ -197,4 +202,150 @@ contract Starklane is UUPSOwnableProxied, StarklaneState, StarklaneEscrow, Stark
         return collectionL1;
     }
 
+    /**
+        @notice Start the cancellation of a given request.
+     
+        @param payload Request to cancel
+        @param nonce Nonce used for request sending.
+     */
+    function startRequestCancellation(
+        uint256[] memory payload,
+        uint256 nonce
+    ) external onlyOwner {
+        IStarknetMessaging(_starknetCoreAddress).startL1ToL2MessageCancellation(
+            snaddress.unwrap(_starklaneL2Address), 
+            felt252.unwrap(_starklaneL2Selector), 
+            payload,
+            nonce
+        );
+        Request memory req = Protocol.requestDeserialize(payload, 0);
+        emit CancelRequestStarted(req.hash, block.timestamp);
+    }
+
+    /**
+        @notice Cancel a given request.
+
+        @param payload Request to cancel
+        @param nonce Nonce used for request sending.
+     */
+    function cancelRequest(
+        uint256[] memory payload,
+        uint256 nonce
+    ) external {
+        IStarknetMessaging(_starknetCoreAddress).cancelL1ToL2Message(
+            snaddress.unwrap(_starklaneL2Address), 
+            felt252.unwrap(_starklaneL2Selector), 
+            payload,
+            nonce
+        );
+        Request memory req = Protocol.requestDeserialize(payload, 0);
+        _cancelRequest(req);
+        emit CancelRequestCompleted(req.hash, block.timestamp);
+    }
+
+    function _cancelRequest(Request memory req) internal {
+        uint256 header = felt252.unwrap(req.header);
+        CollectionType ctype = Protocol.collectionTypeFromHeader(header);
+        address collectionL1 = req.collectionL1;
+        for (uint256 i = 0; i < req.tokenIds.length; i++) {
+            uint256 id = req.tokenIds[i];
+            _withdrawFromEscrow(ctype, collectionL1, req.ownerL1, id);
+        }
+    }
+
+    /**
+        @notice Enable collection whitelist for deposit
+
+        @param enable white list is enabled if true
+     */
+    function enableWhiteList(bool enable) external onlyOwner {
+        _whiteListEnabled = enable;
+        emit WhiteListUpdated(_whiteListEnabled);
+    }
+
+    /**
+        @notice Update whitelist status for given collection
+
+        @param collection Collection address
+        @param enable white list is enabled if true
+     */
+    function whiteList(address collection, bool enable) external onlyOwner {
+        if (enable && !_whiteList[collection]) {
+            bool toAdd = true;
+            uint256 i = 0;
+            while(i < _collections.length) {
+                if (collection == _collections[i]) {
+                    toAdd = false;
+                    break;
+                }
+                i++;
+            }
+            if (toAdd) {
+                _collections.push(collection);
+            }
+        }
+        _whiteList[collection] = enable;
+        emit CollectionWhiteListUpdated(collection, enable);
+    }
+    
+    
+    /**
+        @notice Check if white list is globally enabled
+
+        @return true if enabled
+    */
+    function isWhiteListEnabled() external view returns (bool) {
+        return _whiteListEnabled;
+    }
+
+    /**
+        @notice Check if a collection is white listed
+    
+        @param collection Address of collection
+        @return true if white listed
+     */
+    function isWhiteListed(address collection) external view returns (bool) {
+        return _isWhiteListed(collection);
+    }
+    
+    /**
+        @notice Get list of white listed collections
+
+        @return array of white listed collections
+     */
+    function getWhiteListedCollections() external view returns (address[] memory) {
+        uint256 offset = 0;
+        uint256 nbElem = _collections.length;
+        // solidity doesn't support dynamic length array in memory
+        address[] memory ret = new address[](nbElem);
+        for (uint256 i = 0; i < nbElem ;++i) {
+            address cur = _collections[i];
+            if (_whiteList[cur]) {
+                ret[offset] = cur;
+                offset += 1;
+            }
+        }
+        // resize output array
+        assembly {
+            mstore(ret, offset)
+        }
+        
+        return ret;
+    }
+
+    function _isWhiteListed(
+        address collection
+    ) internal view returns (bool) {
+        return !_whiteListEnabled || _whiteList[collection];
+    }
+
+    function enableBridge(
+        bool enable
+    ) external onlyOwner {
+        _enabled = enable;
+    }
+
+    function isEnabled() external view returns(bool) {
+        return _enabled;
+    }
 }

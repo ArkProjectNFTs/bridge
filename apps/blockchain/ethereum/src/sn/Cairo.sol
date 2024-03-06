@@ -279,16 +279,11 @@ library Cairo {
         }
 
         // pending word
-        uint256 mask = (1 << ((pendingLen * 8) + 1)) - 1;
-
         assembly { 
             v := mload(add(strBytes, offset))
-            v := shr(8, v)
+            v := shr(mul(sub(32, pendingLen), 8),v)
         }
-        
-        mask = mask << ((31 - pendingLen) * 8);
-        v &= mask;
-        
+                
         packedData[index] = v;
         index++;
 
@@ -451,9 +446,9 @@ library Cairo {
         string memory s = new string(length);
         bytes memory byteString = bytes(s);
 
-        // cairo string is 31 bytes with first character as MSB
+        // cairo string is 31 bytes with first character as higher bit
         for (uint256 i = 0; i < length; ++i) {
-            uint256 asciiValue = (value >> (8 * (CAIRO_STR_LEN - 1 - i))) & 0xFF;
+            uint256 asciiValue = (value >> (8 * (length - 1 - i))) & 0xFF;
             byteString[i] = bytes1(uint8(asciiValue));
         }
 

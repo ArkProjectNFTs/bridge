@@ -1,11 +1,10 @@
 use super::client::StarknetClient;
 use super::events;
 use crate::config::ChainConfig;
-use crate::storage::store::StarknetBridgeRequestStore;
-use crate::storage::EventLabel;
+use crate::storage::protocol::ProtocolParser;
 use crate::storage::{
-    store::{BlockStore, CrossChainTxStore, EventStore, RequestStore},
-    BlockIndex, BridgeChain, CrossChainTxKind,
+    store::{BlockStore, CrossChainTxStore, EventStore, PendingWithdrawStore, RequestStore, StarknetBridgeRequestStore},
+    BlockIndex, BridgeChain, CrossChainTxKind, EventLabel, PendingWithdraw
 };
 use crate::utils;
 use crate::ChainsBlocks;
@@ -17,22 +16,26 @@ use tokio::sync::RwLock as AsyncRwLock;
 use tokio::time::{self, Duration};
 
 ///
-pub struct StarknetIndexer<T: RequestStore + EventStore + BlockStore + CrossChainTxStore> {
+pub struct StarknetIndexer<
+    T: RequestStore + EventStore + BlockStore + CrossChainTxStore + PendingWithdrawStore,
+> {
     client: StarknetClient,
     config: ChainConfig,
     store: Arc<T>,
     chains_blocks: Arc<AsyncRwLock<ChainsBlocks>>,
+    eth_bridge_address: String,
 }
 
 impl<T> StarknetIndexer<T>
 where
-    T: RequestStore + EventStore + BlockStore + CrossChainTxStore + StarknetBridgeRequestStore,
+    T: RequestStore + EventStore + BlockStore + CrossChainTxStore + StarknetBridgeRequestStore + PendingWithdrawStore,
 {
     ///
     pub async fn new(
         config: ChainConfig,
         store: Arc<T>,
         chains_blocks: Arc<AsyncRwLock<ChainsBlocks>>,
+        eth_bridge_address: String,
     ) -> Result<StarknetIndexer<T>> {
         let client = StarknetClient::new(config.clone()).await?;
         Ok(StarknetIndexer {
@@ -40,6 +43,7 @@ where
             config,
             store,
             chains_blocks,
+            eth_bridge_address,
         })
     }
 
@@ -147,6 +151,9 @@ where
 
         // TODO: start a database transaction/session.
 
+        let sn_bridge_address = &self.config.clone().bridge_address;
+        let eth_bridge_address = &self.eth_bridge_address;
+
         for e in events {
             //log::debug!("raw event\n{:?}\n", e);
             let event_selector = e.keys[0];
@@ -163,12 +170,26 @@ where
                         log::debug!("Request/Event/Tx\n{:?}\n{:?}\n{:?}", req, ev, xchain_tx);
                         self.store.insert_event(ev.clone()).await?;
 
-                        if ev.label == EventLabel::WithdrawCompletedL2 {
-                            self.store.insert_request(ev.tx_hash, req.clone()).await?;
+                        if self.store.req_by_hash(&req.hash).await?.is_none() {
+                            self.store.insert_req(req.clone()).await?;
                         }
 
-                        if self.store.req_by_hash(&req.hash).await?.is_none() {
-                            self.store.insert_req(req).await?;
+                        if ev.label == EventLabel::WithdrawCompletedL2 {
+                            self.store.insert_request(ev.tx_hash.clone(), req.clone()).await?;
+                        }
+
+                        if ev.label == EventLabel::DepositInitiatedL2 {
+                            self
+                                .store
+                                .insert_pending_withdraw(PendingWithdraw {
+                                    req_hash: req.clone().hash,
+                                    tx_hash: ev.tx_hash,
+                                    chain_src: req.clone().chain_src,
+                                    timestamp: ev.block_timestamp,
+                                    message_hash: req
+                                        .message_to_l1_hash(sn_bridge_address, eth_bridge_address),
+                                })
+                                .await?;
                         }
 
                         if let Some(tx) = xchain_tx {

@@ -41,6 +41,28 @@ interface IStarklane {
         returns (address);
 
     /**
+        @notice Start the cancellation of a given request.
+     
+        @param payload Request to cancel
+        @param nonce Nonce used for request sending.
+     */
+    function startRequestCancellation(
+        uint256[] memory payload,
+        uint256 nonce
+    ) external;
+
+    /**
+        @notice Cancel a given request.
+
+        @param payload Request to cancel
+        @param nonce Nonce used for request sending.
+     */
+    function cancelRequest(
+        uint256[] memory payload,
+        uint256 nonce
+    ) external;
+
+    /**
        @notice Adds the hash of a message that can be consumed with the auto
        method.
 
@@ -57,5 +79,53 @@ interface IStarklane {
     function l2Info()
         external
         returns (snaddress, felt252);
+    
+    /**
+        @notice Enable whitelist for deposit
 
+        @param enable enabled if true
+     */
+    function enableWhiteList(
+        bool enable
+    ) external;
+
+    /**
+        @notice Update whitelist status for given collection
+
+        @param collection Collection address
+        @param enable white list is enabled if true
+     */
+    function whiteList(
+        address collection, 
+        bool enable
+    ) external;
+
+    /**
+     * @return true if white list is enabled
+     */
+    function isWhiteListEnabled() external view returns (bool);
+
+    /**
+     * @return true if given collection is white listed
+     */
+    function isWhiteListed(address collection) external view returns (bool);
+
+    /**
+     * @return array of white listed collections
+     */
+    function getWhiteListedCollections() external view returns (address[] memory);
+
+    /**
+        @notice Enable bridge
+
+        @param enable enabled if true
+     */
+    function enableBridge(
+        bool enable
+    ) external;
+
+    /**
+     * @return true if bridge is enabled
+     */
+    function isEnabled() external view returns (bool);
 }

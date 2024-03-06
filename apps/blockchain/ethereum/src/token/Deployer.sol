@@ -24,7 +24,7 @@ library Deployer {
         string memory name,
         string memory symbol
     )
-        internal
+        public
         returns (address)
     {
         address impl = address(new ERC721Bridgeable());
@@ -47,7 +47,7 @@ library Deployer {
     function deployERC1155Bridgeable(
         string memory uri
     )
-        internal
+        public
         returns (address)
     {
         address impl = address(new ERC1155Bridgeable());

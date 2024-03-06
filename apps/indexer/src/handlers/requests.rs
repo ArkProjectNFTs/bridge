@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 
 use super::AppState;
 use crate::storage::{
+    protocol::ProtocolParser,
     store::{EventStore, RequestStore},
     Event, Request,
 };
@@ -15,6 +16,7 @@ use crate::storage::{
 pub struct RequestInfo {
     req: Request,
     events: Vec<Event>,
+    token_ids: Vec<String>,
 }
 
 /// Builds a DTO with requests and associated events.
@@ -33,6 +35,7 @@ pub async fn reqs_info_from_wallet(
                 dtos.push(RequestInfo {
                     req: req.clone(),
                     events,
+                    token_ids: req.get_token_ids(),
                 });
             } else {
                 // TODO: maybe no need to crash here? Only skip this request?
@@ -50,4 +53,32 @@ pub async fn reqs_info_from_wallet(
     }
 
     Ok(Json(dtos))
+}
+
+pub async fn transaction(Path(txhash): Path<String>, state: State<AppState>) -> StatusCode {
+    if let Ok(event) = state.store.event_by_tx(&txhash.to_lowercase()).await {
+        if event.is_some() {
+            return StatusCode::OK;
+        }
+    }
+    StatusCode::NOT_FOUND
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct IndexerInfo {
+    l1_address: String,
+    l2_address: String,
+    l1_block_number: u64,
+    l2_block_number: u64,
+}
+
+pub async fn info(state: State<AppState>) -> Result<Json<IndexerInfo>, (StatusCode, String)> {
+    let chains_blocks = state.chains_blocks.read().await;
+    let info = IndexerInfo {
+        l1_address: state.l1_address.clone(),
+        l2_address: state.l2_address.clone(),
+        l1_block_number: chains_blocks.eth,
+        l2_block_number: chains_blocks.sn,
+    };
+    Ok(Json(info))
 }
