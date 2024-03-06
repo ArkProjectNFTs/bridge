@@ -79,7 +79,7 @@ mod bridge {
         self.bridge_l1_address.write(bridge_l1_address);
         self.erc721_bridgeable_class.write(erc721_bridgeable_class);
         self.white_list_enabled.write(false);
-        self.enabled.write(false); // disalbed by default
+        self.enabled.write(false); // disabled by default
     }
 
     #[event]
@@ -315,6 +315,12 @@ mod bridge {
 
         fn is_enabled(self: @ContractState) -> bool {
             self.enabled.read()
+        }
+
+        fn set_l1_l2_collection_mapping(ref self: ContractState, collection_l1: EthAddress, collection_l2: ContractAddress) {
+            ensure_is_admin(@self);
+            self.l1_to_l2_addresses.write(collection_l1, collection_l2);
+            self.l2_to_l1_addresses.write(collection_l2, collection_l1);
         }
     }
 

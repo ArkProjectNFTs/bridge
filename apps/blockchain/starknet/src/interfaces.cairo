@@ -31,6 +31,8 @@ trait IStarklane<T> {
 
     fn enable(ref self: T, enable: bool);
     fn is_enabled(self: @T) -> bool;
+
+    fn set_l1_l2_collection_mapping(ref self: T , collection_l1: EthAddress, collection_l2: ContractAddress);
 }
 
 /// Upgradeable contract.
@@ -76,8 +78,15 @@ struct CollectionDeployedFromL1 {
     symbol: ByteArray
 }
 
-
 #[derive(Drop, starknet::Event)]
 struct BridgeEnabled {
     enable: bool,
+}
+
+#[derive(Drop, starknet::Event)]
+struct L1L2CollectionMappingUpdated {
+    #[key]
+    collection_l1: EthAddress,
+    #[key]
+    collection_l2: ContractAddress
 }
