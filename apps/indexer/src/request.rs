@@ -36,6 +36,7 @@ pub struct Event {
 #[serde(rename_all = "snake_case")]
 pub enum EventLabel {
     DepositInitiatedL1,
+    WithdrawAvailableL1,
     WithdrawCompletedL1,
     TransitErrorL1L2,
 
@@ -49,6 +50,7 @@ impl ToString for EventLabel {
     fn to_string(&self) -> String {
         match self {
             EventLabel::DepositInitiatedL1 => String::from("deposit_initiated_l1"),
+            EventLabel::WithdrawAvailableL1 => String::from("withdraw_available_l1"),
             EventLabel::WithdrawCompletedL1 => String::from("withdraw_completed_l1"),
             EventLabel::TransitErrorL1L2 => String::from("transit_error_l1_l2"),
 

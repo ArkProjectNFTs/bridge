@@ -17,9 +17,7 @@ This is then tied to what is the design choice made by the developer / collectio
 In fact, as token may not be unique - and even unique token are not guaranteed to be unique, the escrow mechanism to hold the tokens when bridged can’t follow the same logic as ERC721 escrow does.
 This topic is still under discussion at Screenshot Labs, but the most viable option seems to be a burn of the tokens being bridged, and mint them again if they are bridged from the other chain.
 But again, this is more about economics than technical consideration.
-- **Cairo long string**: At the moment of this writing, Cairo is not (yet) supporting string natively. This is a feature being working on at Starkware, and it will be implemented as soon as it is available.
-For now, Starklane is supporting any string length from Ethereum, concatenating the Cairo short string.
-- **Cairo version**: Starklane is being updated to be compliant with `v2.1.0`.
+- **Cairo version**: Starklane is being updated to be compliant with `v2.4.0`.
 - **Starknet messaging asymmetry**: The native messaging proposed by Starknet is working differently based on which direction assets are bridged.
 L1→L2: From a single transaction on Ethereum, the message is registered and emitted as an event by the Starknet Core Contract, and the sequencer is responsible of gathering those events to then send (automatically) a `L1Handler` transaction to the destination contract on Starknet.
 L2→L1: When a transaction is made on Starknet with a message for Ethereum, the message is included in a block (Ethereum is not listening to events). Once this block is proven, Starknet Core Contract is capable of taking this message in account, and at this moment a transaction on Ethereum must be realized to actually consume the message (and thus execute the logic associated to it).
@@ -41,8 +39,8 @@ This is the `request` that is serialized and sent as the payload of Starknet mes
 
 ```rust
 struct Request {
-  // Header of the request with protocol information.
-  // Defines the type of collection (ERC721/ERC1155), the deposit and withdraw strategies.
+  	// Header of the request with protocol information.
+  	// Defines the type of collection (ERC721/ERC1155), the deposit and withdraw strategies.
 	header: felt252;
 	// Unique hash of the request.
 	hash: u256;
@@ -67,19 +65,19 @@ struct Request {
 	// Tokens to be bridged.
 	ids: u256[];
 
-  // Amounts for each token
-  // ERC721: not used.
-  // ERC1155: if empty, the amount is 1 for each token id, else length must match `ids`.
-  values: u256[];
+  	// Amounts for each token
+  	// ERC721: not used.
+  	// ERC1155: if empty, the amount is 1 for each token id, else length must match `ids`.
+  	values: u256[];
 
-  // URIs for each individual token 
-  // ERC721: must be empty if `base_uri` is provided, else length must match `ids`.
-  // ERC1155: not used.
-  uris: string;
+  	// URIs for each individual token 
+  	// ERC721: must be empty if `base_uri` is provided, else length must match `ids`.
+  	// ERC1155: not used.
+  	uris: string;
 
 	// New owners on the destination layer. This allows a batch migration of the tokens to different owners.
 	// Must be empty if `owner_l1` (arriving on Ethereum) or `owner_l2` (arriving on Starknet)
-  // is not 0. Otherwise, length must match `ids`.
+  	// is not 0. Otherwise, length must match `ids`.
 	new_owners: felt252[];
 }
 ```

@@ -1,5 +1,6 @@
 #[starknet::contract]
 mod bridge {
+    use core::byte_array::ByteArrayTrait;
     use array::{ArrayTrait, SpanTrait};
     use traits::{Into, TryInto};
     use zeroable::Zeroable;
@@ -14,6 +15,15 @@ mod bridge {
     use starknet::eth_address::EthAddressZeroable;
 
     use starklane::interfaces::{IStarklane, IUpgradeable};
+    // events
+    use starklane::interfaces::{
+        DepositRequestInitiated,
+        WithdrawRequestCompleted,
+        CollectionDeployedFromL1,
+        ReplacedClassHash,
+        BridgeEnabled,
+    };
+
     use starklane::request::{
         Request,
         compute_request_header_v1,
@@ -42,11 +52,18 @@ mod bridge {
         // Mapping between L2<->L1 collections addresses.
         l2_to_l1_addresses: LegacyMap::<ContractAddress, EthAddress>,
         // Mapping between L1<->L2 collections addresses.
-        // TODO: EthAddress still not have a hash impl.
-        l1_to_l2_addresses: LegacyMap::<felt252, ContractAddress>,
+        l1_to_l2_addresses: LegacyMap::<EthAddress, ContractAddress>,
         // Registry of escrowed token for collections.
         // <(collection_l2_address, token_id), original_depositor_l2_address>
         escrow: LegacyMap::<(ContractAddress, u256), ContractAddress>,
+
+        // White list enabled flag
+        white_list_enabled: bool,
+        // Registry of whitelisted collections
+        white_list: LegacyMap::<ContractAddress, bool>,
+
+        // Bridge enabled flag
+        enabled: bool,
     }
 
     #[constructor]
@@ -61,6 +78,8 @@ mod bridge {
         // TODO: add validation of inputs.
         self.bridge_l1_address.write(bridge_l1_address);
         self.erc721_bridgeable_class.write(erc721_bridgeable_class);
+        self.white_list_enabled.write(false);
+        self.enabled.write(false); // disalbed by default
     }
 
     #[event]
@@ -69,35 +88,10 @@ mod bridge {
         DepositRequestInitiated: DepositRequestInitiated,
         CollectionDeployedFromL1: CollectionDeployedFromL1,
         WithdrawRequestCompleted: WithdrawRequestCompleted,
+        ReplacedClassHash: ReplacedClassHash,
+        BridgeEnabled: BridgeEnabled,
     }
 
-    #[derive(Drop, starknet::Event)]
-    struct DepositRequestInitiated {
-        #[key]
-        hash: u256,
-        #[key]
-        block_timestamp: u64,
-        req_content: Request,
-    }
-
-    #[derive(Drop, starknet::Event)]
-    struct WithdrawRequestCompleted {
-        #[key]
-        hash: u256,
-        #[key]
-        block_timestamp: u64,
-        req_content: Request
-    }
-
-    #[derive(Drop, starknet::Event)]
-    struct CollectionDeployedFromL1 {
-        #[key]
-        l1_addr: EthAddress,
-        #[key]
-        l2_addr: ContractAddress,
-        name: ByteArray,
-        symbol: ByteArray
-    }
 
     /// Process message from L1 to withdraw token.
     ///
@@ -115,6 +109,7 @@ mod bridge {
         from_address: felt252,
         req: Request
     ) {
+        ensure_is_enabled(@self);
         assert(self.bridge_l1_address.read().into() == from_address,
                'Invalid L1 msg sender');
 
@@ -143,8 +138,14 @@ mod bridge {
                 IERC721Dispatcher { contract_address: collection_l2 }
                 .transfer_from(from, to, token_id);
             } else {
-                IERC721BridgeableDispatcher { contract_address: collection_l2 }
-                .mint_from_bridge(to, token_id);
+                if (req.uris.len() != 0) {
+                    let token_uri = req.uris[i];
+                    IERC721BridgeableDispatcher { contract_address: collection_l2 }
+                    .mint_from_bridge_uri(to, token_id, token_uri.clone());
+                } else {
+                    IERC721BridgeableDispatcher { contract_address: collection_l2 }
+                    .mint_from_bridge(to, token_id);
+                }
             }
 
             i += 1;
@@ -166,7 +167,12 @@ mod bridge {
             );
 
             match starknet::replace_class_syscall(class_hash) {
-                Result::Ok(_) => (), // emit event
+                Result::Ok(_) => {
+                    self.emit(ReplacedClassHash {
+                        contract: starknet::get_contract_address(),
+                        class: class_hash,
+                    })
+                },
                 Result::Err(revert_reason) => panic(revert_reason),
             };
         }
@@ -176,12 +182,10 @@ mod bridge {
     impl BridgeImpl of IStarklane<ContractState> {
 
         fn get_l1_collection_address(self: @ContractState, address: ContractAddress) -> EthAddress {
-            // TODO: ethAddress HashImpl to allow storage as key in legacy map.
-            let cf: felt252 = self.l2_to_l1_addresses.read(address).into();
-            cf.try_into().expect('Invalid eth address')
+            self.l2_to_l1_addresses.read(address)
         }
 
-        fn get_l2_collection_address(self: @ContractState, address: felt252) -> ContractAddress {
+        fn get_l2_collection_address(self: @ContractState, address: EthAddress) -> ContractAddress {
             self.l1_to_l2_addresses.read(address)
         }
 
@@ -225,6 +229,7 @@ mod bridge {
             use_withdraw_auto: bool,
             use_deposit_burn_auto: bool,
         ) {
+            ensure_is_enabled(@self);
             assert(!self.bridge_l1_address.read().is_zero(), 'Bridge is not open');
 
             // TODO: we may have the "from" into the params, to allow an operator
@@ -233,6 +238,8 @@ mod bridge {
             // Because anyway, a token can't be moved if the owner of the token
             // is not giving approval to the bridge.
             let from = starknet::get_caller_address();
+
+            assert(_is_white_listed(@self, collection_l2), 'Collection not whitelisted');
 
             // TODO: add support for 1155 and check the detected interface on the collection.
             let ctype = CollectionType::ERC721;
@@ -271,12 +278,43 @@ mod bridge {
                 buf.span(),
             )
                 .unwrap_syscall();
-
+            
             self.emit(DepositRequestInitiated {
                 hash: req.hash,
                 block_timestamp: starknet::info::get_block_timestamp(),
                 req_content: req
             });
+            
+        }
+
+        fn enable_white_list(ref self: ContractState, enable: bool) {
+            ensure_is_admin(@self);
+            self.white_list_enabled.write(enable);
+        }
+
+        fn is_white_list_enabled(self: @ContractState) -> bool {
+            self.white_list_enabled.read()
+        }
+
+        fn white_list_collection(ref self: ContractState, collection: ContractAddress, enabled: bool) {
+            ensure_is_admin(@self);
+            self.white_list.write(collection, enabled);
+        }
+
+        fn is_white_listed(self: @ContractState, collection: ContractAddress) -> bool {
+            _is_white_listed(self, collection)
+        }
+
+        fn enable(ref self: ContractState, enable: bool) {
+            ensure_is_admin(@self);
+            self.enabled.write(enable);
+            self.emit(BridgeEnabled {
+                enable: enable
+            });
+        }
+
+        fn is_enabled(self: @ContractState) -> bool {
+            self.enabled.read()
         }
     }
 
@@ -285,6 +323,11 @@ mod bridge {
     /// Ensures the caller is the bridge admin. Revert if it's not.
     fn ensure_is_admin(self: @ContractState) {
         assert(starknet::get_caller_address() == self.bridge_admin.read(), 'Unauthorized call');
+    }
+
+    /// Ensures the bridge is enabled
+    fn ensure_is_enabled(self: @ContractState) {
+        assert!(self.enabled.read(), "Bridge disabled");
     }
 
     /// Deposit the given tokens into escrow.
@@ -329,7 +372,7 @@ mod bridge {
             l1_req,
             l2_req,
             self.l2_to_l1_addresses.read(l2_req),
-            self.l1_to_l2_addresses.read(l1_req.into()),
+            self.l1_to_l2_addresses.read(l1_req),
         );
 
         if !collection_l2.is_zero() {
@@ -348,7 +391,7 @@ mod bridge {
             starknet::get_contract_address(),
         );
 
-        self.l1_to_l2_addresses.write(l1_req.into(), l2_addr_from_deploy);
+        self.l1_to_l2_addresses.write(l1_req, l2_addr_from_deploy);
         self.l2_to_l1_addresses.write(l2_addr_from_deploy, l1_req);
 
         self
@@ -362,5 +405,13 @@ mod bridge {
             );
 
         l2_addr_from_deploy
+    }
+
+    fn _is_white_listed(self: @ContractState, collection: ContractAddress) -> bool {
+            let enabled = self.white_list_enabled.read();
+            if (enabled) {
+                return self.white_list.read(collection);
+            }
+            true
     }
 }

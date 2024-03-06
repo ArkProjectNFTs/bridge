@@ -2,7 +2,7 @@ use super::client::EthereumClient;
 use super::events;
 use crate::config::{ChainConfig, XchainTxConfig};
 use crate::storage::{
-    store::{BlockStore, CrossChainTxStore, EventStore, RequestStore},
+    store::{BlockStore, CrossChainTxStore, EventStore, PendingWithdrawStore, RequestStore},
     BlockIndex, BridgeChain, CrossChainTxKind, Event, EventLabel,
 };
 use crate::utils;
@@ -15,7 +15,9 @@ use tokio::sync::RwLock as AsyncRwLock;
 use tokio::time::{self, Duration};
 
 ///
-pub struct EthereumIndexer<T: RequestStore + EventStore + BlockStore + CrossChainTxStore> {
+pub struct EthereumIndexer<
+    T: RequestStore + EventStore + BlockStore + CrossChainTxStore + PendingWithdrawStore,
+> {
     client: EthereumClient,
     config: ChainConfig,
     store: Arc<T>,
@@ -25,7 +27,7 @@ pub struct EthereumIndexer<T: RequestStore + EventStore + BlockStore + CrossChai
 
 impl<T> EthereumIndexer<T>
 where
-    T: RequestStore + EventStore + BlockStore + CrossChainTxStore,
+    T: RequestStore + EventStore + BlockStore + CrossChainTxStore + PendingWithdrawStore,
 {
     ///
     pub async fn new(
@@ -84,6 +86,14 @@ where
                 Err(e) => log::warn!("Error sending xchain_txs {:?}", e),
             };
 
+            //
+            // Check for pending withdraw
+            match self.process_pending_withdraws(to).await {
+                Ok(_) => (),
+                Err(e) => log::warn!("Error processing pending transactions {:?}", e),
+            };
+
+            //
             // The block range was fetched and processed.
             // If any block has an error, an other instance of the indexer
             // must be restarted on a the specific range.
@@ -254,6 +264,32 @@ where
         self.store.insert_block(block_idx).await?;
         // TODO: end the database transaction/session.
 
+        Ok(())
+    }
+
+    async fn process_pending_withdraws(&self, block_number: u64) -> Result<()> {
+        let pendings = self.store.get_pending_withdraws().await?;
+        for pending in pendings {
+            let status = self
+                .client
+                .query_message_status(pending.message_hash)
+                .await?;
+            log::debug!("{:?}: {:?}", pending.message_hash, status);
+            if status != 0 {
+                if let Some(mut event) = self.store.event_by_tx(&pending.tx_hash).await? {
+                    if event.label != EventLabel::WithdrawCompletedL1 {
+                        // FIXME: update time stamp
+                        event.block_number = block_number;
+                        event.label = EventLabel::WithdrawAvailableL1;
+                        // TODO: which transaction hash we should set?
+                        event.tx_hash = "0x435553544f4d5f5452414e53414354494f4e".to_owned(); // CUSTOM_TRANSACTION
+
+                        self.store.insert_event(event).await?;
+                        self.store.remove_pending_withdraw(pending).await?;
+                    }
+                }
+            }
+        }
         Ok(())
     }
 }

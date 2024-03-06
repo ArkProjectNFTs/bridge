@@ -1,6 +1,6 @@
 //! Structs and traits related to data to be stored
 //! after indexing Starklane bridge events.
-use crate::storage::{BlockIndex, BridgeChain, CrossChainTx, CrossChainTxKind, Event, Request};
+use crate::storage::{BlockIndex, BridgeChain, CrossChainTx, CrossChainTxKind, Event, PendingWithdraw, Request};
 use anyhow::Result;
 use async_trait::async_trait;
 
@@ -68,6 +68,9 @@ pub trait EventStore {
 
     ///
     async fn events_by_request(&self, req_hash: &str) -> Result<Vec<Event>>;
+
+    ///
+    async fn event_by_tx(&self, tx_hash: &str) -> Result<Option<Event>>;
 }
 
 /// Store for bridged collections.
@@ -82,4 +85,13 @@ pub trait CollectionStore {
         time: u64,
         req_hash: &str,
     ) -> Result<()>;
+}
+
+#[async_trait]
+pub trait PendingWithdrawStore {
+    async fn insert_pending_withdraw(&self, pending_withdraw: PendingWithdraw) -> Result<()>;
+
+    async fn get_pending_withdraws(&self) -> Result<Vec<PendingWithdraw>>;
+
+    async fn remove_pending_withdraw(&self, pending_withdraw: PendingWithdraw) -> Result<()>;
 }
