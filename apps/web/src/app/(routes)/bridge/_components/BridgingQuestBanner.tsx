@@ -19,7 +19,7 @@ export default function BridgingQuestBanner({
       )}
     >
       <div className="flex flex-col items-start gap-4 text-left">
-        <Typography component="h4" variant="heading_light_xs">
+        <Typography component="h4" variant="heading_light_s">
           Everai Bridging Quests
         </Typography>
         <Typography
