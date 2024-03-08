@@ -70,10 +70,14 @@ export default function NftTransferItem({
   const displayedArrivalAddress = starkName ?? ens ?? arrivalShortAddress;
 
   return (
-    <Collapsible.Root onOpenChange={setOpen} open={open}>
+    <Collapsible.Root
+      className="overflow-hidden"
+      onOpenChange={setOpen}
+      open={open}
+    >
       <div
         className={clsx(
-          "grid grid-cols-[1fr_1fr_1fr_1fr_2.25rem] place-items-start items-center border border-asteroid-grey-100 bg-white p-6 dark:border-space-blue-800 dark:bg-space-blue-900",
+          "grid grid-cols-[1fr_1fr_1fr_1fr_2.25rem] place-items-start items-center border border-asteroid-grey-100 bg-white p-6 transition-[border-radius] dark:border-space-blue-800 dark:bg-space-blue-900",
           open ? "rounded-t-2xl" : "rounded-2xl"
         )}
       >

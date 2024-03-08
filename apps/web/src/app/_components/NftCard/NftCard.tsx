@@ -56,7 +56,7 @@ export default function NftCard({
           ) : (
             <button
               className={clsx(
-                "dark:hover:outline-primary-sourc h-full w-full overflow-hidden rounded-2xl border bg-white p-3 outline outline-1 transition-[outline_border] hover:border-primary-source hover:outline-primary-source dark:bg-space-blue-900 dark:hover:border-primary-source",
+                "h-full w-full overflow-hidden rounded-2xl border bg-white p-3 outline outline-1 transition-[outline_border] hover:border-primary-source hover:outline-primary-source focus-visible:border-primary-source focus-visible:outline-primary-source dark:bg-space-blue-900 dark:hover:border-primary-source dark:focus-visible:border-primary-source",
                 isSelected
                   ? "border-primary-source outline-primary-source"
                   : "border-neutral-300 outline-transparent dark:border-space-blue-600"

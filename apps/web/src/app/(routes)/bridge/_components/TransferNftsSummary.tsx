@@ -1,16 +1,19 @@
+import { useAccount as useStarknetAccount } from "@starknet-react/core";
 import clsx from "clsx";
-import { Drawer, IconButton, SideModal, Typography } from "design-system";
+import { Button, Drawer, SideModal, Typography } from "design-system";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { useAccount as useEthereumAccount } from "wagmi";
 
-import useAccountFromChain from "~/app/_hooks/useAccountFromChain";
+import ConnectModal from "~/app/_components/ConnectModal";
 import useCurrentChain from "~/app/_hooks/useCurrentChain";
-import { api } from "~/utils/api";
+import useIsFullyConnected from "~/app/_hooks/useIsFullyConnected";
 
 import useNftSelection from "../_hooks/useNftSelection";
 import SmallBridgingQuestBanner from "./SmallBridgingQuestBanner";
 import TransferNftsAction from "./TransferNftsAction";
+import TransferNftsList from "./TransferNftsList";
 import TransferNftsWalletSummary from "./TransferNftsWalletSummary";
 
 function NoNftsImage() {
@@ -57,46 +60,96 @@ function NoNftsImage() {
   );
 }
 
+function TransferNftsNotConnected() {
+  const { address: ethereumAddress } = useEthereumAccount();
+  const { address: starknetAddress } = useStarknetAccount();
+  const [isOpen, setIsOpen] = useState(false);
+
+  if (ethereumAddress === undefined && starknetAddress === undefined) {
+    return (
+      <>
+        <ConnectModal isOpen={isOpen} onOpenChange={setIsOpen} />
+        <Image
+          alt={`Wallets`}
+          className="mx-auto mt-8"
+          height={100}
+          src={"/medias/wallet_default.png"}
+          width={100}
+        />
+        <Button
+          className="mt-8"
+          color="default"
+          onClick={() => setIsOpen(true)}
+          size="small"
+        >
+          Connect wallets
+        </Button>
+      </>
+    );
+  } else if (ethereumAddress === undefined) {
+    return (
+      <>
+        <Image
+          alt={`Ethereum logo`}
+          className="mx-auto mt-8"
+          height={100}
+          src={"/medias/ethereum_wallet.png"}
+          width={100}
+        />
+        <ConnectModal
+          initialChain="Ethereum"
+          isOpen={isOpen}
+          onOpenChange={setIsOpen}
+        />
+        <Button
+          className="mt-8"
+          color="default"
+          onClick={() => setIsOpen(true)}
+          size="small"
+        >
+          Connect Ethereum wallet
+        </Button>
+      </>
+    );
+  } else if (starknetAddress === undefined) {
+    return (
+      <>
+        <Image
+          alt={`Starknet logo`}
+          className="mx-auto mt-8"
+          height={100}
+          src={"/medias/starknet_wallet.png"}
+          width={100}
+        />
+
+        <Button
+          className="mt-8"
+          color="default"
+          onClick={() => setIsOpen(true)}
+          size="small"
+        >
+          Connect Starknet wallet
+        </Button>
+
+        <ConnectModal
+          initialChain="Starknet"
+          isOpen={isOpen}
+          onOpenChange={setIsOpen}
+        />
+      </>
+    );
+  }
+
+  return null;
+}
+
 function TransferSummary() {
-  const {
-    deselectNft,
-    selectedCollectionAddress,
-    selectedTokenIds,
-    totalSelectedNfts,
-  } = useNftSelection();
+  const { totalSelectedNfts } = useNftSelection();
   const pathname = usePathname();
-
-  const { sourceChain } = useCurrentChain();
-  const { address } = useAccountFromChain(sourceChain);
-
-  const { data: l1SelectedNfts } = api.l1Nfts.getNftMetadataBatch.useQuery(
-    {
-      contractAddress: selectedCollectionAddress ?? "",
-      tokenIds: selectedTokenIds,
-    },
-    {
-      enabled: sourceChain === "Ethereum",
-      keepPreviousData: true,
-    }
-  );
-
-  const { data: l2SelectedNfts } = api.l2Nfts.getNftMetadataBatch.useQuery(
-    {
-      contractAddress: selectedCollectionAddress ?? "",
-      ownerAddress: address ?? "",
-      tokenIds: selectedTokenIds,
-    },
-    {
-      enabled: sourceChain === "Starknet",
-      keepPreviousData: true,
-    }
-  );
-
-  const selectedNfts =
-    sourceChain === "Ethereum" ? l1SelectedNfts : l2SelectedNfts;
 
   const hasSelectedNfts = totalSelectedNfts > 0;
   const showBridgingQuestBanner = pathname === "/bridge";
+  const isFullyConnected = useIsFullyConnected();
 
   return (
     <>
@@ -110,95 +163,31 @@ function TransferSummary() {
 
       <TransferNftsWalletSummary />
 
-      {hasSelectedNfts ? (
-        <Typography className="mt-8 w-full" variant="body_text_14">
-          {totalSelectedNfts} Nfts selected
-        </Typography>
+      {isFullyConnected ? (
+        <>
+          {hasSelectedNfts ? (
+            <>
+              <Typography className="mt-8 w-full" variant="body_text_14">
+                {totalSelectedNfts} Nfts selected
+              </Typography>
+              <TransferNftsList />
+            </>
+          ) : (
+            <div className="mt-8 flex w-full items-center gap-4">
+              <NoNftsImage />
+              <Typography component="p" variant="body_text_14">
+                No Nfts selected yet...
+                <br />
+                For now you can only select Everai collection!
+              </Typography>
+            </div>
+          )}
+          <TransferNftsAction />
+        </>
       ) : (
-        <div className="mt-8 flex w-full items-center gap-4">
-          <NoNftsImage />
-          <Typography component="p" variant="body_text_14">
-            No Nfts selected yet...
-            <br />
-            For now you can only select Everai collection!
-          </Typography>
-        </div>
+        <TransferNftsNotConnected />
       )}
 
-      {/* TODO @YohanTz: Always show scroll bar to indicate that there is more content to view (with Radix ScrollArea ?) */}
-      {selectedNfts !== undefined && (
-        <div className="mt-8 flex w-full flex-col gap-4 overflow-y-auto">
-          {selectedNfts.map((selectedNft) => {
-            return (
-              <div className="flex justify-between" key={selectedNft.tokenId}>
-                <div className="flex items-center gap-4">
-                  {selectedNft?.image ? (
-                    <Image
-                      alt={selectedNft.tokenName}
-                      className="rounded"
-                      height={52}
-                      src={selectedNft.image}
-                      width={52}
-                    />
-                  ) : (
-                    <>
-                      <Image
-                        alt="empty Nft image"
-                        className="hidden rounded dark:block"
-                        height={52}
-                        src={`/medias/dark/empty_nft.png`}
-                        width={52}
-                      />
-                      <Image
-                        alt="empty Nft image"
-                        className="rounded dark:hidden"
-                        height={52}
-                        src={`/medias/empty_nft.png`}
-                        width={52}
-                      />
-                    </>
-                  )}
-                  <div className="flex flex-col">
-                    <Typography ellipsable variant="body_text_14">
-                      {selectedNft.collectionName}
-                    </Typography>
-                    <Typography ellipsable variant="body_text_bold_14">
-                      {selectedNft.tokenName}
-                    </Typography>
-                  </div>
-                </div>
-                <IconButton
-                  icon={
-                    <svg
-                      fill="none"
-                      height="21"
-                      viewBox="0 0 21 21"
-                      width="21"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M5.0531 15.1982L10.0531 10.1982M10.0531 10.1982L15.0531 5.19824M10.0531 10.1982L5.0531 5.19824M10.0531 10.1982L15.0531 15.1982"
-                        stroke="currentColor"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                      />
-                    </svg>
-                  }
-                  onClick={() =>
-                    deselectNft(
-                      selectedNft.tokenId,
-                      selectedCollectionAddress ?? ""
-                    )
-                  }
-                  className="flex-shrink-0"
-                />
-              </div>
-            );
-          })}
-        </div>
-      )}
-      <TransferNftsAction />
       {showBridgingQuestBanner && <SmallBridgingQuestBanner className="mt-8" />}
     </>
   );

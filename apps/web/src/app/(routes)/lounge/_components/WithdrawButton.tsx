@@ -13,7 +13,7 @@ export default function WithdrawButton({
 
   return (
     <button
-      className="flex h-9 w-36 items-center justify-center rounded-md bg-galaxy-blue text-white hover:bg-space-blue-700 dark:bg-space-blue-400 dark:text-space-blue-900 dark:hover:bg-space-blue-200"
+      className="flex h-9 w-36 items-center justify-center rounded-md bg-galaxy-blue text-white transition-colors hover:bg-space-blue-700 dark:bg-white dark:text-space-blue-900 dark:hover:bg-space-blue-200"
       onClick={() => !isSigning && withdraw(requestContent)}
     >
       {isSigning ? (

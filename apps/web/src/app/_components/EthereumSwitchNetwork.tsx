@@ -16,9 +16,9 @@ export default function EthereumSwitchNetwork() {
   }, [chainId, chains]);
 
   return (
-    <SideDialog isOpen={isOpen} onOpenChange={setIsOpen}>
+    <SideDialog isOpen={isOpen} onOpenChange={setIsOpen} withClose={false}>
       <svg
-        className="dark:hidden"
+        className="mt-16 dark:hidden"
         fill="none"
         height="100"
         viewBox="0 0 101 100"
@@ -117,7 +117,7 @@ export default function EthereumSwitchNetwork() {
       </svg>
 
       <svg
-        className="hidden dark:block"
+        className="mt-16 hidden dark:block"
         fill="none"
         height="100"
         viewBox="0 0 141 141"

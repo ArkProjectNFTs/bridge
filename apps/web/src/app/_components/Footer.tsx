@@ -5,6 +5,7 @@ import {
   Typography,
 } from "design-system";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Footer() {
   return (
@@ -23,7 +24,12 @@ export default function Footer() {
       <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:gap-8">
         <Typography variant="body_text_14">Terms of use</Typography>
         <Typography variant="body_text_14">Legal Notice</Typography>
-        <Typography variant="body_text_14">FAQ</Typography>
+        <Link
+          className="transition-colors hover:text-space-blue-source"
+          href="/faq"
+        >
+          <Typography variant="body_text_14">FAQ</Typography>
+        </Link>
         {/* <Typography variant="button_text_l">Documentation</Typography> */}
         <Typography variant="body_text_14">
           © {new Date().getFullYear()} ArkProject

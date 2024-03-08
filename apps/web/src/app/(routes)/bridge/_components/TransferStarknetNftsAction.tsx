@@ -13,10 +13,10 @@ export default function TransferStarknetNftsAction() {
   return (
     <Button
       className={clsx(
-        "mt-8 h-12 flex-shrink-0 transition-colors",
+        "mt-8 h-12 flex-shrink-0 bg-galaxy-blue text-white transition-colors dark:bg-primary-source dark:text-galaxy-blue",
         disabled
-          ? "cursor-no-drop bg-asteroid-grey-300 text-white opacity-50 dark:bg-primary-source dark:text-galaxy-blue"
-          : "bg-galaxy-blue text-white hover:bg-space-blue-700 dark:bg-primary-source dark:text-galaxy-blue dark:hover:bg-primary-400"
+          ? "cursor-no-drop opacity-50"
+          : "hover:bg-space-blue-700 dark:hover:bg-primary-400"
       )}
       onClick={() => !disabled && void depositTokens()}
       size="small"
