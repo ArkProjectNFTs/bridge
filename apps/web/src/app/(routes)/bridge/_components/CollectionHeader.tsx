@@ -20,10 +20,10 @@ export default function CollectionHeader({
         </Typography>
         {collectionTotalCount !== undefined && (
           <Typography
-            className="rounded-full bg-primary-source px-2.5 py-1 text-white dark:text-galaxy-blue"
+            className="rounded-full bg-space-blue-100 px-2.5 py-1 text-space-blue-source dark:bg-space-blue-800 dark:text-space-blue-400"
             variant="button_text_s"
           >
-            {collectionTotalCount}
+            {isFullyConnected ? collectionTotalCount : 0}
           </Typography>
         )}
       </div>

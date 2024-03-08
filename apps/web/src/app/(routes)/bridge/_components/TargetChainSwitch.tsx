@@ -21,7 +21,7 @@ export default function TargetChainSwitch() {
         />
         <div className="flex flex-col items-start text-left">
           <Typography
-            className="rounded bg-space-blue-100 p-1 text-asteroid-grey-600 dark:bg-space-blue-300 dark:text-space-blue-900"
+            className="rounded bg-space-blue-100 p-1 text-space-blue-500 dark:bg-space-blue-300 dark:text-space-blue-900"
             component="p"
             variant="body_text_12"
           >
@@ -37,7 +37,7 @@ export default function TargetChainSwitch() {
       <div className="flex w-40 items-center gap-2 rounded-r-2xl bg-white py-4 pl-8 pr-4 dark:bg-space-blue-800">
         <div className="flex flex-col items-start text-left">
           <Typography
-            className="rounded bg-space-blue-100 p-1 text-asteroid-grey-600 dark:bg-space-blue-300 dark:text-space-blue-900"
+            className="rounded bg-space-blue-100 p-1 text-space-blue-500 dark:bg-space-blue-300 dark:text-space-blue-900"
             component="p"
             variant="body_text_12"
           >

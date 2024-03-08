@@ -10,7 +10,7 @@ const variants: Record<BridgeRequestEventStatus, string> = {
     "bg-playground-purple-50 text-playground-purple-600 dark:bg-playground-purple-200 dark:text-playground-purple-900",
   error: "bg-folly-red-50 text-folly-red-source",
   withdraw_available_l1:
-    "bg-space-blue-50 text-space-blue-400 dark:bg-space-blue-400 dark:text-space-blue-900",
+    "bg-space-blue-100 text-space-blue-source dark:bg-space-blue-800 dark:text-space-blue-400",
   withdraw_completed_l1:
     "bg-mantis-green-50 text-mantis-green-500 dark:bg-mantis-green-200 dark:text-mantis-green-900",
   withdraw_completed_l2:
@@ -45,11 +45,6 @@ export default function NftCardStatus({
     >
       <Typography component="p" variant="body_text_12">
         {variantsToStatusText[status]}
-        {/* <div className="ml-1 flex items-center gap-0.5">
-          <div className="h-1 w-1 animate-bounce rounded-full bg-playground-purple-700" />
-          <div className="h-1 w-1 animate-bounce rounded-full bg-playground-purple-700 delay-[0.5s]" />
-          <div className="h-1 w-1 animate-bounce rounded-full bg-playground-purple-700" />
-        </div> */}
       </Typography>
       {(status === "deposit_initiated_l1" ||
         status === "deposit_initiated_l2") && (

@@ -7,8 +7,10 @@ import localFont from "next/font/local";
 import "~/styles/globals.css";
 import { api } from "~/utils/api";
 
+import EthereumSwitchNetwork from "../_components/EthereumSwitchNetwork";
 import Header from "../_components/Header";
 import MobilePlaceholder from "../_components/MobilePlaceholder";
+import StarknetSwitchNetwork from "../_components/StarknetSwitchNetwork";
 import useCurrentChain from "../_hooks/useCurrentChain";
 import Providers from "./providers";
 
@@ -113,6 +115,8 @@ function RootLayout({ children }: { children: React.ReactNode }) {
           <div className="block h-screen md:hidden">
             <MobilePlaceholder />
           </div>
+          <EthereumSwitchNetwork />
+          <StarknetSwitchNetwork />
         </Providers>
       </body>
     </html>

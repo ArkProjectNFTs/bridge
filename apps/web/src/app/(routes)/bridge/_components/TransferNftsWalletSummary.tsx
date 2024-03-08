@@ -19,7 +19,7 @@ export default function TransferNftsWalletSummary() {
     () =>
       ethereumAddress
         ? `${ethereumAddress.slice(0, 6)}...${ethereumAddress.slice(-4)}`
-        : "",
+        : undefined,
     [ethereumAddress]
   );
 
@@ -27,11 +27,11 @@ export default function TransferNftsWalletSummary() {
     () =>
       starknetAddress
         ? `${starknetAddress.slice(0, 6)}...${starknetAddress.slice(-4)}`
-        : "",
+        : undefined,
     [starknetAddress]
   );
 
-  const shortAddressByChain: Record<Chain, string> = {
+  const shortAddressByChain: Record<Chain, string | undefined> = {
     Ethereum: shortEthereumAddress,
     Starknet: shortStarknetAddress,
   };
@@ -40,25 +40,25 @@ export default function TransferNftsWalletSummary() {
     <div className="mt-8 grid grid-cols-[1fr_4rem_1fr] rounded-xl bg-space-blue-50 px-3 py-3 dark:bg-void-black">
       <div className="flex flex-col items-start">
         <Typography
-          className="mb-1 rounded-[4px] bg-space-blue-100 p-1 text-asteroid-grey-600 dark:bg-space-blue-300 dark:text-space-blue-900"
+          className="mb-1 rounded-[4px] bg-space-blue-100 p-1 text-space-blue-500 dark:bg-space-blue-300 dark:text-space-blue-900"
           variant="button_text_xs"
         >
           From wallet
         </Typography>
-        <Typography variant="button_text_s">
-          {shortAddressByChain[sourceChain]}
+        <Typography variant="button_text_xs">
+          {shortAddressByChain[sourceChain] ?? "Not connected"}
         </Typography>
       </div>
       <TargetChainButton />
       <div className="flex flex-col items-start">
         <Typography
-          className="mb-1 rounded-[4px] bg-space-blue-100 p-1 text-asteroid-grey-600 dark:bg-space-blue-300 dark:text-space-blue-900"
+          className="mb-1 rounded-[4px] bg-space-blue-100 p-1 text-space-blue-500 dark:bg-space-blue-300 dark:text-space-blue-900"
           variant="button_text_xs"
         >
           To wallet
         </Typography>
-        <Typography variant="button_text_s">
-          {shortAddressByChain[targetChain]}
+        <Typography variant="button_text_xs">
+          {shortAddressByChain[targetChain] ?? "Not connected"}
         </Typography>
       </div>
     </div>

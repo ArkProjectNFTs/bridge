@@ -16,9 +16,7 @@ import useIsFullyConnected from "../_hooks/useIsFullyConnected";
 import { type Chain } from "../_types";
 import ConnectEthereumButton from "./ConnectEthereumButton";
 import ConnectStarkNetButton from "./ConnectStarkNetButton";
-import EthereumSwitchNetwork from "./EthereumSwitchNetwork";
 import Logo from "./Logo";
-import StarknetSwitchNetwork from "./StarknetSwitchNetwork";
 
 function BridgeLink() {
   const pathname = usePathname();
@@ -37,9 +35,9 @@ function BridgeLink() {
       <Typography variant="heading_light_xxs">Bridge</Typography>
 
       {isFullyConnected && totalSelectedNfts > 0 && (
-        <div className="flex h-5 items-center rounded-full bg-space-blue-100 px-2 dark:bg-space-blue-400">
+        <div className="flex h-5 items-center rounded-full bg-space-blue-100 px-2 dark:bg-space-blue-800">
           <Typography
-            className="text-space-blue-source dark:text-galaxy-blue"
+            className="text-space-blue-source dark:text-space-blue-400"
             variant="button_text_xs"
           >
             {totalSelectedNfts}
@@ -76,9 +74,9 @@ function LoungeLink() {
     >
       <Typography variant="heading_light_xxs">Lounge</Typography>
       {isFullyConnected && (bridgeRequests?.inTransit.totalCount ?? 0) > 0 && (
-        <div className="flex h-5 items-center rounded-full bg-space-blue-100 px-2 dark:bg-space-blue-400">
+        <div className="flex h-5 items-center rounded-full bg-space-blue-100 px-2 dark:bg-space-blue-800">
           <Typography
-            className="text-space-blue-source dark:text-galaxy-blue"
+            className="text-space-blue-source dark:text-space-blue-400"
             variant="button_text_xs"
           >
             {bridgeRequests?.inTransit.totalCount}
@@ -122,7 +120,7 @@ export default function Header() {
         <BridgeLink />
         <LoungeLink />
       </div>
-      <div className="hidden gap-4 md:flex">
+      <div className="hidden items-center gap-4 md:flex">
         <div className="flex gap-4">
           {/* TODO @YohanTz: Modal context? */}
           <ConnectEthereumButton
@@ -140,8 +138,6 @@ export default function Header() {
         </div>
         <DarkModeButton />
       </div>
-      <EthereumSwitchNetwork />
-      <StarknetSwitchNetwork />
     </header>
   );
 }

@@ -10,6 +10,7 @@ import NftsLoadingState from "~/app/_components/NftsLoadingState";
 import useCurrentChain from "~/app/_hooks/useCurrentChain";
 import useInfiniteEthereumNfts from "~/app/_hooks/useInfiniteEthereumNfts";
 import useInfiniteStarknetNfts from "~/app/_hooks/useInfiniteStarknetNfts";
+import useIsFullyConnected from "~/app/_hooks/useIsFullyConnected";
 import { api } from "~/utils/api";
 
 import useNftSelection, { MAX_SELECTED_ITEMS } from "../_hooks/useNftSelection";
@@ -29,6 +30,8 @@ export default function TokenList({ nftContractAddress }: TokenListProps) {
     toggleNftSelection,
     totalSelectedNfts,
   } = useNftSelection();
+
+  const isFullyConnected = useIsFullyConnected();
 
   const {
     data: l1NftsData,
@@ -71,12 +74,12 @@ export default function TokenList({ nftContractAddress }: TokenListProps) {
   const totalCount =
     sourceChain === "Ethereum" ? l1NftsTotalCount : l2NftsTotalCount;
 
-  if (nftsData === undefined) {
-    return <NftsLoadingState className="mt-20" type="token" />;
+  if (nftsData?.pages[0]?.ownedNfts.length === 0 || !isFullyConnected) {
+    return <NftsEmptyState className="mt-20" type="token" />;
   }
 
-  if (nftsData.pages[0]?.ownedNfts.length === 0) {
-    return <NftsEmptyState className="mt-20" type="token" />;
+  if (nftsData === undefined) {
+    return <NftsLoadingState className="mt-20" type="token" />;
   }
 
   const hasMoreThan100Nfts =
@@ -95,7 +98,7 @@ export default function TokenList({ nftContractAddress }: TokenListProps) {
             {collectionData ? collectionData.name : ""} Collection
           </Typography>
           <Typography
-            className="shrink-0 rounded-full bg-primary-source px-2 py-1.5 text-galaxy-blue"
+            className="shrink-0 rounded-full bg-space-blue-100 px-2 py-1.5 text-space-blue-source dark:bg-space-blue-800 dark:text-space-blue-400"
             variant="body_text_12"
           >
             {totalCount}
@@ -104,7 +107,7 @@ export default function TokenList({ nftContractAddress }: TokenListProps) {
         </div>
         {isAllSelected ? (
           <Button
-            className="flex bg-primary-source text-galaxy-blue hover:bg-primary-400"
+            className="flex bg-primary-source text-white hover:bg-primary-400 dark:text-galaxy-blue"
             onClick={deselectAllNfts}
             size="small"
           >

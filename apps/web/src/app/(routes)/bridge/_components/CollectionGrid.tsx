@@ -43,11 +43,14 @@ export default function CollectionGrid({
             <ConditionalWrapper
               wrapper={(children) =>
                 nftCollection.isBridgeable ? (
-                  <Link href={`/bridge/${nftCollection.contractAddress}`}>
+                  <Link
+                    className="pb-2.5 pl-2.5"
+                    href={`/bridge/${nftCollection.contractAddress}`}
+                  >
                     {children}
                   </Link>
                 ) : (
-                  <>{children}</>
+                  <div className="pb-2.5 pl-2.5">{children}</div>
                 )
               }
               key={nftCollection.contractAddress}
