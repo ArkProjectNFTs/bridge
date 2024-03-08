@@ -1,11 +1,16 @@
-import { useWriteContract } from "wagmi";
+import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 
 export default function useL1Withdraw() {
   const {
-    // data: transactionHash,
+    data: withdrawHash,
     isLoading: isSigning,
     writeContract: writeContractWithdraw,
   } = useWriteContract();
+
+  const { isLoading: isWithdrawLoading, isSuccess: isWithdrawSuccess } =
+    useWaitForTransactionReceipt({
+      hash: withdrawHash,
+    });
 
   function withdraw(requestContent: Array<string>) {
     console.log(requestContent);
@@ -31,5 +36,10 @@ export default function useL1Withdraw() {
     });
   }
 
-  return { isSigning, withdraw };
+  return {
+    isSigning,
+    isWithdrawLoading: isWithdrawLoading && withdrawHash !== undefined,
+    isWithdrawSuccess,
+    withdraw,
+  };
 }

@@ -215,7 +215,7 @@ export default function CongratsModal({ isFromTransfer }: CongratsModalProps) {
               alt="Element"
               className="h-9 w-auto"
               height={97}
-              src="/logos/element.png"
+              src="/logos/element.svg"
               width={399}
             />
             <ArrowIcon className="flex-shrink-0" />
