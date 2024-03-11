@@ -3,7 +3,6 @@ import * as Tabs from "@radix-ui/react-tabs";
 import { Typography } from "design-system";
 
 import CollectionNftsEmptyState from "~/app/_components/CollectionNftsEmptyState";
-import NftsEmptyState from "~/app/_components/CollectionNftsEmptyState";
 import InfiniteScrollButton from "~/app/_components/InfiniteScrollButton";
 import NftCard from "~/app/_components/NftCard/NftCard";
 import NftsLoadingState from "~/app/_components/NftsLoadingState";
