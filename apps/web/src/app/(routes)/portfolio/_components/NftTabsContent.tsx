@@ -38,7 +38,7 @@ function AllNftsTabsContent() {
     return (
       <Tabs.Content value="all">
         <Typography className="pb-12" component="p" variant="body_text_18">
-          {"You have no nft in your wallets..."}
+          {"You have no NFT(s) in your wallets..."}
         </Typography>
         <TokenNftsEmptyState />
       </Tabs.Content>
@@ -123,7 +123,7 @@ function CollectionsTabsContent() {
     return (
       <Tabs.Content value="collections">
         <Typography className="pb-12" component="p" variant="body_text_18">
-          {"You have no nft in your wallets..."}
+          {"You have no NFT(s) in your wallets..."}
         </Typography>
         <CollectionNftsEmptyState />
       </Tabs.Content>
@@ -198,7 +198,7 @@ function EthereumNTabsContent() {
     return (
       <Tabs.Content value="ethereum">
         <Typography className="pb-12" component="p" variant="body_text_18">
-          {"You have no nft in your Ethereum wallet..."}
+          {"You have no NFT(s) in your Ethereum wallet..."}
         </Typography>
         <TokenNftsEmptyState />
       </Tabs.Content>
@@ -256,7 +256,7 @@ function StarknetTabsContent() {
     return (
       <Tabs.Content value="starknet">
         <Typography className="pb-12" component="p" variant="body_text_18">
-          {"You have no nft in your Starknet wallet..."}
+          {"You have no NFT(s) in your Starknet wallet..."}
         </Typography>
         <TokenNftsEmptyState />
       </Tabs.Content>

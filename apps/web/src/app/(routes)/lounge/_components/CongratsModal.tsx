@@ -1,5 +1,6 @@
 "use client";
 
+import clsx from "clsx";
 import {
   ArrowIcon,
   Dialog,
@@ -12,9 +13,18 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-function ArkQuestsBanner() {
+interface ArkQuestsBannerProps {
+  className?: string;
+}
+
+function ArkQuestsBanner({ className }: ArkQuestsBannerProps) {
   return (
-    <div className="relative flex h-40 flex-col items-center justify-center gap-2 overflow-hidden rounded-2xl">
+    <div
+      className={clsx(
+        className,
+        "relative flex h-40 flex-col items-center justify-center gap-2 overflow-hidden rounded-2xl"
+      )}
+    >
       <Image
         alt="Quest banner"
         className="absolute inset-0 -z-10"
@@ -189,7 +199,7 @@ export default function CongratsModal({ isFromTransfer }: CongratsModalProps) {
               <a className="text-space-blue-source underline">Ark Quests</a>.
             </Typography>
             <a
-              className="mt-6 flex h-12 items-center rounded-full bg-space-blue-source px-5 text-white dark:text-galaxy-blue"
+              className="mt-6 flex h-12 items-center rounded-full bg-space-blue-source px-5 text-white transition-colors hover:bg-space-blue-500 dark:text-galaxy-blue"
               href="https://twitter.com/intent/tweet?text=I've just transferred my @Everai(s) on @Starknet using the ArkProject Bridge! Let's come together, holders and hit a new milestone on Ark Quests!"
               rel="noreferrer"
               target="_blank"
@@ -211,24 +221,24 @@ export default function CongratsModal({ isFromTransfer }: CongratsModalProps) {
             </a>
           </div>
         </div>
-        <Typography className="mt-9" variant="heading_light_xs">
+        <Typography className="mt-6" variant="heading_light_xs">
           Check the collection on Starknet marketplaces
         </Typography>
         <div className="mt-2 grid grid-cols-2 gap-4">
           <a
-            className="flex h-14 items-center justify-between rounded-xl border border-galaxy-blue pl-2 pr-4 dark:bg-space-blue-800"
+            className="flex h-14 items-center justify-between rounded-xl border border-galaxy-blue pl-2 pr-4 transition-colors hover:bg-space-blue-100 dark:bg-space-blue-800 dark:hover:bg-space-blue-700"
             href="/"
           >
             <Image
               alt="Element"
-              className="hidden h-9 w-auto dark:block"
+              className="hidden h-7 w-auto dark:block"
               height={97}
               src="/logos/dark/element.svg"
               width={399}
             />
             <Image
               alt="Element"
-              className="h-9 w-auto dark:hidden"
+              className="h-7 w-auto dark:hidden"
               height={97}
               src="/logos/element.svg"
               width={399}
@@ -261,14 +271,14 @@ export default function CongratsModal({ isFromTransfer }: CongratsModalProps) {
           >
             <Image
               alt="Pyramid"
-              className="h-9 w-auto dark:hidden"
+              className="h-7 w-auto dark:hidden"
               height={108}
               src="/logos/pyramid.png"
               width={390}
             />
             <Image
               alt="Pyramid"
-              className="hidden h-9 w-auto dark:block"
+              className="hidden h-7 w-auto dark:block"
               height={108}
               src="/logos/dark/pyramid.png"
               width={390}
@@ -281,14 +291,14 @@ export default function CongratsModal({ isFromTransfer }: CongratsModalProps) {
           >
             <Image
               alt="Flex"
-              className="mb-2 h-full w-auto dark:hidden"
+              className="mb-1 h-9 w-auto dark:hidden"
               height={138}
               src="/logos/flex.png"
               width={189}
             />
             <Image
               alt="Flex"
-              className="mb-2 hidden h-full w-auto dark:block"
+              className="mb-1 hidden h-9 w-auto dark:block"
               height={138}
               src="/logos/dark/flex.png"
               width={189}
@@ -316,7 +326,7 @@ export default function CongratsModal({ isFromTransfer }: CongratsModalProps) {
             <ArrowIcon className="flex-shrink-0" />
           </a>
         </div>
-        <ArkQuestsBanner />
+        <ArkQuestsBanner className="mt-2" />
       </DialogContent>
     </Dialog>
   );
