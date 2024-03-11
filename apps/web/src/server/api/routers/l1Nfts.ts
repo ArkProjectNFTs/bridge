@@ -39,14 +39,21 @@ export const l1NftsRouter = createTRPCRouter({
           pageSize,
         });
 
-      const collections: Array<Collection> = contracts.map((contract) => ({
-        contractAddress: contract.address,
-        image: contract.media[0]?.thumbnail,
-        isBridgeable:
-          contract.address === process.env.EVERAI_L1_CONTRACT_ADDRESS,
-        name: contract.name ?? contract.symbol ?? "Unknown",
-        totalBalance: contract.totalBalance,
-      }));
+      const collections: Array<Collection> = contracts.map((contract) => {
+        const media =
+          contract.address === process.env.EVERAI_L1_CONTRACT_ADDRESS
+            ? contract.media[0]?.raw
+            : contract.media[0]?.thumbnail;
+
+        return {
+          contractAddress: contract.address,
+          image: media,
+          isBridgeable:
+            contract.address === process.env.EVERAI_L1_CONTRACT_ADDRESS,
+          name: contract.name ?? contract.symbol ?? "Unknown",
+          totalBalance: contract.totalBalance,
+        };
+      });
 
       return { collections, nextCursor: pageKey, totalCount };
     }),
@@ -68,12 +75,19 @@ export const l1NftsRouter = createTRPCRouter({
         }))
       );
 
-      return response.map((nft) => ({
-        collectionName: nft.contract.name,
-        image: nft.media[0]?.thumbnail,
-        tokenId: nft.tokenId,
-        tokenName: nft.title.length > 0 ? nft.title : `#${nft.tokenId}`,
-      }));
+      return response.map((nft) => {
+        const media =
+          nft.contract.address === process.env.EVERAI_L1_CONTRACT_ADDRESS
+            ? nft.media[0]?.raw
+            : nft.media[0]?.thumbnail;
+
+        return {
+          collectionName: nft.contract.name,
+          image: media,
+          tokenId: nft.tokenId,
+          tokenName: nft.title.length > 0 ? nft.title : `#${nft.tokenId}`,
+        };
+      });
     }),
   getOwnerNftsFromCollection: publicProcedure
     .input(
@@ -103,17 +117,25 @@ export const l1NftsRouter = createTRPCRouter({
       });
 
       // TODO @YohanTz: Handle videos
-      const ownedNfts: Array<Nft> = nfts.map((nft) => ({
-        contractAddress: nft.contract.address,
-        image: nft.media[0]?.thumbnail,
-        name:
-          nft.title.length > 0
-            ? nft.title
-            : `${nft.title ?? nft.contract.name} #${nft.tokenId}`,
-        tokenId: nft.tokenId,
-      }));
+      const ownedNfts: Array<Nft> = nfts.map((nft) => {
+        const media =
+          nft.contract.address === process.env.EVERAI_L1_CONTRACT_ADDRESS
+            ? nft.media[0]?.raw
+            : nft.media[0]?.thumbnail;
 
-      // TODO @YohanTz: Filter spam NFTs
+        console.log(media);
+
+        return {
+          contractAddress: nft.contract.address,
+          image: media,
+          name:
+            nft.title.length > 0
+              ? nft.title
+              : `${nft.title ?? nft.contract.name} #${nft.tokenId}`,
+          tokenId: nft.tokenId,
+        };
+      });
+
       return { nextCursor: pageKey, ownedNfts, totalCount };
     }),
 });

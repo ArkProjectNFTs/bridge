@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useMemo, useState } from "react";
 import { useEnsName } from "wagmi";
 
+import Media from "~/app/_components/Media";
 import useCurrentChain from "~/app/_hooks/useCurrentChain";
 
 import NftTransferItemContent from "./NftTransferItemContent";
@@ -70,6 +71,7 @@ export default function NftTransferItem({
   });
 
   const displayedArrivalAddress = starkName ?? ens ?? arrivalShortAddress;
+  console.log(collectionImage);
 
   return (
     <Collapsible.Root
@@ -85,7 +87,7 @@ export default function NftTransferItem({
       >
         <div className="flex items-center gap-4">
           {collectionImage ? (
-            <Image
+            <Media
               alt="nft"
               className="rounded-lg"
               height={62}

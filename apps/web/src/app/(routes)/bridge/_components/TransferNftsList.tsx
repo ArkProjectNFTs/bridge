@@ -1,6 +1,7 @@
 import { IconButton, Typography } from "design-system";
 import Image from "next/image";
 
+import Media from "~/app/_components/Media";
 import useAccountFromChain from "~/app/_hooks/useAccountFromChain";
 import useCurrentChain from "~/app/_hooks/useCurrentChain";
 import { api } from "~/utils/api";
@@ -51,7 +52,7 @@ export default function TransferNftsList() {
           <div className="flex justify-between" key={selectedNft.tokenId}>
             <div className="flex items-center gap-4">
               {selectedNft?.image ? (
-                <Image
+                <Media
                   alt={selectedNft.tokenName}
                   className="rounded"
                   height={52}
@@ -60,14 +61,14 @@ export default function TransferNftsList() {
                 />
               ) : (
                 <>
-                  <Image
+                  <Media
                     alt="empty Nft image"
                     className="hidden rounded dark:block"
                     height={52}
                     src={`/medias/dark/empty_nft.png`}
                     width={52}
                   />
-                  <Image
+                  <Media
                     alt="empty Nft image"
                     className="rounded dark:hidden"
                     height={52}

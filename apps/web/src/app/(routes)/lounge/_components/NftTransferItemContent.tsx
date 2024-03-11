@@ -2,6 +2,7 @@ import * as Collapsible from "@radix-ui/react-collapsible";
 import { Typography } from "design-system";
 import Image from "next/image";
 
+import Media from "~/app/_components/Media";
 import useCurrentChain from "~/app/_hooks/useCurrentChain";
 import { api } from "~/utils/api";
 
@@ -96,7 +97,7 @@ export default function NftTransferItemContent({
                 <div className="grid grid-cols-[1fr_1fr_1fr_1fr_2.25rem] place-items-start items-center">
                   <div className="flex items-center gap-4">
                     {nft.image !== undefined ? (
-                      <Image
+                      <Media
                         alt="nft"
                         className="flex-shrink-0 rounded-md"
                         height={52}
@@ -105,14 +106,14 @@ export default function NftTransferItemContent({
                       />
                     ) : (
                       <>
-                        <Image
+                        <Media
                           alt="empty Nft image"
                           className="hidden aspect-square rounded-lg object-cover dark:block"
                           height={52}
                           src={`/medias/dark/empty_nft.png`}
                           width={52}
                         />
-                        <Image
+                        <Media
                           alt="empty Nft image"
                           className="aspect-square rounded-lg object-cover dark:hidden"
                           height={52}

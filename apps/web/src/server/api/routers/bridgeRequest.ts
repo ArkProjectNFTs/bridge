@@ -123,7 +123,9 @@ export const bridgeRequestRouter = createTRPCRouter({
               arrivalTimestamp: isArrived
                 ? lastBridgeRequestEvent?.block_timestamp
                 : undefined,
-              collectionImage: requestMetadata[index]?.media[0]?.thumbnail,
+              collectionImage:
+                requestMetadata[index]?.media[0]?.raw ??
+                requestMetadata[index]?.media[0]?.thumbnail,
               collectionName: requestMetadata[index]?.contract.name ?? "",
               collectionSourceAddress: bridgeRequest.req.collection_src,
               requestContent: JSON.parse(
