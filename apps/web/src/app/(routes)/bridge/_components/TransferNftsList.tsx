@@ -1,5 +1,4 @@
 import { IconButton, Typography } from "design-system";
-import Image from "next/image";
 
 import Media from "~/app/_components/Media";
 import useAccountFromChain from "~/app/_hooks/useAccountFromChain";
