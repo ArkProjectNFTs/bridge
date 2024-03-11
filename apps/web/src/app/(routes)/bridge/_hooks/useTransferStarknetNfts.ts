@@ -7,7 +7,6 @@ import {
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { CallData } from "starknet";
-import { deployContract } from "viem/actions";
 import { useAccount as useEthereumAccount } from "wagmi";
 
 import useNftSelection from "./useNftSelection";
@@ -132,14 +131,6 @@ export default function useTransferStarknetNfts() {
     return [depositCall];
   }, [getDepositCalldata, isApprovedForAll, selectedCollectionAddress]);
 
-  const {
-    data: depositData,
-    // write: depositTokens,
-    writeAsync,
-  } = useContractWrite({
-    calls: depositCalls,
-  });
-
   async function depositTokens() {
     setIsSigning(true);
     try {
@@ -157,15 +148,8 @@ export default function useTransferStarknetNfts() {
 
   const router = useRouter();
 
-  useEffect(() => {
-    if (depositData?.transaction_hash !== undefined) {
-      void router.push(`lounge/${depositData.transaction_hash}`);
-    }
-  }, [depositData, router]);
-
   return {
     depositTokens: () => depositTokens(),
-    depositTransactionHash: depositData?.transaction_hash,
     // isSigning: isSigning && depositData?.transaction_hash !== undefined,
     isSigning,
   };

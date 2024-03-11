@@ -3,7 +3,7 @@ interface NftsEmptyStateProps {
 }
 
 export default function CollectionNftsEmptyState({
-  className = "",
+  className,
 }: NftsEmptyStateProps) {
   return (
     <div className={`grid grid-cols-2 gap-5 sm:grid-cols-5 ${className}`}>

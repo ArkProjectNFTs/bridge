@@ -1,15 +1,14 @@
 "use client";
 
 import {
-  type Chain,
+  // type Chain,
   goerli as starknetGoerli,
   // mainnet as starknetMainnet,
 } from "@starknet-react/chains";
 import {
   StarknetConfig,
-  jsonRpcProvider,
+  // jsonRpcProvider,
   publicProvider,
-  // publicProvider,
 } from "@starknet-react/core";
 import { ThemeProvider } from "next-themes";
 import { WagmiProvider, createConfig, http } from "wagmi";
