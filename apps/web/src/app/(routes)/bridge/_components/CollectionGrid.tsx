@@ -1,8 +1,8 @@
 import Link from "next/link";
 
+import CollectionNftsEmptyState from "~/app/_components/CollectionNftsEmptyState";
 import ConditionalWrapper from "~/app/_components/ConditionalWrapper";
 import NftCard from "~/app/_components/NftCard/NftCard";
-import NftsEmptyState from "~/app/_components/NftsEmptyState";
 import NftsLoadingState from "~/app/_components/NftsLoadingState";
 import useCurrentChain from "~/app/_hooks/useCurrentChain";
 import useIsFullyConnected from "~/app/_hooks/useIsFullyConnected";
@@ -28,7 +28,7 @@ export default function CollectionGrid({
   const isFullyConnected = useIsFullyConnected();
 
   if (nftCollectionPages?.[0]?.collections.length === 0 || !isFullyConnected) {
-    return <NftsEmptyState type="collection" />;
+    return <CollectionNftsEmptyState />;
   }
 
   if (nftCollectionPages === undefined) {

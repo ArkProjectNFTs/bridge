@@ -20,6 +20,7 @@ export default function LoungePage({ searchParams }: LoungePageProps) {
         <MainPageContainer>
           <CongratsModal
             isFromTransfer={searchParams.fromTransfer !== undefined}
+            // isFromTransfer
           />
           <ChainSwitch />
           <Banner />

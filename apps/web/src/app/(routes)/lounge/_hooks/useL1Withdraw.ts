@@ -1,11 +1,16 @@
+import { useEffect } from "react";
 import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 
-export default function useL1Withdraw() {
+interface UseL1WithdrawProps {
+  onSuccess?: () => void;
+}
+
+export default function useL1Withdraw({ onSuccess }: UseL1WithdrawProps) {
   const {
     data: withdrawHash,
     isLoading: isSigning,
     writeContract: writeContractWithdraw,
-  } = useWriteContract();
+  } = useWriteContract({ mutation: { onSuccess } });
 
   const { isLoading: isWithdrawLoading, isSuccess: isWithdrawSuccess } =
     useWaitForTransactionReceipt({
@@ -36,10 +41,15 @@ export default function useL1Withdraw() {
     });
   }
 
+  useEffect(() => {
+    if (isWithdrawSuccess) {
+      onSuccess?.();
+    }
+  }, [isWithdrawSuccess]);
+
   return {
     isSigning,
     isWithdrawLoading: isWithdrawLoading && withdrawHash !== undefined,
-    isWithdrawSuccess,
     withdraw,
   };
 }

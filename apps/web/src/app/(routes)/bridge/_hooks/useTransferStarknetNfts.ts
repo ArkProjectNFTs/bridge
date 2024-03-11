@@ -7,6 +7,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { CallData } from "starknet";
+import { deployContract } from "viem/actions";
 import { useAccount as useEthereumAccount } from "wagmi";
 
 import useNftSelection from "./useNftSelection";
@@ -18,7 +19,8 @@ export default function useTransferStarknetNfts() {
   const { selectedCollectionAddress, selectedTokenIds } = useNftSelection();
 
   const { address: ethereumAddress } = useEthereumAccount();
-  const { address: starknetAddress } = useStarknetAccount();
+  const { account: starknetAccount, address: starknetAddress } =
+    useStarknetAccount();
 
   const { data: isApprovedForAll } = useContractRead({
     abi: [
@@ -141,9 +143,16 @@ export default function useTransferStarknetNfts() {
   async function depositTokens() {
     setIsSigning(true);
     try {
-      await writeAsync();
-    } catch {}
-    setIsSigning(false);
+      // await writeAsync();
+      const depositData = await starknetAccount?.execute(depositCalls);
+      if (depositData !== undefined) {
+        router.push(`lounge/${depositData.transaction_hash}`);
+        setIsSigning(false);
+      }
+    } catch (error) {
+      console.log(error);
+      setIsSigning(false);
+    }
   }
 
   const router = useRouter();

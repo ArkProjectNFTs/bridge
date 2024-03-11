@@ -22,7 +22,12 @@ export default function TransferStarknetNftsAction() {
       size="small"
     >
       {isSigning ? (
-        <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-r-transparent" />
+        <div className="flex items-center gap-2">
+          <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-r-transparent" />
+          <Typography variant="button_text_s">
+            Confirm in your wallet
+          </Typography>
+        </div>
       ) : (
         <Typography variant="button_text_s">
           Confirm transfer to Ethereum

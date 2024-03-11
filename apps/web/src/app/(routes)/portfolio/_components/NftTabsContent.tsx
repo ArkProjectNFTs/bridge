@@ -2,10 +2,12 @@
 import * as Tabs from "@radix-ui/react-tabs";
 import { Typography } from "design-system";
 
+import CollectionNftsEmptyState from "~/app/_components/CollectionNftsEmptyState";
+import NftsEmptyState from "~/app/_components/CollectionNftsEmptyState";
 import InfiniteScrollButton from "~/app/_components/InfiniteScrollButton";
 import NftCard from "~/app/_components/NftCard/NftCard";
-import NftsEmptyState from "~/app/_components/NftsEmptyState";
 import NftsLoadingState from "~/app/_components/NftsLoadingState";
+import TokenNftsEmptyState from "~/app/_components/TokenNftsEmptyState";
 import useInfiniteEthereumCollections from "~/app/_hooks/useInfiniteEthereumCollections";
 import useInfiniteEthereumNfts from "~/app/_hooks/useInfiniteEthereumNfts";
 import useInfiniteStarknetCollections from "~/app/_hooks/useInfiniteStarknetCollections";
@@ -39,7 +41,7 @@ function AllNftsTabsContent() {
         <Typography className="pb-12" component="p" variant="body_text_18">
           {"You have no nft in your wallets..."}
         </Typography>
-        <NftsEmptyState type="token" />
+        <TokenNftsEmptyState />
       </Tabs.Content>
     );
   }
@@ -124,7 +126,7 @@ function CollectionsTabsContent() {
         <Typography className="pb-12" component="p" variant="body_text_18">
           {"You have no nft in your wallets..."}
         </Typography>
-        <NftsEmptyState type="collection" />
+        <CollectionNftsEmptyState />
       </Tabs.Content>
     );
   }
@@ -199,7 +201,7 @@ function EthereumNTabsContent() {
         <Typography className="pb-12" component="p" variant="body_text_18">
           {"You have no nft in your Ethereum wallet..."}
         </Typography>
-        <NftsEmptyState type="token" />
+        <TokenNftsEmptyState />
       </Tabs.Content>
     );
   }
@@ -257,7 +259,7 @@ function StarknetTabsContent() {
         <Typography className="pb-12" component="p" variant="body_text_18">
           {"You have no nft in your Starknet wallet..."}
         </Typography>
-        <NftsEmptyState type="token" />
+        <TokenNftsEmptyState />
       </Tabs.Content>
     );
   }

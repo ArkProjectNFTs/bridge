@@ -41,7 +41,7 @@ export default function TransferNftsWalletSummary() {
       <div className="flex flex-col items-start">
         <Typography
           className="mb-1 rounded-[4px] bg-space-blue-100 p-1 text-space-blue-500 dark:bg-space-blue-300 dark:text-space-blue-900"
-          variant="button_text_xs"
+          variant="body_text_11"
         >
           From wallet
         </Typography>
@@ -53,7 +53,7 @@ export default function TransferNftsWalletSummary() {
       <div className="flex flex-col items-start">
         <Typography
           className="mb-1 rounded-[4px] bg-space-blue-100 p-1 text-space-blue-500 dark:bg-space-blue-300 dark:text-space-blue-900"
-          variant="button_text_xs"
+          variant="body_text_11"
         >
           To wallet
         </Typography>

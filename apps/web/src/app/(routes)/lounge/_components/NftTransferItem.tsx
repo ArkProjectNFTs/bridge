@@ -18,6 +18,7 @@ interface NftTransferItemProps {
   collectionImage: string | undefined;
   collectionName: string;
   contractAddress: string;
+  onWithdrawSuccess: () => void;
   requestContent: Array<string>;
   status:
     | "deposit_initiated_l1"
@@ -48,6 +49,7 @@ export default function NftTransferItem({
   collectionImage,
   collectionName,
   contractAddress,
+  onWithdrawSuccess,
   requestContent,
   status,
   tokenIds,
@@ -153,7 +155,10 @@ export default function NftTransferItem({
 
         <div>
           {status === "withdraw_available_l1" && (
-            <WithdrawButton requestContent={requestContent} />
+            <WithdrawButton
+              onSuccess={onWithdrawSuccess}
+              requestContent={requestContent}
+            />
           )}
         </div>
 

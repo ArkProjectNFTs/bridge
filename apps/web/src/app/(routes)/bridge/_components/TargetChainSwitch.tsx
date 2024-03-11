@@ -23,7 +23,7 @@ export default function TargetChainSwitch() {
           <Typography
             className="rounded bg-space-blue-100 p-1 text-space-blue-500 dark:bg-space-blue-300 dark:text-space-blue-900"
             component="p"
-            variant="body_text_12"
+            variant="body_text_11"
           >
             From
           </Typography>
@@ -39,7 +39,7 @@ export default function TargetChainSwitch() {
           <Typography
             className="rounded bg-space-blue-100 p-1 text-space-blue-500 dark:bg-space-blue-300 dark:text-space-blue-900"
             component="p"
-            variant="body_text_12"
+            variant="body_text_11"
           >
             To
           </Typography>

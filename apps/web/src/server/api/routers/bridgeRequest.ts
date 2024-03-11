@@ -106,7 +106,6 @@ export const bridgeRequestRouter = createTRPCRouter({
           );
         } else {
           try {
-            console.log("TODO");
           } catch (error) {}
         }
 

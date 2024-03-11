@@ -1,19 +1,19 @@
 import { Typography } from "design-system";
-import { useEffect } from "react";
 
 import useL1Withdraw from "../_hooks/useL1Withdraw";
 
 interface WithdrawButtonProps {
+  onSuccess: () => void;
   requestContent: Array<string>;
 }
 
 export default function WithdrawButton({
+  onSuccess,
   requestContent,
 }: WithdrawButtonProps) {
-  const { isSigning, isWithdrawLoading, isWithdrawSuccess, withdraw } =
-    useL1Withdraw();
-
-  useEffect(() => {}, [isWithdrawSuccess]);
+  const { isSigning, isWithdrawLoading, withdraw } = useL1Withdraw({
+    onSuccess,
+  });
 
   return (
     <button

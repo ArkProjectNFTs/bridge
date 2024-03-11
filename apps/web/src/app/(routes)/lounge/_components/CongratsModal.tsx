@@ -23,20 +23,28 @@ function ArkQuestsBanner() {
         width={583}
       />
       <div>
-        <Typography
-          className="ml-10 text-white"
-          component="p"
-          variant="button_text_s"
+        <svg
+          fill="none"
+          height="45"
+          viewBox="0 0 272 45"
+          width="272"
+          xmlns="http://www.w3.org/2000/svg"
         >
-          Ark
-        </Typography>
-        <Typography
-          className="text-sunshine-yellow-source"
-          component="p"
-          variant="quests_banner"
-        >
-          QUESTS
-        </Typography>
+          <path
+            clipRule="evenodd"
+            d="M24.4377 39.8606C36.9361 38.9 45.6887 27.0543 44.959 17.3622C44.3218 9.20402 35.5936 5.0288 24.1946 5.89895C10.6634 6.9444 -0.643688 14.6435 0.0286062 23.6366C0.736951 32.6603 13.0387 40.7307 24.4377 39.8606ZM17.0104 13.8651C17.2642 13.2332 18.0931 13.1019 18.3469 13.6535L20.3038 17.9064L24.3635 19.2576C24.9108 19.4398 24.9108 20.2293 24.3635 20.5848L20.3038 23.2221L18.3469 28.0949C18.0931 28.7268 17.2642 28.8581 17.0104 28.3065L15.0535 24.0537L10.9938 22.7024C10.4465 22.5202 10.4465 21.7307 10.9938 21.3752L15.0535 18.7379L17.0104 13.8651ZM34.7952 12.8094C34.5694 12.286 33.8219 12.299 33.596 12.8304L31.845 16.9493L27.7581 18.7632C27.2304 18.9974 27.2291 19.745 27.7561 19.9626L31.845 21.6514L33.596 25.7092C33.8219 26.2327 34.5694 26.2196 34.7952 25.6883L36.5463 21.5693L40.6331 19.7555C41.1608 19.5213 41.1621 18.7736 40.6352 18.556L36.5463 16.8673L34.7952 12.8094Z"
+            fill="#FCDA29"
+            fillRule="evenodd"
+          />
+          <path
+            d="M71.5497 36.4286L69.4839 29.8496H57.5655L55.4996 36.4286H49.2385L58.3283 9.41361H68.7529L77.779 36.4286H71.5497ZM59.1228 24.7645H67.9265L64.494 13.7678H62.5553L59.1228 24.7645ZM81.0486 36.4286V14.2127H93.6344V19.3297H86.833V36.4286H81.0486ZM112.896 36.4286L106.508 27.8156H102.662V36.4286H96.8777V9.41361H102.662V22.6986H106.381L111.943 14.2127H118.521L110.925 25.1458L119.666 36.4286H112.896Z"
+            fill="white"
+          />
+          <path
+            d="M134.514 41.1959V36.9053C126.346 36.9053 120.466 30.9302 120.466 22.9211C120.466 14.8802 126.346 8.93687 134.514 8.93687C142.682 8.93687 148.593 14.8802 148.593 22.9211C148.593 29.1822 145.002 34.172 139.535 36.079H148.593V41.1959H134.514ZM134.514 31.8201C138.995 31.8201 142.491 28.6419 142.491 22.9211C142.491 17.2003 138.995 14.0538 134.514 14.0538C130.032 14.0538 126.536 17.2003 126.536 22.9211C126.536 28.6419 130.032 31.8201 134.514 31.8201ZM164.72 36.9053C157.41 36.9053 152.77 32.5829 152.77 24.5738V9.41361H158.586V24.7009C158.586 29.214 160.652 31.8201 164.72 31.8201C168.82 31.8201 170.886 29.214 170.886 24.7009V9.41361H176.702V24.5738C176.702 32.5829 172.062 36.9053 164.72 36.9053ZM182.612 36.4286V9.41361H199.647V14.467H188.396V20.156H198.471V25.2094H188.396V31.3752H200.601V36.4286H182.612ZM215.12 36.9053C208.255 36.9053 203.614 33.5046 203.138 27.9109H208.827C208.986 30.5488 211.401 31.8837 215.183 31.8837C218.393 31.8837 220.173 30.9302 220.173 29.2775C220.173 23.4296 204.345 28.1334 204.345 17.1685C204.345 11.9244 208.382 8.90509 214.579 8.90509C220.967 8.90509 225.163 12.3376 225.639 17.9313H219.95C219.76 15.2933 217.63 13.9267 214.484 13.9267C211.751 13.9267 210.448 15.0391 210.448 16.5646C210.448 22.349 226.275 17.677 226.275 28.6737C226.275 34.2356 221.762 36.9053 215.12 36.9053ZM234.779 36.4286V14.5306H226.897V9.41361H248.413V14.5306H240.563V36.4286H234.779ZM260.713 36.9053C253.848 36.9053 249.208 33.5046 248.732 27.9109H254.421C254.579 30.5488 256.995 31.8837 260.777 31.8837C263.987 31.8837 265.767 30.9302 265.767 29.2775C265.767 23.4296 249.939 28.1334 249.939 17.1685C249.939 11.9244 253.976 8.90509 260.173 8.90509C266.561 8.90509 270.757 12.3376 271.233 17.9313H265.544C265.354 15.2933 263.224 13.9267 260.078 13.9267C257.345 13.9267 256.041 15.0391 256.041 16.5646C256.041 22.349 271.869 17.677 271.869 28.6737C271.869 34.2356 267.356 36.9053 260.713 36.9053Z"
+            fill="#FCDA29"
+          />
+        </svg>
       </div>
       <a
         className="flex h-[2.625rem] items-center justify-center rounded-full bg-sunshine-yellow-source px-6"
@@ -53,8 +61,8 @@ function ArkQuestsBanner() {
 function EveraiCards() {
   return (
     <div className="relative flex-shrink-0">
-      <div className="absolute inset-0 mx-5 my-3 w-40 rotate-12 rounded-xl border border-space-blue-600 bg-space-blue-900 p-2.5" />
-      <div className="relative z-10 mx-5 my-3 w-40 rounded-xl border border-space-blue-600 bg-space-blue-900 p-2.5">
+      <div className="absolute inset-0 mx-5 my-3 w-40 rotate-12 rounded-xl border border-space-blue-600 bg-space-blue-900 p-2.5 dark:border-space-blue-700 dark:bg-space-blue-800" />
+      <div className="relative z-10 mx-5 my-3 w-40 rounded-xl border border-space-blue-600 bg-space-blue-900 p-2.5 dark:border-space-blue-700 dark:bg-space-blue-800">
         <svg
           className="absolute -left-3 top-12"
           fill="none"
@@ -181,12 +189,12 @@ export default function CongratsModal({ isFromTransfer }: CongratsModalProps) {
               <a className="text-space-blue-source underline">Ark Quests</a>.
             </Typography>
             <a
-              className="mt-6 flex h-12 items-center rounded-full bg-space-blue-source px-5 text-white"
+              className="mt-6 flex h-12 items-center rounded-full bg-space-blue-source px-5 text-white dark:text-galaxy-blue"
               href="https://twitter.com/intent/tweet?text=I've just transferred my @Everai(s) on @Starknet using the ArkProject Bridge! Let's come together, holders and hit a new milestone on Ark Quests!"
               rel="noreferrer"
               target="_blank"
             >
-              <Typography variant="button_text_s">Share on </Typography>
+              <Typography variant="button_text_s">Share on</Typography>
               <svg
                 className="ml-2.5"
                 fill="none"
@@ -197,7 +205,7 @@ export default function CongratsModal({ isFromTransfer }: CongratsModalProps) {
               >
                 <path
                   d="M15.2706 1.58659H18.0818L11.9401 8.60617L19.1654 18.1582H13.5081L9.07706 12.365L4.00699 18.1582H1.19406L7.76323 10.65L0.832031 1.58659H6.63296L10.6382 6.88187L15.2706 1.58659ZM14.284 16.4756H15.8417L5.78653 3.18087H4.11492L14.284 16.4756Z"
-                  fill="white"
+                  fill="currentColor"
                 />
               </svg>
             </a>
@@ -213,7 +221,14 @@ export default function CongratsModal({ isFromTransfer }: CongratsModalProps) {
           >
             <Image
               alt="Element"
-              className="h-9 w-auto"
+              className="hidden h-9 w-auto dark:block"
+              height={97}
+              src="/logos/dark/element.svg"
+              width={399}
+            />
+            <Image
+              alt="Element"
+              className="h-9 w-auto dark:hidden"
               height={97}
               src="/logos/element.svg"
               width={399}
@@ -226,9 +241,16 @@ export default function CongratsModal({ isFromTransfer }: CongratsModalProps) {
           >
             <Image
               alt="Unframed"
-              className="h-9 w-auto"
+              className="hidden h-9 w-auto dark:block"
               height={97}
-              src="/logos/unframed.png"
+              src="/logos/dark/unframed.svg"
+              width={389}
+            />
+            <Image
+              alt="Unframed"
+              className="h-9 w-auto dark:hidden"
+              height={97}
+              src="/logos/unframed.svg"
               width={389}
             />
             <ArrowIcon className="flex-shrink-0" />
@@ -239,9 +261,16 @@ export default function CongratsModal({ isFromTransfer }: CongratsModalProps) {
           >
             <Image
               alt="Pyramid"
-              className="h-9 w-auto"
+              className="h-9 w-auto dark:hidden"
               height={108}
               src="/logos/pyramid.png"
+              width={390}
+            />
+            <Image
+              alt="Pyramid"
+              className="hidden h-9 w-auto dark:block"
+              height={108}
+              src="/logos/dark/pyramid.png"
               width={390}
             />
             <ArrowIcon className="flex-shrink-0" />
@@ -252,10 +281,37 @@ export default function CongratsModal({ isFromTransfer }: CongratsModalProps) {
           >
             <Image
               alt="Flex"
-              className="h-9 w-auto"
+              className="mb-2 h-full w-auto dark:hidden"
               height={138}
               src="/logos/flex.png"
               width={189}
+            />
+            <Image
+              alt="Flex"
+              className="mb-2 hidden h-full w-auto dark:block"
+              height={138}
+              src="/logos/dark/flex.png"
+              width={189}
+            />
+            <ArrowIcon className="flex-shrink-0" />
+          </a>
+          <a
+            className="flex h-14 items-center justify-between rounded-xl border border-galaxy-blue pl-2 pr-4 dark:bg-space-blue-800"
+            href="/"
+          >
+            <Image
+              alt="Ventory"
+              className="h-9 w-auto dark:hidden"
+              height={97}
+              src="/logos/ventory.png"
+              width={389}
+            />
+            <Image
+              alt="Ventory"
+              className="hidden h-9 w-auto dark:block"
+              height={97}
+              src="/logos/dark/ventory.png"
+              width={389}
             />
             <ArrowIcon className="flex-shrink-0" />
           </a>

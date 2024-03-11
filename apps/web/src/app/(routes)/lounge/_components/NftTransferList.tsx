@@ -1,8 +1,9 @@
 "use client";
 import clsx from "clsx";
 import { Typography } from "design-system";
+import { useState } from "react";
 
-import NftsEmptyState from "~/app/_components/NftsEmptyState";
+import CollectionNftsEmptyState from "~/app/_components/CollectionNftsEmptyState";
 import useAccountFromChain from "~/app/_hooks/useAccountFromChain";
 import useCurrentChain from "~/app/_hooks/useCurrentChain";
 import useIsFullyConnected from "~/app/_hooks/useIsFullyConnected";
@@ -10,6 +11,7 @@ import { api } from "~/utils/api";
 
 import NftTransferItem from "./NftTransferItem";
 import NftTransferListLoadingState from "./NftTransferListLoadingState";
+import SuccessWithdrawModal from "./SuccessWithdrawModal.tsx";
 
 interface NftTransferHeaderProps {
   className?: string;
@@ -54,6 +56,7 @@ export default function NftTransferList({
   const { targetChain } = useCurrentChain();
   const { address } = useAccountFromChain(targetChain);
   const isFullyConnected = useIsFullyConnected();
+  const [withdrawModalOpen, setWithdrawModalOpen] = useState(false);
 
   const { data: bridgeRequests } =
     api.bridgeRequest.getBridgeRequestsFromAddress.useQuery(
@@ -73,7 +76,7 @@ export default function NftTransferList({
   ) {
     return showPending ? (
       <>
-        <NftsEmptyState className="mb-5 mt-14" type="collection" />
+        <CollectionNftsEmptyState className="mb-5 mt-14" />
         <Typography className="my-14" component="p" variant="body_text_18">
           There is nothing there...
         </Typography>
@@ -101,7 +104,8 @@ export default function NftTransferList({
                   collectionImage={bridgeRequest.collectionImage}
                   collectionName={bridgeRequest.collectionName}
                   contractAddress={bridgeRequest.collectionSourceAddress}
-                  key={bridgeRequest.statusTimestamp}
+                  key={`${bridgeRequest.statusTimestamp}-$${bridgeRequest.collectionName}}`}
+                  onWithdrawSuccess={() => setWithdrawModalOpen(true)}
                   requestContent={bridgeRequest.requestContent}
                   status={bridgeRequest.status}
                   tokenIds={bridgeRequest.tokenIds}
@@ -140,6 +144,7 @@ export default function NftTransferList({
                   collectionName={bridgeRequest.collectionName}
                   contractAddress={bridgeRequest.collectionSourceAddress}
                   key={bridgeRequest.statusTimestamp}
+                  onWithdrawSuccess={() => setWithdrawModalOpen(true)}
                   requestContent={bridgeRequest.requestContent}
                   status={bridgeRequest.status}
                   tokenIds={bridgeRequest.tokenIds}
@@ -150,6 +155,10 @@ export default function NftTransferList({
           </div>
         </>
       )}
+      <SuccessWithdrawModal
+        onOpenChange={setWithdrawModalOpen}
+        open={withdrawModalOpen}
+      />
     </div>
   );
 }

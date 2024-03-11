@@ -92,7 +92,7 @@ export default function NftTransferItemContent({
         <div className="flex w-full flex-col gap-4 ">
           {nfts.map((nft) => {
             return (
-              <div>
+              <div key={nft.tokenName}>
                 <div className="grid grid-cols-[1fr_1fr_1fr_1fr_2.25rem] place-items-start items-center">
                   <div className="flex items-center gap-4">
                     {nft.image !== undefined ? (

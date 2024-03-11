@@ -5,8 +5,8 @@ import { Button, Typography } from "design-system";
 
 import InfiniteScrollButton from "~/app/_components/InfiniteScrollButton";
 import NftCard from "~/app/_components/NftCard/NftCard";
-import NftsEmptyState from "~/app/_components/NftsEmptyState";
 import NftsLoadingState from "~/app/_components/NftsLoadingState";
+import TokenNftsEmptyState from "~/app/_components/TokenNftsEmptyState";
 import useCurrentChain from "~/app/_hooks/useCurrentChain";
 import useInfiniteEthereumNfts from "~/app/_hooks/useInfiniteEthereumNfts";
 import useInfiniteStarknetNfts from "~/app/_hooks/useInfiniteStarknetNfts";
@@ -75,7 +75,7 @@ export default function TokenList({ nftContractAddress }: TokenListProps) {
     sourceChain === "Ethereum" ? l1NftsTotalCount : l2NftsTotalCount;
 
   if (nftsData?.pages[0]?.ownedNfts.length === 0 || !isFullyConnected) {
-    return <NftsEmptyState className="mt-20" type="token" />;
+    return <TokenNftsEmptyState className="mt-20" />;
   }
 
   if (nftsData === undefined) {

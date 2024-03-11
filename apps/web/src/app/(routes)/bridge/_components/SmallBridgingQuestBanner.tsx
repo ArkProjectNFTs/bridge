@@ -12,22 +12,21 @@ export default function SmallBridgingQuestBanner({
   className,
 }: BridgingQuestBanner) {
   return (
-    <div
+    <a
       className={clsx(
         className,
         "rounded-2xl bg-galaxy-blue pt-4 text-white dark:bg-void-black"
       )}
+      href="/"
+      target="_blank"
     >
       <div className="flex flex-col items-start gap-4 px-4">
         <Typography component="h4" variant="heading_light_xxs">
           Bridge your Everai NFTs and complete your first ArkProject quests.
         </Typography>
-        <a
-          className="flex h-8 items-center justify-center rounded-full bg-space-blue-source px-4 text-white"
-          href="/"
-        >
+        <div className="flex h-8 items-center justify-center rounded-full bg-space-blue-source px-4 text-white">
           <Typography variant="button_text_xs">View quests</Typography>
-        </a>
+        </div>
       </div>
       <Image
         alt="Bridging Quest"
@@ -36,6 +35,6 @@ export default function SmallBridgingQuestBanner({
         src="/medias/bridging_quest_illustration.png"
         width={897}
       />
-    </div>
+    </a>
   );
 }
