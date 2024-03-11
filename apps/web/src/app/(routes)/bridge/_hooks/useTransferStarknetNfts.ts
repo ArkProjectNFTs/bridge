@@ -1,11 +1,10 @@
 import {
   useContract,
   useContractRead,
-  useContractWrite,
   useAccount as useStarknetAccount,
 } from "@starknet-react/core";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { CallData } from "starknet";
 import { useAccount as useEthereumAccount } from "wagmi";
 
