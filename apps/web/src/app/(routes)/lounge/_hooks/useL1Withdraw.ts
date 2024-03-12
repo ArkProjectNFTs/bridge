@@ -18,7 +18,6 @@ export default function useL1Withdraw({ onSuccess }: UseL1WithdrawProps) {
     });
 
   function withdraw(requestContent: Array<string>) {
-    console.log(requestContent);
     writeContractWithdraw({
       abi: [
         {

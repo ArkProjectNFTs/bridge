@@ -1,22 +1,11 @@
-import { useAccount, useNetwork } from "@starknet-react/core";
-import { SideDialog, Typography } from "design-system";
-import { useEffect, useState } from "react";
+import { Button, Typography } from "design-system";
+import { useSwitchChain } from "wagmi";
 
-export default function StarknetSwitchNetwork() {
-  const { chainId: walletChainId } = useAccount();
-  const { chain } = useNetwork();
-  const [isOpen, setIsOpen] = useState(false);
-
-  useEffect(() => {
-    if (walletChainId !== chain.id && walletChainId !== undefined) {
-      setIsOpen(true);
-      return;
-    }
-    setIsOpen(false);
-  }, [walletChainId, chain]);
+export default function EthereumSwitchNetworkModalContent() {
+  const { chains, switchChain } = useSwitchChain();
 
   return (
-    <SideDialog isOpen={isOpen} onOpenChange={setIsOpen} withClose={false}>
+    <>
       <svg
         className="mt-16 dark:hidden"
         fill="none"
@@ -219,10 +208,20 @@ export default function StarknetSwitchNetwork() {
         Wrong Network
       </Typography>
       <Typography className="mx-7 mt-4" component="p" variant="body_text_14">
-        Bridging is not available on this network.
-        <br /> Please open your Starknet wallet and switch to Ethereum Mainnet
-        to transfer your Nfts.
+        The bridge is not available on this chain.
+        <br />
+        You must switch to Ethereum Mainnet to transfer your Nfts.
       </Typography>
-    </SideDialog>
+      <div className="w-full px-7">
+        <Button
+          className="mt-6 w-full"
+          color="default"
+          onClick={() => switchChain({ chainId: chains[0].id })}
+          size="small"
+        >
+          Switch network
+        </Button>
+      </div>
+    </>
   );
 }

@@ -226,7 +226,7 @@ export default function CongratsModal({ isFromTransfer }: CongratsModalProps) {
         </Typography>
         <div className="mt-2 grid grid-cols-2 gap-4">
           <a
-            className="flex h-14 items-center justify-between rounded-xl border border-galaxy-blue pl-2 pr-4 transition-colors hover:bg-space-blue-100 dark:bg-space-blue-800 dark:hover:bg-space-blue-700"
+            className="flex h-14 items-center justify-between rounded-xl border border-galaxy-blue pl-2 pr-4 transition-colors  hover:bg-space-blue-100 dark:bg-space-blue-800 dark:hover:bg-space-blue-700"
             href="/"
           >
             <Image
@@ -246,7 +246,7 @@ export default function CongratsModal({ isFromTransfer }: CongratsModalProps) {
             <ArrowIcon className="flex-shrink-0" />
           </a>
           <a
-            className="flex h-14 items-center justify-between rounded-xl border border-galaxy-blue pl-2 pr-4 dark:bg-space-blue-800"
+            className="flex h-14 items-center justify-between rounded-xl border border-galaxy-blue pl-2 pr-4 transition-colors hover:bg-space-blue-100 dark:bg-space-blue-800 dark:hover:bg-space-blue-700"
             href="/"
           >
             <Image
@@ -266,7 +266,7 @@ export default function CongratsModal({ isFromTransfer }: CongratsModalProps) {
             <ArrowIcon className="flex-shrink-0" />
           </a>
           <a
-            className="flex h-14 items-center justify-between rounded-xl border border-galaxy-blue pl-2 pr-4 dark:bg-space-blue-800"
+            className="flex h-14 items-center justify-between rounded-xl border border-galaxy-blue pl-2 pr-4 transition-colors hover:bg-space-blue-100 dark:bg-space-blue-800 dark:hover:bg-space-blue-700"
             href="/"
           >
             <Image
@@ -286,7 +286,7 @@ export default function CongratsModal({ isFromTransfer }: CongratsModalProps) {
             <ArrowIcon className="flex-shrink-0" />
           </a>
           <a
-            className="flex h-14 items-center justify-between rounded-xl border border-galaxy-blue pl-2 pr-4 dark:bg-space-blue-800"
+            className="flex h-14 items-center justify-between rounded-xl border border-galaxy-blue pl-2 pr-4 transition-colors hover:bg-space-blue-100 dark:bg-space-blue-800 dark:hover:bg-space-blue-700"
             href="/"
           >
             <Image
@@ -306,7 +306,7 @@ export default function CongratsModal({ isFromTransfer }: CongratsModalProps) {
             <ArrowIcon className="flex-shrink-0" />
           </a>
           <a
-            className="flex h-14 items-center justify-between rounded-xl border border-galaxy-blue pl-2 pr-4 dark:bg-space-blue-800"
+            className="flex h-14 items-center justify-between rounded-xl border border-galaxy-blue pl-2 pr-4 transition-colors hover:bg-space-blue-100 dark:bg-space-blue-800 dark:hover:bg-space-blue-700"
             href="/"
           >
             <Image

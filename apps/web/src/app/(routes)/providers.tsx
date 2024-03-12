@@ -14,6 +14,7 @@ import { ThemeProvider } from "next-themes";
 import { WagmiProvider, createConfig, http } from "wagmi";
 import { goerli } from "wagmi/chains";
 
+import { WalletModalsProvider } from "../_components/WalletModals/WalletModalsContext";
 import {
   ethereumConnectors,
   starknetConnectors,
@@ -54,7 +55,9 @@ export default function Providers({ children }: ProvidersProps) {
       provider={starknetProvider}
     >
       <WagmiProvider config={wagmiConfig}>
-        <ThemeProvider attribute="class">{children}</ThemeProvider>
+        <WalletModalsProvider>
+          <ThemeProvider attribute="class">{children}</ThemeProvider>
+        </WalletModalsProvider>
       </WagmiProvider>
     </StarknetConfig>
   );

@@ -71,7 +71,6 @@ export default function NftTransferItem({
   });
 
   const displayedArrivalAddress = starkName ?? ens ?? arrivalShortAddress;
-  console.log(collectionImage);
 
   return (
     <Collapsible.Root

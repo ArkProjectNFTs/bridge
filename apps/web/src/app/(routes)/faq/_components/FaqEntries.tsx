@@ -18,13 +18,39 @@ export default function FaqEntries({ className }: FaqEntriesProps) {
         collection exclusively. Holders of Everai NFTs can seamlessly transfer
         their assets from Ethereum (L1) to Starknet (L2) and vice versa,
         pioneering the integration of NFTs into the next generation of
-        blockchain technology. Don't own an Everai yet? Buy one here and join
-        the bridging fun!`}
+        blockchain technology. Don't own an Everai yet? `}
+        Buy one{" "}
+        <a
+          className="text-space-blue-400 underline"
+          href="https://opensea.io/collection/everai"
+          rel="noreferrer"
+          target="_blank"
+        >
+          here
+        </a>{" "}
+        and join the bridging fun!
       </FaqEntry>
       <FaqEntry title="How do I use ArkProject to bridge NFTs">
-        {`In order to bridge NFTs from Ethereum (L1) to Starknet (L2) via the
-        ArkProject Bridge, you will need to set up a Starknet wallet (eg. Argent
-        or Braavos) to which you will send the NFTs. Then, you will need to
+        In order to bridge NFTs from Ethereum (L1) to Starknet (L2) via the
+        ArkProject Bridge, you will need to set up a Starknet wallet (eg.{" "}
+        <a
+          className="text-space-blue-400 underline"
+          href="https://www.argent.xyz/"
+          rel="noreferrer"
+          target="_blank"
+        >
+          Argent
+        </a>{" "}
+        or{" "}
+        <a
+          className="text-space-blue-400 underline"
+          href="https://braavos.app/"
+          rel="noreferrer"
+          target="_blank"
+        >
+          Braavos
+        </a>
+        {`) to which you will send the NFTs. Then, you will need to
         connect both your Ethereum (L1) wallet and Starknet (L2) wallet to
         ArkProject bridge, and define the NFTs you'd like to send.`}
       </FaqEntry>
@@ -51,9 +77,15 @@ export default function FaqEntries({ className }: FaqEntriesProps) {
       </FaqEntry>
       <FaqEntry title="How can I reach the support team?">
         Should you have any questions or require assistance, our support team is
-        ready to help you. You can reach us at support@arkproject.dev. Our team
-        is committed to providing timely and helpful responses to ensure a
-        smooth and enjoyable experience with the ArkProject NFT Bridge.
+        ready to help you. You can reach us at{" "}
+        <a
+          className="text-space-blue-400 underline"
+          href="mailto:support@arkproject.dev"
+        >
+          support@arkproject.dev
+        </a>
+        . Our team is committed to providing timely and helpful responses to
+        ensure a smooth and enjoyable experience with the ArkProject NFT Bridge.
       </FaqEntry>
       <FaqEntry title="Bridging Timeframe">
         Transfers typically complete within a few minutes to a few hours,

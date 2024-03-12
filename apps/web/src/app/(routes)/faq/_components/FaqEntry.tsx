@@ -26,7 +26,7 @@ export default function FaqEntry({
           </Collapsible.Trigger>
         </div>
 
-        <Collapsible.Content className="pr-16 data-[state=closed]:animate-[collapsible-up_300ms_ease] data-[state=open]:animate-[collapsible-down_300ms_ease]">
+        <Collapsible.Content className="pr-16 text-asteroid-grey-800 data-[state=closed]:animate-[collapsible-up_300ms_ease] data-[state=open]:animate-[collapsible-down_300ms_ease] dark:text-asteroid-grey-100">
           <Typography
             className="pt-4 text-left"
             component="p"

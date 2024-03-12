@@ -16,7 +16,6 @@ export default function Media({
   width,
 }: MediaProps) {
   const extension = src.split(".").pop();
-  console.log(extension);
 
   if (extension === "mp4") {
     return (

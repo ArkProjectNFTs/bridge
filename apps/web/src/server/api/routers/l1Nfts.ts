@@ -123,8 +123,6 @@ export const l1NftsRouter = createTRPCRouter({
             ? nft.media[0]?.raw
             : nft.media[0]?.thumbnail;
 
-        console.log(media);
-
         return {
           contractAddress: nft.contract.address,
           image: media,
