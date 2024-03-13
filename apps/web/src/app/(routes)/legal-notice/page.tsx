@@ -9,11 +9,11 @@ export default function LegalNoticePage() {
       <div className="flex">
         <MainPageContainer>
           <div className="relative mx-auto max-w-[37.5rem] pb-20 pt-13 text-center">
-            <Typography component="h1" variant="heading_xl">
+            <Typography component="h1" variant="heading_light_l">
               Legal notice
             </Typography>
             <Typography
-              className="mt-4 text-asteroid-grey-800 dark:text-asteroid-grey-100"
+              className="mt-4 text-space-blue-source dark:text-asteroid-grey-100"
               component="p"
               variant="body_text_16"
             >

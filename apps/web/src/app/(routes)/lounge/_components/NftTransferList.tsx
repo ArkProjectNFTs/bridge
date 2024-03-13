@@ -76,10 +76,10 @@ export default function NftTransferList({
   ) {
     return showPending ? (
       <>
-        <CollectionNftsEmptyState className="mb-5 mt-14" />
-        <Typography className="my-14" component="p" variant="body_text_18">
+        <Typography className="mb-5 mt-14" component="p" variant="body_text_18">
           There is nothing there...
         </Typography>
+        <CollectionNftsEmptyState className="my-14" />
       </>
     ) : (
       <></>

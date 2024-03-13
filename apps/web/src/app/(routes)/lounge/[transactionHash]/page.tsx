@@ -41,12 +41,21 @@ export default function Page({
   }
 
   return (
-    <Image
-      alt="Bridge loading animation"
-      className="fixed inset-0 h-screen w-screen object-cover"
-      height={3000}
-      src="/medias/bridge_animation.gif"
-      width={3000}
-    />
+    <>
+      <Image
+        alt="Bridge loading animation"
+        className="fixed inset-0 h-screen w-screen object-cover dark:hidden"
+        height={3000}
+        src="/medias/bridge_animation.gif"
+        width={3000}
+      />
+      <Image
+        alt="Bridge loading animation"
+        className="fixed inset-0 hidden h-screen w-screen object-cover dark:block"
+        height={3000}
+        src="/medias/dark/bridge_animation.gif"
+        width={3000}
+      />
+    </>
   );
 }

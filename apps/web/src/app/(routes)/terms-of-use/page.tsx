@@ -9,14 +9,14 @@ export default function TermsOfUsePage() {
       <div className="flex">
         <MainPageContainer>
           <div className="relative mx-auto max-w-[37.5rem] pb-20 pt-13 text-center">
-            <Typography
-              className="text-white"
-              component="h1"
-              variant="heading_xl"
-            >
+            <Typography component="h1" variant="heading_light_l">
               Terms of use
             </Typography>
-            <Typography className="mt-4" component="p" variant="body_text_16">
+            <Typography
+              className="mt-4 text-space-blue-source"
+              component="p"
+              variant="body_text_16"
+            >
               Last updated on March 12, 2024
             </Typography>
           </div>
@@ -505,7 +505,13 @@ export default function TermsOfUsePage() {
             >
               Should you have any questions about these Terms, or wish to
               contact us for any reason whatsoever, please contact us by sending
-              an email to account@arkproject.dev
+              an email to{" "}
+              <a
+                className="text-space-blue-400 underline"
+                href="mailto:account@arkproject.dev"
+              >
+                account@arkproject.dev
+              </a>
             </Typography>
           </div>
         </MainPageContainer>

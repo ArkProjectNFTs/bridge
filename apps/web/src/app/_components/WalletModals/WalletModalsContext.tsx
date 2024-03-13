@@ -94,7 +94,6 @@ export function WalletModalsProvider({ children }: PropsWithChildren) {
 
   useEffect(() => {
     if (
-      pathname === "/" ||
       pathname === "/bridge" ||
       pathname === "/portfolio" ||
       pathname === "/lounge"
