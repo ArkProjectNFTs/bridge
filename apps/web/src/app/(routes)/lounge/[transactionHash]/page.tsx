@@ -9,12 +9,16 @@ import useNftSelection from "../../bridge/_hooks/useNftSelection";
 
 interface PageProps {
   params: { transactionHash: string };
+  searchParams: { from: string };
 }
 
 /**
  * Page used when waiting for a deposit transaction to be detected by the bridge
  */
-export default function Page({ params: { transactionHash } }: PageProps) {
+export default function Page({
+  params: { transactionHash },
+  searchParams,
+}: PageProps) {
   const { data: hasBridgeRequestBeenIndexed } =
     api.bridgeRequest.getHasBridgeRequestIndexed.useQuery(
       {
@@ -31,7 +35,9 @@ export default function Page({ params: { transactionHash } }: PageProps) {
   }, [totalSelectedNfts, deselectAllNfts]);
 
   if (hasBridgeRequestBeenIndexed) {
-    redirect("/lounge?fromTransfer=true");
+    redirect(
+      `/lounge${searchParams.from === "ethereum" ? "?fromEthereum=" : ""}`
+    );
   }
 
   return (

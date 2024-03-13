@@ -1,4 +1,4 @@
-import PageConnectModal from "~/app/_components/PageConnectModal";
+import Footer from "~/app/_components/Footer";
 
 import MainPageContainer from "../../_components/MainPageContainer";
 import BridgingQuestBanner from "../bridge/_components/BridgingQuestBanner";
@@ -20,8 +20,7 @@ export default function Page() {
           <NftTransferList className="mt-16" showPending={false} />
         </MainPageContainer>
       </div>
-
-      <PageConnectModal />
+      <Footer />
     </>
   );
 }

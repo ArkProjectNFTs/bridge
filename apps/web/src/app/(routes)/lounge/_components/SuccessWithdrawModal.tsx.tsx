@@ -1,6 +1,7 @@
 "use client";
 
-import { Button, Dialog, DialogContent, Typography } from "design-system";
+import { Dialog, DialogContent, Typography } from "design-system";
+import Link from "next/link";
 
 interface SuccessWithdrawModalProps {
   onOpenChange: (open: boolean) => void;
@@ -22,9 +23,18 @@ export default function SuccessWithdrawModal({
           >
             Congratulations your Everai(s) are coming back to Ethereum!
           </Typography>
-          <Button className="mt-7 w-full" color="default" size="small">
-            View on my Portfolio
-          </Button>
+          <Link
+            className="mt-7 h-12 w-full rounded-full bg-galaxy-blue px-6 py-3 hover:bg-space-blue-700 dark:bg-space-blue-400 dark:hover:bg-space-blue-200"
+            color="default"
+            href="/portfolio"
+          >
+            <Typography
+              className="text-white dark:text-space-blue-900"
+              variant="button_text_s"
+            >
+              View on my Portfolio
+            </Typography>
+          </Link>
         </div>
       </DialogContent>
     </Dialog>

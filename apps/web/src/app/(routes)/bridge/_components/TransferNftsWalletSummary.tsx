@@ -40,7 +40,7 @@ export default function TransferNftsWalletSummary() {
     <div className="mt-8 grid grid-cols-[1fr_4rem_1fr] rounded-xl bg-space-blue-50 px-3 py-3 dark:bg-void-black">
       <div className="flex flex-col items-start">
         <Typography
-          className="mb-1 rounded-[4px] bg-space-blue-100 p-1 text-space-blue-500 dark:bg-space-blue-300 dark:text-space-blue-900"
+          className="mb-1 rounded-[4px] bg-space-blue-100 px-1 py-0.5 text-space-blue-500 dark:bg-space-blue-300 dark:text-space-blue-900"
           variant="body_text_11"
         >
           From wallet
@@ -52,7 +52,7 @@ export default function TransferNftsWalletSummary() {
       <TargetChainButton />
       <div className="flex flex-col items-start">
         <Typography
-          className="mb-1 rounded-[4px] bg-space-blue-100 p-1 text-space-blue-500 dark:bg-space-blue-300 dark:text-space-blue-900"
+          className="mb-1 rounded-[4px] bg-space-blue-100 px-1 py-0.5 text-space-blue-500 dark:bg-space-blue-300 dark:text-space-blue-900"
           variant="body_text_11"
         >
           To wallet

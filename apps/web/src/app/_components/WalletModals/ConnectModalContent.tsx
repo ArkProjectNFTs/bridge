@@ -1,14 +1,17 @@
+"use client";
+
 import { useAccount as useStarknetAccount } from "@starknet-react/core";
-import { SideDialog, Typography } from "design-system";
+import { Typography } from "design-system";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useAccountEffect } from "wagmi";
 
-import useAccountFromChain from "../_hooks/useAccountFromChain";
-import { CHAIN_LOGOS_BY_NAME } from "../_lib/utils/connectors";
-import { type Chain } from "../_types";
-import EthereumConnectorsList from "./EthereumConnectorsList";
-import StarknetConnectorList from "./StarknetConnectorList";
+import useAccountFromChain from "~/app/_hooks/useAccountFromChain";
+import { CHAIN_LOGOS_BY_NAME } from "~/app/_lib/utils/connectors";
+import { type Chain } from "~/app/_types";
+
+import EthereumConnectorsList from "../EthereumConnectorsList";
+import StarknetConnectorList from "../StarknetConnectorList";
 
 interface ChainButtonProps {
   chain: Chain;
@@ -51,46 +54,44 @@ function ConnectorList({ chain }: ConnectorListProps) {
 
 interface ConnectModalProps {
   /* Whether the modal should directly show specific chain connectors or ask the user to chose the chain first */
-  initialChain?: Chain;
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
+  chain?: Chain;
+  closeModal: () => void;
 }
 
 export default function ConnectModalContent({
-  initialChain,
-  isOpen,
-  onOpenChange,
+  chain,
+  closeModal,
 }: ConnectModalProps) {
   const [displayedChain, setDisplayedChain] = useState<Chain | undefined>(
-    initialChain
+    chain
   );
 
   function onWalletConnect() {
-    if (initialChain === undefined) {
+    if (chain === undefined) {
       setDisplayedChain(undefined);
       return;
     }
-    onOpenChange(false);
+    closeModal();
   }
 
   useAccountEffect({
     onConnect() {
+      console.log("NOOOOOOOOON");
       onWalletConnect();
     },
   });
 
-  // TODO: Use onConnect like in the ethereum version
   const { address } = useStarknetAccount();
 
   useEffect(() => {
     if (address !== undefined) {
-      onWalletConnect();
+      // onWalletConnect();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address]);
 
   return (
-    <SideDialog isOpen={isOpen} onOpenChange={onOpenChange}>
+    <>
       {displayedChain === undefined ? (
         <>
           <Image
@@ -128,6 +129,6 @@ export default function ConnectModalContent({
       ) : (
         <ConnectorList chain={displayedChain} />
       )}
-    </SideDialog>
+    </>
   );
 }

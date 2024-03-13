@@ -10,19 +10,12 @@ import {
   DEFAULT_STARKNET_CONNECTOR_LOGO,
   WALLET_LOGOS_BY_ID,
 } from "../_lib/utils/connectors";
-import ConnectModal from "./ConnectModal";
+import { useConnectModals } from "./WalletModals/WalletModalsContext";
 
-interface ConnectStarknetButtonProps {
-  isModalOpen: boolean;
-  onOpenModalChange: (open: boolean) => void;
-}
-
-export default function ConnectStarknetButton({
-  isModalOpen,
-  onOpenModalChange,
-}: ConnectStarknetButtonProps) {
+export default function ConnectStarknetButton() {
   const isSSR = useIsSSR();
   const { address, connector, isConnected } = useAccount();
+  const { toggleConnectStarknetWalletModal } = useConnectModals();
 
   const { data: starkName } = useStarkName({ address });
 
@@ -39,7 +32,7 @@ export default function ConnectStarknetButton({
     <>
       <button
         className="group flex items-center gap-2.5 rounded-full bg-space-blue-900 py-2 pl-3 pr-2 text-sm font-semibold text-white transition-colors hover:bg-space-blue-800 dark:bg-space-blue-800 dark:hover:bg-space-blue-900"
-        onClick={() => onOpenModalChange(!isModalOpen)}
+        onClick={toggleConnectStarknetWalletModal}
       >
         <Typography variant="button_text_xs">
           {isConnected ? starkName ?? shortAddress : "Connect Starknet Wallet"}
@@ -67,11 +60,6 @@ export default function ConnectStarknetButton({
           )}
         </div>
       </button>
-      <ConnectModal
-        initialChain="Starknet"
-        isOpen={isModalOpen}
-        onOpenChange={onOpenModalChange}
-      />
     </>
   );
 }

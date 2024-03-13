@@ -25,7 +25,7 @@ export default function NftTabsTrigger({
     <Tabs.Trigger
       className={clsx(
         className,
-        "group flex items-center gap-2.5 whitespace-nowrap rounded-full bg-asteroid-grey-100 py-1.5 pl-3 pr-2 data-[state=active]:bg-galaxy-blue data-[state=active]:text-white dark:bg-space-blue-900 dark:data-[state=active]:bg-space-blue-source dark:data-[state=active]:text-galaxy-blue"
+        "group flex items-center gap-2.5 whitespace-nowrap rounded-full bg-asteroid-grey-100 py-1.5 pl-3 pr-2 transition-colors hover:bg-galaxy-blue hover:text-white  data-[state=active]:bg-galaxy-blue data-[state=active]:text-white dark:bg-space-blue-900 dark:hover:bg-space-blue-source dark:hover:text-galaxy-blue dark:data-[state=active]:bg-space-blue-source dark:data-[state=active]:text-galaxy-blue"
       )}
       value={tabValue}
     >

@@ -10,19 +10,12 @@ import {
   DEFAULT_ETHEREUM_CONNECTOR_LOGO,
   WALLET_LOGOS_BY_ID,
 } from "../_lib/utils/connectors";
-import ConnectModal from "./ConnectModal";
+import { useConnectModals } from "./WalletModals/WalletModalsContext";
 
-interface ConnectEthereumButtonProps {
-  isModalOpen: boolean;
-  onOpenModalChange: (open: boolean) => void;
-}
-
-export default function ConnectEthereumButton({
-  isModalOpen,
-  onOpenModalChange,
-}: ConnectEthereumButtonProps) {
+export default function ConnectEthereumButton() {
   const isSSR = useIsSSR();
   const { address, connector, isConnected } = useAccount();
+  const { toggleConnectEthereumWalletModal } = useConnectModals();
   const { data: ensName } = useEnsName({
     address: address,
   });
@@ -40,7 +33,7 @@ export default function ConnectEthereumButton({
     <>
       <button
         className="group flex items-center gap-2.5 rounded-full bg-space-blue-900 py-2 pl-3 pr-2 text-sm font-semibold text-white transition-colors hover:bg-space-blue-800 dark:bg-space-blue-800 dark:hover:bg-space-blue-900"
-        onClick={() => onOpenModalChange(!isModalOpen)}
+        onClick={toggleConnectEthereumWalletModal}
       >
         <Typography variant="button_text_xs">
           {isConnected ? ensName ?? shortAddress : "Connect Ethereum Wallet"}
@@ -67,11 +60,6 @@ export default function ConnectEthereumButton({
           )}
         </div>
       </button>
-      <ConnectModal
-        initialChain="Ethereum"
-        isOpen={isModalOpen}
-        onOpenChange={onOpenModalChange}
-      />
     </>
   );
 }

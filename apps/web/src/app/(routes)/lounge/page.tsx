@@ -1,5 +1,4 @@
 import Footer from "~/app/_components/Footer";
-import PageConnectModal from "~/app/_components/PageConnectModal";
 
 import MainPageContainer from "../../_components/MainPageContainer";
 import Banner from "./_components/Banner";
@@ -9,7 +8,7 @@ import NftTransferList from "./_components/NftTransferList";
 
 interface LoungePageProps {
   searchParams: {
-    fromTransfer?: string;
+    fromEthereum?: string;
   };
 }
 
@@ -19,7 +18,7 @@ export default function LoungePage({ searchParams }: LoungePageProps) {
       <div className="flex">
         <MainPageContainer>
           <CongratsModal
-            isFromTransfer={searchParams.fromTransfer !== undefined}
+            isFromTransfer={searchParams.fromEthereum !== undefined}
             // isFromTransfer
           />
           <ChainSwitch />
@@ -28,7 +27,6 @@ export default function LoungePage({ searchParams }: LoungePageProps) {
         </MainPageContainer>
       </div>
       <Footer />
-      <PageConnectModal />
     </>
   );
 }

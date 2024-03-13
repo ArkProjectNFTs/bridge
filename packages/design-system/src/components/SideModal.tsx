@@ -1,8 +1,8 @@
 "use client";
 
 import * as Dialog from "@radix-ui/react-dialog";
-import { XMarkIcon } from "@heroicons/react/24/solid";
 import clsx from "clsx";
+import XIcon from "../icons/XIcon";
 
 interface ModalProps {
   backdropClassName?: string;
@@ -41,7 +41,7 @@ export function SideModal({
                 aria-label="Close"
                 className="dark:text-space-blue-400 dark:hover:text-space-blue-200 transition-colors hover:text-space-blue-700"
               >
-                <XMarkIcon className="h-6 w-6" />
+                <XIcon className="h-6 w-6" />
               </button>
             </Dialog.Close>
           </div>

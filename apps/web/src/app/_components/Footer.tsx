@@ -22,8 +22,18 @@ export default function Footer() {
         </div>
       </div>
       <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:gap-8">
-        <Typography variant="body_text_14">Terms of use</Typography>
-        <Typography variant="body_text_14">Legal Notice</Typography>
+        <Link
+          className="transition-colors hover:text-space-blue-source"
+          href="/terms-of-use"
+        >
+          <Typography variant="body_text_14">Terms of use</Typography>
+        </Link>
+        <Link
+          className="transition-colors hover:text-space-blue-source"
+          href="/legal-notice"
+        >
+          <Typography variant="body_text_14">Legal Notice</Typography>
+        </Link>
         <Link
           className="transition-colors hover:text-space-blue-source"
           href="/faq"

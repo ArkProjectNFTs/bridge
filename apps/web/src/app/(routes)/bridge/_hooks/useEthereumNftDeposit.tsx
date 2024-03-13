@@ -76,7 +76,7 @@ export default function useEthereumNftDeposit() {
 
   useEffect(() => {
     if (depositTransactionHash !== undefined) {
-      void router.push(`lounge/${depositTransactionHash}`);
+      void router.push(`lounge/${depositTransactionHash}?from=ethereum`);
     }
   }, [depositTransactionHash, deselectAllNfts, router]);
 

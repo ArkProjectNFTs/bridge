@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { useAccount as useEthereumAccount } from "wagmi";
 
-import ConnectModal from "~/app/_components/ConnectModal";
+import { useConnectModals } from "~/app/_components/WalletModals/WalletModalsContext";
 import useCurrentChain from "~/app/_hooks/useCurrentChain";
 import useIsFullyConnected from "~/app/_hooks/useIsFullyConnected";
 
@@ -63,12 +63,16 @@ function NoNftsImage() {
 function TransferNftsNotConnected() {
   const { address: ethereumAddress } = useEthereumAccount();
   const { address: starknetAddress } = useStarknetAccount();
-  const [isOpen, setIsOpen] = useState(false);
+
+  const {
+    toggleConnectEthereumWalletModal,
+    toggleConnectStarknetWalletModal,
+    toggleConnectWalletsModal,
+  } = useConnectModals();
 
   if (ethereumAddress === undefined && starknetAddress === undefined) {
     return (
       <>
-        <ConnectModal isOpen={isOpen} onOpenChange={setIsOpen} />
         <Image
           alt={`Wallets`}
           className="mx-auto mt-8"
@@ -79,7 +83,7 @@ function TransferNftsNotConnected() {
         <Button
           className="mt-8"
           color="default"
-          onClick={() => setIsOpen(true)}
+          onClick={toggleConnectWalletsModal}
           size="small"
         >
           Connect wallets
@@ -96,15 +100,10 @@ function TransferNftsNotConnected() {
           src={"/medias/ethereum_wallet.png"}
           width={100}
         />
-        <ConnectModal
-          initialChain="Ethereum"
-          isOpen={isOpen}
-          onOpenChange={setIsOpen}
-        />
         <Button
           className="mt-8"
           color="default"
-          onClick={() => setIsOpen(true)}
+          onClick={toggleConnectEthereumWalletModal}
           size="small"
         >
           Connect Ethereum wallet
@@ -125,17 +124,11 @@ function TransferNftsNotConnected() {
         <Button
           className="mt-8"
           color="default"
-          onClick={() => setIsOpen(true)}
+          onClick={toggleConnectStarknetWalletModal}
           size="small"
         >
           Connect Starknet wallet
         </Button>
-
-        <ConnectModal
-          initialChain="Starknet"
-          isOpen={isOpen}
-          onOpenChange={setIsOpen}
-        />
       </>
     );
   }

@@ -4,7 +4,6 @@ import clsx from "clsx";
 import { Typography } from "design-system";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
 
 import DarkModeButton from "~/app/_components/DarkModeButton";
 import { api } from "~/utils/api";
@@ -13,7 +12,6 @@ import useNftSelection from "../(routes)/bridge/_hooks/useNftSelection";
 import useAccountFromChain from "../_hooks/useAccountFromChain";
 import useCurrentChain from "../_hooks/useCurrentChain";
 import useIsFullyConnected from "../_hooks/useIsFullyConnected";
-import { type Chain } from "../_types";
 import ConnectEthereumButton from "./ConnectEthereumButton";
 import ConnectStarkNetButton from "./ConnectStarkNetButton";
 import Logo from "./Logo";
@@ -88,17 +86,7 @@ function LoungeLink() {
 }
 
 export default function Header() {
-  const [openedModal, setOpenedModal] = useState<Chain | undefined>(undefined);
-
   const pathname = usePathname();
-
-  function openModal(chain: Chain) {
-    setOpenedModal(chain);
-  }
-
-  function closeModal() {
-    setOpenedModal(undefined);
-  }
 
   return (
     <header className="fixed z-20 flex h-23 w-full items-center justify-center bg-white p-6 dark:bg-void-black md:justify-between">
@@ -123,18 +111,8 @@ export default function Header() {
       <div className="hidden items-center gap-4 md:flex">
         <div className="flex gap-4">
           {/* TODO @YohanTz: Modal context? */}
-          <ConnectEthereumButton
-            onOpenModalChange={(open) => {
-              open ? openModal("Ethereum") : closeModal();
-            }}
-            isModalOpen={openedModal === "Ethereum"}
-          />
-          <ConnectStarkNetButton
-            onOpenModalChange={(open) => {
-              open ? openModal("Starknet") : closeModal();
-            }}
-            isModalOpen={openedModal === "Starknet"}
-          />
+          <ConnectEthereumButton />
+          <ConnectStarkNetButton />
         </div>
         <DarkModeButton />
       </div>
