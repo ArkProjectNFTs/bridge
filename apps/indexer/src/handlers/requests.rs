@@ -70,15 +70,24 @@ pub struct IndexerInfo {
     l2_address: String,
     l1_block_number: u64,
     l2_block_number: u64,
+    total_tokens_bridged_on_starknet: u64,
 }
 
 pub async fn info(state: State<AppState>) -> Result<Json<IndexerInfo>, (StatusCode, String)> {
     let chains_blocks = state.chains_blocks.read().await;
+
+    let total_tokens_bridged_on_starknet = state
+        .store
+        .get_total_tokens_bridged_on_starknet()
+        .await
+        .unwrap_or(0);
+
     let info = IndexerInfo {
         l1_address: state.l1_address.clone(),
         l2_address: state.l2_address.clone(),
         l1_block_number: chains_blocks.eth,
         l2_block_number: chains_blocks.sn,
+        total_tokens_bridged_on_starknet,
     };
     Ok(Json(info))
 }
