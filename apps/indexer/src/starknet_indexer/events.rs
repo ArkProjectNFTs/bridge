@@ -1,4 +1,5 @@
 use crate::storage::{BridgeChain, CrossChainTx, CrossChainTxKind, Event, EventLabel, Request};
+use crate::utils::normalize_hex;
 use anyhow::{anyhow, Result};
 use serde_json::{json, Value};
 use starknet::core::{types::FieldElement, types::*};
@@ -85,19 +86,19 @@ fn request_from_event_data(event_label: &EventLabel, data: Vec<FieldElement>) ->
         EventLabel::DepositInitiatedL2 => Request {
             hash: u256_to_hex(&data[1..])?, // first felt is the header.
             chain_src: BridgeChain::Starknet,
-            collection_src: felt_to_hex(&data[4]), // collection l2
-            collection_dst: felt_to_hex(&data[3]), // collection l1
-            from: felt_to_hex(&data[6]),           // owner l2
-            to: felt_to_hex(&data[5]),             // owner l1
+            collection_src: normalize_hex(felt_to_hex(&data[4]).as_str())?, // collection l2
+            collection_dst: normalize_hex(felt_to_hex(&data[3]).as_str())?, // collection l1
+            from: normalize_hex(felt_to_hex(&data[6]).as_str())?,           // owner l2
+            to: normalize_hex(felt_to_hex(&data[5]).as_str())?,             // owner l1
             content,
         },
         EventLabel::WithdrawCompletedL2 => Request {
             hash: u256_to_hex(&data[1..])?, // first felt is the header.
             chain_src: BridgeChain::Ethereum,
-            collection_src: felt_to_hex(&data[3]), // collection l1
-            collection_dst: felt_to_hex(&data[4]), // collection l2
-            from: felt_to_hex(&data[5]),           // owner l1
-            to: felt_to_hex(&data[6]),             // owner l2
+            collection_src: normalize_hex(felt_to_hex(&data[3]).as_str())?, // collection l1
+            collection_dst: normalize_hex(felt_to_hex(&data[4]).as_str())?, // collection l2
+            from: normalize_hex(felt_to_hex(&data[5]).as_str())?,           // owner l1
+            to: normalize_hex(felt_to_hex(&data[6]).as_str())?,             // owner l2
             content,
         },
         _ => {
