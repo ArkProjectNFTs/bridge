@@ -128,6 +128,10 @@ async fn main() -> Result<()> {
             .route("/requests/:wallet", get(requests::reqs_info_from_wallet))
             .route("/tx/:txhash", get(requests::transaction))
             .route("/info", get(requests::info))
+            .route(
+                "/stats/:eth_contract_address",
+                get(requests::contract_stats),
+            )
             .layer(axum::middleware::from_fn(version_header))
             .with_state(app_state);
 

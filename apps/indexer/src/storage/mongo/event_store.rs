@@ -23,6 +23,44 @@ impl EventStore for MongoStore {
         Ok(events)
     }
 
+    async fn get_total_tokens_bridged_on_starknet(
+        &self,
+        eth_contract_address: &str,
+    ) -> Result<u64> {
+        let pipeline = vec![
+            doc! {
+                "$match": {
+                    "collection_src": eth_contract_address,
+                }
+            },
+            doc! {
+                "$project": {
+                    "number_of_tokens": { "$size": "$token_ids" }
+                }
+            },
+            doc! {
+                "$group": {
+                    "_id": null,
+                    "total_token_ids": { "$sum": "$number_of_tokens" }
+                }
+            },
+        ];
+
+        let mut cursor = self
+            .starknet_bridge_requests
+            .aggregate(pipeline, None)
+            .await?;
+
+        let mut total_count: u64 = 0;
+        if let Some(doc) = cursor.try_next().await? {
+            if let Ok(count) = doc.get_i64("total_token_ids") {
+                total_count = count as u64;
+            }
+        }
+
+        Ok(total_count)
+    }
+
     ///
     async fn event_by_tx(&self, tx_hash: &str) -> Result<Option<Event>> {
         Ok(self
