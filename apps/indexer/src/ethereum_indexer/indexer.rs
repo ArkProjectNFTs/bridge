@@ -269,16 +269,16 @@ where
 
     async fn process_pending_withdraws(&self, block_number: u64) -> Result<()> {
         let pendings = self.store.get_pending_withdraws().await?;
+        let timestamp = self.client.get_block_timestamp(block_number).await;
         for pending in pendings {
             let status = self
                 .client
                 .query_message_status(pending.message_hash)
                 .await?;
-            log::debug!("{:?}: {:?}", pending.message_hash, status);
             if status != 0 {
                 if let Some(mut event) = self.store.event_by_tx(&pending.tx_hash).await? {
                     if event.label != EventLabel::WithdrawCompletedL1 {
-                        // FIXME: update time stamp
+                        event.block_timestamp = timestamp;
                         event.block_number = block_number;
                         event.label = EventLabel::WithdrawAvailableL1;
                         // TODO: which transaction hash we should set?
