@@ -23,8 +23,16 @@ impl EventStore for MongoStore {
         Ok(events)
     }
 
-    async fn get_total_tokens_bridged_on_starknet(&self) -> Result<u64> {
+    async fn get_total_tokens_bridged_on_starknet(
+        &self,
+        eth_contract_address: &str,
+    ) -> Result<u64> {
         let pipeline = vec![
+            doc! {
+                "$match": {
+                    "collection_src": eth_contract_address,
+                }
+            },
             doc! {
                 "$project": {
                     "number_of_tokens": { "$size": "$token_ids" }

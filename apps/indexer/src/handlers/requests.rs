@@ -70,24 +70,38 @@ pub struct IndexerInfo {
     l2_address: String,
     l1_block_number: u64,
     l2_block_number: u64,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Stats {
     total_tokens_bridged_on_starknet: u64,
+}
+
+pub async fn contract_stats(
+    Path(eth_contract_address): Path<String>,
+    state: State<AppState>,
+) -> Result<Json<Stats>, (StatusCode, String)> {
+    let total_tokens_bridged_on_starknet = state
+        .store
+        .get_total_tokens_bridged_on_starknet(&eth_contract_address)
+        .await
+        .unwrap_or(0);
+
+    let stats = Stats {
+        total_tokens_bridged_on_starknet,
+    };
+
+    Ok(Json(stats))
 }
 
 pub async fn info(state: State<AppState>) -> Result<Json<IndexerInfo>, (StatusCode, String)> {
     let chains_blocks = state.chains_blocks.read().await;
-
-    let total_tokens_bridged_on_starknet = state
-        .store
-        .get_total_tokens_bridged_on_starknet()
-        .await
-        .unwrap_or(0);
 
     let info = IndexerInfo {
         l1_address: state.l1_address.clone(),
         l2_address: state.l2_address.clone(),
         l1_block_number: chains_blocks.eth,
         l2_block_number: chains_blocks.sn,
-        total_tokens_bridged_on_starknet,
     };
     Ok(Json(info))
 }

@@ -72,7 +72,7 @@ pub trait EventStore {
     async fn events_by_request(&self, req_hash: &str) -> Result<Vec<Event>>;
 
     ///
-    async fn get_total_tokens_bridged_on_starknet(&self) -> Result<u64>;
+    async fn get_total_tokens_bridged_on_starknet(&self, contract_address: &str) -> Result<u64>;
 
     ///
     async fn event_by_tx(&self, tx_hash: &str) -> Result<Option<Event>>;
