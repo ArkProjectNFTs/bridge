@@ -146,7 +146,6 @@ export function WalletModalsProvider({ children }: PropsWithChildren) {
               key={userOpenedModal}
             />
           ) : userOpenedModal === "ethereumWallet" ? (
-            // <ConnectModalContent chain="Ethereum" closeModal={closeModal} />
             <ConnectModalContent
               chain="Ethereum"
               closeModal={closeModal}

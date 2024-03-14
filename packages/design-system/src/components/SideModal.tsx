@@ -36,7 +36,7 @@ export function SideModal({
           onInteractOutside={(event) => event.preventDefault()}
         >
           <div className="flex w-full justify-end">
-            <Dialog.Close asChild>
+            <Dialog.Close asChild className="outline-none">
               <button
                 aria-label="Close"
                 className="dark:text-space-blue-400 dark:hover:text-space-blue-200 transition-colors hover:text-space-blue-700"

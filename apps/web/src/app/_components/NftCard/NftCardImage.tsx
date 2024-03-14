@@ -11,7 +11,7 @@ interface NftCardImageProps {
   imageUrl?: string;
 }
 export default function NftCardImage({ chain, imageUrl }: NftCardImageProps) {
-  const { theme } = useTheme();
+  const { resolvedTheme } = useTheme();
 
   return (
     <div className="relative">
@@ -19,7 +19,7 @@ export default function NftCardImage({ chain, imageUrl }: NftCardImageProps) {
         <Media
           src={
             imageUrl ??
-            `/medias/${theme === "dark" ? "dark/" : ""}empty_nft.png`
+            `/medias/${resolvedTheme === "dark" ? "dark/" : ""}empty_nft.png`
           }
           alt="Nft image"
           className="aspect-square h-full w-full rounded-lg object-cover"

@@ -7,7 +7,7 @@ import { useMemo, useState } from "react";
 import { useEnsName } from "wagmi";
 
 import Media from "~/app/_components/Media";
-import useCurrentChain from "~/app/_hooks/useCurrentChain";
+import { type Chain } from "~/app/_types";
 
 import NftTransferItemContent from "./NftTransferItemContent";
 import NftTransferStatus from "./NftTransferStatus";
@@ -15,6 +15,7 @@ import WithdrawButton from "./WithdrawButton";
 
 interface NftTransferItemProps {
   arrivalAddress: string;
+  arrivalChain: Chain;
   arrivalTimestamp?: number;
   collectionImage: string | undefined;
   collectionName: string;
@@ -46,6 +47,7 @@ function getDisplayedDate(timestamp?: number) {
 
 export default function NftTransferItem({
   arrivalAddress,
+  arrivalChain,
   arrivalTimestamp,
   collectionImage,
   collectionName,
@@ -57,7 +59,6 @@ export default function NftTransferItem({
   totalCount,
 }: NftTransferItemProps) {
   const [open, setOpen] = useState(false);
-  const { targetChain } = useCurrentChain();
 
   const arrivalShortAddress = useMemo(() => {
     return arrivalAddress
@@ -132,7 +133,7 @@ export default function NftTransferItem({
             {getDisplayedDate(arrivalTimestamp)}
           </Typography>
           <div className="flex items-center gap-2">
-            {targetChain === "Ethereum" ? (
+            {arrivalChain === "Ethereum" ? (
               <Image
                 alt="Ethereum"
                 height={24}
@@ -171,6 +172,7 @@ export default function NftTransferItem({
       </div>
 
       <NftTransferItemContent
+        arrivalChain={arrivalChain}
         contractAddress={contractAddress}
         displayedArrivalAddress={displayedArrivalAddress}
         open={open}

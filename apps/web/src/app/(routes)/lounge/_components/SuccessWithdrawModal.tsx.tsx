@@ -15,27 +15,27 @@ export default function SuccessWithdrawModal({
   return (
     <Dialog onOpenChange={onOpenChange} open={open}>
       <DialogContent className="max-w-md">
-        <div>
+        {/* <div> */}
+        <Typography
+          className="mt-2 text-center"
+          component="p"
+          variant="heading_light_xs"
+        >
+          Congratulations your Everai(s) are coming back to Ethereum!
+        </Typography>
+        <Link
+          className="mt-7 flex h-12 w-full items-center justify-center rounded-full bg-galaxy-blue px-6 py-3 text-center hover:bg-space-blue-700 dark:bg-space-blue-400 dark:hover:bg-space-blue-200"
+          color="default"
+          href="/portfolio"
+        >
           <Typography
-            className="mt-2 text-center"
-            component="p"
-            variant="heading_light_xs"
+            className="text-white dark:text-space-blue-900"
+            variant="button_text_s"
           >
-            Congratulations your Everai(s) are coming back to Ethereum!
+            View on my Portfolio
           </Typography>
-          <Link
-            className="mt-7 h-12 w-full rounded-full bg-galaxy-blue px-6 py-3 hover:bg-space-blue-700 dark:bg-space-blue-400 dark:hover:bg-space-blue-200"
-            color="default"
-            href="/portfolio"
-          >
-            <Typography
-              className="text-white dark:text-space-blue-900"
-              variant="button_text_s"
-            >
-              View on my Portfolio
-            </Typography>
-          </Link>
-        </div>
+        </Link>
+        {/* </div> */}
       </DialogContent>
     </Dialog>
   );

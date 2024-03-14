@@ -46,35 +46,51 @@ function NftTransferHeader({
 
 interface NftTransferListProps {
   className?: string;
-  showPending?: boolean;
+  variant?: "lounge";
 }
 
 export default function NftTransferList({
   className,
-  showPending = true,
+  variant,
 }: NftTransferListProps) {
-  const { targetChain } = useCurrentChain();
-  const { address } = useAccountFromChain(targetChain);
+  const { sourceChain, targetChain } = useCurrentChain();
+  const { address: targetAddress } = useAccountFromChain(targetChain);
+  const { address: sourceAddress } = useAccountFromChain(sourceChain);
   const isFullyConnected = useIsFullyConnected();
   const [withdrawModalOpen, setWithdrawModalOpen] = useState(false);
 
-  const { data: bridgeRequests } =
+  const { data: targetBridgeRequests } =
     api.bridgeRequest.getBridgeRequestsFromAddress.useQuery(
       {
-        address: address ?? "",
+        address: targetAddress ?? "",
       },
       { enabled: isFullyConnected, refetchInterval: 10000 }
     );
 
-  if (bridgeRequests === undefined || !isFullyConnected) {
+  const { data: sourceBridgeRequests } =
+    api.bridgeRequest.getBridgeRequestsFromAddress.useQuery(
+      {
+        address: sourceAddress ?? "",
+      },
+      { enabled: isFullyConnected, refetchInterval: 10000 }
+    );
+
+  if (
+    targetBridgeRequests === undefined ||
+    !isFullyConnected ||
+    sourceBridgeRequests === undefined
+  ) {
     return <NftTransferListLoadingState />;
   }
 
   if (
-    bridgeRequests.inTransit.requests.length === 0 &&
-    bridgeRequests.past.requests.length === 0
+    targetBridgeRequests.inTransit.requests.length === 0 &&
+    targetBridgeRequests.past.requests.length === 0 &&
+    (variant !== "lounge" ||
+      (sourceBridgeRequests?.inTransit.requests.length === 0 &&
+        sourceBridgeRequests.past.requests.length === 0))
   ) {
-    return showPending ? (
+    return variant !== "lounge" ? (
       <>
         <Typography className="mb-5 mt-14" component="p" variant="body_text_18">
           There is nothing there...
@@ -85,22 +101,38 @@ export default function NftTransferList({
       <></>
     );
   }
-  const { inTransit, past } = bridgeRequests;
+
+  const inTransitRequests = targetBridgeRequests.inTransit.requests;
+  const inTransitTotalCount = targetBridgeRequests.inTransit.totalCount;
+  const pastRequests =
+    variant === "lounge"
+      ? [
+          ...targetBridgeRequests.past.requests,
+          ...sourceBridgeRequests?.past.requests,
+        ]
+      : targetBridgeRequests.past.requests;
+
+  const pastRequestsTotalCount =
+    variant === "lounge"
+      ? targetBridgeRequests.past.totalCount +
+        sourceBridgeRequests.past.totalCount
+      : targetBridgeRequests.past.totalCount;
 
   return (
     <div className={className}>
-      {inTransit.requests.length > 0 && showPending && (
+      {inTransitRequests.length > 0 && variant !== "lounge" && (
         <>
           <NftTransferHeader
             className="mb-5"
             status="transit"
-            totalCount={inTransit.totalCount}
+            totalCount={inTransitTotalCount}
           />
           <div className="mb-20 flex flex-col gap-4">
-            {inTransit.requests.map((bridgeRequest) => {
+            {inTransitRequests.map((bridgeRequest) => {
               return (
                 <NftTransferItem
                   arrivalAddress={bridgeRequest.arrivalAddress}
+                  arrivalChain={bridgeRequest.arrivalChain}
                   collectionImage={bridgeRequest.collectionImage}
                   collectionName={bridgeRequest.collectionName}
                   contractAddress={bridgeRequest.collectionSourceAddress}
@@ -117,7 +149,7 @@ export default function NftTransferList({
         </>
       )}
 
-      {past.requests.length > 0 && (
+      {pastRequests.length > 0 && (
         <>
           <Typography
             className="text-left"
@@ -131,14 +163,15 @@ export default function NftTransferList({
           <NftTransferHeader
             className="mb-5"
             status="past"
-            totalCount={past.totalCount}
+            totalCount={pastRequestsTotalCount}
           />
 
           <div className="mb-20 flex flex-col gap-4">
-            {past.requests.map((bridgeRequest) => {
+            {pastRequests.map((bridgeRequest) => {
               return (
                 <NftTransferItem
                   arrivalAddress={bridgeRequest.arrivalAddress}
+                  arrivalChain={bridgeRequest.arrivalChain}
                   arrivalTimestamp={bridgeRequest.arrivalTimestamp}
                   collectionImage={bridgeRequest.collectionImage}
                   collectionName={bridgeRequest.collectionName}

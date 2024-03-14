@@ -4,11 +4,13 @@ import Image from "next/image";
 
 import Media from "~/app/_components/Media";
 import useCurrentChain from "~/app/_hooks/useCurrentChain";
+import { type Chain } from "~/app/_types";
 import { api } from "~/utils/api";
 
 import NftTransferStatus from "./NftTransferStatus";
 
 interface NftTransferItemContentProps {
+  arrivalChain: Chain;
   contractAddress: string;
   displayedArrivalAddress: string;
   open: boolean;
@@ -54,20 +56,20 @@ function NftTransferItemContentLoadingState({
 }
 
 export default function NftTransferItemContent({
+  arrivalChain,
   contractAddress,
   displayedArrivalAddress,
   open,
   status,
   tokenIds,
 }: NftTransferItemContentProps) {
-  const { targetChain } = useCurrentChain();
   const { data: l1Nfts } = api.l1Nfts.getNftMetadataBatch.useQuery(
     {
       contractAddress,
       tokenIds,
     },
     {
-      enabled: open && targetChain === "Starknet",
+      enabled: open && arrivalChain === "Starknet",
     }
   );
   const { data: l2Nfts } = api.l2Nfts.getNftMetadataBatch.useQuery(
@@ -76,11 +78,11 @@ export default function NftTransferItemContent({
       tokenIds,
     },
     {
-      enabled: open && targetChain === "Ethereum",
+      enabled: open && arrivalChain === "Ethereum",
     }
   );
 
-  const nfts = targetChain === "Starknet" ? l1Nfts : l2Nfts;
+  const nfts = arrivalChain === "Starknet" ? l1Nfts : l2Nfts;
 
   if (nfts === undefined) {
     return <NftTransferItemContentLoadingState totalCount={tokenIds.length} />;
@@ -134,7 +136,7 @@ export default function NftTransferItemContent({
                   <NftTransferStatus status={status} />
 
                   <div className="flex items-center gap-2">
-                    {targetChain === "Ethereum" ? (
+                    {arrivalChain === "Ethereum" ? (
                       <Image
                         alt="Ethereum"
                         height={24}

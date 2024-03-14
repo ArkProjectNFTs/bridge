@@ -1,6 +1,7 @@
 import { Alchemy, Network, type Nft } from "alchemy-sdk";
 import { z } from "zod";
 
+import { type Chain } from "~/app/_types";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 
 const alchemy = new Alchemy({
@@ -39,6 +40,7 @@ type BridgeRequestApiResponse = Array<{
 
 type BridgeRequestResponse = {
   arrivalAddress: string;
+  arrivalChain: Chain;
   arrivalTimestamp?: number;
   collectionImage: string | undefined;
   collectionName: string;
@@ -120,6 +122,10 @@ export const bridgeRequestRouter = createTRPCRouter({
 
             return {
               arrivalAddress: bridgeRequest.req.to,
+              arrivalChain:
+                bridgeRequest.req.chain_src === "eth"
+                  ? "Starknet"
+                  : ("Ethereum" as Chain),
               arrivalTimestamp: isArrived
                 ? lastBridgeRequestEvent?.block_timestamp
                 : undefined,

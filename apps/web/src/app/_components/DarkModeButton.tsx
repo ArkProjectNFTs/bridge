@@ -1,3 +1,5 @@
+"use client";
+
 import { DarkModeIcon, LightModeIcon } from "design-system";
 import { useTheme } from "next-themes";
 
@@ -5,10 +7,10 @@ import { useIsSSR } from "~/app/_hooks/useIsSSR";
 
 export default function DarkModeButton() {
   const isSSR = useIsSSR();
-  const { setTheme, theme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
 
   function toggleTheme() {
-    if (theme === "light") {
+    if (resolvedTheme === "light") {
       setTheme("dark");
       return;
     }
@@ -21,7 +23,7 @@ export default function DarkModeButton() {
 
   return (
     <button className="h-8 shrink-0" onClick={toggleTheme}>
-      {theme === "light" ? <LightModeIcon /> : <DarkModeIcon />}
+      {resolvedTheme === "light" ? <LightModeIcon /> : <DarkModeIcon />}
     </button>
   );
 }

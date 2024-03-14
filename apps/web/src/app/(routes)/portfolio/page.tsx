@@ -17,7 +17,7 @@ export default function Page() {
 
           <BridgingQuestBanner className="mt-16" />
 
-          <NftTransferList className="mt-16" showPending={false} />
+          <NftTransferList className="mt-16" variant="lounge" />
         </MainPageContainer>
       </div>
       <Footer />

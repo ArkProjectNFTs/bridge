@@ -76,7 +76,6 @@ export default function ConnectModalContent({
 
   useAccountEffect({
     onConnect() {
-      console.log("NOOOOOOOOON");
       onWalletConnect();
     },
   });
