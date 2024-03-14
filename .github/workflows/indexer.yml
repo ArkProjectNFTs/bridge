@@ -3,8 +3,6 @@ name: Indexer
 on:
   push:
     paths: "apps/indexer/**"
-  pull_requests:
-    paths: "apps/indexer/**"
 
 jobs:
   build-and-push:
