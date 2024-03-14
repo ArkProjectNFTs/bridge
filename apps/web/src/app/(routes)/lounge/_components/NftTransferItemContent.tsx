@@ -3,7 +3,6 @@ import { Typography } from "design-system";
 import Image from "next/image";
 
 import Media from "~/app/_components/Media";
-import useCurrentChain from "~/app/_hooks/useCurrentChain";
 import { type Chain } from "~/app/_types";
 import { api } from "~/utils/api";
 
