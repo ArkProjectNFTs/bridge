@@ -93,6 +93,16 @@ impl EthereumClient {
             .expect("Not a valid u64 (to)")
     }
 
+    pub async fn get_block_timestamp(&self, block_id: u64) -> u64 {
+        match self.provider
+            .get_block(block_id)
+            .await
+            .expect(&format!("Can't fetch block {}", block_id)) {
+                None => 0,
+                Some(block) => block.timestamp.try_into().expect("Can't convert block timestamp to u64")
+        }
+        
+    }
     /// Fetches logs for the given block options.
     ///
     /// There is not pagination in ethereum, and no hard limit on block range.
