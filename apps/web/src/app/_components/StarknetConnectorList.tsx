@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import {
+  type Connector,
   useAccount,
   useBalance,
   useConnect,
@@ -19,9 +20,15 @@ import {
 } from "../_lib/utils/connectors";
 import ConditionalWrapper from "./ConditionalWrapper";
 
-export default function StarknetConnectorList() {
+interface StarknetConnectorListProps {
+  onWalletConnect: () => void;
+}
+
+export default function StarknetConnectorList({
+  onWalletConnect,
+}: StarknetConnectorListProps) {
   const { address, isConnected } = useAccount();
-  const { connect, connectors, isError, pendingConnector } = useConnect();
+  const { connectAsync, connectors } = useConnect();
   const { disconnect } = useDisconnect();
   const { connector: activeConnector } = useAccount();
 
@@ -29,6 +36,10 @@ export default function StarknetConnectorList() {
 
   const [, copy] = useCopyToClipboard();
   const [showCopiedMessage, setShowCopiedMessage] = useState(false);
+
+  const [pendingConnectorId, setPendingConnectorId] = useState<
+    string | undefined
+  >(undefined);
 
   useEffect(() => {
     if (showCopiedMessage) {
@@ -43,6 +54,15 @@ export default function StarknetConnectorList() {
   const shortAddress = useMemo(() => {
     return address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "";
   }, [address]);
+
+  async function connect(connector: Connector) {
+    setPendingConnectorId(connector.id);
+    try {
+      await connectAsync({ connector });
+      onWalletConnect();
+    } catch {}
+    setPendingConnectorId(undefined);
+  }
 
   function handleCopy() {
     if (address === undefined) {
@@ -186,8 +206,7 @@ export default function StarknetConnectorList() {
       </Typography>
       <div className="flex w-full flex-col gap-4 px-11 sm:px-7">
         {connectors.map((connector) => {
-          const isConnecting =
-            connector.id === pendingConnector?.id && !isError;
+          const isConnecting = pendingConnectorId === connector.id;
           const isInstalled = connector.available();
 
           return (
@@ -199,7 +218,7 @@ export default function StarknetConnectorList() {
                 return isInstalled ? (
                   <button
                     className={wrapperClassName}
-                    onClick={() => connect({ connector })}
+                    onClick={() => void connect(connector)}
                   >
                     {children}
                   </button>

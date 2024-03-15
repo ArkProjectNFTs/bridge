@@ -43,16 +43,16 @@ export default function EthereumConnectorsList() {
     return address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "";
   }, [address]);
 
-  const [pendingConnector, setPendingConnector] = useState<string | undefined>(
-    undefined
-  );
+  const [pendingConnectorId, setPendingConnectorId] = useState<
+    string | undefined
+  >(undefined);
 
   async function connect(connector: Connector) {
-    setPendingConnector(connector.id);
+    setPendingConnectorId(connector.id);
     try {
       await connectAsync({ connector });
     } catch {}
-    setPendingConnector(undefined);
+    setPendingConnectorId(undefined);
   }
 
   function handleCopy() {
@@ -216,7 +216,7 @@ export default function EthereumConnectorsList() {
             return <Fragment key="injected" />;
           }
 
-          const isConnecting = pendingConnector === connector.id;
+          const isConnecting = pendingConnectorId === connector.id;
 
           return (
             <button

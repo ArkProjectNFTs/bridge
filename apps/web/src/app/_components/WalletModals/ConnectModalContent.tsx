@@ -42,14 +42,15 @@ function ChainButton({ chain, onClick }: ChainButtonProps) {
 
 interface ConnectorListProps {
   chain: Chain;
+  onStarknetWalletConnect: () => void;
 }
 
-function ConnectorList({ chain }: ConnectorListProps) {
+function ConnectorList({ chain, onStarknetWalletConnect }: ConnectorListProps) {
   if (chain === "Ethereum") {
     return <EthereumConnectorsList />;
   }
 
-  return <StarknetConnectorList />;
+  return <StarknetConnectorList onWalletConnect={onStarknetWalletConnect} />;
 }
 
 interface ConnectModalProps {
@@ -126,7 +127,10 @@ export default function ConnectModalContent({
           </div>
         </>
       ) : (
-        <ConnectorList chain={displayedChain} />
+        <ConnectorList
+          chain={displayedChain}
+          onStarknetWalletConnect={onWalletConnect}
+        />
       )}
     </>
   );
