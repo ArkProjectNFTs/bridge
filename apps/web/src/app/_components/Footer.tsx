@@ -30,6 +30,12 @@ export default function Footer() {
         </Link>
         <Link
           className="transition-colors hover:text-space-blue-source"
+          href="/privacy"
+        >
+          <Typography variant="body_text_14">Privacy Policy</Typography>
+        </Link>
+        <Link
+          className="transition-colors hover:text-space-blue-source"
           href="/legal-notice"
         >
           <Typography variant="body_text_14">Legal Notice</Typography>
