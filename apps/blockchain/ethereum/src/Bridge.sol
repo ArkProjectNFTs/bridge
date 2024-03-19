@@ -159,7 +159,9 @@ contract Starklane is IStarklaneEvent, UUPSOwnableProxied, StarklaneState, Stark
         // Any error or permission fail in the message consumption will cause a revert.
         // After message being consumed, it is considered legit and tokens can be withdrawn.
         if (Protocol.canUseWithdrawAuto(header)) {
-            _consumeMessageAutoWithdraw(_starklaneL2Address, request);
+            // 2024-03-19: disabled autoWithdraw after audit report
+            // _consumeMessageAutoWithdraw(_starklaneL2Address, request);
+            revert NotSupportedYetError();
         } else {
             _consumeMessageStarknet(_starknetCoreAddress, _starklaneL2Address, request);
         }
@@ -179,7 +181,7 @@ contract Starklane is IStarklaneEvent, UUPSOwnableProxied, StarklaneState, Stark
                     req.hash
                 );
             } else {
-                // TODO ERC1155.
+                revert NotSupportedYetError();
             }
         }
 
