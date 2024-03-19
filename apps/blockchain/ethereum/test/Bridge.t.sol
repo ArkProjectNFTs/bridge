@@ -273,13 +273,7 @@ contract BridgeTest is Test, IStarklaneEvent {
         // as QUICK message.
 
         IStarklane(bridge).addMessageHashForAutoWithdraw(uint256(msgHash));
-        address collection = IStarklane(bridge).withdrawTokens(reqSerialized);
-
-        // TODO: add verification of event emission.
-
-        assertEq(IERC721(collection).ownerOf(888), bob);
-
-        vm.expectRevert();
+        vm.expectRevert(NotSupportedYetError.selector);
         IStarklane(bridge).withdrawTokens(reqSerialized);
     }
 
