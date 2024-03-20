@@ -56,6 +56,7 @@ contract CollectionManager {
     {
         address proxy = Deployer.deployERC721Bridgeable(name, symbol);
         _l1ToL2Addresses[proxy] = collectionL2;
+        _l2ToL1Addresses[collectionL2] = proxy;
 
         emit CollectionDeployedFromL2(
             reqHash,
@@ -86,6 +87,7 @@ contract CollectionManager {
     {
         address proxy = Deployer.deployERC1155Bridgeable(uri);
         _l1ToL2Addresses[proxy] = collectionL2;
+        _l2ToL1Addresses[collectionL2] = proxy;
 
         emit CollectionDeployedFromL2(
             reqHash,
