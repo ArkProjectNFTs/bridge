@@ -92,8 +92,8 @@ fn token_uri_from_contract_call(
 ) -> Option<ByteArray> {
     // TODO: add the interface detection when the standard is out.
 
-    let token_uri_selector = 0x0226ad7e84c1fe08eb4c525ed93cccadf9517670341304571e66f7c4f95cbe54;
-    let tokenUri_selector = 0x0362dec5b8b67ab667ad08e83a2c3ba1db7fdb4ab8dc3a33c057c4fddec8d3de;
+    let token_uri_selector = selector!("token_uri");
+    let tokenURI_selector = selector!("tokenURI");
 
     let mut _calldata: Array<felt252> = array![];
     token_id.serialize(ref _calldata);
@@ -112,7 +112,7 @@ fn token_uri_from_contract_call(
         Result::Ok(span) => span.try_into(),
         Result::Err(e) => {
             match starknet::call_contract_syscall(
-                collection_address, tokenUri_selector, calldata,
+                collection_address, tokenURI_selector, calldata,
             ) {
                 Result::Ok(span) => span.try_into(),
                 Result::Err(e) => {
