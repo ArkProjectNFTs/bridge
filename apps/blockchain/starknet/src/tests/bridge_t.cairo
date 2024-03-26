@@ -24,7 +24,8 @@ mod tests {
     use starklane::token::{
         interfaces::{
             IERC721Dispatcher, IERC721DispatcherTrait,
-            IERC721BridgeableDispatcher, IERC721BridgeableDispatcherTrait
+            IERC721BridgeableDispatcher, IERC721BridgeableDispatcherTrait,
+            IERC721MintableDispatcher, IERC721MintableDispatcherTrait,
         },
     };
     use starklane::bridge::bridge;
@@ -62,12 +63,27 @@ mod tests {
         collection_owner: ContractAddress,
     ) -> ContractAddress {
         let mut calldata: Array<felt252> = array![];
+        let base_uri: ByteArray = "https://my.base.uri/";
         name.serialize(ref calldata);
         symbol.serialize(ref calldata);
+        base_uri.serialize(ref calldata);
         calldata.append(bridge_addr.into());
         calldata.append(collection_owner.into());
 
         erc721b_contract_class.deploy(@calldata).unwrap()
+    }
+
+    fn mint_range(
+        address: ContractAddress,
+        collection_owner: ContractAddress,
+        to: ContractAddress,
+        start: u256,
+        end: u256
+    ) {
+        let erc721 = IERC721MintableDispatcher { contract_address: address };
+        start_prank(CheatTarget::One(address), collection_owner);
+        erc721.mint_range(to, start, end);
+        stop_prank(CheatTarget::One(address));
     }
 
     #[test]
@@ -92,7 +108,7 @@ mod tests {
 
         let erc721 = IERC721Dispatcher { contract_address: erc721b_address };
 
-        erc721.mint_range_free(COLLECTION_OWNER, 0, 10);
+        mint_range(erc721b_address, COLLECTION_OWNER, COLLECTION_OWNER, 0, 10);
 
         let bridge = IStarklaneDispatcher { contract_address: bridge_address };
 
@@ -313,7 +329,7 @@ mod tests {
 
         let erc721 = IERC721Dispatcher { contract_address: erc721b_address };
 
-        erc721.mint_range_free(COLLECTION_OWNER, 0, 10);
+        mint_range(erc721b_address, COLLECTION_OWNER, COLLECTION_OWNER, 0, 10);
 
         let bridge = IStarklaneDispatcher { contract_address: bridge_address };
         start_prank(CheatTarget::One(bridge_address), BRIDGE_ADMIN);
@@ -357,7 +373,7 @@ mod tests {
 
         let erc721 = IERC721Dispatcher { contract_address: erc721b_address };
 
-        erc721.mint_range_free(COLLECTION_OWNER, 0, 10);
+        mint_range(erc721b_address, COLLECTION_OWNER, COLLECTION_OWNER, 0, 10);
 
         let bridge = IStarklaneDispatcher { contract_address: bridge_address };
         start_prank(CheatTarget::One(bridge_address), BRIDGE_ADMIN);
@@ -401,9 +417,7 @@ mod tests {
             COLLECTION_OWNER
         );
 
-        let erc721 = IERC721Dispatcher { contract_address: erc721b_address };
-
-        erc721.mint_range_free(COLLECTION_OWNER, 0, 10);
+        mint_range(erc721b_address, COLLECTION_OWNER, COLLECTION_OWNER, 0, 10);
 
         let bridge = IStarklaneDispatcher { contract_address: bridge_address };
         start_prank(CheatTarget::One(bridge_address), BRIDGE_ADMIN);

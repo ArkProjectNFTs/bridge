@@ -387,6 +387,7 @@ mod bridge {
             salt,
             req.name.clone(),
             req.symbol.clone(),
+            req.base_uri.clone(),
             starknet::get_contract_address(),
         );
 

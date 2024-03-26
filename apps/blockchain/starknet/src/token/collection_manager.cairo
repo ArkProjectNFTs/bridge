@@ -137,11 +137,13 @@ fn deploy_erc721_bridgeable(
     salt: felt252,
     name: ByteArray,
     symbol: ByteArray,
+    base_uri: ByteArray,
     bridge_address: ContractAddress,
 ) -> ContractAddress {
     let mut calldata: Array<felt252> = array![];
     name.serialize(ref calldata);
     symbol.serialize(ref calldata);
+    base_uri.serialize(ref calldata);
     calldata.append(bridge_address.into());
     // For now, the bridge is by default the collection owner.
     calldata.append(bridge_address.into());
