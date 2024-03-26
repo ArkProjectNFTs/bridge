@@ -118,7 +118,7 @@ mod bridge {
 
         let collection_l2 = ensure_erc721_deployment(ref self, @req);
 
-        let ctype = collection_type_from_header(req.header);
+        let _ctype = collection_type_from_header(req.header);
         // TODO: check CollectionType to support ERC1155 + metadata.
 
         let mut i = 0;
@@ -158,7 +158,7 @@ mod bridge {
         });
     }
 
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl BridgeUpgradeImpl of IUpgradeable<ContractState> {
         fn upgrade(ref self: ContractState, class_hash: ClassHash) {
             assert(
@@ -178,7 +178,7 @@ mod bridge {
         }
     }
 
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl BridgeImpl of IStarklane<ContractState> {
 
         fn get_l1_collection_address(self: @ContractState, address: ContractAddress) -> EthAddress {

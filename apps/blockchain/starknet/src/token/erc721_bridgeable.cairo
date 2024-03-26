@@ -14,7 +14,6 @@ mod erc721_bridgeable {
 
     use starklane::token::interfaces::{IERC721, IERC721Bridgeable};
     use starklane::interfaces::IUpgradeable;
-    use starklane::byte_array_storage::ByteArrayStore;
 
     #[storage]
     struct Storage {
@@ -80,7 +79,7 @@ mod erc721_bridgeable {
         approved: bool,
     }
 
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl ERC721BridgeableImpl of IERC721Bridgeable<ContractState> {
         fn mint_from_bridge(ref self: ContractState, to: ContractAddress, token_id: u256) {
             assert(
@@ -97,7 +96,7 @@ mod erc721_bridgeable {
         }
     }
 
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl ERC721BridgeableUpgradeImpl of IUpgradeable<ContractState> {
         fn upgrade(ref self: ContractState, class_hash: ClassHash) {
             assert(
@@ -112,7 +111,7 @@ mod erc721_bridgeable {
         }
     }
 
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl ERC721BridgeableERC721Impl of IERC721<ContractState> {
         //
         // *** VIEWS ***
@@ -284,7 +283,7 @@ mod tests {
         calldata.append(bridge_addr.into());
         calldata.append(collection_owner.into());
 
-        let contract = declare('erc721_bridgeable');
+        let contract = declare("erc721_bridgeable");
 
         contract.deploy(@calldata).unwrap()
     }
@@ -341,7 +340,6 @@ mod tests {
     #[test]
     fn mint_from_bridge() {
         let BRIDGE = bridge_addr_mock();
-        let COLLECTION_OWNER = collection_owner_addr_mock();
         let NEW_DUO_OWNER = starknet::contract_address_const::<128>();
 
         let contract_address = deploy_everai_collection();
@@ -361,8 +359,6 @@ mod tests {
     #[test]
     #[should_panic(expected: ('ERC721: only bridge can mint', ))]
     fn should_panic_mint_from_bridge_fail() {
-        let BRIDGE = bridge_addr_mock();
-        let COLLECTION_OWNER = collection_owner_addr_mock();
         let NEW_DUO_OWNER = starknet::contract_address_const::<128>();
 
         let contract_address = deploy_everai_collection();
@@ -374,8 +370,6 @@ mod tests {
     /// Should transfer tokens.
     #[test]
     fn transfer_tokens() {
-        let BRIDGE = bridge_addr_mock();
-        let COLLECTION_OWNER = collection_owner_addr_mock();
         let FROM_DUO_OWNER = starknet::contract_address_const::<128>();
         let TO_DUO_OWNER = starknet::contract_address_const::<128>();
         let TOKEN_ID = 0_u256;
@@ -396,8 +390,6 @@ mod tests {
     /// This will try tokenURI and token_uri selectors.
     #[test]
     fn token_uri_from_contract_call() {
-        let BRIDGE = bridge_addr_mock();
-        let COLLECTION_OWNER = collection_owner_addr_mock();
         let NEW_DUO_OWNER = starknet::contract_address_const::<128>();
         let TOKEN_ID = 244;
 
