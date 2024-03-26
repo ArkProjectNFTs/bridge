@@ -201,7 +201,7 @@ mod contract_req_test {
 
     }
 
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl ContractTestImpl of IContractRequest<ContractState> {
         fn compute_request_hash_from_contract(
             self: @ContractState,
@@ -275,7 +275,7 @@ mod tests {
         let to_l1_address: EthAddress = 1.try_into().unwrap();
         let ids: Array<u256> = array![88];
 
-        let contract = declare('contract_req_test');
+        let contract = declare("contract_req_test");
 
         let contract_address = contract.deploy(@array![]).unwrap();
         let disp = IContractRequestDispatcher { contract_address };
