@@ -42,7 +42,7 @@ mod tests {
         calldata.append(bridge_l1_address.into());
         calldata.append(erc721_bridgeable_class.into());
 
-        let contract = declare('bridge');
+        let contract = declare("bridge");
 
         let bridge_address = contract.deploy(@calldata).unwrap();
 
@@ -73,7 +73,7 @@ mod tests {
     #[test]
     fn deposit_token() {
         // Need to declare here to get the class hash before deploy anything.
-        let erc721b_contract_class = declare('erc721_bridgeable');
+        let erc721b_contract_class = declare("erc721_bridgeable");
 
         let BRIDGE_ADMIN = starknet::contract_address_const::<'starklane'>();
         let BRIDGE_L1 = EthAddress { address: 'starklane_l1' };
@@ -129,11 +129,10 @@ mod tests {
     #[test]
     fn withdraw_token() {
         // Need to declare here to get the class hash before deploy anything.
-        let erc721b_contract_class = declare('erc721_bridgeable');
+        let erc721b_contract_class = declare("erc721_bridgeable");
 
         let BRIDGE_ADMIN = starknet::contract_address_const::<'starklane'>();
         let BRIDGE_L1 = EthAddress { address: 'starklane_l1' };
-        let OWNER_L1 = EthAddress { address: 'owner_l1' };
         let OWNER_L2 = starknet::contract_address_const::<'owner_l2'>();
 
         let bridge_address = deploy_starklane(BRIDGE_ADMIN, BRIDGE_L1, erc721b_contract_class.class_hash);
@@ -169,7 +168,7 @@ mod tests {
         let mut l1_handler = L1Handler {
             contract_address: bridge_address,
             // selector: 0x03593216f3a8b22f4cf375e5486e3d13bfde9d0f26976d20ac6f653c73f7e507,
-            function_name: 'withdraw_auto_from_l1', 
+            function_selector: selector!("withdraw_auto_from_l1"), 
             from_address: BRIDGE_L1.into(),
             payload: buf.span()
         };
@@ -207,11 +206,10 @@ mod tests {
     #[test]
     fn withdraw_token_with_uri() {
         // Need to declare here to get the class hash before deploy anything.
-        let erc721b_contract_class = declare('erc721_bridgeable');
+        let erc721b_contract_class = declare("erc721_bridgeable");
 
         let BRIDGE_ADMIN = starknet::contract_address_const::<'starklane'>();
         let BRIDGE_L1 = EthAddress { address: 'starklane_l1' };
-        let OWNER_L1 = EthAddress { address: 'owner_l1' };
         let OWNER_L2 = starknet::contract_address_const::<'owner_l2'>();
 
         let bridge_address = deploy_starklane(BRIDGE_ADMIN, BRIDGE_L1, erc721b_contract_class.class_hash);
@@ -253,7 +251,7 @@ mod tests {
         let mut l1_handler = L1Handler {
             contract_address: bridge_address,
             // selector: 0x03593216f3a8b22f4cf375e5486e3d13bfde9d0f26976d20ac6f653c73f7e507,
-            function_name: 'withdraw_auto_from_l1', 
+            function_selector: selector!("withdraw_auto_from_l1"), 
             from_address: BRIDGE_L1.into(),
             payload: buf.span()
         };
@@ -296,7 +294,7 @@ mod tests {
     #[should_panic]
     fn deposit_token_not_whitelisted() {
         // Need to declare here to get the class hash before deploy anything.
-        let erc721b_contract_class = declare('erc721_bridgeable');
+        let erc721b_contract_class = declare("erc721_bridgeable");
 
         let BRIDGE_ADMIN = starknet::contract_address_const::<'starklane'>();
         let BRIDGE_L1 = EthAddress { address: 'starklane_l1' };
@@ -340,7 +338,7 @@ mod tests {
     #[test]
     fn deposit_token_whitelisted() {
         // Need to declare here to get the class hash before deploy anything.
-        let erc721b_contract_class = declare('erc721_bridgeable');
+        let erc721b_contract_class = declare("erc721_bridgeable");
 
         let BRIDGE_ADMIN = starknet::contract_address_const::<'starklane'>();
         let BRIDGE_L1 = EthAddress { address: 'starklane_l1' };
@@ -386,7 +384,7 @@ mod tests {
     #[should_panic]
     fn deposit_token_not_enabled() {
         // Need to declare here to get the class hash before deploy anything.
-        let erc721b_contract_class = declare('erc721_bridgeable');
+        let erc721b_contract_class = declare("erc721_bridgeable");
 
         let BRIDGE_ADMIN = starknet::contract_address_const::<'starklane'>();
         let BRIDGE_L1 = EthAddress { address: 'starklane_l1' };
@@ -427,12 +425,10 @@ mod tests {
     #[test]
     fn test_enable() {
         // Need to declare here to get the class hash before deploy anything.
-        let erc721b_contract_class = declare('erc721_bridgeable');
+        let erc721b_contract_class = declare("erc721_bridgeable");
 
         let BRIDGE_ADMIN = starknet::contract_address_const::<'starklane'>();
         let BRIDGE_L1 = EthAddress { address: 'starklane_l1' };
-        let COLLECTION_OWNER = starknet::contract_address_const::<'collection owner'>();
-        let OWNER_L1 = EthAddress { address: 'owner_l1' };
 
         let bridge_address = deploy_starklane(BRIDGE_ADMIN, BRIDGE_L1, erc721b_contract_class.class_hash);
         let bridge = IStarklaneDispatcher { contract_address: bridge_address};
@@ -448,12 +444,10 @@ mod tests {
     #[should_panic]
     fn test_enable_as_not_admin() {
         // Need to declare here to get the class hash before deploy anything.
-        let erc721b_contract_class = declare('erc721_bridgeable');
+        let erc721b_contract_class = declare("erc721_bridgeable");
 
         let BRIDGE_ADMIN = starknet::contract_address_const::<'starklane'>();
         let BRIDGE_L1 = EthAddress { address: 'starklane_l1' };
-        let COLLECTION_OWNER = starknet::contract_address_const::<'collection owner'>();
-        let OWNER_L1 = EthAddress { address: 'owner_l1' };
         let alice = starknet::contract_address_const::<'alice'>();
 
         let bridge_address = deploy_starklane(BRIDGE_ADMIN, BRIDGE_L1, erc721b_contract_class.class_hash);
@@ -464,7 +458,7 @@ mod tests {
 
     #[test]
     fn upgrade_as_admin() {
-       let erc721b_contract_class = declare('erc721_bridgeable');
+       let erc721b_contract_class = declare("erc721_bridgeable");
 
         let BRIDGE_ADMIN = starknet::contract_address_const::<'starklane'>();
         let BRIDGE_L1 = EthAddress { address: 'starklane_l1' };
@@ -494,7 +488,7 @@ mod tests {
     #[test]
     #[should_panic]
     fn upgrade_as_not_admin() {
-        let erc721b_contract_class = declare('erc721_bridgeable');
+        let erc721b_contract_class = declare("erc721_bridgeable");
 
         let BRIDGE_ADMIN = starknet::contract_address_const::<'starklane'>();
         let BRIDGE_L1 = EthAddress { address: 'starklane_l1' };

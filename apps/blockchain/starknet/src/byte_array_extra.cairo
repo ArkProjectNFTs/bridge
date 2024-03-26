@@ -80,7 +80,7 @@ mod tests {
         let b: Option<ByteArray> = a.span().try_into();
         match b {
             Option::Some(e) => assert_eq!(e, orig, "String mismatch"),
-            Option::None(e) => panic!("Should not be None"),
+            Option::None(_) => panic!("Should not be None"),
         }
     }
 

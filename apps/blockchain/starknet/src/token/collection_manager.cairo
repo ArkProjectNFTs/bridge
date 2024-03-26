@@ -110,12 +110,12 @@ fn token_uri_from_contract_call(
         calldata,
     ) {
         Result::Ok(span) => span.try_into(),
-        Result::Err(e) => {
+        Result::Err(_e) => {
             match starknet::call_contract_syscall(
                 collection_address, tokenURI_selector, calldata,
             ) {
                 Result::Ok(span) => span.try_into(),
-                Result::Err(e) => {
+                Result::Err(_e) => {
                     Option::None
                 }
             }
