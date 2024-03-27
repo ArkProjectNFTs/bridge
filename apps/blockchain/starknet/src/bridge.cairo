@@ -14,7 +14,7 @@ mod bridge {
     use starknet::contract_address::ContractAddressZeroable;
     use starknet::eth_address::EthAddressZeroable;
 
-    use starklane::interfaces::{IStarklane, IUpgradeable};
+    use starklane::interfaces::{IStarklane, IUpgradeable, IUpgradeableDispatcher, IUpgradeableDispatcherTrait, IStarklaneCollectionAdmin};
     // events
     use starklane::interfaces::{
         DepositRequestInitiated,
@@ -321,6 +321,18 @@ mod bridge {
             ensure_is_admin(@self);
             self.l1_to_l2_addresses.write(collection_l1, collection_l2);
             self.l2_to_l1_addresses.write(collection_l2, collection_l1);
+        }
+    }
+
+    #[abi(embed_v0)]
+    impl BridgeCollectionAdminImpl of IStarklaneCollectionAdmin<ContractState> {
+        fn collection_upgrade(ref self: ContractState, collection: ContractAddress, class_hash: ClassHash) {
+            assert(
+                starknet::get_caller_address() == self.bridge_admin.read(),
+                'Unauthorized replace class'
+            );
+            IUpgradeableDispatcher { contract_address: collection }
+                .upgrade(class_hash);
         }
     }
 

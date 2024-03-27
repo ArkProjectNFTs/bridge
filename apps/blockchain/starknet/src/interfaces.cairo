@@ -41,6 +41,12 @@ trait IUpgradeable<T> {
     fn upgrade(ref self: T, class_hash: ClassHash);
 }
 
+#[starknet::interface]
+trait IStarklaneCollectionAdmin<T> {
+    // try to upgrade the given collection with given class_hash
+    fn collection_upgrade(ref self: T, collection: ContractAddress, class_hash: ClassHash);
+}
+
 //////////////////////////
 /// Events
 #[derive(Drop, starknet::Event)]
