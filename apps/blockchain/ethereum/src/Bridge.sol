@@ -59,7 +59,7 @@ contract Starklane is IStarklaneEvent, UUPSOwnableProxied, StarklaneState, Stark
         _transferOwnership(owner);
 
         setStarklaneL2Address(Cairo.snaddressWrap(starklaneL2Address));
-        setStarklaneL2Selector(Cairo.felt252Wrap(starklaneL2Selector));
+        setStarklaneL2Selector(starklaneL2Selector);
     }
 
     /**
