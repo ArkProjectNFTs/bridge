@@ -110,6 +110,22 @@ contract BridgeTest is Test, IStarklaneEvent {
         );
     }
 
+    function test_L2OwnerOverflow() public {
+        uint256[] memory ids = new uint256[](0);
+
+        uint256 salt = 0x0;
+        snaddress to = snaddress.wrap(SN_MODULUS);
+
+        vm.expectRevert(CairoWrapError.selector);
+        IStarklane(bridge).depositTokens{value: 30000}(
+            salt,
+            address(erc721C1),
+            to,
+            ids,
+            false
+        );
+    }
+
     //
     function test_depositTokenERC721() public {
         IERC721MintRangeFree(erc721C1).mintRangeFree(alice, 0, 10);
@@ -278,7 +294,7 @@ contract BridgeTest is Test, IStarklaneEvent {
         IStarklane(bridge).withdrawTokens(reqSerialized);
     }
 
-    // Test a withdraw STARKNET that will trigger the deploy of a new collection on L1.
+    // Test a withdraw STARKNET that will trigger the deploy of a new collection on L1.'0x800000000000011000000000000000000000000000000000000000000000001'
     function test_withdrawTokensERC721StarknetWithdrawDeploy() public {
         // Build the request and compute it's "would be" message hash.
         felt252 header = Protocol.requestHeaderV1(CollectionType.ERC721, false, false);
@@ -313,9 +329,9 @@ contract BridgeTest is Test, IStarklaneEvent {
 
         // The message must be simulated to come from starknet verifier contract
         // on L1 and pushed to starknet core.
-        uint256[] memory hashes = new uint256[](1);
-        hashes[0] = uint256(msgHash);
-        IStarknetMessagingLocal(snCore).addMessageHashesFromL2(hashes);
+        uint256[] memory msgHashes = new uint256[](1);
+        msgHashes[0] = uint256(msgHash);
+        IStarknetMessagingLocal(snCore).addMessageHashesFromL2(msgHashes);
         address collection1 = IStarklane(bridge).withdrawTokens(reqSerialized);
 
         assertEq(IERC721(collection1).ownerOf(888), bob);
@@ -327,8 +343,8 @@ contract BridgeTest is Test, IStarklaneEvent {
         reqSerialized = Protocol.requestSerialize(req);
         msgHash = computeMessageHashFromL2(reqSerialized);
 
-        hashes[0] = uint256(msgHash);
-        IStarknetMessagingLocal(snCore).addMessageHashesFromL2(hashes);
+        msgHashes[0] = uint256(msgHash);
+        IStarknetMessagingLocal(snCore).addMessageHashesFromL2(msgHashes);
         address collection2 = IStarklane(bridge).withdrawTokens(reqSerialized);
 
         assertEq(IERC721(collection2).ownerOf(777), bob);
@@ -343,9 +359,9 @@ contract BridgeTest is Test, IStarklaneEvent {
 
         // The message must be simulated to come from starknet verifier contract
         // on L1 and pushed to starknet core.
-        uint256[] memory hashes = new uint256[](1);
-        hashes[0] = uint256(msgHash);
-        IStarknetMessagingLocal(snCore).addMessageHashesFromL2(hashes);
+        uint256[] memory msgHashes = new uint256[](1);
+        msgHashes[0] = uint256(msgHash);
+        IStarknetMessagingLocal(snCore).addMessageHashesFromL2(msgHashes);
         address collection1 = IStarklane(bridge).withdrawTokens(reqSerialized);
 
         assertEq(IERC721(collection1).ownerOf(888), bob);
@@ -358,8 +374,8 @@ contract BridgeTest is Test, IStarklaneEvent {
         reqSerialized = Protocol.requestSerialize(req);
         msgHash = computeMessageHashFromL2(reqSerialized);
 
-        hashes[0] = uint256(msgHash);
-        IStarknetMessagingLocal(snCore).addMessageHashesFromL2(hashes);
+        msgHashes[0] = uint256(msgHash);
+        IStarknetMessagingLocal(snCore).addMessageHashesFromL2(msgHashes);
         address collection2 = IStarklane(bridge).withdrawTokens(reqSerialized);
 
         assertEq(IERC721(collection2).ownerOf(777), bob);
