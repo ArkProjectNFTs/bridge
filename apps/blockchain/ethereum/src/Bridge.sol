@@ -82,6 +82,9 @@ contract Starklane is IStarklaneEvent, UUPSOwnableProxied, StarklaneState, Stark
         external
         payable
     {
+        if (!Cairo.isFelt252(snaddress.unwrap(ownerL2))) {
+            revert CairoWrapError();
+        }
         if (!_enabled) {
             revert BridgeNotEnabledError();
         }
