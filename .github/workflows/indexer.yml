@@ -1,6 +1,7 @@
 name: Indexer
 
 on:
+  workflow_dispatch:
   push:
     paths: "apps/indexer/**"
 
