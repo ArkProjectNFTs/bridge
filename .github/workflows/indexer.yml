@@ -1,9 +1,9 @@
-name: Indexer
+name: Bridge Indexer
 
 on:
-  workflow_dispatch:
   push:
     paths: "apps/indexer/**"
+  workflow_dispatch:
 
 jobs:
   build-and-push:
@@ -29,5 +29,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: true
-          file: apps/indexer/Dockerfile
+          context: apps/indexer
           tags: ghcr.io/${{ github.repository }}:latest
+          build-args: |
+            "GIT_HASH=$GITHUB_SHA"
