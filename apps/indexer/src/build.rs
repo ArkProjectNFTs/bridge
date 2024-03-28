@@ -1,4 +1,5 @@
 // build.rs
+use std::env;
 use std::io::Write;
 
 use std::process::Command;
@@ -18,7 +19,10 @@ fn main() {
         }
         git_hash
     } else {
-        std::fs::read_to_string(path).expect("Failed to retrieve git version from file")
+        match std::fs::read_to_string(path) {
+            Ok(res) => res,
+            Err(_) => env::var("GIT_HASH").expect("Failed to retrieve git version from file or environnment")
+        }
     };
 
     println!("cargo:rustc-env=GIT_HASH={}", git_hash);
