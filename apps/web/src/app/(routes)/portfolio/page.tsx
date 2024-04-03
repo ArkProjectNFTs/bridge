@@ -15,9 +15,9 @@ export default function Page() {
 
           <NftsTabs />
 
-          <BridgingQuestBanner className="mt-16" />
+          <BridgingQuestBanner className="my-16" />
 
-          <NftTransferList className="mt-16" variant="lounge" />
+          <NftTransferList variant="lounge" />
         </MainPageContainer>
       </div>
       <Footer />

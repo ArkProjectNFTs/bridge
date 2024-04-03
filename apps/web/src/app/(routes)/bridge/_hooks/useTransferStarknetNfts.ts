@@ -140,7 +140,7 @@ export default function useTransferStarknetNfts() {
         setIsSigning(false);
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       setIsSigning(false);
     }
   }

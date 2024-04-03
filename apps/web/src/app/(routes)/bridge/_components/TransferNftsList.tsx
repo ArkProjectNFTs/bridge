@@ -50,32 +50,13 @@ export default function TransferNftsList() {
         return (
           <div className="flex justify-between" key={selectedNft.tokenId}>
             <div className="flex items-center gap-4">
-              {selectedNft?.image ? (
-                <Media
-                  alt={selectedNft.tokenName}
-                  className="rounded"
-                  height={52}
-                  src={selectedNft.image}
-                  width={52}
-                />
-              ) : (
-                <>
-                  <Media
-                    alt="empty Nft image"
-                    className="hidden rounded dark:block"
-                    height={52}
-                    src={`/medias/dark/empty_nft.png`}
-                    width={52}
-                  />
-                  <Media
-                    alt="empty Nft image"
-                    className="rounded dark:hidden"
-                    height={52}
-                    src={`/medias/empty_nft.png`}
-                    width={52}
-                  />
-                </>
-              )}
+              <Media
+                alt={selectedNft.tokenName}
+                className="rounded"
+                height={52}
+                media={selectedNft.media}
+                width={52}
+              />
               <div className="flex flex-col">
                 <Typography ellipsable variant="body_text_14">
                   {selectedNft.collectionName}

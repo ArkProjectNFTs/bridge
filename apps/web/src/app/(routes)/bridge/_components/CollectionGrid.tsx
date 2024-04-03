@@ -62,8 +62,8 @@ export default function CollectionGrid({
                 cardType="collection"
                 chain={sourceChain}
                 disabled={!nftCollection.isBridgeable}
-                image={nftCollection.image}
                 isBridgeable={nftCollection.isBridgeable}
+                media={nftCollection.media}
                 numberOfNfts={nftCollection.totalBalance}
                 onClick={() => {}}
                 title={nftCollection.name}

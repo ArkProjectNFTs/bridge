@@ -89,18 +89,27 @@ export const l2NftsRouter = createTRPCRouter({
         });
         const contracts =
           (await contractsResponse.json()) as ArkCollectionsApiResponse;
-
         const collections: Array<Collection> = contracts.result.map(
-          (contract) => ({
-            contractAddress: contract.contract_address,
-            image: contract.image,
+          (contract) => {
+            const mediaSrc = contract.image?.replace(
+              "ipfs://",
+              process.env.IPFS_GATEWAY ?? ""
+            );
+            const mediaFormat =
+              mediaSrc?.split(".").pop() === "mp4" ? "video" : "image";
 
-            isBridgeable:
-              contract.contract_address ===
-              process.env.EVERAI_L2_CONTRACT_ADDRESS,
-            name: contract.name ?? contract.symbol,
-            totalBalance: contract.tokens_count,
-          })
+            return {
+              contractAddress: contract.contract_address,
+              //   process.env.EVERAI_L2_CONTRACT_ADDRESS,
+              isBridgeable: true,
+
+              // isBridgeable:
+              //   contract.contract_address ===
+              media: { format: mediaFormat, src: mediaSrc },
+              name: contract.name ?? contract.symbol,
+              totalBalance: contract.tokens_count,
+            };
+          }
         );
 
         return { collections, totalCount: contracts.total_count };
@@ -152,12 +161,21 @@ export const l2NftsRouter = createTRPCRouter({
               validateAndParseAddress(nft.owner) ===
                 validateAndParseAddress(ownerAddress)
           )
-          .map((nft) => ({
-            collectionName: "EveraiDuo",
-            image: nft.metadata?.normalized.image,
-            tokenId: nft.token_id,
-            tokenName: nft.metadata?.normalized.name ?? `#${nft.token_id}`,
-          }));
+          .map((nft) => {
+            const mediaSrc = nft.metadata?.normalized.image?.replace(
+              "ipfs://",
+              process.env.IPFS_GATEWAY ?? ""
+            );
+            const mediaFormat =
+              mediaSrc?.split(".").pop() === "mp4" ? "video" : "image";
+
+            return {
+              collectionName: "EveraiDuo",
+              media: { format: mediaFormat, src: mediaSrc },
+              tokenId: nft.token_id,
+              tokenName: nft.metadata?.normalized.name ?? `#${nft.token_id}`,
+            };
+          });
       } catch (error) {
         console.error("getL2NftMetadataBatch error:", error);
         return [];
@@ -201,15 +219,24 @@ export const l2NftsRouter = createTRPCRouter({
 
         const nfts = (await nftsResponse.json()) as ArkNftsApiResponse;
 
-        const ownedNfts: Array<Nft> = nfts.result.map((nft) => ({
-          contractAddress: nft.contract_address,
-          image: nft.metadata?.normalized.image ?? undefined,
-          name:
-            nft.metadata?.normalized.name?.length ?? 0 > 0
-              ? nft.metadata?.normalized?.name ?? ""
-              : `${nft.token_id}`,
-          tokenId: nft.token_id,
-        }));
+        const ownedNfts: Array<Nft> = nfts.result.map((nft) => {
+          const mediaSrc = nft.metadata?.normalized.image?.replace(
+            "ipfs://",
+            process.env.IPFS_GATEWAY ?? ""
+          );
+          const mediaFormat =
+            mediaSrc?.split(".").pop() === "mp4" ? "video" : "image";
+
+          return {
+            contractAddress: nft.contract_address,
+            media: { format: mediaFormat, src: mediaSrc },
+            name:
+              nft.metadata?.normalized.name?.length ?? 0 > 0
+                ? nft.metadata?.normalized?.name ?? ""
+                : `${nft.token_id}`,
+            tokenId: nft.token_id,
+          };
+        });
 
         return { ownedNfts, totalCount: nfts.total_count };
       } catch (error) {

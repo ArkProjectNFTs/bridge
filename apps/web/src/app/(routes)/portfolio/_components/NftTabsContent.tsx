@@ -62,9 +62,9 @@ function AllNftsTabsContent() {
               <NftCard
                 cardType="nft"
                 chain="Ethereum"
-                image={nft.image}
                 isSelected={false}
                 key={`${nft.contractAddress}-${nft.tokenId}`}
+                media={nft.media}
                 title={nft.name}
               />
             );
@@ -78,9 +78,9 @@ function AllNftsTabsContent() {
                 <NftCard
                   cardType="nft"
                   chain="Starknet"
-                  image={nft.image}
                   isSelected={false}
                   key={`${nft.contractAddress}-${nft.tokenId}`}
+                  media={nft.media}
                   title={nft.name}
                 />
               );
@@ -147,9 +147,9 @@ function CollectionsTabsContent() {
               <NftCard
                 cardType="collection"
                 chain="Ethereum"
-                image={collection.image}
                 isSelected={false}
                 key={collection.contractAddress}
+                media={collection.media}
                 numberOfNfts={collection.totalBalance}
                 title={collection.name}
               />
@@ -163,9 +163,9 @@ function CollectionsTabsContent() {
                 <NftCard
                   cardType="collection"
                   chain="Starknet"
-                  image={collection.image}
                   isSelected={false}
                   key={collection.contractAddress}
+                  media={collection.media}
                   numberOfNfts={collection.totalBalance}
                   title={collection.name}
                 />
@@ -222,9 +222,9 @@ function EthereumNTabsContent() {
               <NftCard
                 cardType="nft"
                 chain="Ethereum"
-                image={nft.image}
                 isSelected={false}
                 key={`${nft.contractAddress}-${nft.tokenId}`}
+                media={nft.media}
                 title={nft.name}
               />
             );
@@ -282,9 +282,9 @@ function StarknetTabsContent() {
             <NftCard
               cardType="nft"
               chain="Starknet"
-              image={nft.image}
               isSelected={false}
               key={`${nft.contractAddress}-${nft.tokenId}`}
+              media={nft.media}
               title={nft.name}
             />
           );

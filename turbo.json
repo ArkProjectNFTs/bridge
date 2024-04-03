@@ -30,7 +30,8 @@
     "NEXT_PUBLIC_ARK_API_DOMAIN",
     "VERCEL_URL",
     "NODE_ENV",
-    "PORT"
+    "PORT",
+    "IPFS_GATEWAY"
   ],
   "pipeline": {
     "build:l1": {

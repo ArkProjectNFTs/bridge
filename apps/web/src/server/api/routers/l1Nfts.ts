@@ -40,17 +40,16 @@ export const l1NftsRouter = createTRPCRouter({
         });
 
       const collections: Array<Collection> = contracts.map((contract) => {
-        const media =
-          contract.address === process.env.EVERAI_L1_CONTRACT_ADDRESS
-            ? contract.media[0]?.raw
-            : contract.media[0]?.thumbnail;
+        const media = contract.media[0];
+        const mediaSrc = media?.gateway ?? media?.thumbnail ?? media?.raw;
+        const mediaFormat = media?.format === "mp4" ? "video" : "image";
 
         return {
           contractAddress: contract.address,
-          image: media,
-          // isBridgeable:
+          //   isBridgeable:
           //   contract.address === process.env.EVERAI_L1_CONTRACT_ADDRESS,
           isBridgeable: true,
+          media: { format: mediaFormat, src: mediaSrc },
           name: contract.name ?? contract.symbol ?? "Unknown",
           totalBalance: contract.totalBalance,
         };
@@ -77,14 +76,13 @@ export const l1NftsRouter = createTRPCRouter({
       );
 
       return response.map((nft) => {
-        const media =
-          nft.contract.address === process.env.EVERAI_L1_CONTRACT_ADDRESS
-            ? nft.media[0]?.raw
-            : nft.media[0]?.thumbnail;
+        const media = nft.media[0];
+        const mediaSrc = media?.gateway ?? media?.thumbnail ?? media?.raw;
+        const mediaFormat = media?.format === "mp4" ? "video" : "image";
 
         return {
           collectionName: nft.contract.name,
-          image: media,
+          media: { format: mediaFormat, src: mediaSrc },
           tokenId: nft.tokenId,
           tokenName: nft.title.length > 0 ? nft.title : `#${nft.tokenId}`,
         };
@@ -119,14 +117,13 @@ export const l1NftsRouter = createTRPCRouter({
 
       // TODO @YohanTz: Handle videos
       const ownedNfts: Array<Nft> = nfts.map((nft) => {
-        const media =
-          nft.contract.address === process.env.EVERAI_L1_CONTRACT_ADDRESS
-            ? nft.media[0]?.raw
-            : nft.media[0]?.thumbnail;
+        const media = nft.media[0];
+        const mediaSrc = media?.gateway ?? media?.thumbnail ?? media?.raw;
+        const mediaFormat = media?.format === "mp4" ? "video" : "image";
 
         return {
           contractAddress: nft.contract.address,
-          image: media,
+          media: { format: mediaFormat, src: mediaSrc },
           name:
             nft.title.length > 0
               ? nft.title
