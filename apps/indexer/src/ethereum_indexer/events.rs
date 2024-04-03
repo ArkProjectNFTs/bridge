@@ -39,6 +39,10 @@ const COLLECTION_DEPOYED_FROM_L2_SIG: &str =
 
 /// Returns storage data from the log entry.
 pub fn get_store_data(log: Log) -> Result<(Option<Request>, Option<Event>, Option<CrossChainTx>)> {
+    if log.topics.len() < 2 {
+        log::debug!("not handled log\n{:?}\n", log);
+        return Ok((None, None, None));
+    }
     let sig = format!("{:#64x}", log.topics[0]);
     let req_hash = format!("{:#64x}", log.topics[1]);
 
