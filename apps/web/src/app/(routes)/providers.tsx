@@ -12,7 +12,7 @@ import {
 } from "@starknet-react/core";
 import { ThemeProvider } from "next-themes";
 import { WagmiProvider, createConfig, http } from "wagmi";
-import { goerli, mainnet } from "wagmi/chains";
+import { mainnet } from "wagmi/chains";
 
 import { WalletModalsProvider } from "../_components/WalletModals/WalletModalsContext";
 import {
