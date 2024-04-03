@@ -7,8 +7,8 @@ import { type Collection, type Nft } from "../types";
 
 const alchemy = new Alchemy({
   apiKey: process.env.ALCHEMY_API_KEY,
-  // network: Network.ETH_MAINNET,
-  network: Network.ETH_GOERLI,
+  network: Network.ETH_MAINNET,
+  // network: Network.ETH_GOERLI,
 });
 
 export const l1NftsRouter = createTRPCRouter({
@@ -48,8 +48,9 @@ export const l1NftsRouter = createTRPCRouter({
         return {
           contractAddress: contract.address,
           image: media,
-          isBridgeable:
-            contract.address === process.env.EVERAI_L1_CONTRACT_ADDRESS,
+          // isBridgeable:
+          //   contract.address === process.env.EVERAI_L1_CONTRACT_ADDRESS,
+          isBridgeable: true,
           name: contract.name ?? contract.symbol ?? "Unknown",
           totalBalance: contract.totalBalance,
         };
