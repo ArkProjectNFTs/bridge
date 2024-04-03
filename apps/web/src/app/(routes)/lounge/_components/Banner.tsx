@@ -9,7 +9,7 @@ export default function Banner() {
   const { targetChain } = useCurrentChain();
 
   return (
-    <div className="mt-8 flex flex-col-reverse items-center gap-11 overflow-hidden rounded-3xl bg-primary-source px-6 pt-8 text-dark-blue-950 md:mt-10 md:flex-row md:px-8 md:py-4">
+    <div className="mt-8 flex flex-col-reverse items-center gap-11 overflow-hidden rounded-3xl bg-primary-source px-6 pt-8 text-space-blue-900 md:mt-10 md:flex-row md:px-8 md:py-4">
       <div className="flex shrink-0 items-center justify-center">
         {targetChain === "Ethereum" ? (
           <Image
@@ -41,20 +41,20 @@ export default function Banner() {
         </Typography>
         <div className="mt-6 flex flex-col gap-6 md:flex-row">
           <Link
-            className="flex items-center justify-center rounded-full bg-dark-blue-950 px-6 py-3.5 text-white"
+            className="flex items-center justify-center rounded-full bg-space-blue-900 px-6 py-3.5 text-white transition-colors hover:bg-space-blue-800"
             href="/bridge"
           >
             <Typography variant="button_text_s">Move other NFTs</Typography>
           </Link>
 
-          <a
-            className="flex items-center justify-center rounded-full bg-white px-6 py-3.5 text-dark-blue-950"
+          {/* <a
+            className="flex items-center justify-center rounded-full bg-white px-6 py-3.5 text-space-blue-900"
             href="https://opensea.io/"
             rel="noopener noreferrer"
             target="_blank"
           >
             <Typography variant="button_text_s">List on OpenSea</Typography>
-          </a>
+          </a> */}
         </div>
       </div>
     </div>

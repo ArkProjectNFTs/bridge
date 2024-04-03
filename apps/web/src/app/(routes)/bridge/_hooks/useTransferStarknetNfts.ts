@@ -1,10 +1,10 @@
 import {
   useContract,
   useContractRead,
-  useContractWrite,
   useAccount as useStarknetAccount,
-  useWaitForTransaction,
 } from "@starknet-react/core";
+import { useRouter } from "next/navigation";
+import { useCallback, useMemo, useState } from "react";
 import { CallData } from "starknet";
 import { useAccount as useEthereumAccount } from "wagmi";
 
@@ -13,12 +13,13 @@ import useNftSelection from "./useNftSelection";
 const L2_BRIDGE_ADDRESS = process.env.NEXT_PUBLIC_L2_BRIDGE_ADDRESS || "";
 
 export default function useTransferStarknetNfts() {
-  const { selectedNfts } = useNftSelection();
+  const [isSigning, setIsSigning] = useState(false);
+  const { selectedCollectionAddress, selectedTokenIds } = useNftSelection();
 
   const { address: ethereumAddress } = useEthereumAccount();
-  const { address: starknetAddress } = useStarknetAccount();
+  const { account: starknetAccount, address: starknetAddress } =
+    useStarknetAccount();
 
-  // TODO @YohanTz: Cast type
   const { data: isApprovedForAll } = useContractRead({
     abi: [
       {
@@ -42,7 +43,7 @@ export default function useTransferStarknetNfts() {
         type: "function",
       },
     ],
-    address: selectedNfts[0]?.collectionContractAddress ?? "",
+    address: selectedCollectionAddress ?? "",
     args: [starknetAddress ?? "0xtest", L2_BRIDGE_ADDRESS],
     functionName: "is_approved_for_all",
     watch: true,
@@ -86,61 +87,69 @@ export default function useTransferStarknetNfts() {
     address: L2_BRIDGE_ADDRESS,
   });
 
-  const { data: approveData, write: approveForAll } = useContractWrite({
-    calls: [
-      {
-        calldata: [L2_BRIDGE_ADDRESS, 1],
-        contractAddress: selectedNfts[0]?.collectionContractAddress ?? "",
-        entrypoint: "set_approval_for_all",
-      },
-    ],
-  });
+  const getDepositCalldata = useCallback(() => {
+    if (
+      bridgeContract?.abi !== undefined &&
+      ethereumAddress !== undefined &&
+      selectedCollectionAddress !== undefined
+    ) {
+      const depositCallData = new CallData(bridgeContract?.abi);
+      return depositCallData.compile("deposit_tokens", {
+        collection_l2: selectedCollectionAddress,
+        owner_l1: ethereumAddress,
+        salt: Date.now(),
+        token_ids: selectedTokenIds,
+        use_deposit_burn_auto: false,
+        use_withdraw_auto: false,
+      });
+    }
+  }, [
+    bridgeContract?.abi,
+    ethereumAddress,
+    selectedCollectionAddress,
+    selectedTokenIds,
+  ]);
 
-  const { isLoading: isApproveLoading } = useWaitForTransaction({
-    hash: approveData?.transaction_hash,
-  });
+  const depositCalls = useMemo(() => {
+    const approveCall = {
+      calldata: [L2_BRIDGE_ADDRESS, 1],
+      contractAddress: selectedCollectionAddress ?? "",
+      entrypoint: "set_approval_for_all",
+    };
 
-  // TODO @YohanTz: Refacto
-  let depositCallData = undefined;
-  if (
-    bridgeContract?.abi !== undefined &&
-    ethereumAddress !== undefined &&
-    selectedNfts[0] !== undefined
-  ) {
-    depositCallData = new CallData(bridgeContract?.abi);
-    depositCallData = depositCallData.compile("deposit_tokens", {
-      collection_l2: selectedNfts[0]?.collectionContractAddress ?? "",
-      owner_l1: ethereumAddress,
-      salt: Date.now(),
-      token_ids: selectedNfts.map((selectedNft) => selectedNft?.tokenId),
-      use_deposit_burn_auto: false,
-      use_withdraw_auto: true,
-    });
+    const depositCall = {
+      calldata: getDepositCalldata(),
+      contractAddress: L2_BRIDGE_ADDRESS,
+      entrypoint: "deposit_tokens",
+    };
+
+    if (!isApprovedForAll) {
+      return [approveCall, depositCall];
+    }
+
+    return [depositCall];
+  }, [getDepositCalldata, isApprovedForAll, selectedCollectionAddress]);
+
+  async function depositTokens() {
+    setIsSigning(true);
+    try {
+      // await writeAsync();
+      const depositData = await starknetAccount?.execute(depositCalls);
+      if (depositData !== undefined) {
+        router.push(`lounge/${depositData.transaction_hash}`);
+        setIsSigning(false);
+      }
+    } catch (error) {
+      console.log(error);
+      setIsSigning(false);
+    }
   }
 
-  const { data: depositData, write: depositTokens } = useContractWrite({
-    calls: [
-      {
-        calldata: depositCallData,
-        contractAddress: L2_BRIDGE_ADDRESS,
-        entrypoint: "deposit_tokens",
-      },
-    ],
-  });
-
-  const { isLoading: isDepositLoading, isSuccess: isDepositSuccess } =
-    useWaitForTransaction({
-      hash: depositData?.transaction_hash,
-    });
+  const router = useRouter();
 
   return {
-    approveForAll: () => approveForAll(),
     depositTokens: () => depositTokens(),
-    isApproveLoading:
-      isApproveLoading && approveData?.transaction_hash !== undefined,
-    isApprovedForAll,
-    isDepositLoading:
-      isDepositLoading && depositData?.transaction_hash !== undefined,
-    isDepositSuccess,
+    // isSigning: isSigning && depositData?.transaction_hash !== undefined,
+    isSigning,
   };
 }

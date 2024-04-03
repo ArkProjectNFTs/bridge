@@ -1,3 +1,5 @@
+import clsx from "clsx";
+
 interface NftCardStackBackground {
   isSelected?: boolean;
 }
@@ -8,19 +10,23 @@ export default function NftCardStackBackground({
   return (
     <>
       <div
-        className={`absolute inset-0 z-[-1] -translate-x-[5px] translate-y-[5px] rounded-2xl border-2 bg-white transition-[outline_border] group-hover:border-primary-source dark:bg-dark-blue-950 ${
+        className={clsx(
+          "absolute inset-0 z-[-1] -translate-x-[5px] translate-y-[5px] rounded-[1.1875rem] bg-white transition-[outline_border] group-hover:border-2 group-hover:border-primary-source dark:bg-space-blue-900",
           isSelected
             ? "border-2 border-primary-source"
-            : "border border-neutral-200 dark:border-dark-blue-600"
-        }`}
+            : "border border-neutral-200 dark:border-space-blue-700"
+        )}
       />
       <div
-        className={`absolute inset-0 z-[-2] -translate-x-[9px] translate-y-[9px] rounded-2xl border-2 bg-white transition-[outline_border]  group-hover:border-primary-source dark:bg-dark-blue-950  ${
+        className={clsx(
+          "absolute inset-0 z-[-2] -translate-x-[9px] translate-y-[9px] rounded-[1.375rem] bg-white transition-[outline_border] group-hover:border-2 group-hover:border-primary-source dark:bg-space-blue-900",
           isSelected
             ? "border-2 border-primary-source"
-            : "border border-neutral-200 dark:border-dark-blue-600"
-        }`}
+            : "border border-neutral-200 dark:border-space-blue-700"
+        )}
       />
     </>
   );
 }
+
+// 19 / 22

@@ -1,14 +1,38 @@
 "use client";
 
+import clsx from "clsx";
+// import { type Metadata } from "next";
 import localFont from "next/font/local";
 
 import "~/styles/globals.css";
 import { api } from "~/utils/api";
 
-import Footer from "../_components/Footer";
 import Header from "../_components/Header";
+import MobilePlaceholder from "../_components/MobilePlaceholder";
 import useCurrentChain from "../_hooks/useCurrentChain";
 import Providers from "./providers";
+
+// export const metadata: Metadata = {
+//   description: "",
+//   // openGraph: {
+//   //   description:
+//   //     "",
+//   //   images: [""],
+//   //   title: "ArkProject",
+//   //   type: "website",
+//   //   url: "https://www.arkproject.dev",
+//   // },
+//   title: "ArkProject Bridge",
+//   // twitter: {
+//   //   card: "summary_large_image",
+//   //   creator: "@ArkProjectNFTs",
+//   //   description:
+//   //     "",
+//   //   images: [""],
+//   //   site: "@ArkProjectNFTs",
+//   //   title: "ArkProject",
+//   // },
+// };
 
 const arkProjectFont = localFont({
   src: [
@@ -46,11 +70,16 @@ const styreneAFont = localFont({
     {
       path: "../../font/StyreneA-Regular-Web.woff2",
       style: "normal",
-      weight: "500",
+      weight: "400",
     },
     {
       path: "../../font/StyreneA-RegularItalic-Web.woff2",
       style: "italic",
+      weight: "400",
+    },
+    {
+      path: "../../font/StyreneA-Medium-Web.woff2",
+      style: "normal",
       weight: "500",
     },
     {
@@ -67,19 +96,26 @@ function RootLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <html
-      className={`${arkProjectFont.variable} ${styreneAFont.variable}`}
+      className={clsx(arkProjectFont.variable, styreneAFont.variable)}
       lang="en"
       // suppresHydrationWarning only applies one level deep, necessary because <html> is updated before page load by next-themes
       suppressHydrationWarning
     >
       <body
-        className={`min-h-screen bg-[#F7FBFA] text-night-blue-source dark:bg-galaxy-blue  dark:text-white ${targetChain}`}
+        className={clsx(
+          "bg-space-blue-50 text-galaxy-blue dark:bg-void-black dark:text-white",
+          targetChain
+        )}
       >
         <Providers>
           <Header />
-          {children}
-          <Footer />
+          <div className="hidden min-h-screen md:block">{children}</div>
+          {/* <EthereumSwitchNetwork />
+          <StarknetSwitchNetwork /> */}
         </Providers>
+        <div className="block h-screen md:hidden">
+          <MobilePlaceholder />
+        </div>
       </body>
     </html>
   );

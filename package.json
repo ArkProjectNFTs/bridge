@@ -2,10 +2,6 @@
   "name": "starklane",
   "version": "0.1.0",
   "private": true,
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
   "scripts": {
     "contributors:add": "all-contributors add",
     "contributors:generate": "all-contributors generate",
@@ -29,10 +25,9 @@
     "turbo": "latest"
   },
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=18.0.0"
   },
   "dependencies": {
     "dotenv-cli": "^7.0.0"
-  },
-  "packageManager": "yarn@1.22.19"
+  }
 }

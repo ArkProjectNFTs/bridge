@@ -1,11 +1,33 @@
-import * as React from "react";
-
 import "./styles.css";
 
-export * from "./Button";
-export * from "./Dialog";
-export * from "./Drawer";
-export * from "./IconButton";
-export * from "./Modal";
-export * from "./Notification";
-export * from "./Typography";
+export { Button } from "./components/Button";
+export { SideDialog } from "./components/SideDialog";
+export { Drawer } from "./components/Drawer";
+export { IconButton } from "./components/IconButton";
+export { SideModal } from "./components/SideModal";
+export { Notification } from "./components/Notification";
+export { Typography } from "./components/Typography";
+
+export {
+  Dialog,
+  DialogPortal,
+  DialogOverlay,
+  DialogClose,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+  DialogDescription,
+} from "./components/Dialog";
+
+export { HappyPurpleEmoji } from "./icons/HappyPurpleEmoji";
+export { ArrowIcon } from "./icons/ArrowIcon";
+export { DarkModeIcon } from "./icons/DarkModeIcon";
+export { LightModeIcon } from "./icons/LightModeIcon";
+export { BridgeIcon } from "./icons/BridgeIcon";
+export { TwitterIcon } from "./icons/TwitterIcon";
+export { TelegramIcon } from "./icons/TelegramIcon";
+export { GitHubIcon } from "./icons/GitHubIcon";
+export { PlusIcon } from "./icons/PlusIcon";
+export { MinusIcon } from "./icons/MinusIcon";
