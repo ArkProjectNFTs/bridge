@@ -1,107 +1,120 @@
 "use client";
 
-import {
-  useConnectors,
-  // useAccount as useStarknetAccount,
-} from "@starknet-react/core";
+import clsx from "clsx";
 import { Typography } from "design-system";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { useAccount as useEthereumAccount } from "wagmi";
+import { usePathname } from "next/navigation";
 
 import DarkModeButton from "~/app/_components/DarkModeButton";
+import { api } from "~/utils/api";
 
-import { type Chain } from "../_types";
-import BridgeCountIndicator from "./BridgeCountIndicator";
+import useNftSelection from "../(routes)/bridge/_hooks/useNftSelection";
+import useAccountFromChain from "../_hooks/useAccountFromChain";
+import useCurrentChain from "../_hooks/useCurrentChain";
+import useIsFullyConnected from "../_hooks/useIsFullyConnected";
 import ConnectEthereumButton from "./ConnectEthereumButton";
 import ConnectStarkNetButton from "./ConnectStarkNetButton";
+import Logo from "./Logo";
 
-const connectedPages = [
-  { name: "Portfolio", path: "/portfolio" },
-  { name: "Bridge", path: "/bridge" },
-  { name: "Lounge room", path: "/lounge" },
-];
-
-export default function Header() {
-  const [openedModal, setOpenedModal] = useState<Chain | undefined>(undefined);
-  const {
-    isConnected: isEthereumConnected,
-    isConnecting: isEthereumConnecting,
-  } = useEthereumAccount();
-  // const { isConnected: isStarknetConnected } = useStarknetAccount();
-  const { isLoading: isStarknetLoading } = useConnectors();
-
-  const router = useRouter();
+function BridgeLink() {
   const pathname = usePathname();
+  const { totalSelectedNfts } = useNftSelection();
 
-  const isFullyConnected = isEthereumConnected;
-  // TODO @YohanTz: fix isConnecting in starknet-react
-  const isConnecting = isEthereumConnecting || isStarknetLoading;
-
-  useEffect(() => {
-    if (pathname === "/" && isFullyConnected) {
-      router.push("/bridge");
-      return;
-    }
-
-    if (pathname !== "/" && !isFullyConnected && !isConnecting) {
-      router.push("/");
-    }
-  }, [pathname, isFullyConnected, router, isConnecting]);
-
-  function openModal(chain: Chain) {
-    setOpenedModal(chain);
-  }
-
-  function closeModal() {
-    setOpenedModal(undefined);
-  }
+  const isFullyConnected = useIsFullyConnected();
 
   return (
-    <header className="fixed z-20 flex h-23 w-full items-center  justify-between bg-white p-6 dark:bg-galaxy-blue">
-      <Link href="/">
-        <Typography variant="logo">starklane</Typography>
-      </Link>
-      {isFullyConnected && (
-        <div className="hidden items-center gap-8 md:flex">
-          {connectedPages.map((connectedPage) => {
-            return (
-              <Link href={connectedPage.path} key={connectedPage.name}>
-                <Typography
-                  className={
-                    pathname === connectedPage.path
-                      ? pathname === "/portfolio"
-                        ? "text-sunshine-yellow-600"
-                        : "text-primary-source"
-                      : ""
-                  }
-                  variant="heading_light_xxs"
-                >
-                  {connectedPage.name}
-                </Typography>
-              </Link>
-            );
-          })}
+    <Link
+      className={clsx(
+        pathname?.includes("/bridge") && "text-space-blue-source",
+        "flex items-center gap-1 transition-colors hover:text-space-blue-source"
+      )}
+      href="/bridge"
+    >
+      <Typography variant="heading_light_xxs">Bridge</Typography>
+
+      {isFullyConnected && totalSelectedNfts > 0 && (
+        <div className="flex h-5 items-center rounded-full bg-space-blue-100 px-2 dark:bg-space-blue-800">
+          <Typography
+            className="text-space-blue-source dark:text-space-blue-400"
+            variant="button_text_xs"
+          >
+            {totalSelectedNfts}
+          </Typography>
         </div>
       )}
-      <div className="flex gap-4">
-        <div className="hidden gap-4 md:flex">
-          <ConnectEthereumButton
-            onOpenModalChange={(open) => {
-              open ? openModal("Ethereum") : closeModal();
-            }}
-            isModalOpen={openedModal === "Ethereum"}
-          />
-          <ConnectStarkNetButton
-            onOpenModalChange={(open) => {
-              open ? openModal("Starknet") : closeModal();
-            }}
-            isModalOpen={openedModal === "Starknet"}
-          />
+    </Link>
+  );
+}
+
+function LoungeLink() {
+  const { targetChain } = useCurrentChain();
+  const { address } = useAccountFromChain(targetChain);
+
+  const pathname = usePathname();
+
+  const isFullyConnected = useIsFullyConnected();
+
+  const { data: bridgeRequests } =
+    api.bridgeRequest.getBridgeRequestsFromAddress.useQuery(
+      {
+        address: address ?? "",
+      },
+      { enabled: address !== undefined }
+    );
+
+  return (
+    <Link
+      className={clsx(
+        pathname?.includes("/lounge") && "text-space-blue-source",
+        "flex items-center gap-1 transition-colors hover:text-space-blue-source"
+      )}
+      href="/lounge"
+    >
+      <Typography variant="heading_light_xxs">Lounge</Typography>
+      {isFullyConnected && (bridgeRequests?.inTransit.totalCount ?? 0) > 0 && (
+        <div className="flex h-5 items-center rounded-full bg-space-blue-100 px-2 dark:bg-space-blue-800">
+          <Typography
+            className="text-space-blue-source dark:text-space-blue-400"
+            variant="button_text_xs"
+          >
+            {bridgeRequests?.inTransit.totalCount}
+          </Typography>
+        </div>
+      )}
+    </Link>
+  );
+}
+
+export default function Header() {
+  const pathname = usePathname();
+
+  return (
+    <header className="fixed z-20 flex h-23 w-full items-center justify-center bg-white p-6 dark:bg-void-black md:justify-between">
+      <Link href="/">
+        <Logo />
+      </Link>
+      <div className="hidden items-center gap-8 md:flex">
+        <Link href="/portfolio">
+          <Typography
+            className={clsx(
+              pathname === "/portfolio" && "text-space-blue-source",
+              "transition-colors hover:text-space-blue-source"
+            )}
+            variant="heading_light_xxs"
+          >
+            Portfolio
+          </Typography>
+        </Link>
+        <BridgeLink />
+        <LoungeLink />
+      </div>
+      <div className="hidden items-center gap-4 md:flex">
+        <div className="flex gap-4">
+          {/* TODO @YohanTz: Modal context? */}
+          <ConnectEthereumButton />
+          <ConnectStarkNetButton />
         </div>
         <DarkModeButton />
-        <BridgeCountIndicator />
       </div>
     </header>
   );

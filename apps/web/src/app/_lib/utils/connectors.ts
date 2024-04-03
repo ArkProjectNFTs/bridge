@@ -1,8 +1,10 @@
 import { InjectedConnector as InjectedStarknetConnector } from "@starknet-react/core";
 import { type StaticImageData } from "next/image";
+import {
+  // coinbaseWallet,
+  injected,
+} from "wagmi/connectors";
 // import { WalletConnectConnector } from "wagmi/connectors/walletConnect";
-import { CoinbaseWalletConnector } from "wagmi/connectors/coinbaseWallet";
-import { InjectedConnector as InjectedEthereumConnector } from "wagmi/connectors/injected";
 
 import argentXLogo from "../../../../public/logos/argentX.png";
 import braavosLogo from "../../../../public/logos/braavos.png";
@@ -17,17 +19,27 @@ import { type Chain } from "../../_types";
  */
 
 export const ethereumConnectors = [
-  new InjectedEthereumConnector(),
+  injected(),
   //   new WalletConnectConnector({ options: { projectId: walletConnectProjectId } }),
-  new CoinbaseWalletConnector({
-    // TODO @YohanTz: handle `darkMode` for coinbase wallet modal
-    options: { appName: "Starklane" /* darkMode: true */ },
-  }),
+  // coinbaseWallet({
+  //   // TODO @YohanTz: handle `darkMode` for coinbase wallet modal
+  //   appName: "Arklane",
+  //   darkMode: true,
+  // }),
 ];
 
+export const DOWNLOAD_LINK_BY_CONNECTOR_ID: Record<string, string> = {
+  argentX: "https://www.argent.xyz/argent-x/",
+  braavos: "https://braavos.app/download-braavos-wallet/",
+};
+
 export const starknetConnectors = [
-  new InjectedStarknetConnector({ options: { id: "braavos" } }),
-  new InjectedStarknetConnector({ options: { id: "argentX" } }),
+  new InjectedStarknetConnector({
+    options: { id: "braavos", name: "Braavos" },
+  }),
+  new InjectedStarknetConnector({
+    options: { id: "argentX", name: "Argent X" },
+  }),
 ];
 
 export const DEFAULT_ETHEREUM_CONNECTOR_LOGO = metaMaskLogo;
@@ -37,7 +49,9 @@ export const WALLET_LOGOS_BY_ID: Record<string, StaticImageData> = {
   argentX: argentXLogo,
   braavos: braavosLogo,
   coinbaseWallet: coinbaseLogo,
+  coinbaseWalletSDK: coinbaseLogo,
   injected: metaMaskLogo,
+  "io.metamask": metaMaskLogo,
   walletConnect: walletConnectLogo,
 };
 
@@ -57,6 +71,7 @@ export const CONNECTOR_LABELS_BY_ID: Record<string, string> = {
   argentX: "Argent X",
   braavos: "Braavos",
   coinbaseWallet: "Coinbase Wallet",
+  coinbaseWalletSDK: "Coinbase Wallet",
   injected: "Metamask",
   walletConnect: "WalletConnect",
 };

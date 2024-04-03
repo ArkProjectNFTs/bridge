@@ -9,7 +9,15 @@
   },
   "devDependencies": {
     "eslint-config-custom": "*",
-    "tsconfig": "*",
-    "tailwind-config": "*"
+    "tailwind-config": "*",
+    "tsconfig": "*"
+  },
+  "dependencies": {
+    "@radix-ui/react-dialog": "^1.0.4",
+    "@types/react": "^18.2.6",
+    "@types/react-dom": "^18.2.4",
+    "clsx": "^2.1.0",
+    "react": "18.2.0",
+    "tailwind-merge": "^2.2.1"
   }
 }

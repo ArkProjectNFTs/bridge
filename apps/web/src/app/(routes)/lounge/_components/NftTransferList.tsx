@@ -1,295 +1,197 @@
 "use client";
-
-import * as Toolbar from "@radix-ui/react-toolbar";
+import clsx from "clsx";
 import { Typography } from "design-system";
-import Image from "next/image";
 import { useState } from "react";
 
-import NftsEmptyState from "~/app/_components/NftsEmptyState";
-import NftsLoadingState from "~/app/_components/NftsLoadingState";
+import CollectionNftsEmptyState from "~/app/_components/CollectionNftsEmptyState";
 import useAccountFromChain from "~/app/_hooks/useAccountFromChain";
 import useCurrentChain from "~/app/_hooks/useCurrentChain";
+import useIsFullyConnected from "~/app/_hooks/useIsFullyConnected";
 import { api } from "~/utils/api";
 
-import NftTransferCard from "./NftTransferCard";
+import NftTransferItem from "./NftTransferItem";
+import NftTransferListLoadingState from "./NftTransferListLoadingState";
+import SuccessWithdrawModal from "./SuccessWithdrawModal.tsx";
 
-export default function NftTransferList() {
-  const [displayOption, setDisplayOption] = useState("card");
-  const { targetChain } = useCurrentChain();
-  const { address } = useAccountFromChain(targetChain);
+interface NftTransferHeaderProps {
+  className?: string;
+  status: "past" | "transit";
+  totalCount: number;
+}
 
-  const { data: bridgeRequestData } =
+function NftTransferHeader({
+  className,
+  status,
+  totalCount,
+}: NftTransferHeaderProps) {
+  return (
+    <div
+      className={clsx(
+        className,
+        "grid grid-cols-[1fr_1fr_1fr_1fr_2.25rem] place-items-start px-6 text-galaxy-blue dark:text-space-blue-300"
+      )}
+    >
+      <Typography component="p" variant="button_text_l">
+        Nfts {status === "past" ? "transferred" : "in transit"} ({totalCount})
+      </Typography>
+      <Typography className="ml-3" component="p" variant="button_text_l">
+        Transfer status
+      </Typography>
+      <Typography className="ml-2" component="p" variant="button_text_l">
+        Arrival
+      </Typography>
+    </div>
+  );
+}
+
+interface NftTransferListProps {
+  className?: string;
+  variant?: "lounge";
+}
+
+export default function NftTransferList({
+  className,
+  variant,
+}: NftTransferListProps) {
+  const { sourceChain, targetChain } = useCurrentChain();
+  const { address: targetAddress } = useAccountFromChain(targetChain);
+  const { address: sourceAddress } = useAccountFromChain(sourceChain);
+  const isFullyConnected = useIsFullyConnected();
+  const [withdrawModalOpen, setWithdrawModalOpen] = useState(false);
+
+  const { data: targetBridgeRequests } =
     api.bridgeRequest.getBridgeRequestsFromAddress.useQuery(
       {
-        address: address ?? "",
+        address: targetAddress ?? "",
       },
-      { enabled: address !== undefined, refetchInterval: 3000 }
+      { enabled: isFullyConnected, refetchInterval: 10000 }
     );
 
-  if (bridgeRequestData === undefined) {
-    return <NftsLoadingState className="mt-9 sm:mt-23" />;
+  const { data: sourceBridgeRequests } =
+    api.bridgeRequest.getBridgeRequestsFromAddress.useQuery(
+      {
+        address: sourceAddress ?? "",
+      },
+      { enabled: isFullyConnected, refetchInterval: 10000 }
+    );
+
+  if (
+    targetBridgeRequests === undefined ||
+    !isFullyConnected ||
+    sourceBridgeRequests === undefined
+  ) {
+    return <NftTransferListLoadingState />;
   }
 
-  return bridgeRequestData.length === 0 ? (
-    <>
-      <NftsEmptyState className="mt-9 sm:mt-23" />
-      <Typography
-        className="mt-5 sm:mt-16"
-        component="p"
-        variant="body_text_18"
-      >
-        There is nothing there...
-      </Typography>
-    </>
-  ) : (
-    <div className="mb-6 mt-9 sm:mt-18">
-      <div className="flex justify-between">
-        <Typography variant="button_text_l">
-          Nfts in transit ({bridgeRequestData.length})
+  if (
+    targetBridgeRequests.inTransit.requests.length === 0 &&
+    targetBridgeRequests.past.requests.length === 0 &&
+    (variant !== "lounge" ||
+      (sourceBridgeRequests?.inTransit.requests.length === 0 &&
+        sourceBridgeRequests.past.requests.length === 0))
+  ) {
+    return variant !== "lounge" ? (
+      <>
+        <Typography className="mb-5 mt-14" component="p" variant="body_text_18">
+          There is nothing there...
         </Typography>
-        <Toolbar.Root>
-          <Toolbar.ToggleGroup
-            onValueChange={(value) => {
-              if (value) {
-                setDisplayOption(value);
-              }
-            }}
-            aria-label="Display options"
-            className="hidden overflow-hidden rounded-md border border-[#d3e2e1] dark:border-dark-blue-600 sm:flex"
-            type="single"
-            value={displayOption}
-          >
-            <Toolbar.ToggleItem
-              className="group grid place-items-center border-r border-[#d3e2e1] px-2 py-1.5 data-[state=on]:bg-[#e4edec] dark:border-dark-blue-600  dark:data-[state=on]:bg-dark-blue-900"
-              value="card"
-            >
-              <svg
-                className="stroke-[#3c607c] dark:stroke-dark-blue-600 dark:group-data-[state=on]:stroke-dark-blue-300"
-                fill="none"
-                height="20"
-                viewBox="0 0 20 20"
-                width="20"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <g id="ArkIcons_small">
-                  <rect
-                    height="5.625"
-                    id="Rectangle 5592"
-                    rx="1.25"
-                    strokeWidth="1.25"
-                    width="5.625"
-                    x="2.5"
-                    y="2.5"
-                  />
-                  <rect
-                    height="5.625"
-                    id="Rectangle 5594"
-                    rx="1.25"
-                    strokeWidth="1.25"
-                    width="5.625"
-                    x="2.5"
-                    y="11.875"
-                  />
-                  <rect
-                    height="5.625"
-                    id="Rectangle 5593"
-                    rx="1.25"
-                    strokeWidth="1.25"
-                    width="5.625"
-                    x="11.875"
-                    y="2.5"
-                  />
-                  <rect
-                    height="5.625"
-                    id="Rectangle 5595"
-                    rx="1.25"
-                    strokeWidth="1.25"
-                    width="5.625"
-                    x="11.875"
-                    y="11.875"
-                  />
-                </g>
-              </svg>
-            </Toolbar.ToggleItem>
-            <Toolbar.ToggleItem
-              className="group grid place-items-center px-2 py-1.5 data-[state=on]:bg-[#e4edec] dark:data-[state=on]:bg-dark-blue-900"
-              value="list"
-            >
-              <svg
-                className="fill-[#3c607c] stroke-[#3c607c] dark:fill-dark-blue-600 dark:stroke-dark-blue-600 dark:group-data-[state=on]:fill-dark-blue-300 dark:group-data-[state=on]:stroke-dark-blue-300"
-                fill="none"
-                height="20"
-                viewBox="0 0 20 20"
-                width="20"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <g id="ArkIcons_small">
-                  <rect
-                    height="2.5"
-                    id="Rectangle 5593"
-                    rx="0.625"
-                    stroke="none"
-                    width="2.5"
-                    x="1.25"
-                    y="15"
-                  />
-                  <rect
-                    height="2.5"
-                    id="Rectangle 5594"
-                    rx="0.625"
-                    stroke="none"
-                    width="2.5"
-                    x="1.25"
-                    y="8.75"
-                  />
-                  <rect
-                    height="2.5"
-                    id="Rectangle 5595"
-                    rx="0.625"
-                    stroke="none"
-                    width="2.5"
-                    x="1.25"
-                    y="2.5"
-                  />
-                  <path
-                    d="M6.25 3.75H18.125"
-                    fill="none"
-                    id="Line 587"
-                    strokeLinecap="round"
-                    strokeWidth="1.25"
-                  />
-                  <path
-                    d="M6.25 10H18.125"
-                    fill="none"
-                    id="Line 588"
-                    strokeLinecap="round"
-                    strokeWidth="1.25"
-                  />
-                  <path
-                    d="M6.25 16.25H18.125"
-                    fill="none"
-                    id="Line 589"
-                    strokeLinecap="round"
-                    strokeWidth="1.25"
-                  />
-                </g>
-              </svg>
-            </Toolbar.ToggleItem>
-          </Toolbar.ToggleGroup>
-        </Toolbar.Root>
-      </div>
+        <CollectionNftsEmptyState className="my-14" />
+      </>
+    ) : (
+      <></>
+    );
+  }
 
-      {displayOption === "card" ? (
-        <div className="mt-6 grid grid-cols-2 gap-5 sm:grid-cols-5">
-          {bridgeRequestData.map((bridgeRequest, index) => {
-            return (
-              <NftTransferCard
-                image={undefined}
-                key={index}
-                name={bridgeRequest.sourceCollection}
-                status={bridgeRequest.status}
-                statusTimestamp={bridgeRequest.statusTimestamp}
-              />
-            );
-          })}
-        </div>
-      ) : (
-        <table className="w-full text-left">
-          <thead>
-            <tr>
-              <Typography
-                className="pb-5 pl-6"
-                component="th"
-                variant="button_text_l"
-              >
-                Nfts in transit ({bridgeRequestData.length})
-              </Typography>
-              <Typography
-                className="pb-5"
-                component="th"
-                variant="button_text_l"
-              >
-                Transfer status
-              </Typography>
-              <Typography
-                className="pb-5"
-                component="th"
-                variant="button_text_l"
-              >
-                Arrival
-              </Typography>
-              <Typography
-                className=" pb-5 pr-6 text-right"
-                component="th"
-                variant="button_text_l"
-              >
-                Grid options
-              </Typography>
-            </tr>
-          </thead>
+  const inTransitRequests = targetBridgeRequests.inTransit.requests;
+  const inTransitTotalCount = targetBridgeRequests.inTransit.totalCount;
+  const pastRequests =
+    variant === "lounge"
+      ? [
+          ...targetBridgeRequests.past.requests,
+          ...sourceBridgeRequests?.past.requests,
+        ]
+      : targetBridgeRequests.past.requests;
 
-          <tbody className="rounded-3xl">
-            {bridgeRequestData.map((bridgeRequest, index) => {
+  const pastRequestsTotalCount =
+    variant === "lounge"
+      ? targetBridgeRequests.past.totalCount +
+        sourceBridgeRequests.past.totalCount
+      : targetBridgeRequests.past.totalCount;
+
+  return (
+    <div className={className}>
+      {inTransitRequests.length > 0 && variant !== "lounge" && (
+        <>
+          <NftTransferHeader
+            className="mb-5"
+            status="transit"
+            totalCount={inTransitTotalCount}
+          />
+          <div className="mb-20 flex flex-col gap-4">
+            {inTransitRequests.map((bridgeRequest) => {
               return (
-                <tr className="group" key={index}>
-                  <td
-                    className={`bg-white pb-4 pl-6 group-first:rounded-ss-3xl group-first:pt-6 group-last:rounded-es-3xl`}
-                  >
-                    <div className="flex gap-4 ">
-                      <Image
-                        alt="nft image"
-                        className="rounded-lg"
-                        height={52}
-                        src=""
-                        width={52}
-                      />
-                      <div className="flex flex-col gap-1.5">
-                        <Typography variant="body_text_14">
-                          {bridgeRequest.sourceCollection}
-                        </Typography>
-                        <Typography variant="body_text_bold_14">
-                          No Nft name
-                        </Typography>
-                      </div>
-                    </div>
-                  </td>
-
-                  <td className="bg-white pb-4 group-first:pt-6">
-                    {/* TODO @YohanTz: Extract this badge to its own component (used in cards also) */}
-                    <Typography
-                      className="mt-3 rounded-full bg-red-100 px-2 py-1 text-center"
-                      variant="button_text_xs"
-                    >
-                      {bridgeRequest.status}
-                    </Typography>
-                  </td>
-                  <td className=" bg-white pb-4 group-first:pt-6">
-                    <div className="flex gap-10">
-                      <div className="flex flex-col">
-                        <Typography
-                          className="text-[#686c73]"
-                          variant="body_text_12"
-                        >
-                          Estimated arrival
-                        </Typography>
-                        <Typography variant="button_text_s">
-                          {bridgeRequest.statusTimestamp}
-                        </Typography>
-                      </div>
-                      {/* <Button color="default" size="large">
-                        Stop transfer
-                      </Button> */}
-                    </div>
-                  </td>
-                  <td className="bg-white pb-4 pr-6 text-right group-first:rounded-se-3xl group-first:pt-6 group-last:rounded-ee-3xl">
-                    +
-                  </td>
-                </tr>
+                <NftTransferItem
+                  arrivalAddress={bridgeRequest.arrivalAddress}
+                  arrivalChain={bridgeRequest.arrivalChain}
+                  collectionImage={bridgeRequest.collectionImage}
+                  collectionName={bridgeRequest.collectionName}
+                  contractAddress={bridgeRequest.collectionSourceAddress}
+                  key={`${bridgeRequest.statusTimestamp}-$${bridgeRequest.collectionName}}`}
+                  onWithdrawSuccess={() => setWithdrawModalOpen(true)}
+                  requestContent={bridgeRequest.requestContent}
+                  status={bridgeRequest.status}
+                  tokenIds={bridgeRequest.tokenIds}
+                  totalCount={bridgeRequest.totalCount}
+                />
               );
             })}
-          </tbody>
-        </table>
+          </div>
+        </>
       )}
+
+      {pastRequests.length > 0 && (
+        <>
+          <Typography
+            className="text-left"
+            component="h3"
+            variant="heading_light_s"
+          >
+            Your past transactions
+          </Typography>
+          <hr className="my-5 border-asteroid-grey-100 dark:border-space-blue-700" />
+
+          <NftTransferHeader
+            className="mb-5"
+            status="past"
+            totalCount={pastRequestsTotalCount}
+          />
+
+          <div className="mb-20 flex flex-col gap-4">
+            {pastRequests.map((bridgeRequest) => {
+              return (
+                <NftTransferItem
+                  arrivalAddress={bridgeRequest.arrivalAddress}
+                  arrivalChain={bridgeRequest.arrivalChain}
+                  arrivalTimestamp={bridgeRequest.arrivalTimestamp}
+                  collectionImage={bridgeRequest.collectionImage}
+                  collectionName={bridgeRequest.collectionName}
+                  contractAddress={bridgeRequest.collectionSourceAddress}
+                  key={bridgeRequest.statusTimestamp}
+                  onWithdrawSuccess={() => setWithdrawModalOpen(true)}
+                  requestContent={bridgeRequest.requestContent}
+                  status={bridgeRequest.status}
+                  tokenIds={bridgeRequest.tokenIds}
+                  totalCount={bridgeRequest.totalCount}
+                />
+              );
+            })}
+          </div>
+        </>
+      )}
+      <SuccessWithdrawModal
+        onOpenChange={setWithdrawModalOpen}
+        open={withdrawModalOpen}
+      />
     </div>
   );
 }

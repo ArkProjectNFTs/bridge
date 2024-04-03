@@ -1,27 +1,45 @@
 "use client";
 
-import { StarknetConfig } from "@starknet-react/core";
+import {
+  type Chain,
+  // goerli as starknetGoerli,
+  mainnet as starknetMainnet,
+} from "@starknet-react/chains";
+import {
+  StarknetConfig,
+  jsonRpcProvider,
+  // publicProvider,
+} from "@starknet-react/core";
 import { ThemeProvider } from "next-themes";
-import { WagmiConfig, configureChains, createConfig } from "wagmi";
-import { goerli } from "wagmi/chains";
-import { publicProvider } from "wagmi/providers/public";
+import { WagmiProvider, createConfig, http } from "wagmi";
+import { mainnet } from "wagmi/chains";
 
+import { WalletModalsProvider } from "../_components/WalletModals/WalletModalsContext";
 import {
   ethereumConnectors,
   starknetConnectors,
 } from "../_lib/utils/connectors";
 
-const { publicClient, webSocketPublicClient } = configureChains(
-  [goerli],
-  [publicProvider()]
-);
-
 const wagmiConfig = createConfig({
-  autoConnect: true,
+  // chains: [goerli],
+  chains: [mainnet],
   connectors: ethereumConnectors,
-  publicClient,
-  webSocketPublicClient,
+  ssr: true,
+  transports: {
+    [mainnet.id]: http(
+      process.env.NEXT_PUBLIC_ALCHEMY_ETHEREUM_RPC_ENDPOINT ?? ""
+    ),
+  },
 });
+
+function starknetRpc(chain: Chain) {
+  if (chain.network === "goerli")
+    return { nodeUrl: `https://juno.testnet.arkproject.dev/` };
+
+  return { nodeUrl: `https://juno.mainnet.arkproject.dev/` };
+}
+
+// const starknetProvider = publicProvider();
 
 interface ProvidersProps {
   children: React.ReactNode;
@@ -29,10 +47,19 @@ interface ProvidersProps {
 
 export default function Providers({ children }: ProvidersProps) {
   return (
-    <StarknetConfig autoConnect connectors={starknetConnectors}>
-      <WagmiConfig config={wagmiConfig}>
-        <ThemeProvider attribute="class">{children}</ThemeProvider>
-      </WagmiConfig>
+    <StarknetConfig
+      autoConnect
+      // chains={[starknetGoerli]}
+      chains={[starknetMainnet]}
+      connectors={starknetConnectors}
+      provider={jsonRpcProvider({ rpc: starknetRpc })}
+      // provider={starknetProvider}
+    >
+      <WagmiProvider config={wagmiConfig}>
+        <WalletModalsProvider>
+          <ThemeProvider attribute="class">{children}</ThemeProvider>
+        </WalletModalsProvider>
+      </WagmiProvider>
     </StarknetConfig>
   );
 }

@@ -19,14 +19,14 @@ export default function useAccountFromChain(chain: Chain) {
     },
   };
 
-  const address = accountValuesByChain[chain].address;
+  const address = accountValuesByChain[chain ?? "Ethereum"].address;
 
   const shortAddress = useMemo(() => {
     return address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "";
   }, [address]);
 
   return {
-    address: accountValuesByChain[chain].address,
+    address: accountValuesByChain[chain ?? "Ethereum"].address,
     isConnected: accountValuesByChain[chain].isConnected,
     shortAddress,
   };
