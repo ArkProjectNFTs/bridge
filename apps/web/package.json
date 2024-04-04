@@ -17,7 +17,7 @@
     "@starknet-react/chains": "^0.1.6",
     "@starknet-react/core": "^2.2.4",
     "@t3-oss/env-nextjs": "^0.3.1",
-    "@tanstack/react-query": "^4.29.7",
+    "@tanstack/react-query": "^5.28.14",
     "@trpc/client": "^10.26.0",
     "@trpc/next": "^10.26.0",
     "@trpc/react-query": "^10.26.0",
