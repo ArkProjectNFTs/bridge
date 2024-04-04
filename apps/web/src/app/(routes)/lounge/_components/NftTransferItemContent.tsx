@@ -97,32 +97,13 @@ export default function NftTransferItemContent({
               <div key={nft.tokenName}>
                 <div className="grid grid-cols-[1fr_1fr_1fr_1fr_2.25rem] place-items-start items-center">
                   <div className="flex items-center gap-4">
-                    {nft.image !== undefined ? (
-                      <Media
-                        alt="nft"
-                        className="flex-shrink-0 rounded-md"
-                        height={52}
-                        src={nft.image}
-                        width={52}
-                      />
-                    ) : (
-                      <>
-                        <Media
-                          alt="empty Nft image"
-                          className="hidden aspect-square rounded-lg object-cover dark:block"
-                          height={52}
-                          src={`/medias/dark/empty_nft.png`}
-                          width={52}
-                        />
-                        <Media
-                          alt="empty Nft image"
-                          className="aspect-square rounded-lg object-cover dark:hidden"
-                          height={52}
-                          src={`/medias/empty_nft.png`}
-                          width={52}
-                        />
-                      </>
-                    )}
+                    <Media
+                      alt="nft"
+                      className="flex-shrink-0 rounded-md"
+                      height={52}
+                      media={nft.media}
+                      width={52}
+                    />
                     <div className="text-left">
                       <Typography component="p" variant="body_text_14">
                         {nft.collectionName}

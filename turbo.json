@@ -18,8 +18,6 @@
     "HOSTNAME_L1",
     "HOSTNAME_L2",
     "L2_DEPLOYER_PRIVATE_KEY",
-    "EVERAI_L1_CONTRACT_ADDRESS",
-    "EVERAI_L2_CONTRACT_ADDRESS",
     "L2_DEPLOYER_ADDRESS",
     "NEXT_PUBLIC_ARKLANE_API_DOMAIN",
     "GOERLI_ALCHEMY_KEY",
@@ -30,7 +28,8 @@
     "NEXT_PUBLIC_ARK_API_DOMAIN",
     "VERCEL_URL",
     "NODE_ENV",
-    "PORT"
+    "PORT",
+    "IPFS_GATEWAY"
   ],
   "pipeline": {
     "build:l1": {

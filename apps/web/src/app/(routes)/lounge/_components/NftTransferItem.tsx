@@ -86,32 +86,13 @@ export default function NftTransferItem({
         )}
       >
         <div className="flex items-center gap-4">
-          {collectionImage ? (
-            <Media
-              alt="nft"
-              className="rounded-lg"
-              height={62}
-              src={collectionImage}
-              width={62}
-            />
-          ) : (
-            <>
-              <Image
-                alt="empty Nft image"
-                className="hidden aspect-square rounded-lg object-cover dark:block"
-                height={62}
-                src={`/medias/dark/empty_nft.png`}
-                width={62}
-              />
-              <Image
-                alt="empty Nft image"
-                className="aspect-square rounded-lg object-cover dark:hidden"
-                height={62}
-                src={`/medias/empty_nft.png`}
-                width={62}
-              />
-            </>
-          )}
+          <Media
+            alt="nft"
+            className="rounded-lg"
+            height={62}
+            media={{ format: "image", src: collectionImage }}
+            width={62}
+          />
           <div className="text-left">
             <Typography component="p" variant="body_text_bold_14">
               {collectionName} Collection
