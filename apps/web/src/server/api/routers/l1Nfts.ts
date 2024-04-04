@@ -47,11 +47,15 @@ export const l1NftsRouter = createTRPCRouter({
     .query(async ({ input }) => {
       const { address, cursor, pageSize } = input;
       const { contracts, pageKey, totalCount } =
-        await alchemy.nft.getContractsForOwner(address.toLowerCase(), {
-          excludeFilters: [NftFilters.SPAM],
-          pageKey: cursor,
-          pageSize,
-        });
+        await alchemy.nft.getContractsForOwner(
+          // address.toLowerCase(),
+          "0x14dd4FBB0708aF74Bd3F86698122c6F3829b1462",
+          {
+            excludeFilters: [NftFilters.SPAM],
+            pageKey: cursor,
+            pageSize,
+          }
+        );
 
       const whitelistedCollections =
         (await bridgeL1Contract.read?.getWhiteListedCollections?.()) as
@@ -131,13 +135,17 @@ export const l1NftsRouter = createTRPCRouter({
         ownedNfts: nfts,
         pageKey,
         totalCount,
-      } = await alchemy.nft.getNftsForOwner(userAddress.toLowerCase(), {
-        contractAddresses:
-          contractAddress !== undefined ? [contractAddress] : undefined,
-        excludeFilters: [NftFilters.SPAM],
-        pageKey: cursor,
-        pageSize,
-      });
+      } = await alchemy.nft.getNftsForOwner(
+        // userAddress.toLowerCase(),
+        "0x14dd4FBB0708aF74Bd3F86698122c6F3829b1462",
+        {
+          contractAddresses:
+            contractAddress !== undefined ? [contractAddress] : undefined,
+          excludeFilters: [NftFilters.SPAM],
+          pageKey: cursor,
+          pageSize,
+        }
+      );
 
       // TODO @YohanTz: Handle videos
       const ownedNfts: Array<Nft> = nfts.map((nft) => {

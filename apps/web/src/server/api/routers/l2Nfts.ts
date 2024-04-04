@@ -3,44 +3,14 @@ import { z } from "zod";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 
+import {
+  getL2ContractMetadata,
+  getL2ContractsForOwner,
+  getL2NftsForOwner,
+  getL2NftsMetadataBatch,
+  getMediaObjectFromUrl,
+} from "../helpers/l2nfts";
 import { type Collection, type Nft } from "../types";
-
-type ArkNftsApiResponse = {
-  result: Array<{
-    contract_address: string;
-    metadata: {
-      normalized: { image: null | string; name: null | string };
-    } | null;
-    owner: string;
-    token_id: string;
-  }>;
-  total_count: number;
-};
-
-type ArkCollectionsApiResponse = {
-  result: Array<{
-    contract_address: string;
-    contract_type: string;
-    image?: string;
-    name: string;
-    symbol: string;
-    tokens_count: number;
-  }>;
-  total_count: number;
-};
-
-type ArkBatchNftsApiResponse = {
-  result: Array<{
-    contract_address: string;
-    metadata?: { normalized: { image?: string; name?: string } };
-    owner: string;
-    token_id: string;
-  }>;
-};
-
-type ArkCollectionInfoApiResponse = {
-  result: { contract_address: string; name: string; symbol: string };
-};
 
 export const l2NftsRouter = createTRPCRouter({
   getCollectionInfo: publicProcedure
@@ -49,19 +19,7 @@ export const l2NftsRouter = createTRPCRouter({
       const { contractAddress } = input;
 
       try {
-        const url = `${
-          process.env.NEXT_PUBLIC_ARK_API_DOMAIN ?? ""
-        }/v1/contracts/${validateAndParseAddress(contractAddress)}`;
-
-        const contractInfoResponse = await fetch(url, {
-          headers: {
-            "Content-Type": "application/json",
-            "X-API-KEY": process.env.ARK_API_KEY ?? "",
-          },
-        });
-
-        const contractInfo =
-          (await contractInfoResponse.json()) as ArkCollectionInfoApiResponse;
+        const contractInfo = await getL2ContractMetadata(contractAddress);
 
         return { name: contractInfo.result.name };
       } catch (error) {
@@ -77,19 +35,9 @@ export const l2NftsRouter = createTRPCRouter({
       } = input;
 
       try {
-        const url = `${
-          process.env.NEXT_PUBLIC_ARK_API_DOMAIN ?? ""
-        }/v1/owners/${validateAndParseAddress(address)}/contracts`;
+        const contractsForOwner = await getL2ContractsForOwner(address);
 
-        const contractsResponse = await fetch(url, {
-          headers: {
-            "Content-Type": "application/json",
-            "X-API-KEY": process.env.ARK_API_KEY ?? "",
-          },
-        });
-        const contracts =
-          (await contractsResponse.json()) as ArkCollectionsApiResponse;
-        const collections: Array<Collection> = contracts.result.map(
+        const collections: Array<Collection> = contractsForOwner.result.map(
           (contract) => {
             const mediaSrc = contract.image?.replace(
               "ipfs://",
@@ -111,7 +59,7 @@ export const l2NftsRouter = createTRPCRouter({
           }
         );
 
-        return { collections, totalCount: contracts.total_count };
+        return { collections, totalCount: contractsForOwner.total_count };
       } catch (error) {
         console.error("getL2NftCollectionsByWallet error: ", error);
         return { collections: [], totalCount: 0 };
@@ -133,25 +81,7 @@ export const l2NftsRouter = createTRPCRouter({
       }
 
       try {
-        const url = `${
-          process.env.NEXT_PUBLIC_ARK_API_DOMAIN ?? ""
-        }/v1/tokens/batch`;
-
-        const nftsResponse = await fetch(url, {
-          body: JSON.stringify({
-            tokens: tokenIds.map((tokenId) => ({
-              contract_address: validateAndParseAddress(contractAddress),
-              token_id: tokenId,
-            })),
-          }),
-          headers: {
-            "Content-Type": "application/json",
-            "X-API-KEY": process.env.ARK_API_KEY ?? "",
-          },
-          method: "POST",
-        });
-
-        const nfts = (await nftsResponse.json()) as ArkBatchNftsApiResponse;
+        const nfts = await getL2NftsMetadataBatch(tokenIds, contractAddress);
 
         return nfts.result
           .filter(
@@ -161,16 +91,11 @@ export const l2NftsRouter = createTRPCRouter({
                 validateAndParseAddress(ownerAddress)
           )
           .map((nft) => {
-            const mediaSrc = nft.metadata?.normalized.image?.replace(
-              "ipfs://",
-              process.env.IPFS_GATEWAY ?? ""
-            );
-            const mediaFormat =
-              mediaSrc?.split(".").pop() === "mp4" ? "video" : "image";
+            const media = getMediaObjectFromUrl(nft.metadata?.normalized.image);
 
             return {
               collectionName: "EveraiDuo",
-              media: { format: mediaFormat, src: mediaSrc },
+              media,
               tokenId: nft.token_id,
               tokenName: nft.metadata?.normalized.name ?? `#${nft.token_id}`,
             };
@@ -201,38 +126,21 @@ export const l2NftsRouter = createTRPCRouter({
       } = input;
 
       try {
-        const url = `${
-          process.env.NEXT_PUBLIC_ARK_API_DOMAIN ?? ""
-        }/v1/owners/${validateAndParseAddress(userAddress)}/tokens${
-          contractAddress !== undefined
-            ? `?contract_address=${validateAndParseAddress(contractAddress)}`
-            : ""
-        }`;
-
-        const nftsResponse = await fetch(url, {
-          headers: {
-            "Content-Type": "application/json",
-            "X-API-KEY": process.env.ARK_API_KEY ?? "",
-          },
-        });
-
-        const nfts = (await nftsResponse.json()) as ArkNftsApiResponse;
+        const nfts = await getL2NftsForOwner(userAddress, contractAddress);
 
         const ownedNfts: Array<Nft> = nfts.result.map((nft) => {
-          const mediaSrc = nft.metadata?.normalized.image?.replace(
-            "ipfs://",
-            process.env.IPFS_GATEWAY ?? ""
+          const media = getMediaObjectFromUrl(
+            nft.metadata?.normalized.image ?? undefined
           );
-          const mediaFormat =
-            mediaSrc?.split(".").pop() === "mp4" ? "video" : "image";
+          const name =
+            nft.metadata?.normalized.name?.length ?? 0 > 0
+              ? nft.metadata?.normalized?.name ?? ""
+              : `${nft.token_id}`;
 
           return {
             contractAddress: nft.contract_address,
-            media: { format: mediaFormat, src: mediaSrc },
-            name:
-              nft.metadata?.normalized.name?.length ?? 0 > 0
-                ? nft.metadata?.normalized?.name ?? ""
-                : `${nft.token_id}`,
+            media,
+            name,
             tokenId: nft.token_id,
           };
         });
