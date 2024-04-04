@@ -35,7 +35,7 @@
     "superjson": "1.12.2",
     "tailwindcss-animate": "^1.0.7",
     "usehooks-ts": "^2.9.1",
-    "viem": "^2.7.6",
+    "viem": "^2.9.9",
     "wagmi": "^2.5.5",
     "zod": "^3.21.4"
   },
