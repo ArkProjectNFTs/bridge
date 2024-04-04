@@ -32,28 +32,17 @@ export default function useEthereumCollectionApproval() {
 
   const {
     data: approveHash,
-    error,
-    failureReason,
     isLoading: isSigning,
     writeContract: writeContractApprove,
   } = useWriteContract();
-  console.error("error: ", error);
-  console.error("failureReason: ", failureReason);
 
   function approveForAll() {
-    try {
-      writeContractApprove({
-        abi: erc721Abi,
-        address: selectedCollectionAddress as `0x${string}`,
-        args: [
-          process.env.NEXT_PUBLIC_L1_BRIDGE_ADDRESS as `0x${string}`,
-          true,
-        ],
-        functionName: "setApprovalForAll",
-      });
-    } catch (e) {
-      console.error(e);
-    }
+    writeContractApprove({
+      abi: erc721Abi,
+      address: selectedCollectionAddress as `0x${string}`,
+      args: [process.env.NEXT_PUBLIC_L1_BRIDGE_ADDRESS as `0x${string}`, true],
+      functionName: "setApprovalForAll",
+    });
   }
 
   const { isLoading: isApproveLoading } = useWaitForTransactionReceipt({

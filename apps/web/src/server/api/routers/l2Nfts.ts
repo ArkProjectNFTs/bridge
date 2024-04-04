@@ -105,7 +105,7 @@ export const l2NftsRouter = createTRPCRouter({
               // isBridgeable:
               //   contract.contract_address ===
               media: { format: mediaFormat, src: mediaSrc },
-              name: contract.name ?? contract.symbol,
+              name: contract.name ?? contract.symbol ?? "Unknown",
               totalBalance: contract.tokens_count,
             };
           }

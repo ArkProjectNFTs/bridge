@@ -1,14 +1,15 @@
 "use client";
 
 import {
+  type Chain,
   // type Chain,
   // goerli as starknetGoerli,
   mainnet as starknetMainnet,
 } from "@starknet-react/chains";
 import {
   StarknetConfig,
-  // jsonRpcProvider,
-  publicProvider,
+  jsonRpcProvider,
+  // publicProvider,
   // publicProvider,
 } from "@starknet-react/core";
 import { ThemeProvider } from "next-themes";
@@ -33,14 +34,16 @@ const wagmiConfig = createConfig({
   },
 });
 
-// function starknetRpc(chain: Chain) {
-//   if (chain.network === "goerli")
-//     return { nodeUrl: `https://juno.testnet.arkproject.dev/` };
+function starknetRpc(chain: Chain) {
+  if (chain.network === "goerli")
+    return { nodeUrl: `https://juno.testnet.arkproject.dev/` };
 
-//   return { nodeUrl: `https://juno.mainnet.arkproject.dev/` };
-// }
+  return {
+    nodeUrl: process.env.NEXT_PUBLIC_ALCHEMY_STARKNET_RPC_ENDPOINT ?? "",
+  };
+}
 
-const starknetProvider = publicProvider();
+// const starknetProvider = publicProvider();
 
 interface ProvidersProps {
   children: React.ReactNode;
@@ -53,8 +56,8 @@ export default function Providers({ children }: ProvidersProps) {
       // chains={[starknetGoerli]}
       chains={[starknetMainnet]}
       connectors={starknetConnectors}
-      // provider={jsonRpcProvider({ rpc: starknetRpc })}
-      provider={starknetProvider}
+      provider={jsonRpcProvider({ rpc: starknetRpc })}
+      // provider={starknetProvider}
     >
       <WagmiProvider config={wagmiConfig}>
         <WalletModalsProvider>

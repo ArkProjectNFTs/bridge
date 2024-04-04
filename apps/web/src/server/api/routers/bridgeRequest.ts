@@ -104,9 +104,6 @@ export const bridgeRequestRouter = createTRPCRouter({
               tokenId: bridgeRequest.token_ids[0],
             }))
           );
-        } else {
-          try {
-          } catch (error) {}
         }
 
         const bridgeRequestsWithMetadata = bridgeRequests.map(

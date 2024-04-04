@@ -25,7 +25,7 @@ export default function NftTabsList() {
   } = useInfiniteStarknetCollections();
 
   return (
-    <Tabs.List className="flex items-center gap-4 overflow-x-scroll">
+    <Tabs.List className="flex items-center gap-4 overflow-x-auto">
       <NftTabsTrigger
         totalCount={
           l1CollectionsTotalCount === undefined ||

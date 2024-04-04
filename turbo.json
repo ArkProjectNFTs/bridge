@@ -29,7 +29,8 @@
     "VERCEL_URL",
     "NODE_ENV",
     "PORT",
-    "IPFS_GATEWAY"
+    "IPFS_GATEWAY",
+    "NEXT_PUBLIC_ALCHEMY_STARKNET_RPC_ENDPOINT"
   ],
   "pipeline": {
     "build:l1": {
