@@ -64,7 +64,11 @@ export const l1NftsRouter = createTRPCRouter({
         const mediaFormat = media?.format === "mp4" ? "video" : "image";
         const isBridgeable =
           whitelistedCollections !== undefined &&
-          whitelistedCollections.includes(contract.address);
+          whitelistedCollections.find(
+            (whitelistedCollection) =>
+              whitelistedCollection.toLowerCase() ===
+              contract.address.toLocaleLowerCase()
+          ) !== undefined;
 
         return {
           contractAddress: contract.address,
