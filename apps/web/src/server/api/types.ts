@@ -1,4 +1,4 @@
-export type NftMedia = { format: "image" | "video"; src: string | undefined };
+export type NftMedia = { format: string; src: string | undefined };
 
 export type Nft = {
   contractAddress: string;

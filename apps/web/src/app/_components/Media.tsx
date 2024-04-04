@@ -20,7 +20,6 @@ export default function Media({
   width,
 }: MediaProps) {
   const { resolvedTheme } = useTheme();
-  console.log(media);
 
   if (media.src === undefined || media.src.length === 0) {
     return (

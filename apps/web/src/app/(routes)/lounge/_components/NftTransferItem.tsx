@@ -90,7 +90,7 @@ export default function NftTransferItem({
             alt="nft"
             className="rounded-lg"
             height={62}
-            src={collectionImage}
+            media={{ format: "image", src: collectionImage }}
             width={62}
           />
           <div className="text-left">
