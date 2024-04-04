@@ -1,4 +1,4 @@
-use crate::storage::{BridgeChain, CrossChainTx, CrossChainTxKind, Event, EventLabel, Request};
+use crate::{storage::{BridgeChain, CrossChainTx, CrossChainTxKind, Event, EventLabel, Request}, utils::normalize_hex};
 use anyhow::{anyhow, Result};
 use ethers::prelude::*;
 use serde_json::{json, Value};
@@ -128,19 +128,19 @@ fn request_from_log_data(event_label: &EventLabel, data: Vec<U256>) -> Result<Re
         EventLabel::DepositInitiatedL1 => Request {
             hash: format!("0x{:032x}{:032x}", data[2], data[1]),
             chain_src: BridgeChain::Ethereum,
-            collection_src: hex_strings[3].clone(),
-            collection_dst: hex_strings[4].clone(),
-            from: hex_strings[5].clone(),
-            to: hex_strings[6].clone(),
+            collection_src: normalize_hex(hex_strings[3].clone().as_str())?,
+            collection_dst: normalize_hex(hex_strings[4].clone().as_str())?,
+            from: normalize_hex(hex_strings[5].clone().as_str())?,
+            to: normalize_hex(hex_strings[6].clone().as_str())?,
             content,
         },
         EventLabel::WithdrawCompletedL1 => Request {
             hash: format!("0x{:032x}{:032x}", data[2], data[1]),
             chain_src: BridgeChain::Starknet,
-            collection_src: hex_strings[4].clone(),
-            collection_dst: hex_strings[3].clone(),
-            from: hex_strings[6].clone(),
-            to: hex_strings[5].clone(),
+            collection_src: normalize_hex(hex_strings[4].clone().as_str())?,
+            collection_dst: normalize_hex(hex_strings[3].clone().as_str())?,
+            from: normalize_hex(hex_strings[6].clone().as_str())?,
+            to: normalize_hex(hex_strings[5].clone().as_str())?,
             content,
         },
         _ => {
