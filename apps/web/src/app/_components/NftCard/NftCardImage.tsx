@@ -1,49 +1,25 @@
 import Image from "next/image";
-import { useTheme } from "next-themes";
 
 import { CHAIN_LOGOS_BY_NAME } from "~/app/_lib/utils/connectors";
 import { type Chain } from "~/app/_types";
+import { type NftMedia } from "~/server/api/types";
 
 import Media from "../Media";
 
 interface NftCardImageProps {
   chain?: Chain;
-  imageUrl?: string;
+  media: NftMedia;
 }
-export default function NftCardImage({ chain, imageUrl }: NftCardImageProps) {
-  const { resolvedTheme } = useTheme();
-
+export default function NftCardImage({ chain, media }: NftCardImageProps) {
   return (
     <div className="relative">
-      {imageUrl ? (
-        <Media
-          src={
-            imageUrl ??
-            `/medias/${resolvedTheme === "dark" ? "dark/" : ""}empty_nft.png`
-          }
-          alt="Nft image"
-          className="aspect-square h-full w-full rounded-lg object-cover"
-          height={300}
-          width={300}
-        />
-      ) : (
-        <>
-          <Media
-            alt="empty Nft image"
-            className="hidden aspect-square h-full w-full rounded-lg object-cover dark:block"
-            height={300}
-            src={`/medias/dark/empty_nft.png`}
-            width={300}
-          />
-          <Media
-            alt="empty Nft image"
-            className="aspect-square h-full w-full rounded-lg object-cover dark:hidden"
-            height={300}
-            src={`/medias/empty_nft.png`}
-            width={300}
-          />
-        </>
-      )}
+      <Media
+        alt=""
+        className="aspect-square h-full w-full rounded-lg object-cover"
+        height={300}
+        media={media}
+        width={300}
+      />
 
       {chain !== undefined && (
         <Image

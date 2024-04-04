@@ -159,9 +159,9 @@ export default function TokenList({ nftContractAddress }: TokenListProps) {
                 cardType="nft"
                 chain={sourceChain}
                 disabled={isAllSelected && !isSelected}
-                image={ownedNft.image}
                 isSelected={isSelected}
                 key={ownedNft.tokenId}
+                media={ownedNft.media}
                 title={ownedNft.name}
               />
             );

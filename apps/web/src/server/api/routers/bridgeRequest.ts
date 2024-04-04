@@ -93,11 +93,7 @@ export const bridgeRequestRouter = createTRPCRouter({
             past: { requests: [], totalCount: 0 },
           };
         }
-        // if (
-        //   bridgeRequests[0] !== undefined &&
-        //   bridgeRequests[0]?.req.chain_src === "eth"
-        // ) {
-        // }
+
         let requestMetadata: Array<Nft> = [];
         if (bridgeRequests[0]?.req.chain_src === "eth") {
           requestMetadata = await alchemy.nft.getNftMetadataBatch(

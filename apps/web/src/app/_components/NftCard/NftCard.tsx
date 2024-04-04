@@ -1,6 +1,8 @@
 import clsx from "clsx";
 import { Typography } from "design-system";
 
+import { type NftMedia } from "~/server/api/types";
+
 import { type Chain } from "../../_types";
 import ConditionalWrapper from "../ConditionalWrapper";
 import NftCardImage from "./NftCardImage";
@@ -10,8 +12,8 @@ type NftCardProps = {
   chain?: Chain;
   className?: string;
   disabled?: boolean;
-  image?: string;
   isSelected: boolean;
+  media: NftMedia;
   onClick?: () => void;
   title: string;
 } & (
@@ -28,8 +30,8 @@ export default function NftCard({
   chain,
   className,
   disabled,
-  image,
   isSelected,
+  media,
   numberOfNfts,
   onClick,
   title,
@@ -68,7 +70,7 @@ export default function NftCard({
           )
         }
       >
-        <NftCardImage chain={chain} imageUrl={image} />
+        <NftCardImage chain={chain} media={media} />
         <div className="mt-3 text-left">
           <div className="flex items-center justify-between">
             <Typography
@@ -82,7 +84,7 @@ export default function NftCard({
             {cardType === "nft" && onClick !== undefined && (
               <div
                 className={clsx(
-                  "h-5 w-5 rounded-full",
+                  "h-5 w-5 flex-shrink-0 rounded-full",
                   isSelected
                     ? "border-[6px] border-primary-source bg-white "
                     : "bg-neutral-300 dark:bg-space-blue-300"
