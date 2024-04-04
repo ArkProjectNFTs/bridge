@@ -4,6 +4,8 @@ import { z } from "zod";
 import { type Chain } from "~/app/_types";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 
+import { type NftMedia } from "../types";
+
 const alchemy = new Alchemy({
   apiKey: process.env.ALCHEMY_API_KEY,
   // network: Network.ETH_MAINNET,
@@ -42,7 +44,7 @@ type BridgeRequestResponse = {
   arrivalAddress: string;
   arrivalChain: Chain;
   arrivalTimestamp?: number;
-  collectionImage: string | undefined;
+  collectionMedia: NftMedia;
   collectionName: string;
   collectionSourceAddress: string;
   requestContent: Array<string>;
@@ -115,6 +117,9 @@ export const bridgeRequestRouter = createTRPCRouter({
               lastBridgeRequestEvent?.label === "withdraw_available_l1" ||
               lastBridgeRequestEvent?.label === "withdraw_completed_l1" ||
               lastBridgeRequestEvent?.label === "withdraw_completed_l2";
+            const media = requestMetadata[index]?.media[0];
+            const mediaSrc = media?.gateway ?? media?.thumbnail ?? media?.raw;
+            const mediaFormat = media?.format === "mp4" ? "video" : "image";
 
             return {
               arrivalAddress: bridgeRequest.req.to,
@@ -125,9 +130,7 @@ export const bridgeRequestRouter = createTRPCRouter({
               arrivalTimestamp: isArrived
                 ? lastBridgeRequestEvent?.block_timestamp
                 : undefined,
-              collectionImage:
-                requestMetadata[index]?.media[0]?.raw ??
-                requestMetadata[index]?.media[0]?.thumbnail,
+              collectionMedia: { format: mediaFormat, src: mediaSrc },
               collectionName: requestMetadata[index]?.contract.name ?? "",
               collectionSourceAddress: bridgeRequest.req.collection_src,
               requestContent: JSON.parse(
