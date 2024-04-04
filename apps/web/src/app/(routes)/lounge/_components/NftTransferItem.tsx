@@ -8,6 +8,7 @@ import { useEnsName } from "wagmi";
 
 import Media from "~/app/_components/Media";
 import { type Chain } from "~/app/_types";
+import { type NftMedia } from "~/server/api/types";
 
 import NftTransferItemContent from "./NftTransferItemContent";
 import NftTransferStatus from "./NftTransferStatus";
@@ -17,7 +18,7 @@ interface NftTransferItemProps {
   arrivalAddress: string;
   arrivalChain: Chain;
   arrivalTimestamp?: number;
-  collectionImage: string | undefined;
+  collectionMedia: NftMedia;
   collectionName: string;
   contractAddress: string;
   onWithdrawSuccess: () => void;
@@ -49,7 +50,7 @@ export default function NftTransferItem({
   arrivalAddress,
   arrivalChain,
   arrivalTimestamp,
-  collectionImage,
+  collectionMedia,
   collectionName,
   contractAddress,
   onWithdrawSuccess,
@@ -90,7 +91,7 @@ export default function NftTransferItem({
             alt="nft"
             className="rounded-lg"
             height={62}
-            media={{ format: "image", src: collectionImage }}
+            media={collectionMedia}
             width={62}
           />
           <div className="text-left">

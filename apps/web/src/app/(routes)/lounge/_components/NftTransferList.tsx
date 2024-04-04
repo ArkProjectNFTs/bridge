@@ -133,7 +133,7 @@ export default function NftTransferList({
                 <NftTransferItem
                   arrivalAddress={bridgeRequest.arrivalAddress}
                   arrivalChain={bridgeRequest.arrivalChain}
-                  collectionImage={bridgeRequest.collectionImage}
+                  collectionMedia={bridgeRequest.collectionMedia}
                   collectionName={bridgeRequest.collectionName}
                   contractAddress={bridgeRequest.collectionSourceAddress}
                   key={`${bridgeRequest.statusTimestamp}-$${bridgeRequest.collectionName}}`}
@@ -173,7 +173,7 @@ export default function NftTransferList({
                   arrivalAddress={bridgeRequest.arrivalAddress}
                   arrivalChain={bridgeRequest.arrivalChain}
                   arrivalTimestamp={bridgeRequest.arrivalTimestamp}
-                  collectionImage={bridgeRequest.collectionImage}
+                  collectionMedia={bridgeRequest.collectionMedia}
                   collectionName={bridgeRequest.collectionName}
                   contractAddress={bridgeRequest.collectionSourceAddress}
                   key={bridgeRequest.statusTimestamp}
