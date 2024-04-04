@@ -100,7 +100,6 @@ export const l2NftsRouter = createTRPCRouter({
 
             return {
               contractAddress: contract.contract_address,
-              //   process.env.EVERAI_L2_CONTRACT_ADDRESS,
               isBridgeable: true,
 
               // isBridgeable:
