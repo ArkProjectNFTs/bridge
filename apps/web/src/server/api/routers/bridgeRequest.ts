@@ -133,7 +133,6 @@ export const bridgeRequestRouter = createTRPCRouter({
               requestContent: JSON.parse(
                 bridgeRequest.req.content
               ) as Array<string>,
-              // requestHash: bridgeRequest.req.hash,
               status: lastBridgeRequestEvent?.label ?? "error",
               statusTimestamp: lastBridgeRequestEvent?.block_timestamp ?? 0,
               tokenIds: bridgeRequest.token_ids,

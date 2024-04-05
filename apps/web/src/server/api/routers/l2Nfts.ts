@@ -39,12 +39,7 @@ export const l2NftsRouter = createTRPCRouter({
 
         const collections: Array<Collection> = contractsForOwner.result.map(
           (contract) => {
-            const mediaSrc = contract.image?.replace(
-              "ipfs://",
-              process.env.IPFS_GATEWAY ?? ""
-            );
-            const mediaFormat =
-              mediaSrc?.split(".").pop() === "mp4" ? "video" : "image";
+            const media = getMediaObjectFromUrl(contract.image);
 
             return {
               contractAddress: contract.contract_address,
@@ -52,7 +47,7 @@ export const l2NftsRouter = createTRPCRouter({
 
               // isBridgeable:
               //   contract.contract_address ===
-              media: { format: mediaFormat, src: mediaSrc },
+              media,
               name: contract.name ?? contract.symbol ?? "Unknown",
               totalBalance: contract.tokens_count,
             };
@@ -81,7 +76,12 @@ export const l2NftsRouter = createTRPCRouter({
       }
 
       try {
-        const nfts = await getL2NftsMetadataBatch(tokenIds, contractAddress);
+        const nfts = await getL2NftsMetadataBatch(
+          tokenIds.map((tokenId) => ({
+            contract_address: contractAddress,
+            token_id: tokenId,
+          }))
+        );
 
         return nfts.result
           .filter(
@@ -94,7 +94,7 @@ export const l2NftsRouter = createTRPCRouter({
             const media = getMediaObjectFromUrl(nft.metadata?.normalized.image);
 
             return {
-              collectionName: "EveraiDuo",
+              collectionName: nft.contract_name,
               media,
               tokenId: nft.token_id,
               tokenName: nft.metadata?.normalized.name ?? `#${nft.token_id}`,

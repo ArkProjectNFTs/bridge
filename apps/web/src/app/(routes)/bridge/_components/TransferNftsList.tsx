@@ -57,7 +57,7 @@ export default function TransferNftsList() {
                 media={selectedNft.media}
                 width={52}
               />
-              <div className="flex flex-col">
+              <div className="flex w-full flex-col">
                 <Typography ellipsable variant="body_text_14">
                   {selectedNft.collectionName}
                 </Typography>

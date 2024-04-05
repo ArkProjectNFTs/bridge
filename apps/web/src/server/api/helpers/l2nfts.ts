@@ -36,25 +36,26 @@ export async function getL2ContractsForOwner(address: string) {
 type ArkBatchNftsApiResponse = {
   result: Array<{
     contract_address: string;
+    contract_name: string;
     metadata?: { normalized: { image?: string; name?: string } };
     owner: string;
     token_id: string;
   }>;
 };
 export async function getL2NftsMetadataBatch(
-  tokenIds: Array<string>,
-  contractAddress: string
+  tokens: Array<{ contract_address: string; token_id: string }>
 ) {
   const url = `${nftApiUrl}/v1/tokens/batch`;
 
   const nftsResponse = await fetch(url, {
     body: JSON.stringify({
-      tokens: tokenIds.map((tokenId) => ({
-        contract_address: validateAndParseAddress(contractAddress),
-        token_id: tokenId,
+      tokens: tokens.map((token) => ({
+        contract_address: validateAndParseAddress(token.contract_address),
+        token_id: token.token_id,
       })),
     }),
     headers: requestsHeader,
+    method: "POST",
   });
 
   const nfts = (await nftsResponse.json()) as ArkBatchNftsApiResponse;
