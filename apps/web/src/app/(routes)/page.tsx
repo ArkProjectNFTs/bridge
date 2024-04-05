@@ -1,27 +1,12 @@
 "use client";
 
-import { useAccount as useStarknetAccount } from "@starknet-react/core";
 import { Typography } from "design-system";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import { useAccount as useEthereumAccount } from "wagmi";
 
 import ConnectWalletsButton from "../_components/ConnectWalletsButton";
 import Footer from "../_components/Footer";
 
 export default function Page() {
-  const { address: starknetAddress } = useStarknetAccount();
-  const { address: ethereumAddress } = useEthereumAccount();
-
-  const router = useRouter();
-
-  useEffect(() => {
-    if (starknetAddress !== undefined && ethereumAddress !== undefined) {
-      void router.push("/bridge");
-    }
-  }, [starknetAddress, ethereumAddress, router]);
-
   return (
     <>
       <div className="flex">

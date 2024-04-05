@@ -8,8 +8,8 @@ import { type NftMedia } from "../types";
 
 const alchemy = new Alchemy({
   apiKey: process.env.ALCHEMY_API_KEY,
-  // network: Network.ETH_MAINNET,
-  network: Network.ETH_GOERLI,
+  network: Network.ETH_MAINNET,
+  // network: Network.ETH_GOERLI,
 });
 
 export type BridgeRequestEventStatus =
@@ -104,9 +104,6 @@ export const bridgeRequestRouter = createTRPCRouter({
               tokenId: bridgeRequest.token_ids[0],
             }))
           );
-        } else {
-          try {
-          } catch (error) {}
         }
 
         const bridgeRequestsWithMetadata = bridgeRequests.map(
@@ -136,7 +133,6 @@ export const bridgeRequestRouter = createTRPCRouter({
               requestContent: JSON.parse(
                 bridgeRequest.req.content
               ) as Array<string>,
-              // requestHash: bridgeRequest.req.hash,
               status: lastBridgeRequestEvent?.label ?? "error",
               statusTimestamp: lastBridgeRequestEvent?.block_timestamp ?? 0,
               tokenIds: bridgeRequest.token_ids,

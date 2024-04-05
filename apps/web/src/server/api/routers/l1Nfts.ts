@@ -6,6 +6,7 @@ import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 
 import l1_bridge_contract from "../../../app/_abis/bridge_l1_abi.json";
+import { getMediaObjectFromAlchemyMedia } from "../helpers/l1nfts";
 import { type Collection, type Nft } from "../types";
 
 const viemClient = createClient({
@@ -59,9 +60,7 @@ export const l1NftsRouter = createTRPCRouter({
           | undefined;
 
       const collections: Array<Collection> = contracts.map((contract) => {
-        const media = contract.media[0];
-        const mediaSrc = media?.gateway ?? media?.thumbnail ?? media?.raw;
-        const mediaFormat = media?.format === "mp4" ? "video" : "image";
+        const media = getMediaObjectFromAlchemyMedia(contract.media[0]);
         const isBridgeable =
           whitelistedCollections !== undefined &&
           whitelistedCollections.find(
@@ -73,7 +72,7 @@ export const l1NftsRouter = createTRPCRouter({
         return {
           contractAddress: contract.address,
           isBridgeable,
-          media: { format: mediaFormat, src: mediaSrc },
+          media,
           name: contract.name ?? contract.symbol ?? "Unknown",
           totalBalance: contract.totalBalance,
         };
@@ -100,15 +99,14 @@ export const l1NftsRouter = createTRPCRouter({
       );
 
       return response.map((nft) => {
-        const media = nft.media[0];
-        const mediaSrc = media?.gateway ?? media?.thumbnail ?? media?.raw;
-        const mediaFormat = media?.format === "mp4" ? "video" : "image";
+        const media = getMediaObjectFromAlchemyMedia(nft.media[0]);
+        const tokenName = nft.title.length > 0 ? nft.title : `#${nft.tokenId}`;
 
         return {
           collectionName: nft.contract.name,
-          media: { format: mediaFormat, src: mediaSrc },
+          media,
           tokenId: nft.tokenId,
-          tokenName: nft.title.length > 0 ? nft.title : `#${nft.tokenId}`,
+          tokenName,
         };
       });
     }),
@@ -139,19 +137,17 @@ export const l1NftsRouter = createTRPCRouter({
         pageSize,
       });
 
-      // TODO @YohanTz: Handle videos
       const ownedNfts: Array<Nft> = nfts.map((nft) => {
-        const media = nft.media[0];
-        const mediaSrc = media?.gateway ?? media?.thumbnail ?? media?.raw;
-        const mediaFormat = media?.format === "mp4" ? "video" : "image";
+        const media = getMediaObjectFromAlchemyMedia(nft.media[0]);
+        const name =
+          nft.title.length > 0
+            ? nft.title
+            : `${nft.title ?? nft.contract.name} #${nft.tokenId}`;
 
         return {
           contractAddress: nft.contract.address,
-          media: { format: mediaFormat, src: mediaSrc },
-          name:
-            nft.title.length > 0
-              ? nft.title
-              : `${nft.title ?? nft.contract.name} #${nft.tokenId}`,
+          media,
+          name,
           tokenId: nft.tokenId,
         };
       });

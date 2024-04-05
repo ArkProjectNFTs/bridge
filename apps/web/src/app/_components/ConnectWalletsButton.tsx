@@ -28,7 +28,7 @@ export default function ConnectWalletsButton() {
       toggleConnectEthereumWalletModal();
       return;
     }
-    toggleConnectWalletsModal;
+    toggleConnectWalletsModal();
   }
 
   return (

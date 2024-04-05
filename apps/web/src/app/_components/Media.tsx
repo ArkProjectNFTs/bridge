@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { useTheme } from "next-themes";
+import { useState } from "react";
 
 import { type NftMedia } from "~/server/api/types";
 /* eslint-disable @next/next/no-img-element */
@@ -20,8 +21,9 @@ export default function Media({
   width,
 }: MediaProps) {
   const { resolvedTheme } = useTheme();
+  const [hasFailedToLoad, setHasFailedToLoad] = useState(false);
 
-  if (media.src === undefined || media.src.length === 0) {
+  if (media.src === undefined || media.src.length === 0 || hasFailedToLoad) {
     return (
       <Image
         alt={alt}
@@ -53,6 +55,7 @@ export default function Media({
         alt={alt}
         className={className}
         height={height}
+        onError={() => setHasFailedToLoad(true)}
         src={media.src}
         width={width}
       />
