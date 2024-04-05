@@ -26,7 +26,7 @@ const wagmiConfig = createConfig({
   // chains: [goerli],
   chains: [mainnet],
   connectors: ethereumConnectors,
-  ssr: true,
+  ssr: false,
   transports: {
     [mainnet.id]: http(
       process.env.NEXT_PUBLIC_ALCHEMY_ETHEREUM_RPC_ENDPOINT ?? ""

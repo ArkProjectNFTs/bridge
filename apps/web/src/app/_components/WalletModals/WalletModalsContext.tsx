@@ -3,7 +3,7 @@ import {
   useNetwork as useStarknetNetwork,
 } from "@starknet-react/core";
 import { SideDialog } from "design-system";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   type PropsWithChildren,
   createContext,
@@ -38,6 +38,7 @@ export function WalletModalsProvider({ children }: PropsWithChildren) {
   >(null);
 
   const pathname = usePathname();
+  const router = useRouter();
 
   const toggleConnectEthereumWalletModal = useCallback(() => {
     if (userOpenedModal === "ethereumWallet") {
@@ -88,6 +89,7 @@ export function WalletModalsProvider({ children }: PropsWithChildren) {
       ethereumAddress !== undefined
     ) {
       setUserOpenedModal(null);
+      void router.push("/bridge");
       return;
     }
   }, [starknetAddress, ethereumAddress, userOpenedModal]);
@@ -111,8 +113,7 @@ export function WalletModalsProvider({ children }: PropsWithChildren) {
         return;
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname]);
+  }, [pathname, starknetAddress, ethereumAddress]);
 
   return (
     <WalletModalsContext.Provider
