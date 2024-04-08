@@ -22,7 +22,7 @@ export default function DarkModeButton() {
   }
 
   return (
-    <button className="h-8 shrink-0" onClick={toggleTheme}>
+    <button className="h-8 shrink-0 rounded-full" onClick={toggleTheme}>
       {resolvedTheme === "light" ? <LightModeIcon /> : <DarkModeIcon />}
     </button>
   );

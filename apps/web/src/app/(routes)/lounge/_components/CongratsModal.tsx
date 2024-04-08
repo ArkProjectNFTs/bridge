@@ -205,10 +205,16 @@ export default function CongratsModal({ isFromTransfer }: CongratsModalProps) {
               component={DialogDescription}
               variant="body_text_16"
             >
-              Your Everai(s) have joined{" "}
-              <b>{totalTokensBridgeOnStarknet ?? 0}</b> others Everais on
-              Starknet! Check now your eligibility and achievements on{" "}
-              <a className="text-space-blue-source underline">Ark Quests</a>.
+              In a few minutes, your Everai(s) will join the{" "}
+              <b>{totalTokensBridgeOnStarknet}</b> others Everais on Starknet!
+              <br />
+              <br />
+              <button
+                className="text-space-blue-source underline"
+                onClick={() => setOpen(false)}
+              >
+                Follow your transaction status here
+              </button>
             </Typography>
             <a
               className="mt-6 flex h-12 items-center rounded-full bg-space-blue-source px-5 text-white transition-colors hover:bg-space-blue-500 dark:text-galaxy-blue"

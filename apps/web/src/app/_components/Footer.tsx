@@ -52,7 +52,7 @@ export default function Footer() {
         </Typography>
         <div className="flex items-center gap-3">
           <a
-            className="transition-colors hover:text-white"
+            className="rounded-full transition-colors hover:text-white"
             href="https://github.com/ArkProjectNFTs"
             rel="noreferrer"
             target="_blank"
@@ -60,7 +60,7 @@ export default function Footer() {
             <GitHubIcon />
           </a>
           <a
-            className="transition-colors hover:text-white"
+            className="rounded-full transition-colors hover:text-white"
             href="https://t.me/arkprojectnfts"
             rel="noreferrer"
             target="_blank"
@@ -68,7 +68,7 @@ export default function Footer() {
             <TelegramIcon />
           </a>
           <a
-            className="transition-colors hover:text-white"
+            className="rounded-full transition-colors hover:text-white"
             href="https://twitter.com/ArkProjectNFTs"
             rel="noreferrer"
             target="_blank"
