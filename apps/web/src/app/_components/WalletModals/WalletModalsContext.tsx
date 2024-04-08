@@ -92,7 +92,7 @@ export function WalletModalsProvider({ children }: PropsWithChildren) {
       void router.push("/bridge");
       return;
     }
-  }, [starknetAddress, ethereumAddress, userOpenedModal]);
+  }, [starknetAddress, ethereumAddress, userOpenedModal, router]);
 
   useEffect(() => {
     if (

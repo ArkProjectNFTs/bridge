@@ -1,6 +1,6 @@
 import { Alchemy, Network, NftFilters } from "alchemy-sdk";
 import { createClient, getContract, http } from "viem";
-import { mainnet } from "viem/chains";
+import { mainnet, sepolia } from "viem/chains";
 import { z } from "zod";
 
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
@@ -10,7 +10,8 @@ import { getMediaObjectFromAlchemyMedia } from "../helpers/l1nfts";
 import { type Collection, type Nft } from "../types";
 
 const viemClient = createClient({
-  chain: mainnet,
+  // chain: mainnet,
+  chain: sepolia,
   transport: http(process.env.NEXT_PUBLIC_ALCHEMY_ETHEREUM_RPC_ENDPOINT ?? ""),
 });
 
@@ -22,8 +23,8 @@ const bridgeL1Contract = getContract({
 
 const alchemy = new Alchemy({
   apiKey: process.env.ALCHEMY_API_KEY,
-  network: Network.ETH_MAINNET,
-  // network: Network.ETH_GOERLI,
+  // network: Network.ETH_MAINNET,
+  network: Network.ETH_SEPOLIA,
 });
 
 export const l1NftsRouter = createTRPCRouter({
