@@ -2,7 +2,6 @@
 
 import clsx from "clsx";
 import {
-  ArrowIcon,
   Dialog,
   DialogContent,
   DialogDescription,
@@ -24,7 +23,7 @@ function ArkQuestsBanner({ className }: ArkQuestsBannerProps) {
     <div
       className={clsx(
         className,
-        "relative flex h-40 flex-col items-center justify-center gap-2 overflow-hidden rounded-2xl"
+        "relative flex h-[11.875rem] flex-col items-center justify-center gap-4 overflow-hidden rounded-2xl"
       )}
     >
       <Image
@@ -58,12 +57,17 @@ function ArkQuestsBanner({ className }: ArkQuestsBannerProps) {
           />
         </svg>
       </div>
+
+      <Typography className="text-white" variant="body_text_16">
+        You just completed a quest on ArkQuests
+      </Typography>
+
       <a
         className="flex h-[2.625rem] items-center justify-center rounded-full bg-sunshine-yellow-source px-6"
         href="/"
       >
         <Typography className="text-void-black" variant="button_text_s">
-          Join now
+          Check your progress
         </Typography>
       </a>
     </div>
@@ -149,7 +153,7 @@ function EveraiCards() {
               component="p"
               variant="heading_light_s"
             >
-              {totalTokensBridgeOnStarknet}
+              {totalTokensBridgeOnStarknet ?? 0}
             </Typography>
             <Typography
               className="text-white"
@@ -201,9 +205,9 @@ export default function CongratsModal({ isFromTransfer }: CongratsModalProps) {
               component={DialogDescription}
               variant="body_text_16"
             >
-              Your Everai(s) have joined <b>{totalTokensBridgeOnStarknet}</b>{" "}
-              others Everais on Starknet! Check now your eligibility and
-              achievements on{" "}
+              Your Everai(s) have joined{" "}
+              <b>{totalTokensBridgeOnStarknet ?? 0}</b> others Everais on
+              Starknet! Check now your eligibility and achievements on{" "}
               <a className="text-space-blue-source underline">Ark Quests</a>.
             </Typography>
             <a
@@ -229,112 +233,8 @@ export default function CongratsModal({ isFromTransfer }: CongratsModalProps) {
             </a>
           </div>
         </div>
-        <Typography className="mt-6" variant="heading_light_xs">
-          Check the collection on Starknet marketplaces
-        </Typography>
-        <div className="mt-2 grid grid-cols-2 gap-4">
-          <a
-            className="flex h-14 items-center justify-between rounded-xl border border-galaxy-blue pl-2 pr-4 transition-colors  hover:bg-space-blue-100 dark:bg-space-blue-800 dark:hover:bg-space-blue-700"
-            href="/"
-          >
-            <Image
-              alt="Element"
-              className="hidden h-7 w-auto dark:block"
-              height={97}
-              src="/logos/dark/element.svg"
-              width={399}
-            />
-            <Image
-              alt="Element"
-              className="h-7 w-auto dark:hidden"
-              height={97}
-              src="/logos/element.svg"
-              width={399}
-            />
-            <ArrowIcon className="flex-shrink-0" />
-          </a>
-          <a
-            className="flex h-14 items-center justify-between rounded-xl border border-galaxy-blue pl-2 pr-4 transition-colors hover:bg-space-blue-100 dark:bg-space-blue-800 dark:hover:bg-space-blue-700"
-            href="/"
-          >
-            <Image
-              alt="Unframed"
-              className="hidden h-9 w-auto dark:block"
-              height={97}
-              src="/logos/dark/unframed.svg"
-              width={389}
-            />
-            <Image
-              alt="Unframed"
-              className="h-9 w-auto dark:hidden"
-              height={97}
-              src="/logos/unframed.svg"
-              width={389}
-            />
-            <ArrowIcon className="flex-shrink-0" />
-          </a>
-          <a
-            className="flex h-14 items-center justify-between rounded-xl border border-galaxy-blue pl-2 pr-4 transition-colors hover:bg-space-blue-100 dark:bg-space-blue-800 dark:hover:bg-space-blue-700"
-            href="/"
-          >
-            <Image
-              alt="Pyramid"
-              className="h-7 w-auto dark:hidden"
-              height={108}
-              src="/logos/pyramid.png"
-              width={390}
-            />
-            <Image
-              alt="Pyramid"
-              className="hidden h-7 w-auto dark:block"
-              height={108}
-              src="/logos/dark/pyramid.png"
-              width={390}
-            />
-            <ArrowIcon className="flex-shrink-0" />
-          </a>
-          <a
-            className="flex h-14 items-center justify-between rounded-xl border border-galaxy-blue pl-2 pr-4 transition-colors hover:bg-space-blue-100 dark:bg-space-blue-800 dark:hover:bg-space-blue-700"
-            href="/"
-          >
-            <Image
-              alt="Flex"
-              className="mb-1 h-9 w-auto dark:hidden"
-              height={138}
-              src="/logos/flex.png"
-              width={189}
-            />
-            <Image
-              alt="Flex"
-              className="mb-1 hidden h-9 w-auto dark:block"
-              height={138}
-              src="/logos/dark/flex.png"
-              width={189}
-            />
-            <ArrowIcon className="flex-shrink-0" />
-          </a>
-          <a
-            className="flex h-14 items-center justify-between rounded-xl border border-galaxy-blue pl-2 pr-4 transition-colors hover:bg-space-blue-100 dark:bg-space-blue-800 dark:hover:bg-space-blue-700"
-            href="/"
-          >
-            <Image
-              alt="Ventory"
-              className="h-9 w-auto dark:hidden"
-              height={97}
-              src="/logos/ventory.png"
-              width={389}
-            />
-            <Image
-              alt="Ventory"
-              className="hidden h-9 w-auto dark:block"
-              height={97}
-              src="/logos/dark/ventory.png"
-              width={389}
-            />
-            <ArrowIcon className="flex-shrink-0" />
-          </a>
-        </div>
-        <ArkQuestsBanner className="mt-2" />
+
+        <ArkQuestsBanner className="mt-4" />
       </DialogContent>
     </Dialog>
   );

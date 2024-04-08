@@ -31,3 +31,4 @@ export { TelegramIcon } from "./icons/TelegramIcon";
 export { GitHubIcon } from "./icons/GitHubIcon";
 export { PlusIcon } from "./icons/PlusIcon";
 export { MinusIcon } from "./icons/MinusIcon";
+export { GasIcon } from "./icons/GasIcon";

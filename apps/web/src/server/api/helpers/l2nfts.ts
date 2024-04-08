@@ -47,13 +47,16 @@ export async function getL2NftsMetadataBatch(
 ) {
   const url = `${nftApiUrl}/v1/tokens/batch`;
 
+  const body = JSON.stringify({
+    tokens: tokens.map((token) => ({
+      contract_address: validateAndParseAddress(token.contract_address),
+      token_id: token.token_id,
+    })),
+  });
+  console.log(body);
+
   const nftsResponse = await fetch(url, {
-    body: JSON.stringify({
-      tokens: tokens.map((token) => ({
-        contract_address: validateAndParseAddress(token.contract_address),
-        token_id: token.token_id,
-      })),
-    }),
+    body,
     headers: requestsHeader,
     method: "POST",
   });

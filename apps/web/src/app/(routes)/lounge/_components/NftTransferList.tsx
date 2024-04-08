@@ -9,6 +9,7 @@ import useCurrentChain from "~/app/_hooks/useCurrentChain";
 import useIsFullyConnected from "~/app/_hooks/useIsFullyConnected";
 import { api } from "~/utils/api";
 
+import MarketplacesList from "./MarketplacesList";
 import NftTransferItem from "./NftTransferItem";
 import NftTransferListLoadingState from "./NftTransferListLoadingState";
 import SuccessWithdrawModal from "./SuccessWithdrawModal.tsx";
@@ -118,6 +119,9 @@ export default function NftTransferList({
         sourceBridgeRequests.past.totalCount
       : targetBridgeRequests.past.totalCount;
 
+  const showMarketplacesLinks =
+    variant === "lounge" || targetChain === "Starknet";
+
   return (
     <div className={className}>
       {inTransitRequests.length > 0 && variant !== "lounge" && (
@@ -148,6 +152,8 @@ export default function NftTransferList({
           </div>
         </>
       )}
+
+      {showMarketplacesLinks && <MarketplacesList />}
 
       {pastRequests.length > 0 && (
         <>

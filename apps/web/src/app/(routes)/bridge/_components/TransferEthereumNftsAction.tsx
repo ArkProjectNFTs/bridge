@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { Button, Typography } from "design-system";
+import { Button, GasIcon, Notification, Typography } from "design-system";
 
 import useEthereumCollectionApproval from "../_hooks/useEthereumCollectionApproval";
 import useEthereumNftDeposit from "../_hooks/useEthereumNftDeposit";
@@ -101,29 +101,40 @@ function TransferNfts() {
   const disabled = totalSelectedNfts === 0 || isSigning;
 
   return (
-    <Button
-      className={clsx(
-        "mt-8 h-12 flex-shrink-0 bg-galaxy-blue text-white transition-colors dark:bg-primary-source dark:text-galaxy-blue",
-        disabled
-          ? "cursor-no-drop opacity-50"
-          : "hover:bg-space-blue-700 dark:hover:bg-primary-400"
+    <>
+      {totalSelectedNfts > 0 && (
+        <Notification
+          className="mt-8"
+          icon={<GasIcon />}
+          variant="mantis_green"
+        >
+          ArkProject will refund gas costs in Stark!
+        </Notification>
       )}
-      onClick={() => !disabled && depositTokens()}
-      size="small"
-    >
-      {isSigning ? (
-        <div className="flex items-center gap-2">
-          <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-r-transparent" />
+      <Button
+        className={clsx(
+          "mt-8 h-12 flex-shrink-0 bg-galaxy-blue text-white transition-colors dark:bg-primary-source dark:text-galaxy-blue",
+          disabled
+            ? "cursor-no-drop opacity-50"
+            : "hover:bg-space-blue-700 dark:hover:bg-primary-400"
+        )}
+        onClick={() => !disabled && depositTokens()}
+        size="small"
+      >
+        {isSigning ? (
+          <div className="flex items-center gap-2">
+            <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-r-transparent" />
+            <Typography variant="button_text_s">
+              Confirm in your wallet
+            </Typography>
+          </div>
+        ) : (
           <Typography variant="button_text_s">
-            Confirm in your wallet
+            Confirm transfer to Starknet
           </Typography>
-        </div>
-      ) : (
-        <Typography variant="button_text_s">
-          Confirm transfer to Starknet
-        </Typography>
-      )}
-    </Button>
+        )}
+      </Button>
+    </>
   );
 }
 

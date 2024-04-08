@@ -13,8 +13,8 @@ import { type NftMedia } from "../types";
 
 const alchemy = new Alchemy({
   apiKey: process.env.ALCHEMY_API_KEY,
-  // network: Network.ETH_MAINNET,
-  network: Network.ETH_SEPOLIA,
+  network: Network.ETH_MAINNET,
+  // network: Network.ETH_SEPOLIA,
 });
 
 export type BridgeRequestEventStatus =

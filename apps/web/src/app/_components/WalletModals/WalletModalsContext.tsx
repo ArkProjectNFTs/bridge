@@ -113,7 +113,7 @@ export function WalletModalsProvider({ children }: PropsWithChildren) {
         return;
       }
     }
-  }, [pathname, starknetAddress, ethereumAddress]);
+  }, [pathname]);
 
   return (
     <WalletModalsContext.Provider

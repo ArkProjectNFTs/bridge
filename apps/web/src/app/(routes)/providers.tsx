@@ -2,12 +2,15 @@
 
 import {
   mainnet as starknetMainnet,
-  sepolia as starknetSepolia,
+  // sepolia as starknetSepolia,
 } from "@starknet-react/chains";
 import { StarknetConfig, jsonRpcProvider } from "@starknet-react/core";
 import { ThemeProvider } from "next-themes";
 import { WagmiProvider, createConfig, http } from "wagmi";
-import { mainnet, sepolia } from "wagmi/chains";
+import {
+  mainnet,
+  // , sepolia
+} from "wagmi/chains";
 
 import { WalletModalsProvider } from "../_components/WalletModals/WalletModalsContext";
 import {
@@ -16,17 +19,17 @@ import {
 } from "../_lib/utils/connectors";
 
 const wagmiConfig = createConfig({
-  chains: [sepolia],
-  // chains: [mainnet],
+  // chains: [sepolia],
+  chains: [mainnet],
   connectors: ethereumConnectors,
   ssr: false,
   transports: {
-    [sepolia.id]: http(
-      process.env.NEXT_PUBLIC_ALCHEMY_ETHEREUM_RPC_ENDPOINT ?? ""
-    ),
-    // [mainnet.id]: http(
+    // [sepolia.id]: http(
     //   process.env.NEXT_PUBLIC_ALCHEMY_ETHEREUM_RPC_ENDPOINT ?? ""
     // ),
+    [mainnet.id]: http(
+      process.env.NEXT_PUBLIC_ALCHEMY_ETHEREUM_RPC_ENDPOINT ?? ""
+    ),
   },
 });
 
@@ -46,8 +49,8 @@ export default function Providers({ children }: ProvidersProps) {
   return (
     <StarknetConfig
       autoConnect
-      chains={[starknetSepolia]}
-      // chains={[starknetMainnet]}
+      // chains={[starknetSepolia]}
+      chains={[starknetMainnet]}
       connectors={starknetConnectors}
       provider={jsonRpcProvider({ rpc: starknetRpc })}
       // provider={starknetProvider}
