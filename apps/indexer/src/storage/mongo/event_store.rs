@@ -53,8 +53,6 @@ impl EventStore for MongoStore {
 
         let mut total_tokens: u64 = 0;
         while let Some(doc) = cursor.try_next().await? {
-            log::info!("doc: {:?}", doc);
-
             if let Ok(total) = doc.get_i32("total_tokens") {
                 total_tokens += total as u64;
             };
