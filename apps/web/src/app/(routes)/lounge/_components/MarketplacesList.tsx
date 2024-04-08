@@ -14,7 +14,7 @@ export default function MarketplacesList() {
       <div className="mt-2 grid grid-cols-4 gap-6">
         <a
           className="flex h-[5.625rem] items-center justify-between rounded-xl border border-asteroid-grey-100 bg-white px-6 transition-colors hover:bg-space-blue-100 dark:border-space-blue-800 dark:bg-space-blue-900 dark:hover:bg-space-blue-800"
-          href="/"
+          href="https://element.market/collections/untitled-54122e3e9?search%5Btoggles%5D[0]=BUY_NOW"
         >
           <Image
             alt="Element"
@@ -54,7 +54,7 @@ export default function MarketplacesList() {
         </a>
         <a
           className="flex h-[5.625rem] items-center justify-between rounded-xl border border-asteroid-grey-100 bg-white px-6 transition-colors hover:bg-space-blue-100 dark:border-space-blue-800 dark:bg-space-blue-900 dark:hover:bg-space-blue-800"
-          href="/"
+          href="https://pyramid.market/collection/0x2acee8c430f62333cf0e0e7a94b2347b5513b4c25f699461dd8d7b23c072478"
         >
           <Image
             alt="Pyramid"
@@ -94,7 +94,7 @@ export default function MarketplacesList() {
         </a>
         <a
           className="flex h-[5.625rem] items-center justify-between rounded-xl border border-asteroid-grey-100 bg-white px-6 transition-colors hover:bg-space-blue-100 dark:border-space-blue-800 dark:bg-space-blue-900 dark:hover:bg-space-blue-800"
-          href="/"
+          href="https://ventory.gg/collection/0x02acee8c430f62333cf0e0e7a94b2347b5513b4c25f699461dd8d7b23c072478"
         >
           <Image
             alt="Ventory"

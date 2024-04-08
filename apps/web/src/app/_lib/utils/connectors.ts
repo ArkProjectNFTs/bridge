@@ -1,7 +1,6 @@
 import { InjectedConnector as InjectedStarknetConnector } from "@starknet-react/core";
 import { type StaticImageData } from "next/image";
 import {
-  coinbaseWallet,
   // coinbaseWallet,
   injected,
 } from "wagmi/connectors";
@@ -22,10 +21,10 @@ import { type Chain } from "../../_types";
 export const ethereumConnectors = [
   injected(),
   //   new WalletConnectConnector({ options: { projectId: walletConnectProjectId } }),
-  coinbaseWallet({
-    appName: "Arklane",
-    darkMode: true,
-  }),
+  // coinbaseWallet({
+  //   appName: "Arklane",
+  //   darkMode: true,
+  // }),
 ];
 
 export const DOWNLOAD_LINK_BY_CONNECTOR_ID: Record<string, string> = {
