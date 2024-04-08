@@ -422,6 +422,10 @@ mod bridge {
                 }
             );
 
+        // update whitelist if needed
+        if self.white_list.read(l2_addr_from_deploy) != true {
+            self.white_list.write(l2_addr_from_deploy, true);
+        }
         l2_addr_from_deploy
     }
 
