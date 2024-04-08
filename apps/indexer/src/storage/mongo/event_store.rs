@@ -27,36 +27,14 @@ impl EventStore for MongoStore {
         &self,
         eth_contract_address: &str,
     ) -> Result<u64> {
-        let pipeline = vec![
-            doc! {
-                "$match": {
-                    "collection_src": eth_contract_address,
-                }
-            },
-            doc! {
-                "$project": {
-                    "number_of_tokens": { "$size": "$token_ids" }
-                }
-            },
-            doc! {
-                "$group": {
-                    "_id": null,
-                    "total_token_ids": { "$sum": "$number_of_tokens" }
-                }
-            },
-        ];
+        let filter = doc! {
+            "collection_src": eth_contract_address,
+        };
 
-        let mut cursor = self
+        let total_count = self
             .starknet_bridge_requests
-            .aggregate(pipeline, None)
+            .count_documents(filter, None)
             .await?;
-
-        let mut total_count: u64 = 0;
-        if let Some(doc) = cursor.try_next().await? {
-            if let Ok(count) = doc.get_i64("total_token_ids") {
-                total_count = count as u64;
-            }
-        }
 
         Ok(total_count)
     }
