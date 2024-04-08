@@ -1,7 +1,7 @@
 use anyhow::Result;
 use async_trait::async_trait;
 use futures::TryStreamExt;
-use mongodb::bson::doc;
+use mongodb::{bson::doc, options::AggregateOptions};
 
 use super::MongoStore;
 use crate::storage::{store::EventStore, Event};
@@ -27,16 +27,40 @@ impl EventStore for MongoStore {
         &self,
         eth_contract_address: &str,
     ) -> Result<u64> {
-        let filter = doc! {
-            "collection_src": eth_contract_address,
-        };
+        let pipeline = vec![
+            doc! {
+                "$match": {
+                    "collection_src": eth_contract_address,
+                }
+            },
+            doc! {
+                "$unwind": "$token_ids"
+            },
+            doc! {
+                "$group": {
+                    "_id": null,
+                    "total_tokens": {
+                        "$sum": 1
+                    }
+                }
+            },
+        ];
 
-        let total_count = self
+        let mut cursor = self
             .starknet_bridge_requests
-            .count_documents(filter, None)
+            .aggregate(pipeline, AggregateOptions::default())
             .await?;
 
-        Ok(total_count)
+        let mut total_tokens: u64 = 0;
+        while let Some(doc) = cursor.try_next().await? {
+            log::info!("doc: {:?}", doc);
+
+            if let Ok(total) = doc.get_i32("total_tokens") {
+                total_tokens += total as u64;
+            };
+        }
+
+        Ok(total_tokens)
     }
 
     ///
