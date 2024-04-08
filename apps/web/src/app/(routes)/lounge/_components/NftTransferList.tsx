@@ -87,7 +87,7 @@ export default function NftTransferList({
     targetBridgeRequests.inTransit.requests.length === 0 &&
     targetBridgeRequests.past.requests.length === 0 &&
     (variant !== "lounge" ||
-      (sourceBridgeRequests?.inTransit.requests.length === 0 &&
+      (sourceBridgeRequests.inTransit.requests.length === 0 &&
         sourceBridgeRequests.past.requests.length === 0))
   ) {
     return variant !== "lounge" ? (

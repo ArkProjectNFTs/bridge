@@ -45,7 +45,7 @@ export default function TransferNftsList() {
   }
 
   return (
-    <div className="mt-8 flex w-full flex-col gap-4 overflow-y-auto">
+    <div className="mt-8 flex min-h-[3.25rem] w-full flex-col gap-4 overflow-y-auto">
       {selectedNfts.map((selectedNft) => {
         return (
           <div className="flex justify-between" key={selectedNft.tokenId}>

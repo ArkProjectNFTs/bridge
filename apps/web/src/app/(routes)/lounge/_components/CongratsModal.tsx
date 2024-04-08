@@ -13,6 +13,8 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { api } from "~/utils/api";
+
 interface ArkQuestsBannerProps {
   className?: string;
 }
@@ -69,6 +71,9 @@ function ArkQuestsBanner({ className }: ArkQuestsBannerProps) {
 }
 
 function EveraiCards() {
+  const { data: totalTokensBridgeOnStarknet } =
+    api.stats.getEveraiBridgeNumber.useQuery();
+
   return (
     <div className="relative flex-shrink-0">
       <div className="absolute inset-0 mx-5 my-3 w-40 rotate-12 rounded-xl border border-space-blue-600 bg-space-blue-900 p-2.5 dark:border-space-blue-700 dark:bg-space-blue-800" />
@@ -144,7 +149,7 @@ function EveraiCards() {
               component="p"
               variant="heading_light_s"
             >
-              123
+              {totalTokensBridgeOnStarknet}
             </Typography>
             <Typography
               className="text-white"
@@ -175,6 +180,8 @@ export default function CongratsModal({ isFromTransfer }: CongratsModalProps) {
   const [open, setOpen] = useState(isFromTransfer);
 
   const router = useRouter();
+  const { data: totalTokensBridgeOnStarknet } =
+    api.stats.getEveraiBridgeNumber.useQuery();
 
   useEffect(() => {
     router.push("/lounge");
@@ -194,8 +201,9 @@ export default function CongratsModal({ isFromTransfer }: CongratsModalProps) {
               component={DialogDescription}
               variant="body_text_16"
             >
-              Your Everai(s) have joined <b>356</b> others Everais on Starknet!
-              Check now your eligibility and achievements on{" "}
+              Your Everai(s) have joined <b>{totalTokensBridgeOnStarknet}</b>{" "}
+              others Everais on Starknet! Check now your eligibility and
+              achievements on{" "}
               <a className="text-space-blue-source underline">Ark Quests</a>.
             </Typography>
             <a
