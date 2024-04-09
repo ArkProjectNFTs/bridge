@@ -8,6 +8,10 @@ const variants = {
     "bg-playground-purple-100 text-playground-purple-800 dark:bg-playground-purple-300 dark:text-playground-purple-900",
   space_blue:
     "bg-space-blue-100 text-space-blue-800 dark:bg-space-blue-300 dark:text-space-blue-900",
+  sunshine_yellow:
+    "bg-sunshine-yellow-100 text-sunshine-yellow-800 dark:bg-sunshine-yellow-300 dark:text-sunshine-yellow-900",
+  folly_red:
+    "bg-folly-red-100 text-folly-red-800 dark:bg-folly-red-300 dark:text-folly-red-900",
 };
 
 interface NotificationsProps {
@@ -32,7 +36,7 @@ export function Notification({
       )}
     >
       <span className="flex-shrink-0">{icon}</span>
-      <Typography variant="body_text_14" component="p">
+      <Typography variant="body_text_14" component="p" className="w-full">
         {children}
       </Typography>
     </div>

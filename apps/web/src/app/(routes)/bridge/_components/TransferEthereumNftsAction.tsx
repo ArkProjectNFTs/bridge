@@ -1,9 +1,12 @@
 import clsx from "clsx";
 import { Button, GasIcon, Notification, Typography } from "design-system";
 
+import { api } from "~/utils/api";
+
 import useEthereumCollectionApproval from "../_hooks/useEthereumCollectionApproval";
 import useEthereumNftDeposit from "../_hooks/useEthereumNftDeposit";
 import useNftSelection from "../_hooks/useNftSelection";
+import GasNotification from "./GasNotification";
 
 function ApproveNfts() {
   const { approveForAll, isApproveLoading, isSigning } =
@@ -98,14 +101,17 @@ function TransferNfts() {
   const { depositTokens, isSigning } = useEthereumNftDeposit();
   const { totalSelectedNfts } = useNftSelection();
 
+  api.gasInfo.getCurrentGasPrice.useQuery();
+
   const disabled = totalSelectedNfts === 0 || isSigning;
 
   return (
     <>
       {totalSelectedNfts > 0 && (
         <>
+          <GasNotification className="mt-8" />
           <Notification
-            className="mt-8"
+            className="mt-4"
             icon={<GasIcon />}
             variant="mantis_green"
           >
