@@ -53,7 +53,6 @@ export async function getL2NftsMetadataBatch(
       token_id: token.token_id,
     })),
   });
-  console.log(body);
 
   const nftsResponse = await fetch(url, {
     body,
