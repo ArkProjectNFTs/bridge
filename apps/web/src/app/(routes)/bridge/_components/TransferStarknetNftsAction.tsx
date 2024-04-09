@@ -19,7 +19,7 @@ export default function TransferStarknetNftsAction() {
           variant="space_blue"
         >
           <b>Important note: </b>You will have to wait about 4 hours before you
-          can claim your assets on ethereum.
+          can claim your assets on Ethereum.
         </Notification>
       )}
       <Button
