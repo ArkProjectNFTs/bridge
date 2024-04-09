@@ -1,15 +1,23 @@
-import { Alchemy, Network, type Nft } from "alchemy-sdk";
+import { Alchemy, Network } from "alchemy-sdk";
 import { z } from "zod";
 
 import { type Chain } from "~/app/_types";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 
+import { getMediaObjectFromAlchemyMedia } from "../helpers/l1nfts";
+import {
+  getL2NftsMetadataBatch,
+  getMediaObjectFromUrl,
+} from "../helpers/l2nfts";
 import { type NftMedia } from "../types";
 
 const alchemy = new Alchemy({
   apiKey: process.env.ALCHEMY_API_KEY,
-  network: Network.ETH_MAINNET,
-  // network: Network.ETH_GOERLI,
+  network:
+    process.env.NEXT_PUBLIC_ENVIRONMENT === "dev"
+      ? Network.ETH_SEPOLIA
+      : Network.ETH_MAINNET,
+  // network: Network.ETH_SEPOLIA,
 });
 
 export type BridgeRequestEventStatus =
@@ -96,27 +104,66 @@ export const bridgeRequestRouter = createTRPCRouter({
           };
         }
 
-        let requestMetadata: Array<Nft> = [];
+        let requestMetadataByReqHash: Record<
+          string,
+          { contractName: string; media: NftMedia }
+        > = {};
+
         if (bridgeRequests[0]?.req.chain_src === "eth") {
-          requestMetadata = await alchemy.nft.getNftMetadataBatch(
+          const requestMetadatas = await alchemy.nft.getNftMetadataBatch(
             bridgeRequests.reverse().map((bridgeRequest) => ({
               contractAddress: bridgeRequest.req.collection_src,
               tokenId: bridgeRequest.token_ids[0],
             }))
           );
+
+          requestMetadataByReqHash = requestMetadatas.reduce((acc, current) => {
+            return {
+              ...acc,
+              [`${current.tokenId}`]: {
+                contractName: current.contract.name,
+                media: getMediaObjectFromAlchemyMedia(current.media[0]),
+              },
+            };
+          }, {});
+        } else {
+          const requestMetadatas = await getL2NftsMetadataBatch(
+            bridgeRequests.map((bridgeRequest) => ({
+              contract_address: bridgeRequest.req.collection_src,
+              token_id: bridgeRequest.token_ids[0],
+            }))
+          );
+          requestMetadataByReqHash = requestMetadatas.result.reduce(
+            (acc, current) => {
+              return {
+                ...acc,
+                [`${current.token_id}`]: {
+                  contractName: current.contract_name,
+                  media: getMediaObjectFromUrl(
+                    current.metadata?.normalized.image
+                  ),
+                },
+              };
+            },
+            {}
+          );
         }
 
         const bridgeRequestsWithMetadata = bridgeRequests.map(
-          (bridgeRequest, index) => {
+          (bridgeRequest) => {
             const lastBridgeRequestEvent =
               bridgeRequest.events[bridgeRequest.events.length - 1];
             const isArrived =
               lastBridgeRequestEvent?.label === "withdraw_available_l1" ||
               lastBridgeRequestEvent?.label === "withdraw_completed_l1" ||
               lastBridgeRequestEvent?.label === "withdraw_completed_l2";
-            const media = requestMetadata[index]?.media[0];
-            const mediaSrc = media?.gateway ?? media?.thumbnail ?? media?.raw;
-            const mediaFormat = media?.format === "mp4" ? "video" : "image";
+            const requestMetadata =
+              requestMetadataByReqHash[`${bridgeRequest.token_ids[0]}`];
+            const collectionMedia = requestMetadata?.media ?? {
+              format: "image",
+              src: undefined,
+            };
+            const collectionName = requestMetadata?.contractName ?? "Unknown";
 
             return {
               arrivalAddress: bridgeRequest.req.to,
@@ -127,8 +174,8 @@ export const bridgeRequestRouter = createTRPCRouter({
               arrivalTimestamp: isArrived
                 ? lastBridgeRequestEvent?.block_timestamp
                 : undefined,
-              collectionMedia: { format: mediaFormat, src: mediaSrc },
-              collectionName: requestMetadata[index]?.contract.name ?? "",
+              collectionMedia,
+              collectionName,
               collectionSourceAddress: bridgeRequest.req.collection_src,
               requestContent: JSON.parse(
                 bridgeRequest.req.content

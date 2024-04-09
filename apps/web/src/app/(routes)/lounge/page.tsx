@@ -19,7 +19,6 @@ export default function LoungePage({ searchParams }: LoungePageProps) {
         <MainPageContainer>
           <CongratsModal
             isFromTransfer={searchParams.fromEthereum !== undefined}
-            // isFromTransfer
           />
           <ChainSwitch />
           <Banner />

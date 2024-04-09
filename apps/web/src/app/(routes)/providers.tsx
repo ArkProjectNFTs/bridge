@@ -1,20 +1,13 @@
 "use client";
 
 import {
-  type Chain,
-  // type Chain,
-  // goerli as starknetGoerli,
   mainnet as starknetMainnet,
+  sepolia as starknetSepolia,
 } from "@starknet-react/chains";
-import {
-  StarknetConfig,
-  jsonRpcProvider,
-  // publicProvider,
-  // publicProvider,
-} from "@starknet-react/core";
+import { StarknetConfig, jsonRpcProvider } from "@starknet-react/core";
 import { ThemeProvider } from "next-themes";
 import { WagmiProvider, createConfig, http } from "wagmi";
-import { mainnet } from "wagmi/chains";
+import { mainnet, sepolia } from "wagmi/chains";
 
 import { WalletModalsProvider } from "../_components/WalletModals/WalletModalsContext";
 import {
@@ -22,28 +15,33 @@ import {
   starknetConnectors,
 } from "../_lib/utils/connectors";
 
+const starknetChain =
+  process.env.NEXT_PUBLIC_ENVIRONMENT === "dev"
+    ? starknetSepolia
+    : starknetMainnet;
+
+const wagmiChain =
+  process.env.NEXT_PUBLIC_ENVIRONMENT === "dev" ? sepolia : mainnet;
+
 const wagmiConfig = createConfig({
-  // chains: [goerli],
-  chains: [mainnet],
+  chains: [wagmiChain],
   connectors: ethereumConnectors,
-  ssr: false,
+  ssr: true,
   transports: {
     [mainnet.id]: http(
+      process.env.NEXT_PUBLIC_ALCHEMY_ETHEREUM_RPC_ENDPOINT ?? ""
+    ),
+    [sepolia.id]: http(
       process.env.NEXT_PUBLIC_ALCHEMY_ETHEREUM_RPC_ENDPOINT ?? ""
     ),
   },
 });
 
-function starknetRpc(chain: Chain) {
-  if (chain.network === "goerli")
-    return { nodeUrl: `https://juno.testnet.arkproject.dev/` };
-
+function starknetRpc() {
   return {
     nodeUrl: process.env.NEXT_PUBLIC_ALCHEMY_STARKNET_RPC_ENDPOINT ?? "",
   };
 }
-
-// const starknetProvider = publicProvider();
 
 interface ProvidersProps {
   children: React.ReactNode;
@@ -53,8 +51,7 @@ export default function Providers({ children }: ProvidersProps) {
   return (
     <StarknetConfig
       autoConnect
-      // chains={[starknetGoerli]}
-      chains={[starknetMainnet]}
+      chains={[starknetChain]}
       connectors={starknetConnectors}
       provider={jsonRpcProvider({ rpc: starknetRpc })}
       // provider={starknetProvider}

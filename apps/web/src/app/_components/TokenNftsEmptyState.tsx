@@ -6,7 +6,9 @@ export default function TokenNftsEmptyState({
   className = "",
 }: NftsEmptyStateProps) {
   return (
-    <div className={`grid grid-cols-2 gap-5 sm:grid-cols-5 ${className}`}>
+    <div
+      className={`grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-5 ${className}`}
+    >
       <svg
         className="h-auto w-full dark:hidden"
         fill="none"

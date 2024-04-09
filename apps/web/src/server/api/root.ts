@@ -3,6 +3,7 @@ import { createTRPCRouter } from "~/server/api/trpc";
 import { bridgeRequestRouter } from "./routers/bridgeRequest";
 import { l1NftsRouter } from "./routers/l1Nfts";
 import { l2NftsRouter } from "./routers/l2Nfts";
+import { statsRouter } from "./routers/stats";
 
 /**
  * This is the primary router for your server.
@@ -13,6 +14,7 @@ export const appRouter = createTRPCRouter({
   bridgeRequest: bridgeRequestRouter,
   l1Nfts: l1NftsRouter,
   l2Nfts: l2NftsRouter,
+  stats: statsRouter,
 });
 
 // export type definition of API

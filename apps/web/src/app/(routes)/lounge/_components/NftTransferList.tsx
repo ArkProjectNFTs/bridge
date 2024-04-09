@@ -9,6 +9,7 @@ import useCurrentChain from "~/app/_hooks/useCurrentChain";
 import useIsFullyConnected from "~/app/_hooks/useIsFullyConnected";
 import { api } from "~/utils/api";
 
+import MarketplacesList from "./MarketplacesList";
 import NftTransferItem from "./NftTransferItem";
 import NftTransferListLoadingState from "./NftTransferListLoadingState";
 import SuccessWithdrawModal from "./SuccessWithdrawModal.tsx";
@@ -87,7 +88,7 @@ export default function NftTransferList({
     targetBridgeRequests.inTransit.requests.length === 0 &&
     targetBridgeRequests.past.requests.length === 0 &&
     (variant !== "lounge" ||
-      (sourceBridgeRequests?.inTransit.requests.length === 0 &&
+      (sourceBridgeRequests.inTransit.requests.length === 0 &&
         sourceBridgeRequests.past.requests.length === 0))
   ) {
     return variant !== "lounge" ? (
@@ -117,6 +118,9 @@ export default function NftTransferList({
       ? targetBridgeRequests.past.totalCount +
         sourceBridgeRequests.past.totalCount
       : targetBridgeRequests.past.totalCount;
+
+  const showMarketplacesLinks =
+    variant === "lounge" || targetChain === "Starknet";
 
   return (
     <div className={className}>
@@ -148,6 +152,8 @@ export default function NftTransferList({
           </div>
         </>
       )}
+
+      {showMarketplacesLinks && <MarketplacesList />}
 
       {pastRequests.length > 0 && (
         <>

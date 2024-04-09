@@ -110,8 +110,6 @@ function RootLayout({ children }: { children: React.ReactNode }) {
         <Providers>
           <Header />
           <div className="hidden min-h-screen md:block">{children}</div>
-          {/* <EthereumSwitchNetwork />
-          <StarknetSwitchNetwork /> */}
         </Providers>
         <div className="block h-screen md:hidden">
           <MobilePlaceholder />

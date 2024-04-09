@@ -13,7 +13,9 @@ export default function NftsLoadingState({
   type,
 }: NftsLoadingStateProps) {
   return (
-    <div className={`grid grid-cols-2 gap-5 sm:grid-cols-5 ${className}`}>
+    <div
+      className={`grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-5 ${className}`}
+    >
       {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((lodingCardNumber) => {
         return (
           <Fragment key={`dark-${lodingCardNumber}`}>

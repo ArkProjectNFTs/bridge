@@ -79,15 +79,15 @@ export default {
         // mantis-green
         "mantis-green-source": "#79d06f",
         "mantis-green-50": "#ecf7ea",
-        "mantis-green-100": "#c7e5c0",
+        "mantis-green-100": "#E3FADE",
         "mantis-green-200": "#a3d399",
-        "mantis-green-300": "#80c076",
+        "mantis-green-300": "#96DC89",
         "mantis-green-400": "#60ac57",
         "mantis-green-500": "#42983d",
         "mantis-green-600": "#288328",
         "mantis-green-700": "#126e18",
-        "mantis-green-800": "#05580e",
-        "mantis-green-900": "#06430a",
+        "mantis-green-800": "#0D6513",
+        "mantis-green-900": "#06430A",
 
         // playground-purple
         "playground-purple-source": "#8c62f2",
