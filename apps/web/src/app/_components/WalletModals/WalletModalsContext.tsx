@@ -89,10 +89,11 @@ export function WalletModalsProvider({ children }: PropsWithChildren) {
       ethereumAddress !== undefined
     ) {
       setUserOpenedModal(null);
-      void router.push("/bridge");
-      return;
+      if (pathname === "/") {
+        void router.push("/bridge");
+      }
     }
-  }, [starknetAddress, ethereumAddress, userOpenedModal, router]);
+  }, [userOpenedModal, router, starknetAddress, ethereumAddress, pathname]);
 
   useEffect(() => {
     if (

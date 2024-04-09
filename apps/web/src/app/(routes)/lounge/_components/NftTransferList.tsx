@@ -129,7 +129,7 @@ export default function NftTransferList({
             totalCount={inTransitTotalCount}
           />
           <div className="mb-20 flex flex-col gap-4">
-            {inTransitRequests.map((bridgeRequest) => {
+            {inTransitRequests.map((bridgeRequest, index) => {
               return (
                 <NftTransferItem
                   arrivalAddress={bridgeRequest.arrivalAddress}
@@ -137,7 +137,7 @@ export default function NftTransferList({
                   collectionMedia={bridgeRequest.collectionMedia}
                   collectionName={bridgeRequest.collectionName}
                   contractAddress={bridgeRequest.collectionSourceAddress}
-                  key={`${bridgeRequest.statusTimestamp}-$${bridgeRequest.collectionName}}`}
+                  key={`${bridgeRequest.statusTimestamp}-$${bridgeRequest.collectionName}-${index}}`}
                   requestContent={bridgeRequest.requestContent}
                   status={bridgeRequest.status}
                   tokenIds={bridgeRequest.tokenIds}
@@ -169,7 +169,7 @@ export default function NftTransferList({
           />
 
           <div className="mb-20 flex flex-col gap-4">
-            {pastRequests.map((bridgeRequest) => {
+            {pastRequests.map((bridgeRequest, index) => {
               return (
                 <NftTransferItem
                   arrivalAddress={bridgeRequest.arrivalAddress}
@@ -178,7 +178,7 @@ export default function NftTransferList({
                   collectionMedia={bridgeRequest.collectionMedia}
                   collectionName={bridgeRequest.collectionName}
                   contractAddress={bridgeRequest.collectionSourceAddress}
-                  key={bridgeRequest.statusTimestamp}
+                  key={`${bridgeRequest.statusTimestamp}-${index}`}
                   requestContent={bridgeRequest.requestContent}
                   status={bridgeRequest.status}
                   tokenIds={bridgeRequest.tokenIds}

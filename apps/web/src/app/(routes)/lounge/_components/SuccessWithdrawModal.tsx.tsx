@@ -49,6 +49,7 @@ export default function SuccessWithdrawModal({
           className="mt-7 flex h-12 w-full items-center justify-center rounded-full bg-galaxy-blue px-6 py-3 text-center hover:bg-space-blue-700 dark:bg-space-blue-400 dark:hover:bg-space-blue-200"
           color="default"
           href="/portfolio"
+          onClick={() => onOpenChange(false)}
         >
           <Typography
             className="text-white dark:text-space-blue-900"
