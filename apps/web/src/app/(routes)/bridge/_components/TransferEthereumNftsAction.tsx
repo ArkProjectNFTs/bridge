@@ -1,5 +1,11 @@
 import clsx from "clsx";
-import { Button, GasIcon, Notification, Typography } from "design-system";
+import {
+  Button,
+  ClockIcon,
+  GasIcon,
+  Notification,
+  Typography,
+} from "design-system";
 
 import useEthereumCollectionApproval from "../_hooks/useEthereumCollectionApproval";
 import useEthereumNftDeposit from "../_hooks/useEthereumNftDeposit";
@@ -103,13 +109,23 @@ function TransferNfts() {
   return (
     <>
       {totalSelectedNfts > 0 && (
-        <Notification
-          className="mt-8"
-          icon={<GasIcon />}
-          variant="mantis_green"
-        >
-          ArkProject will refund gas costs in Stark!
-        </Notification>
+        <>
+          <Notification
+            className="mt-8"
+            icon={<ClockIcon />}
+            variant="space_blue"
+          >
+            <b>Important note: </b>You will have to wait about 4 hours before
+            you can claim your assets on ethereum.
+          </Notification>
+          <Notification
+            className="mt-4"
+            icon={<GasIcon />}
+            variant="mantis_green"
+          >
+            ArkProject will refund gas costs in Stark!
+          </Notification>
+        </>
       )}
       <Button
         className={clsx(
@@ -141,6 +157,8 @@ function TransferNfts() {
 export default function TransferEthereumNftsAction() {
   const { totalSelectedNfts } = useNftSelection();
   const { isApprovedForAll } = useEthereumCollectionApproval();
+
+  return <TransferNfts />;
 
   return isApprovedForAll || totalSelectedNfts === 0 ? (
     <TransferNfts />

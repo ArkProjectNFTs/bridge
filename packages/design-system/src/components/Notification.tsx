@@ -6,6 +6,8 @@ const variants = {
     "bg-mantis-green-100 dark:bg-mantis-green-300 dark:text-mantis-green-900 text-mantis-green-800",
   playground_purple:
     "bg-playground-purple-100 text-playground-purple-800 dark:bg-playground-purple-300 dark:text-playground-purple-900",
+  space_blue:
+    "bg-space-blue-100 text-space-blue-800 dark:bg-space-blue-300 dark:text-space-blue-900",
 };
 
 interface NotificationsProps {
@@ -26,10 +28,10 @@ export function Notification({
       className={clsx(
         className,
         variants[variant],
-        "p-3 rounded-xl gap-2.5 flex items-center",
+        "p-3 rounded-xl gap-2.5 flex items-start",
       )}
     >
-      {icon}
+      <span className="flex-shrink-0">{icon}</span>
       <Typography variant="body_text_14" component="p">
         {children}
       </Typography>

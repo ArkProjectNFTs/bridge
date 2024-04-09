@@ -12,10 +12,16 @@ export default function useL1Withdraw({ onSuccess }: UseL1WithdrawProps) {
     writeContract: writeContractWithdraw,
   } = useWriteContract({ mutation: { onSuccess } });
 
-  const { isLoading: isWithdrawLoading, isSuccess: isWithdrawSuccess } =
-    useWaitForTransactionReceipt({
-      hash: withdrawHash,
-    });
+  const {
+    error,
+    isError,
+    isLoading: isWithdrawLoading,
+    isSuccess: isWithdrawSuccess,
+  } = useWaitForTransactionReceipt({
+    hash: withdrawHash,
+  });
+  console.log(error);
+  console.log(isError);
 
   function withdraw(requestContent: Array<string>) {
     writeContractWithdraw({
