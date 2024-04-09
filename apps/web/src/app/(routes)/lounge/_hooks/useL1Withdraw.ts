@@ -14,14 +14,14 @@ export default function useL1Withdraw({ onSuccess }: UseL1WithdrawProps) {
 
   const {
     error,
-    isError,
+    failureReason,
     isLoading: isWithdrawLoading,
     isSuccess: isWithdrawSuccess,
   } = useWaitForTransactionReceipt({
     hash: withdrawHash,
   });
   console.log(error);
-  console.log(isError);
+  console.log(failureReason);
 
   function withdraw(requestContent: Array<string>) {
     writeContractWithdraw({
