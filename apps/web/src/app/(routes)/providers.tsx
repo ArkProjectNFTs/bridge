@@ -54,7 +54,6 @@ export default function Providers({ children }: ProvidersProps) {
       chains={[starknetChain]}
       connectors={starknetConnectors}
       provider={jsonRpcProvider({ rpc: starknetRpc })}
-      // provider={starknetProvider}
     >
       <WagmiProvider config={wagmiConfig}>
         <WalletModalsProvider>

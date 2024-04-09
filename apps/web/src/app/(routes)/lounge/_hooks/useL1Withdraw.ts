@@ -1,6 +1,8 @@
 import { useEffect } from "react";
 import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 
+import { api } from "~/utils/api";
+
 interface UseL1WithdrawProps {
   onSuccess?: () => void;
 }
@@ -9,19 +11,16 @@ export default function useL1Withdraw({ onSuccess }: UseL1WithdrawProps) {
   const {
     data: withdrawHash,
     isLoading: isSigning,
-    writeContract: writeContractWithdraw,
-  } = useWriteContract({ mutation: { onSuccess } });
 
-  const {
-    error,
-    failureReason,
-    isLoading: isWithdrawLoading,
-    isSuccess: isWithdrawSuccess,
-  } = useWaitForTransactionReceipt({
-    hash: withdrawHash,
-  });
-  console.log(error);
-  console.log(failureReason);
+    writeContract: writeContractWithdraw,
+  } = useWriteContract();
+
+  const { isLoading: isWithdrawLoading, isSuccess: isWithdrawSuccess } =
+    useWaitForTransactionReceipt({
+      hash: withdrawHash,
+    });
+
+  const utils = api.useContext();
 
   function withdraw(requestContent: Array<string>) {
     writeContractWithdraw({
@@ -49,6 +48,7 @@ export default function useL1Withdraw({ onSuccess }: UseL1WithdrawProps) {
   useEffect(() => {
     if (isWithdrawSuccess) {
       onSuccess?.();
+      void utils.bridgeRequest.getBridgeRequestsFromAddress.invalidate();
     }
   }, [isWithdrawSuccess]);
 
