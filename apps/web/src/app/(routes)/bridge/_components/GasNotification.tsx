@@ -43,7 +43,7 @@ export default function GasNotification({ className }: GasNotificationProps) {
 
   return (
     <Notification className={className} icon={icon} variant={variant}>
-      <div className="mt-1.5 flex w-full items-center justify-between text-asteroid-grey-800">
+      <div className="mt-1.5 flex w-full items-center justify-between text-asteroid-grey-800 dark:text-asteroid-grey-900">
         <p>Current Gas price</p>
         <p>{text}</p>
       </div>
