@@ -1,6 +1,7 @@
 import { createTRPCRouter } from "~/server/api/trpc";
 
 import { bridgeRequestRouter } from "./routers/bridgeRequest";
+import { gasInfoRouter } from "./routers/gasInfo";
 import { l1NftsRouter } from "./routers/l1Nfts";
 import { l2NftsRouter } from "./routers/l2Nfts";
 import { statsRouter } from "./routers/stats";
@@ -12,6 +13,7 @@ import { statsRouter } from "./routers/stats";
  */
 export const appRouter = createTRPCRouter({
   bridgeRequest: bridgeRequestRouter,
+  gasInfo: gasInfoRouter,
   l1Nfts: l1NftsRouter,
   l2Nfts: l2NftsRouter,
   stats: statsRouter,

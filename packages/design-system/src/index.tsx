@@ -33,3 +33,6 @@ export { PlusIcon } from "./icons/PlusIcon";
 export { MinusIcon } from "./icons/MinusIcon";
 export { GasIcon } from "./icons/GasIcon";
 export { ClockIcon } from "./icons/ClockIcon";
+export { LowFeesIcon } from "./icons/LowFeesIcon";
+export { MediumFeesIcon } from "./icons/MediumFeesIcon";
+export { HighFeesIcon } from "./icons/HighFeesIcon";
