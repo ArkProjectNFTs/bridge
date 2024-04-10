@@ -183,6 +183,8 @@ contract Starklane is IStarklaneEvent, UUPSOwnableProxied, StarklaneState, Stark
                     req.collectionL2,
                     req.hash
                 );
+                // update whitelist if needed
+                _whiteListCollection(collectionL1, true);
             } else {
                 revert NotSupportedYetError();
             }
@@ -275,21 +277,7 @@ contract Starklane is IStarklaneEvent, UUPSOwnableProxied, StarklaneState, Stark
         @param enable white list is enabled if true
      */
     function whiteList(address collection, bool enable) external onlyOwner {
-        if (enable && !_whiteList[collection]) {
-            bool toAdd = true;
-            uint256 i = 0;
-            while(i < _collections.length) {
-                if (collection == _collections[i]) {
-                    toAdd = false;
-                    break;
-                }
-                i++;
-            }
-            if (toAdd) {
-                _collections.push(collection);
-            }
-        }
-        _whiteList[collection] = enable;
+        _whiteListCollection(collection, enable);
         emit CollectionWhiteListUpdated(collection, enable);
     }
     
@@ -342,6 +330,24 @@ contract Starklane is IStarklaneEvent, UUPSOwnableProxied, StarklaneState, Stark
         address collection
     ) internal view returns (bool) {
         return !_whiteListEnabled || _whiteList[collection];
+    }
+
+    function _whiteListCollection(address collection, bool enable) internal {
+        if (enable && !_whiteList[collection]) {
+            bool toAdd = true;
+            uint256 i = 0;
+            while(i < _collections.length) {
+                if (collection == _collections[i]) {
+                    toAdd = false;
+                    break;
+                }
+                i++;
+            }
+            if (toAdd) {
+                _collections.push(collection);
+            }
+        }
+        _whiteList[collection] = enable;
     }
 
     function enableBridge(

@@ -382,6 +382,24 @@ contract BridgeTest is Test, IStarklaneEvent {
         assertFalse(collection1 == collection2);
     }
 
+    function test_withdrawTokens_deployedCollection_shall_be_whitelisted() public {
+        // Build the request and compute it's "would be" message hash.
+        felt252 header = Protocol.requestHeaderV1(CollectionType.ERC721, false, false);
+        Request memory req = buildRequestDeploy(header, 888, bob);
+        uint256[] memory reqSerialized = Protocol.requestSerialize(req);
+        bytes32 msgHash = computeMessageHashFromL2(reqSerialized);
+
+        // The message must be simulated to come from starknet verifier contract
+        // on L1 and pushed to starknet core.
+        uint256[] memory msgHashes = new uint256[](1);
+        msgHashes[0] = uint256(msgHash);
+        IStarknetMessagingLocal(snCore).addMessageHashesFromL2(msgHashes);
+        address collection = IStarklane(bridge).withdrawTokens(reqSerialized);
+        IStarklane(bridge).enableWhiteList(true);
+        assert(IStarklane(bridge).isWhiteListEnabled());
+        assert(IStarklane(bridge).isWhiteListed(collection));
+    }
+
     function test_depositWithdrawTokens_withMapping() public {
         // add mapping L1 <-> L2: erc721C1 <-> 0x123
         IStarklane(bridge).setL1L2CollectionMapping(address(erc721C1), Cairo.snaddressWrap(0x123), true);

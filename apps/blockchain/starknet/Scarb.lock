@@ -2,13 +2,19 @@
 version = 1
 
 [[package]]
+name = "openzeppelin"
+version = "0.10.0"
+source = "git+https://github.com/OpenZeppelin/cairo-contracts.git?tag=v0.10.0#d77082732daab2690ba50742ea41080eb23299d3"
+
+[[package]]
 name = "snforge_std"
-version = "0.15.0"
-source = "git+https://github.com/foundry-rs/starknet-foundry.git?tag=v0.15.0#7747a2d27b9ebfccf7de8e757d9c6a3ed31e81fc"
+version = "0.19.0"
+source = "git+https://github.com/foundry-rs/starknet-foundry.git?tag=v0.19.0#a3391dce5bdda51c63237032e6cfc64fb7a346d4"
 
 [[package]]
 name = "starklane"
 version = "0.1.0"
 dependencies = [
+ "openzeppelin",
  "snforge_std",
 ]
