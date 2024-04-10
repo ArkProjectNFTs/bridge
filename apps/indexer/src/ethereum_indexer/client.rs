@@ -1,7 +1,7 @@
 //! When PR like https://github.com/alloy-rs/core/pull/51
 //! will be merged, eth calls will be far better with more typing.
 
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use ethers::prelude::*;
 use ethers::providers::{Http, Provider};
 use ethers::types::{Address, BlockNumber, Log};
@@ -48,7 +48,7 @@ impl EthereumClient {
     pub async fn new(config: ChainConfig) -> Result<EthereumClient> {
         let provider = Provider::<Http>::try_from(&config.rpc_url)?;
 
-        let chain_id = provider.get_chainid().await.unwrap();
+        let chain_id = provider.get_chainid().await.expect("Failed to retrieve ChainId");
 
         let provider_signer = if let Some(pk) = &config.account_private_key {
             let wallet: LocalWallet = pk.parse::<LocalWallet>()?.with_chain_id(chain_id.as_u32());
@@ -84,13 +84,14 @@ impl EthereumClient {
     }
 
     ///
-    pub async fn get_block_number(&self) -> u64 {
-        self.provider
+    pub async fn get_block_number(&self) -> Result<u64> {
+        
+        match self.provider
             .get_block_number()
-            .await
-            .expect("Can't fetch eth last block")
-            .try_into()
-            .expect("Not a valid u64 (to)")
+            .await {
+                Ok(v) => Ok(v.try_into().unwrap()),
+                Err(e) => Err(anyhow!("{:?}", e)),
+            }
     }
 
     pub async fn get_block_timestamp(&self, block_id: u64) -> u64 {

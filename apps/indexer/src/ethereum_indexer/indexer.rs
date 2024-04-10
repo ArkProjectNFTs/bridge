@@ -50,10 +50,27 @@ where
     pub async fn start(&self) -> Result<()> {
         let (mut from, _, _) = self.get_block_range_info().await?;
 
-        loop {
-            time::sleep(Duration::from_secs(self.config.fetch_interval)).await;
+        let mut need_cool_down = false;
 
-            let to = self.client.get_block_number().await;
+        loop {
+            let fetch_interval = if need_cool_down {
+                log::warn!("Cooling down");
+                self.config.fetch_interval + self.config.cooling_down
+            } else {
+                self.config.fetch_interval
+            };
+            need_cool_down = false;
+
+            time::sleep(Duration::from_secs(fetch_interval)).await;
+
+            let to = match self.client.get_block_number().await {
+                Ok(v) => v,
+                Err(e) => {
+                    log::error!("Failed to retrieve block number: {:?}", e);
+                    need_cool_down = true;
+                    continue;
+                }
+            };
 
             if from >= to {
                 log::info!("Nothing to fetch (from={} to={})", from, to);
@@ -63,7 +80,8 @@ where
             let blocks_logs = match self.client.fetch_logs(from, to).await {
                 Ok(bl) => bl,
                 Err(e) => {
-                    log::warn!("Error fetching logs: {:?}", e);
+                    log::error!("Error fetching logs: {:?}", e);
+                    need_cool_down = true;
                     continue;
                 }
             };
@@ -73,11 +91,14 @@ where
             for (block_number, logs) in blocks_logs {
                 match self.process_logs(block_number, logs).await {
                     Ok(_) => (),
-                    Err(e) => log::warn!(
+                    Err(e) => {
+                        log::error!(
                         "Error processing logs for block {:?}\n{:?}",
                         block_number,
                         e
-                    ),
+                    );
+                    need_cool_down = true;
+                },
                 };
             }
 
@@ -182,12 +203,12 @@ where
             Some(b) => match BlockNumber::from_str(b).expect("Invalid to_block") {
                 BlockNumber::Latest => {
                     to_block_was_latest = true;
-                    self.client.get_block_number().await
+                    self.client.get_block_number().await?
                 }
                 BlockNumber::Number(x) => x.0[0],
                 _ => anyhow::bail!("Invalid block number (to_block)"),
             },
-            None => self.client.get_block_number().await,
+            None => self.client.get_block_number().await?,
         };
 
         Ok((from_u64, to_u64, to_block_was_latest))
