@@ -95,14 +95,30 @@ where
         );
 
         let mut from_u64 = self.client.block_id_to_u64(&from_block).await?;
+        let mut need_cool_down = false;
 
         loop {
-            time::sleep(Duration::from_secs(self.config.fetch_interval)).await;
+            let fetch_interval = if need_cool_down {
+                log::warn!("Cooling down");
+                self.config.fetch_interval + self.config.cooling_down
+            } else {
+                self.config.fetch_interval
+            };
+            need_cool_down = false;
 
-            let latest_u64 = self
+            time::sleep(Duration::from_secs(fetch_interval)).await;
+
+            let latest_u64 = match self
                 .client
                 .block_id_to_u64(&BlockId::Tag(BlockTag::Latest))
-                .await?;
+                .await {
+                    Ok(v) => v,
+                    Err(e) => {
+                        log::error!("Failed to retrieve blockid: {:#}", e);
+                        need_cool_down = true;
+                        continue;
+                    }
+                };
 
             // Don't fetch if we already are on the head of the chain.
             if from_u64 >= latest_u64 {
@@ -110,15 +126,29 @@ where
                 continue;
             }
 
-            let blocks_events = self
+            let blocks_events = match self
                 .client
                 .fetch_events(BlockId::Number(from_u64), BlockId::Number(latest_u64))
-                .await?;
+                .await {
+                    Ok(r) => r,
+                    Err(e) => {
+                        log::error!("Failed to fetch events for block ({:#}-{:#}): {:#}", from_u64, latest_u64, e);
+                        need_cool_down = true;
+                        continue;
+                    }
+                };
 
             // log::debug!("blocks events: {:?}", blocks_events);
 
             for (block_number, events) in blocks_events {
-                self.process_events(block_number, events).await?;
+                match self.process_events(block_number, events).await {
+                    Ok(_) => (),
+                    Err(e) => {
+                        log::error!("Failed to process events for block {:#}: {:#}", block_number, e);
+                        need_cool_down = true;
+                        continue;
+                    }
+                }
             }
 
             // The block range was fetched and processed.
