@@ -7,6 +7,7 @@ import useEthereumCollectionApproval from "../_hooks/useEthereumCollectionApprov
 import useEthereumNftDeposit from "../_hooks/useEthereumNftDeposit";
 import useNftSelection from "../_hooks/useNftSelection";
 import GasNotification from "./GasNotification";
+import GasRefundInfoModal from "./GasRefundInfoModal";
 
 function ApproveNfts() {
   const { approveForAll, isApproveLoading, isSigning } =
@@ -115,7 +116,8 @@ function TransferNfts() {
             icon={<GasIcon />}
             variant="mantis_green"
           >
-            ArkProject will refund gas costs in Stark!
+            This transfer is eligible to a gas refund of up to 40$.{" "}
+            <GasRefundInfoModal />
           </Notification>
         </>
       )}

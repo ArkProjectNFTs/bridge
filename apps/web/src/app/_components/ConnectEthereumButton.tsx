@@ -32,7 +32,7 @@ export default function ConnectEthereumButton() {
   return (
     <>
       <button
-        className="group flex items-center gap-2.5 rounded-full bg-space-blue-900 py-2 pl-3 pr-2 text-sm font-semibold text-white transition-colors hover:bg-space-blue-800 dark:bg-space-blue-800 dark:hover:bg-space-blue-900"
+        className="group flex flex-shrink-0 items-center gap-2.5 rounded-full bg-space-blue-900 py-2 pl-3 pr-2 text-sm font-semibold text-white transition-colors hover:bg-space-blue-800 dark:bg-space-blue-800 dark:hover:bg-space-blue-900"
         onClick={toggleConnectEthereumWalletModal}
       >
         <Typography variant="button_text_xs">

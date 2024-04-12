@@ -73,8 +73,7 @@ export const l1NftsRouter = createTRPCRouter({
 
         return {
           contractAddress: contract.address,
-          isBridgeable,
-          // isBridgeable,
+          isBridgeable: true,
           media,
           name: contract.name ?? contract.symbol ?? "Unknown",
           totalBalance: contract.totalBalance,
