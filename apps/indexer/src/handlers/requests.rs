@@ -123,9 +123,12 @@ pub async fn contract_stats(
     Path(eth_contract_address): Path<String>,
     state: State<AppState>,
 ) -> Result<Json<Stats>, (StatusCode, String)> {
+    let contract_address = normalize_hex(&eth_contract_address)
+        .expect("Contract address shall be an hexadecimal string");
+
     let total_tokens_bridged_on_starknet = state
         .store
-        .get_total_tokens_bridged_on_starknet(&eth_contract_address)
+        .get_total_tokens_bridged_on_starknet(&contract_address)
         .await
         .unwrap_or(0);
 
