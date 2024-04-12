@@ -3,8 +3,11 @@ use super::events;
 use crate::config::ChainConfig;
 use crate::storage::protocol::ProtocolParser;
 use crate::storage::{
-    store::{BlockStore, CrossChainTxStore, EventStore, PendingWithdrawStore, RequestStore, StarknetBridgeRequestStore},
-    BlockIndex, BridgeChain, CrossChainTxKind, EventLabel, PendingWithdraw
+    store::{
+        BlockStore, CrossChainTxStore, EventStore, PendingWithdrawStore, RequestStore,
+        StarknetBridgeRequestStore,
+    },
+    BlockIndex, BridgeChain, CrossChainTxKind, EventLabel, PendingWithdraw,
 };
 use crate::utils;
 use crate::ChainsBlocks;
@@ -28,7 +31,12 @@ pub struct StarknetIndexer<
 
 impl<T> StarknetIndexer<T>
 where
-    T: RequestStore + EventStore + BlockStore + CrossChainTxStore + StarknetBridgeRequestStore + PendingWithdrawStore,
+    T: RequestStore
+        + EventStore
+        + BlockStore
+        + CrossChainTxStore
+        + StarknetBridgeRequestStore
+        + PendingWithdrawStore,
 {
     ///
     pub async fn new(
@@ -111,14 +119,15 @@ where
             let latest_u64 = match self
                 .client
                 .block_id_to_u64(&BlockId::Tag(BlockTag::Latest))
-                .await {
-                    Ok(v) => v,
-                    Err(e) => {
-                        log::error!("Failed to retrieve blockid: {:#}", e);
-                        need_cool_down = true;
-                        continue;
-                    }
-                };
+                .await
+            {
+                Ok(v) => v,
+                Err(e) => {
+                    log::error!("Failed to retrieve blockid: {:#}", e);
+                    need_cool_down = true;
+                    continue;
+                }
+            };
 
             // Don't fetch if we already are on the head of the chain.
             if from_u64 >= latest_u64 {
@@ -129,14 +138,20 @@ where
             let blocks_events = match self
                 .client
                 .fetch_events(BlockId::Number(from_u64), BlockId::Number(latest_u64))
-                .await {
-                    Ok(r) => r,
-                    Err(e) => {
-                        log::error!("Failed to fetch events for block ({:#}-{:#}): {:#}", from_u64, latest_u64, e);
-                        need_cool_down = true;
-                        continue;
-                    }
-                };
+                .await
+            {
+                Ok(r) => r,
+                Err(e) => {
+                    log::error!(
+                        "Failed to fetch events for block ({:#}-{:#}): {:#}",
+                        from_u64,
+                        latest_u64,
+                        e
+                    );
+                    need_cool_down = true;
+                    continue;
+                }
+            };
 
             // log::debug!("blocks events: {:?}", blocks_events);
 
@@ -144,7 +159,11 @@ where
                 match self.process_events(block_number, events).await {
                     Ok(_) => (),
                     Err(e) => {
-                        log::error!("Failed to process events for block {:#}: {:#}", block_number, e);
+                        log::error!(
+                            "Failed to process events for block {:#}: {:#}",
+                            block_number,
+                            e
+                        );
                         need_cool_down = true;
                         continue;
                     }
@@ -205,12 +224,13 @@ where
                         }
 
                         if ev.label == EventLabel::WithdrawCompletedL2 {
-                            self.store.insert_request(ev.tx_hash.clone(), req.clone()).await?;
+                            self.store
+                                .insert_request(ev.tx_hash.clone(), req.clone())
+                                .await?;
                         }
 
                         if ev.label == EventLabel::DepositInitiatedL2 {
-                            self
-                                .store
+                            self.store
                                 .insert_pending_withdraw(PendingWithdraw {
                                     req_hash: req.clone().hash,
                                     tx_hash: ev.tx_hash,

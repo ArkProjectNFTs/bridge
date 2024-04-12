@@ -93,12 +93,12 @@ where
                     Ok(_) => (),
                     Err(e) => {
                         log::error!(
-                        "Error processing logs for block {:?}\n{:?}",
-                        block_number,
-                        e
-                    );
-                    need_cool_down = true;
-                },
+                            "Error processing logs for block {:?}\n{:?}",
+                            block_number,
+                            e
+                        );
+                        need_cool_down = true;
+                    }
                 };
             }
 

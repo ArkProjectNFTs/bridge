@@ -21,7 +21,8 @@ fn main() {
     } else {
         match std::fs::read_to_string(path) {
             Ok(res) => res,
-            Err(_) => env::var("GIT_HASH").expect("Failed to retrieve git version from file or environnment")
+            Err(_) => env::var("GIT_HASH")
+                .expect("Failed to retrieve git version from file or environnment"),
         }
     };
 

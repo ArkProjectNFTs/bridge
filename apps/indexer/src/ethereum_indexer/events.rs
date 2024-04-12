@@ -1,4 +1,7 @@
-use crate::{storage::{BridgeChain, CrossChainTx, CrossChainTxKind, Event, EventLabel, Request}, utils::normalize_hex};
+use crate::{
+    storage::{BridgeChain, CrossChainTx, CrossChainTxKind, Event, EventLabel, Request},
+    utils::normalize_hex,
+};
 use anyhow::{anyhow, Result};
 use ethers::prelude::*;
 use serde_json::{json, Value};

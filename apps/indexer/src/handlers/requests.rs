@@ -3,16 +3,18 @@ use axum::{
     http::StatusCode,
     Json,
 };
-use serde::{Deserialize, Serialize};
 use serde::ser::SerializeStruct;
+use serde::{Deserialize, Serialize};
 
 use super::AppState;
-use crate::{storage::{
-    protocol::ProtocolParser,
-    store::{EventStore, RequestStore},
-    Event, Request,
-}, utils::{denormalize_hex, normalize_hex}};
-
+use crate::{
+    storage::{
+        protocol::ProtocolParser,
+        store::{EventStore, RequestStore},
+        Event, Request,
+    },
+    utils::{denormalize_hex, normalize_hex},
+};
 
 #[derive(Debug, Deserialize)]
 pub struct RequestWrapper(pub Request);
@@ -20,21 +22,34 @@ pub struct RequestWrapper(pub Request);
 impl Serialize for RequestWrapper {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
-        S: serde::Serializer {
+        S: serde::Serializer,
+    {
         let RequestWrapper(ref inner) = *self;
         let mut state = serializer.serialize_struct("Request", 7)?;
         state.serialize_field("hash", &inner.hash)?;
         state.serialize_field("chain_src", &inner.chain_src)?;
-        state.serialize_field("from", &denormalize_hex(&inner.from).expect("Failed to denormalize 'from'"))?;
-        state.serialize_field("to", &denormalize_hex(&inner.to).expect("Failed to denormalize 'to'"))?;
-        state.serialize_field("collection_src", &denormalize_hex(&inner.collection_src).expect("Failed to denormalize 'collection_src'"))?;
-        state.serialize_field("collection_dst", &denormalize_hex(&inner.collection_dst).expect("Failed to denormalize 'collection_dst'"))?;
+        state.serialize_field(
+            "from",
+            &denormalize_hex(&inner.from).expect("Failed to denormalize 'from'"),
+        )?;
+        state.serialize_field(
+            "to",
+            &denormalize_hex(&inner.to).expect("Failed to denormalize 'to'"),
+        )?;
+        state.serialize_field(
+            "collection_src",
+            &denormalize_hex(&inner.collection_src)
+                .expect("Failed to denormalize 'collection_src'"),
+        )?;
+        state.serialize_field(
+            "collection_dst",
+            &denormalize_hex(&inner.collection_dst)
+                .expect("Failed to denormalize 'collection_dst'"),
+        )?;
         state.serialize_field("content", &inner.content)?;
         state.end()
     }
 }
-
-
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct RequestInfo {

@@ -48,7 +48,10 @@ impl EthereumClient {
     pub async fn new(config: ChainConfig) -> Result<EthereumClient> {
         let provider = Provider::<Http>::try_from(&config.rpc_url)?;
 
-        let chain_id = provider.get_chainid().await.expect("Failed to retrieve ChainId");
+        let chain_id = provider
+            .get_chainid()
+            .await
+            .expect("Failed to retrieve ChainId");
 
         let provider_signer = if let Some(pk) = &config.account_private_key {
             let wallet: LocalWallet = pk.parse::<LocalWallet>()?.with_chain_id(chain_id.as_u32());
@@ -85,24 +88,25 @@ impl EthereumClient {
 
     ///
     pub async fn get_block_number(&self) -> Result<u64> {
-        
-        match self.provider
-            .get_block_number()
-            .await {
-                Ok(v) => Ok(v.try_into().unwrap()),
-                Err(e) => Err(anyhow!("{:?}", e)),
-            }
+        match self.provider.get_block_number().await {
+            Ok(v) => Ok(v.try_into().unwrap()),
+            Err(e) => Err(anyhow!("{:?}", e)),
+        }
     }
 
     pub async fn get_block_timestamp(&self, block_id: u64) -> u64 {
-        match self.provider
+        match self
+            .provider
             .get_block(block_id)
             .await
-            .expect(&format!("Can't fetch block {}", block_id)) {
-                None => 0,
-                Some(block) => block.timestamp.try_into().expect("Can't convert block timestamp to u64")
+            .expect(&format!("Can't fetch block {}", block_id))
+        {
+            None => 0,
+            Some(block) => block
+                .timestamp
+                .try_into()
+                .expect("Can't convert block timestamp to u64"),
         }
-        
     }
     /// Fetches logs for the given block options.
     ///

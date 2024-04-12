@@ -1,12 +1,11 @@
-use super::StarknetBridgeRequest;
 use super::PendingWithdraw;
+use super::StarknetBridgeRequest;
 
 use crate::storage::{
     BlockIndex, BridgeChain, CrossChainTx, CrossChainTxKind, Event, EventLabel, Request,
 };
 use anyhow::Result;
 use mongodb::{bson::Bson, options::ClientOptions, Client, Collection};
-
 
 mod block_store;
 mod event_store;

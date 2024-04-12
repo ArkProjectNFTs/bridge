@@ -16,7 +16,7 @@ pub struct ChainConfig {
     /// For auto withdraw
     pub account_address: Option<String>,
     pub account_private_key: Option<String>,
-    #[serde(default="cooling_down_default")]
+    #[serde(default = "cooling_down_default")]
     pub cooling_down: u64,
 }
 

@@ -49,16 +49,22 @@ mod tests {
     pub fn test_normalize_hex() {
         let s = "0x123456";
         let r = normalize_hex(s).unwrap();
-        assert_eq!(r, "0x0000000000000000000000000000000000000000000000000000000000123456");
+        assert_eq!(
+            r,
+            "0x0000000000000000000000000000000000000000000000000000000000123456"
+        );
 
         let s = "0x1212121212121212121212121212121212121212121212121212121212121212";
         let r = normalize_hex(s).unwrap();
         assert_eq!(r, s);
-        
+
         // support ethereum checksum address
         let s = "0x8c7173Db918EB0f015ba2D319E94e1EaB95c63fb";
         let r = normalize_hex(s).unwrap();
-        assert_eq!(r, "0x0000000000000000000000008c7173db918eb0f015ba2d319e94e1eab95c63fb");
+        assert_eq!(
+            r,
+            "0x0000000000000000000000008c7173db918eb0f015ba2d319e94e1eab95c63fb"
+        );
     }
 
     #[test]
@@ -70,7 +76,7 @@ mod tests {
         let s = "0x1212121212121212121212121212121212121212121212121212121212121212";
         let r = denormalize_hex(s).unwrap();
         assert_eq!(r, s);
-        
+
         // support ethereum checksum address
         let s = "0x0000000000000000000000008c7173db918eb0f015ba2d319e94e1eab95c63fb";
         let r = denormalize_hex(s).unwrap();
