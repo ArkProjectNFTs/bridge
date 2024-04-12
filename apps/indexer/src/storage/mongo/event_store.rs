@@ -1,7 +1,7 @@
 use anyhow::Result;
 use async_trait::async_trait;
 use futures::TryStreamExt;
-use mongodb::bson::doc;
+use mongodb::{bson::doc, options::AggregateOptions};
 
 use super::MongoStore;
 use crate::storage::{store::EventStore, Event};
@@ -34,31 +34,31 @@ impl EventStore for MongoStore {
                 }
             },
             doc! {
-                "$project": {
-                    "number_of_tokens": { "$size": "$token_ids" }
-                }
+                "$unwind": "$token_ids"
             },
             doc! {
                 "$group": {
                     "_id": null,
-                    "total_token_ids": { "$sum": "$number_of_tokens" }
+                    "total_tokens": {
+                        "$sum": 1
+                    }
                 }
             },
         ];
 
         let mut cursor = self
             .starknet_bridge_requests
-            .aggregate(pipeline, None)
+            .aggregate(pipeline, AggregateOptions::default())
             .await?;
 
-        let mut total_count: u64 = 0;
-        if let Some(doc) = cursor.try_next().await? {
-            if let Ok(count) = doc.get_i64("total_token_ids") {
-                total_count = count as u64;
-            }
+        let mut total_tokens: u64 = 0;
+        while let Some(doc) = cursor.try_next().await? {
+            if let Ok(total) = doc.get_i32("total_tokens") {
+                total_tokens += total as u64;
+            };
         }
 
-        Ok(total_count)
+        Ok(total_tokens)
     }
 
     ///
