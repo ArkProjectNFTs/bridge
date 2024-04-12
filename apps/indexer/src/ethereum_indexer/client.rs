@@ -94,20 +94,27 @@ impl EthereumClient {
         }
     }
 
-    pub async fn get_block_timestamp(&self, block_id: u64) -> u64 {
-        match self
-            .provider
-            .get_block(block_id)
-            .await
-            .expect(&format!("Can't fetch block {}", block_id))
-        {
-            None => 0,
-            Some(block) => block
-                .timestamp
-                .try_into()
-                .expect("Can't convert block timestamp to u64"),
+    pub async fn get_block_timestamp(&self, block_id: u64) -> Result<u64> {
+        let block = self.provider.get_block(block_id).await;
+        if block.is_ok() {
+            match block.unwrap() {
+                None => Ok(0),
+                Some(block) => match block.timestamp.try_into() {
+                    Ok(v) => Ok(v),
+                    Err(e) => {
+                        let msg = format!("Failed to convert timestamp {}: {:?}", block_id, e);
+                        log::warn!("{}", msg);
+                        Err(anyhow!(msg))
+                    }
+                },
+            }
+        } else {
+            let msg = format!("Eth retrieving block timestamp {}: {:?}", block_id, block);
+            log::error!("{}", msg);
+            Err(anyhow!(msg))
         }
     }
+
     /// Fetches logs for the given block options.
     ///
     /// There is not pagination in ethereum, and no hard limit on block range.

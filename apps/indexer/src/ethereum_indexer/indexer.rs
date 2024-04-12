@@ -290,7 +290,7 @@ where
 
     async fn process_pending_withdraws(&self, block_number: u64) -> Result<()> {
         let pendings = self.store.get_pending_withdraws().await?;
-        let timestamp = self.client.get_block_timestamp(block_number).await;
+        let timestamp = self.client.get_block_timestamp(block_number).await?;
         for pending in pendings {
             let status = self
                 .client
