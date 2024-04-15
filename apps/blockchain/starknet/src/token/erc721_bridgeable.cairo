@@ -7,12 +7,14 @@ mod erc721_bridgeable {
 
     use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc721::ERC721Component;
+    use openzeppelin::access::ownable::OwnableComponent;
 
     use starklane::token::interfaces::{IERC721Bridgeable, IERC721Mintable};
     use starklane::interfaces::IUpgradeable;
 
     component!(path: ERC721Component, storage: erc721, event: ERC721Event);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
+    component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
 
     // ERC721Mixin can't be used since we have a custom implementation for Metadata
     #[abi(embed_v0)]
@@ -26,16 +28,22 @@ mod erc721_bridgeable {
     #[abi(embed_v0)]
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
+    #[abi(embed_v0)]
+    impl OwnableTwoStepMixinImpl = OwnableComponent::OwnableTwoStepMixinImpl<ContractState>;
+
+    impl OwnableInternalImpl = OwnableComponent::InternalImpl<ContractState>;
+
     #[storage]
     struct Storage {
         bridge: ContractAddress,
-        collection_owner: ContractAddress,
         /// token_uris is required if we want uris not derivated from base_uri
         token_uris: LegacyMap<u256, ByteArray>,
         #[substorage(v0)]
         erc721: ERC721Component::Storage,
         #[substorage(v0)]
-        src5: SRC5Component::Storage
+        src5: SRC5Component::Storage,
+        #[substorage(v0)]
+        ownable: OwnableComponent::Storage,
     }
 
     #[event]
@@ -44,7 +52,9 @@ mod erc721_bridgeable {
         #[flat]
         ERC721Event: ERC721Component::Event,
         #[flat]
-        SRC5Event: SRC5Component::Event
+        SRC5Event: SRC5Component::Event,
+        #[flat]
+        OwnableEvent: OwnableComponent::Event,
     }
 
     #[constructor]
@@ -61,7 +71,7 @@ mod erc721_bridgeable {
 
         self.erc721.initializer(name, symbol, base_uri);
         self.bridge.write(bridge);
-        self.collection_owner.write(collection_owner);
+        self.ownable.initializer(collection_owner);
     }
 
 
@@ -112,10 +122,7 @@ mod erc721_bridgeable {
     #[abi(embed_v0)]
     impl ERC721BridgeableUpgradeImpl of IUpgradeable<ContractState> {
         fn upgrade(ref self: ContractState, class_hash: ClassHash) {
-            assert(
-                starknet::get_caller_address() == self.collection_owner.read(),
-                'Unauthorized replace class'
-            );
+            self.ownable.assert_only_owner();
 
             match starknet::replace_class_syscall(class_hash) {
                 Result::Ok(_) => (), // emit event
@@ -127,10 +134,7 @@ mod erc721_bridgeable {
     #[abi(embed_v0)]
     impl ERC721BridgeableMintableImpl of IERC721Mintable<ContractState> {
         fn mint(ref self: ContractState, to: ContractAddress, token_id: u256) {
-            assert(
-                starknet::get_caller_address() == self.collection_owner.read(),
-                'ERC721: only col owner can mint'
-            );
+            self.ownable.assert_only_owner();
             self.erc721._mint(to, token_id);
         }
 
@@ -155,6 +159,10 @@ mod erc721_bridgeable {
 #[cfg(test)]
 mod tests {
     use super::erc721_bridgeable;
+
+    use openzeppelin::access::ownable::interface::{
+        IOwnableTwoStepDispatcher, IOwnableTwoStepDispatcherTrait
+    };
 
     use starklane::token::interfaces::{
         IERC721BridgeableDispatcher, IERC721BridgeableDispatcherTrait,
@@ -324,5 +332,74 @@ mod tests {
         let fetched_uri = collection_manager::token_uri_from_contract_call(contract_address, TOKEN_ID)
             .expect('token mint failed');
         assert_eq!(fetched_uri, new_uri, "bad uri");
+    }
+
+    #[test]
+    fn support_two_step_transfer_ownership() {
+        let COLLECTION_OWNER = collection_owner_addr_mock();
+        let ALICE = starknet::contract_address_const::<'alice'>();
+
+        let contract_address = deploy_everai_collection();
+
+        let ownable = IOwnableTwoStepDispatcher { contract_address };
+        assert_eq!(ownable.owner(), COLLECTION_OWNER, "bad owner");
+
+        start_prank(CheatTarget::One(contract_address), COLLECTION_OWNER);
+        ownable.transfer_ownership(ALICE);
+        stop_prank(CheatTarget::One(contract_address));
+        assert_eq!(ownable.owner(), COLLECTION_OWNER, "bad owner");
+
+        start_prank(CheatTarget::One(contract_address), ALICE);
+        ownable.accept_ownership();
+        stop_prank(CheatTarget::One(contract_address));
+        assert_eq!(ownable.owner(), ALICE, "bad owner");
+    }
+
+    #[test]
+    fn two_step_transfer_ownership() {
+        let COLLECTION_OWNER = collection_owner_addr_mock();
+        let ALICE = starknet::contract_address_const::<'alice'>();
+        let BOB = starknet::contract_address_const::<'bob'>();
+
+        let contract_address = deploy_everai_collection();
+
+        let ownable = IOwnableTwoStepDispatcher { contract_address };
+        assert_eq!(ownable.owner(), COLLECTION_OWNER, "bad owner");
+
+        start_prank(CheatTarget::One(contract_address), COLLECTION_OWNER);
+        ownable.transfer_ownership(ALICE);
+        stop_prank(CheatTarget::One(contract_address));
+        assert_eq!(ownable.owner(), COLLECTION_OWNER, "bad owner");
+        assert_eq!(ownable.pending_owner(), ALICE, "bad pending owner");
+        
+        start_prank(CheatTarget::One(contract_address), COLLECTION_OWNER);
+        ownable.transfer_ownership(BOB);
+        stop_prank(CheatTarget::One(contract_address));
+        assert_eq!(ownable.owner(), COLLECTION_OWNER, "bad owner");
+        assert_eq!(ownable.pending_owner(), BOB, "bad pending owner");
+
+        start_prank(CheatTarget::One(contract_address), BOB);
+        ownable.accept_ownership();
+        stop_prank(CheatTarget::One(contract_address));
+
+        assert_eq!(ownable.owner(), BOB, "bad owner");
+    }
+
+
+    #[test]
+    #[should_panic(expected: ('Caller is not the owner',))]
+    fn should_panic_transfer_not_owner() {
+        let COLLECTION_OWNER = collection_owner_addr_mock();
+        let ALICE = starknet::contract_address_const::<'alice'>();
+        let BOB = starknet::contract_address_const::<'bob'>();
+
+        let contract_address = deploy_everai_collection();
+
+        let ownable = IOwnableTwoStepDispatcher { contract_address };
+        assert_eq!(ownable.owner(), COLLECTION_OWNER, "bad owner");
+
+        start_prank(CheatTarget::One(contract_address), ALICE);
+        ownable.transfer_ownership(BOB);
+        stop_prank(CheatTarget::One(contract_address));
     }
 }
