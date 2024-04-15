@@ -107,6 +107,18 @@ export default function Header() {
         </Link>
         <BridgeLink />
         <LoungeLink />
+        <a
+          href="https://everai.typeform.com/to/PMyHymLn"
+          rel="noreferrer"
+          target="_blank"
+        >
+          <Typography
+            className="transition-colors hover:text-space-blue-source"
+            variant="heading_light_xxs"
+          >
+            Collection owner
+          </Typography>
+        </a>
       </div>
       <div className="hidden items-center gap-4 md:flex">
         <div className="flex gap-4">

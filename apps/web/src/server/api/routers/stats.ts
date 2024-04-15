@@ -7,7 +7,7 @@ interface EveraiStatsApiResponse {
 export const statsRouter = createTRPCRouter({
   getEveraiBridgeNumber: publicProcedure.query(async () => {
     const everaiStatsResponse = await fetch(
-      "https://api.bridge.arkproject.dev/stats/0xC9ea1AFf83F0B35371729935E1bBecC41e590728"
+      "https://api.bridge.arkproject.dev/stats/0x9a38dec0590abc8c883d72e52391090e948ddf12"
     );
 
     const everaiStats =
