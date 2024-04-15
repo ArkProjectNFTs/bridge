@@ -2,9 +2,9 @@
 
 ## Prerequisites
 
-A wallet compatible with Ethereum-based networks (e.g., MetaMask).
-Access to the Sepolia testnet within your wallet.
-Some testnet ETH for transaction fees (which can be obtained from a Sepolia faucet).
+- A wallet compatible with Ethereum-based networks (e.g., MetaMask).
+- Access to the Sepolia testnet within your wallet.
+- Some testnet ETH for transaction fees (which can be obtained from a Sepolia faucet).
 
 This guide will walk you through the process of testing our blockchain bridge on the Sepolia testnet.
 
