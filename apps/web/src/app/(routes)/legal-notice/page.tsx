@@ -6,7 +6,7 @@ import MainPageContainer from "~/app/_components/MainPageContainer";
 export default function LegalNoticePage() {
   return (
     <>
-      <div className="flex">
+      <div className="mb-18 flex">
         <MainPageContainer>
           <div className="relative mx-auto max-w-[37.5rem] pb-20 pt-13 text-center">
             <Typography component="h1" variant="heading_light_l">

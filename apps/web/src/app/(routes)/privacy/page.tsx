@@ -17,11 +17,11 @@ export default function PrivacyPolicyPage() {
               component="p"
               variant="body_text_16"
             >
-              Last updated on March 15, 2024
+              Last updated on April 15, 2024
             </Typography>
           </div>
 
-          <div className="mx-auto max-w-[40rem] text-left">
+          <div className="mx-auto mb-18 max-w-[40rem] text-left">
             <Typography
               className="mb-6"
               component="h2"
@@ -34,7 +34,7 @@ export default function PrivacyPolicyPage() {
               component="p"
               variant="body_text_16"
             >
-              {`Welcome to the ArkProject Bridge and LeaderBoard privacy policy.
+              {`Welcome to the ArkProject Bridge and ArkQuests privacy policy.
               This Privacy Policy explains how personal data relating to you is
               collected and used by Screenshot Labs (“Screenshot Labs,” “we,”
               “our,” “ours,” and “us”), a French corporation established at 7
@@ -55,14 +55,21 @@ export default function PrivacyPolicyPage() {
               Ethereum Blockchain and the Starknet Blockchain.`}
               <br />
               <br />
-              The ArkProject LeaderBoard (the “LeaderBoard”) located at [insert
-              URL], allows users to validate Ark quest to gather points and get
+              The ArkQuests located at{" "}
+              <a
+                className="text-space-blue-400 underline"
+                href="http://quests.arkproject.dev/"
+                rel="noreferrer"
+                target="_blank"
+              >
+                http://quests.arkproject.dev/
+              </a>
+              , allows users to validate Ark quest to gather points and get
               rewards.
               <br />
               <br />
               This Privacy Policy applies to personal data we collect when you
-              use the Bridge and/or the LeaderBoard and the websites operated by
-              us and located at{" "}
+              use the Bridge and/or ArkQuests located at{" "}
               <a
                 className="text-space-blue-400"
                 href="https://bridge.arkproject.dev/"
@@ -71,9 +78,18 @@ export default function PrivacyPolicyPage() {
               >
                 https://bridge.arkproject.dev/
               </a>{" "}
-              or [insert URL] or otherwise interact with the services or tools
-              we provide (together the “ArkProject Services”). We are committed
-              to protecting and respecting your privacy.
+              or{" "}
+              <a
+                className="text-space-blue-400"
+                href="http://quests.arkproject.dev/"
+                rel="noreferrer"
+                target="_blank"
+              >
+                http://quests.arkproject.dev/
+              </a>{" "}
+              or otherwise interact with the services or tools we provide
+              (together the “ArkProject Services”). We are committed to
+              protecting and respecting your privacy.
             </Typography>
 
             <Typography
@@ -110,11 +126,10 @@ export default function PrivacyPolicyPage() {
                 </li>
                 <li className="mb-4">
                   <b>X (Twitter) Account Access Information</b>: If you opt to
-                  connect your X (Twitter) account with the Bridge or if you
-                  wish to validate quests relating to X (Twitter) actions on the
-                  Leaderboard, we will collect your Twitter username and public
-                  profile information. This information is used to provide the
-                  relevant ArkProject Services.
+                  connect your X (Twitter) account with the Bridge, or to
+                  participate to ArkQuests, we will collect your Twitter
+                  username and public profile information. This information is
+                  used to provide the relevant ArkProject Services.
                 </li>
                 <li className="mb-4">
                   <b>Marketplace Interaction Data</b>: After using the
@@ -177,7 +192,6 @@ export default function PrivacyPolicyPage() {
             >
               The data collected via the ArkProject Services is used to:
               <ul className="mt-3 list-disc pl-6">
-                <li className="mb-4">Vercel Inc.</li>
                 <li className="mb-4">
                   Facilitate the transfer and management of NFTs between
                   blockchains.
@@ -437,13 +451,13 @@ export default function PrivacyPolicyPage() {
               purposes.
               <br />
               <br />
-              6. <b>right to portability</b>: in applicable cases, you may
+              6. <b>Right to portability</b>: in applicable cases, you may
               request to receive communication of the personal data that you
               have provided to us, in a structured and commonly used computer
               format.
               <br />
               <br />
-              7. right to communicate instructions regarding the fate of your
+              7. Right to communicate instructions regarding the fate of your
               personal data in the event of your death.
               <br />
               <br />

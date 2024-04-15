@@ -1,4 +1,5 @@
 import { Typography } from "design-system";
+import Link from "next/link";
 
 import Footer from "~/app/_components/Footer";
 import MainPageContainer from "~/app/_components/MainPageContainer";
@@ -17,7 +18,7 @@ export default function TermsOfUsePage() {
               component="p"
               variant="body_text_16"
             >
-              Last updated on March 12, 2024
+              Last updated on April 15, 2024
             </Typography>
           </div>
 
@@ -34,8 +35,16 @@ export default function TermsOfUsePage() {
               component="p"
               variant="body_text_16"
             >
-              {`The ArkProject Bridge (the "Bridge"), located at
-              https://bridge.arkproject.dev/, allows users to connect their
+              {`The ArkProject Bridge (the "Bridge"), located at `}
+              <a
+                className="text-space-blue-400 underline"
+                href="https://bridge.arkproject.dev/"
+                rel="noreferrer"
+                target="_blank"
+              >
+                https://bridge.arkproject.dev/
+              </a>
+              {`, allows users to connect their
               digital wallets for the purpose of transferring NFTs between the
               Ethereum Blockchain and the Starknet Blockchain.`}
             </Typography>
@@ -45,14 +54,23 @@ export default function TermsOfUsePage() {
               component="h2"
               variant="heading_light_s"
             >
-              Introduction to ArkProject Leaderboard
+              Introduction to ArkQuests
             </Typography>
             <Typography
               className="text-asteroid-grey-800 dark:text-asteroid-grey-100"
               component="p"
               variant="body_text_16"
             >
-              {`The ArkProject LeaderBoard (the "LeaderBoard"), located at [insert URL] allows users to validate Ark quest to gather points and get rewards (to be determined and announced at a later stage). `}
+              {`The ArkQuests, located at `}
+              <a
+                className="text-space-blue-400 underline"
+                href="http://quests.arkproject.dev/"
+                rel="noreferrer"
+                target="_blank"
+              >
+                http://quests.arkproject.dev/
+              </a>
+              {`allows users to validate Ark quest to gather points and get rewards (to be determined and announced at a later stage). `}
             </Typography>
 
             <Typography
@@ -69,7 +87,7 @@ export default function TermsOfUsePage() {
             >
               These Terms of Use (the “Terms,”) govern your relationship with
               Screenshot Labs (or “us”, “we”) for the use of the Bridge and/or
-              the LeaderBoard and the websites operated by us and located at{" "}
+              ArkQuests located at{" "}
               <a
                 className="text-space-blue-400 underline"
                 href="https://www.bridge.arkproject.dev/"
@@ -78,8 +96,17 @@ export default function TermsOfUsePage() {
               >
                 https://www.bridge.arkproject.dev/
               </a>{" "}
-              or [insert URL] or otherwise interact with the services or tools
-              we provide (together the “ArkProject Services”).
+              or{" "}
+              <a
+                className="text-space-blue-400 underline"
+                href="http://quests.arkproject.dev/privacy"
+                rel="noreferrer"
+                target="_blank"
+              >
+                http://quests.arkproject.dev/privacy
+              </a>{" "}
+              or otherwise interact with the services or tools we provide
+              (together the “ArkProject Services”).
               <br />
               <br />
               Please read these Terms and our Privacy Policy located at{" "}
@@ -91,7 +118,16 @@ export default function TermsOfUsePage() {
               >
                 https://bridge.arkproject.dev/privacy
               </a>{" "}
-              and [insert URL for Leaderboard] carefully.
+              and{" "}
+              <a
+                className="text-space-blue-400 underline"
+                href="http://quests.arkproject.dev/"
+                rel="noreferrer"
+                target="_blank"
+              >
+                http://quests.arkproject.dev/
+              </a>{" "}
+              carefully.
               <br />
               <br />
               You warrant that you are of legal age to enter into these Terms
@@ -170,9 +206,9 @@ export default function TermsOfUsePage() {
               suspension and discontinuance.
               <br />
               <br />
-              If the LeaderBoard is suspended or discontinued, you acknowledge
-              that you no longer be able to validate Ark quests and that you
-              will lose your points and rewards.
+              If ArkQuests is suspended or discontinued, you acknowledge that
+              you no longer be able to validate Ark quests and that you will
+              lose your points and rewards.
               <br />
               <br />
               We will do our best effort to make a general announcement and give
@@ -245,21 +281,23 @@ export default function TermsOfUsePage() {
               component="h2"
               variant="heading_light_s"
             >
-              Ark Quests Leaderboard
+              Ark Quests
             </Typography>
             <Typography
               className="text-asteroid-grey-800 dark:text-asteroid-grey-100"
               component="p"
               variant="body_text_16"
             >
-              To validate quests relating to your use of the Bridge, you will
-              need to connect the same digital wallets as the ones you used to
-              bridge your NFTs.
+              To participate to ArkQuests, you will need to connect (i) the same
+              digital wallets as the ones you used to bridge your NFTs and (ii)
+              your X (ex. Twitter) account.
               <br />
               <br />
-              Use of the Leaderboard may require you to connect through X (ex.
-              Twitter) and to tweet on your use of the Bridge or any other
-              ArkProject Services.
+              For more information, please refer to our{" "}
+              <Link className="text-space-blue-400 underline" href="/faq">
+                FAQ
+              </Link>
+              .
             </Typography>
 
             <Typography
@@ -342,7 +380,11 @@ export default function TermsOfUsePage() {
             >
               The ArkProject Services may collect personal data relating to you.
               You can find more information about how we will process your
-              personal data in our Privacy Policy.
+              personal data in our{" "}
+              <Link className="text-space-blue-400 underline" href="/privacy">
+                Privacy Policy
+              </Link>
+              .
             </Typography>
 
             <Typography
