@@ -16,6 +16,11 @@ mod tests {
     use option::OptionTrait;
     use serde::Serde;
     use zeroable::Zeroable;
+
+    use openzeppelin::access::ownable::interface::{
+        IOwnableTwoStepDispatcher, IOwnableTwoStepDispatcherTrait
+    };
+    
     use starknet::{ContractAddress, ClassHash, EthAddress};
     use starklane::{
         request::{Request, compute_request_hash},
@@ -34,6 +39,14 @@ mod tests {
     use starklane::bridge::bridge;
 
     use snforge_std::{declare, ContractClass, ContractClassTrait, start_prank, stop_prank, CheatTarget, L1Handler, get_class_hash, spy_events, SpyOn};
+
+    #[derive(Drop)]
+    struct BridgeDeployedConfig {
+        admin: ContractAddress,
+        bridge: ContractAddress,
+        erc721: ContractAddress,
+        erc721_class: ClassHash,
+    }
 
     /// Deploys Starklane.
     fn deploy_starklane(
@@ -74,6 +87,60 @@ mod tests {
         calldata.append(collection_owner.into());
 
         erc721b_contract_class.deploy(@calldata).unwrap()
+    }
+
+    /// deploy bridge and ERC721Bridgeable
+    fn deploy_bridge_and_create_collection(
+        bridge_l1: EthAddress,
+        collection_l1: EthAddress,
+        owner_l1: EthAddress,
+        owner_l2: ContractAddress,
+        ids: Span<u256>,
+    ) -> BridgeDeployedConfig {
+        let erc721b_contract_class = declare("erc721_bridgeable");
+
+        let BRIDGE_ADMIN = starknet::contract_address_const::<'starklane'>();
+        let BRIDGE_L1 = EthAddress { address: 'starklane_l1' };
+
+        let bridge_address = deploy_starklane(BRIDGE_ADMIN, BRIDGE_L1, erc721b_contract_class.class_hash);
+
+        let collection_l2: ContractAddress = 0x0.try_into().unwrap();
+
+        let mut req = setup_request(
+            collection_l1,
+            collection_l2,
+            owner_l1,
+            owner_l2,
+            "name",
+            "symbol",
+            "base_uri"
+        );
+        req.ids = ids;
+        let mut buf = array![];
+        req.serialize(ref buf);
+        
+        let mut l1_handler = L1Handler {
+            contract_address: bridge_address,
+            // selector: 0x03593216f3a8b22f4cf375e5486e3d13bfde9d0f26976d20ac6f653c73f7e507,
+            function_selector: selector!("withdraw_auto_from_l1"), 
+            from_address: bridge_l1.into(),
+            payload: buf.span()
+        };
+
+        l1_handler.execute().unwrap();
+        let bridge = IStarklaneDispatcher { contract_address: bridge_address };
+
+        // Deserialize the request and check some expected values.
+        let mut sp = buf.span();
+        let req = Serde::<Request>::deserialize(ref sp).unwrap();
+
+        let deployed_address = bridge.get_l2_collection_address(req.collection_l1.into());
+        BridgeDeployedConfig {
+            admin: BRIDGE_ADMIN,
+            bridge: bridge_address,
+            erc721: deployed_address,
+            erc721_class: erc721b_contract_class.class_hash,
+        }
     }
 
     fn mint_range(
@@ -659,57 +726,92 @@ mod tests {
 
     #[test]
     fn collection_upgrade_as_admin() {
-        // Need to declare here to get the class hash before deploy anything.
-        let erc721b_contract_class = declare("erc721_bridgeable");
-
-        let BRIDGE_ADMIN = starknet::contract_address_const::<'starklane'>();
         let BRIDGE_L1 = EthAddress { address: 'starklane_l1' };
+        let OWNER_L1: EthAddress = 0xe00.try_into().unwrap();
         let OWNER_L2 = starknet::contract_address_const::<'owner_l2'>();
-
-        let bridge_address = deploy_starklane(BRIDGE_ADMIN, BRIDGE_L1, erc721b_contract_class.class_hash);
-
-        let collection_l1: EthAddress = 0xe0c.try_into().unwrap();
-        let collection_l2: ContractAddress = 0x0.try_into().unwrap();
-        let owner_l1: EthAddress = 0xe00.try_into().unwrap();
-        let owner_l2: ContractAddress = OWNER_L2.into();
+        let COLLECTION_L1: EthAddress = 0xe0c.try_into().unwrap();
         let ids: Span<u256> = array![0_u256, 1_u256].span();
 
-        let mut req = setup_request(
-            collection_l1,
-            collection_l2,
-            owner_l1,
-            owner_l2,
-            "name",
-            "symbol",
-            "base_uri"
-        );
-        req.ids = ids;
-        let mut buf = array![];
-        req.serialize(ref buf);
-        
-        let mut l1_handler = L1Handler {
-            contract_address: bridge_address,
-            // selector: 0x03593216f3a8b22f4cf375e5486e3d13bfde9d0f26976d20ac6f653c73f7e507,
-            function_selector: selector!("withdraw_auto_from_l1"), 
-            from_address: BRIDGE_L1.into(),
-            payload: buf.span()
-        };
-        let mut spy = spy_events(SpyOn::One(bridge_address));
+        let bridge_deployed_config = deploy_bridge_and_create_collection(BRIDGE_L1, 
+            COLLECTION_L1, 
+            OWNER_L1, 
+            OWNER_L2, 
+            ids);
+        let BRIDGE_ADMIN = bridge_deployed_config.admin;
+        let bridge_address = bridge_deployed_config.bridge;
+        let erc721b_class = bridge_deployed_config.erc721_class;
 
-        l1_handler.execute().unwrap();
         let bridge = IStarklaneDispatcher { contract_address: bridge_address };
 
-        // Deserialize the request and check some expected values.
-        let mut sp = buf.span();
-        let req = Serde::<Request>::deserialize(ref sp).unwrap();
-
-        let deployed_address = bridge.get_l2_collection_address(req.collection_l1.into());
+        let deployed_address = bridge.get_l2_collection_address(COLLECTION_L1.into());
         assert!(!deployed_address.is_zero(), "Expected deployed erc721");
-        assert!(get_class_hash(deployed_address) == erc721b_contract_class.class_hash, "Expected class hash");
+        assert!(get_class_hash(deployed_address) == erc721b_class, "Expected class hash");
 
         start_prank(CheatTarget::One(bridge_address), BRIDGE_ADMIN);
         IStarklaneCollectionAdminDispatcher { contract_address: bridge_address}.collection_upgrade(deployed_address, get_class_hash(bridge_address));
         stop_prank(CheatTarget::One(bridge_address));
         assert!(get_class_hash(deployed_address) == get_class_hash(bridge_address), "Class hash not updated");
     }
+
+
+    #[test]
+    fn collection_transfer_ownership_as_admin() {
+        let BRIDGE_L1 = EthAddress { address: 'starklane_l1' };
+        let OWNER_L1: EthAddress = 0xe00.try_into().unwrap();
+        let OWNER_L2 = starknet::contract_address_const::<'owner_l2'>();
+        let COLLECTION_L1: EthAddress = 0xe0c.try_into().unwrap();
+        let ids: Span<u256> = array![0_u256, 1_u256].span();
+
+        let bridge_deployed_config = deploy_bridge_and_create_collection(BRIDGE_L1, 
+            COLLECTION_L1, 
+            OWNER_L1, 
+            OWNER_L2, 
+            ids);
+        let BRIDGE_ADMIN = bridge_deployed_config.admin;
+        let bridge_address = bridge_deployed_config.bridge;
+        let erc721b = bridge_deployed_config.erc721;
+
+        let ownable = IOwnableTwoStepDispatcher { contract_address: erc721b };
+        assert_eq!(ownable.owner(), bridge_address, "Wrong owner");
+
+        let ALICE = starknet::contract_address_const::<'alice'>();
+        
+        start_prank(CheatTarget::One(bridge_address), BRIDGE_ADMIN);
+        IStarklaneCollectionAdminDispatcher { contract_address: bridge_address}.collection_transfer_ownership(erc721b, ALICE);
+        stop_prank(CheatTarget::One(bridge_address));
+
+        assert_eq!(ownable.owner(), bridge_address, "Wrong owner");
+        assert_eq!(ownable.pending_owner(), ALICE, "Wrong pending owner");
+
+        start_prank(CheatTarget::One(erc721b), ALICE);
+        ownable.accept_ownership();
+        stop_prank(CheatTarget::One(erc721b));
+        assert_eq!(ownable.owner(), ALICE, "Wrong owner");
+    }
+
+    #[test]
+    #[should_panic(expected: ('Unauthorized call',))]
+    fn collection_transfer_ownership_as_not_admin() {
+        let BRIDGE_L1 = EthAddress { address: 'starklane_l1' };
+        let OWNER_L1: EthAddress = 0xe00.try_into().unwrap();
+        let OWNER_L2 = starknet::contract_address_const::<'owner_l2'>();
+        let COLLECTION_L1: EthAddress = 0xe0c.try_into().unwrap();
+        let ids: Span<u256> = array![0_u256, 1_u256].span();
+
+        let bridge_deployed_config = deploy_bridge_and_create_collection(BRIDGE_L1, 
+            COLLECTION_L1, 
+            OWNER_L1, 
+            OWNER_L2, 
+            ids);
+        let bridge_address = bridge_deployed_config.bridge;
+        let erc721b = bridge_deployed_config.erc721;
+
+
+        let ALICE = starknet::contract_address_const::<'alice'>();
+        
+        start_prank(CheatTarget::One(bridge_address), OWNER_L2);
+        IStarklaneCollectionAdminDispatcher { contract_address: bridge_address}.collection_transfer_ownership(erc721b, ALICE);
+        stop_prank(CheatTarget::One(bridge_address));
+    }
+    
 }

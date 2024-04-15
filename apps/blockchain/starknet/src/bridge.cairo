@@ -14,7 +14,13 @@ mod bridge {
     use starknet::contract_address::ContractAddressZeroable;
     use starknet::eth_address::EthAddressZeroable;
 
-    use starklane::interfaces::{IStarklane, IUpgradeable, IUpgradeableDispatcher, IUpgradeableDispatcherTrait, IStarklaneCollectionAdmin};
+    use openzeppelin::access::ownable::interface::{
+        IOwnableDispatcher, IOwnableDispatcherTrait
+    };
+
+    use starklane::interfaces::{IStarklane, 
+        IUpgradeable, IUpgradeableDispatcher, IUpgradeableDispatcherTrait, 
+        IStarklaneCollectionAdmin};
     // events
     use starklane::interfaces::{
         DepositRequestInitiated,
@@ -31,8 +37,10 @@ mod bridge {
         collection_type_from_header,
     };
     use starklane::token::{
-        interfaces::{IERC721Dispatcher, IERC721DispatcherTrait,
-                     IERC721BridgeableDispatcher, IERC721BridgeableDispatcherTrait},
+        interfaces::{
+            IERC721Dispatcher, IERC721DispatcherTrait,
+            IERC721BridgeableDispatcher, IERC721BridgeableDispatcherTrait,
+        },
         collection_manager::{
             CollectionType,
             deploy_erc721_bridgeable, verify_collection_address, erc721_metadata,
@@ -161,10 +169,7 @@ mod bridge {
     #[abi(embed_v0)]
     impl BridgeUpgradeImpl of IUpgradeable<ContractState> {
         fn upgrade(ref self: ContractState, class_hash: ClassHash) {
-            assert(
-                starknet::get_caller_address() == self.bridge_admin.read(),
-                'Unauthorized replace class'
-            );
+            ensure_is_admin(@self);
 
             match starknet::replace_class_syscall(class_hash) {
                 Result::Ok(_) => {
@@ -326,12 +331,16 @@ mod bridge {
     #[abi(embed_v0)]
     impl BridgeCollectionAdminImpl of IStarklaneCollectionAdmin<ContractState> {
         fn collection_upgrade(ref self: ContractState, collection: ContractAddress, class_hash: ClassHash) {
-            assert(
-                starknet::get_caller_address() == self.bridge_admin.read(),
-                'Unauthorized replace class'
-            );
+            ensure_is_admin(@self);
             IUpgradeableDispatcher { contract_address: collection }
                 .upgrade(class_hash);
+        }
+
+        // transfer owner of the given collection to the given address
+        fn collection_transfer_ownership(ref self: ContractState, collection: ContractAddress, new_owner: ContractAddress) {
+            ensure_is_admin(@self);
+            IOwnableDispatcher { contract_address: collection }
+                .transfer_ownership(new_owner);
         }
     }
 
