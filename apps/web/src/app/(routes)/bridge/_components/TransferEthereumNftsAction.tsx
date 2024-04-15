@@ -114,7 +114,7 @@ function TransferNfts() {
           <Notification
             className="mt-4"
             icon={<GasIcon />}
-            variant="mantis_green"
+            variant="space_blue"
           >
             This transfer is eligible to a gas refund of up to 40$.{" "}
             <GasRefundInfoModal />
