@@ -7,6 +7,7 @@ services:
     image: ptisserand/starklane-indexer:latest
     environment:
       - RUST_LOG=starklane_indexer=DEBUG
+      - MORALIS_API_KEY
     command: >
       starklane_indexer --config-file /etc/testnet.config \
         --mongodb mongodb://${MONGODB_HOSTNAME}:${MONGODB_PORT}/${MONGODB_DB} \
