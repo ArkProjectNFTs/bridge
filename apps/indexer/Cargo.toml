@@ -24,4 +24,4 @@ log = "0.4.17"
 num-bigint = "0.4.4"
 config = { version = "0.14.0", features = ["json"] }
 sha3 = "0.10.8"
-reqwest = { version = "0.12.3", features = ["json"] }
+reqwest = { version = "0.12.3", default-features=false, features = ["json", "rustls-tls"] }
