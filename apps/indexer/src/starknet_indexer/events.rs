@@ -35,6 +35,7 @@ pub fn get_store_data(
         block_timestamp: block_timestamp.try_into()?,
         block_number: event.block_number,
         tx_hash: felt_to_hex(&event.transaction_hash),
+        price: None,
     };
 
     let tx;
