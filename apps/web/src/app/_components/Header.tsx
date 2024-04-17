@@ -116,7 +116,7 @@ export default function Header() {
             className="transition-colors hover:text-space-blue-source"
             variant="heading_light_xxs"
           >
-            Collection owner
+            Submit Collection
           </Typography>
         </a>
       </div>

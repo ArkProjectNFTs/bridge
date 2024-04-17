@@ -60,6 +60,7 @@ type BridgeRequestResponse = {
   statusTimestamp: number;
   tokenIds: Array<string>;
   totalCount: number;
+  txHash?: string;
 };
 
 export const bridgeRequestRouter = createTRPCRouter({
@@ -184,6 +185,7 @@ export const bridgeRequestRouter = createTRPCRouter({
               statusTimestamp: lastBridgeRequestEvent?.block_timestamp ?? 0,
               tokenIds: bridgeRequest.token_ids,
               totalCount: bridgeRequest.token_ids.length,
+              txHash: lastBridgeRequestEvent?.tx_hash,
             };
           }
         );

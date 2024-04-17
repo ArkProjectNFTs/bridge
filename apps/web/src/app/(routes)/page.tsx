@@ -36,7 +36,12 @@ export default function Page() {
               <Typography component="p" variant="body_text_14">
                 Bridging is an ArkProject Quest
               </Typography>
-              <a className="" href="/">
+              <a
+                className=""
+                href="https://quests.arkproject.dev/"
+                rel="noreferrer"
+                target="_blank"
+              >
                 <Typography
                   className="text-space-blue-source underline"
                   variant="body_text_14"
