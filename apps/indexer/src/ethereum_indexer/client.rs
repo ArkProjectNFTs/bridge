@@ -201,10 +201,30 @@ impl EthereumClient {
         Ok(logs)
     }
 
+    /// Retrieve message status in StarknetCore messaging contract
     pub async fn query_message_status(&self, msg_hash: [u8; 32]) -> Result<u64> {
         let messaging =
             StarknetMessaging::new(self.messaging_address, Arc::new(self.provider.clone()));
         let status = messaging.l2_to_l1_messages(msg_hash).call().await?;
-        Ok(status.try_into().unwrap())
+        match status.try_into() {
+            Ok(s) => Ok(s),
+            Err(e) => Err(anyhow!("Failed to retrieve message status: {:?}", e)),
+        }
+    }
+
+    /// Retrieve gas used for a given transaction
+    pub async fn get_tx_fees(&self, transaction_hash: &str) -> Result<u64> {
+        let tx_hash: TxHash = H256::from_str(transaction_hash).unwrap();
+        if let Some(receipt) = self.provider.get_transaction_receipt(tx_hash).await? {
+            let effective_gas_price = receipt.effective_gas_price.unwrap();
+            let gas_used = receipt.gas_used.unwrap();
+            let total_fees = effective_gas_price * gas_used;
+            match total_fees.try_into() {
+                Ok(fees) => Ok(fees),
+                Err(e) => Err(anyhow!("{:?}", e)),
+            }
+        } else {
+            Err(anyhow!("Failed to get receipt for {}", transaction_hash))
+        }
     }
 }

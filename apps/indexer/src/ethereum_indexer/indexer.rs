@@ -1,9 +1,10 @@
 use super::client::EthereumClient;
 use super::events;
 use crate::config::{ChainConfig, XchainTxConfig};
+use crate::price::moralis::MoralisPrice;
 use crate::storage::{
     store::{BlockStore, CrossChainTxStore, EventStore, PendingWithdrawStore, RequestStore},
-    BlockIndex, BridgeChain, CrossChainTxKind, Event, EventLabel,
+    BlockIndex, BridgeChain, CrossChainTxKind, Event, EventLabel, EventPrice,
 };
 use crate::utils;
 use crate::ChainsBlocks;
@@ -23,6 +24,7 @@ pub struct EthereumIndexer<
     store: Arc<T>,
     chains_blocks: Arc<AsyncRwLock<ChainsBlocks>>,
     xchain_txor_config: XchainTxConfig,
+    pricer: MoralisPrice,
 }
 
 impl<T> EthereumIndexer<T>
@@ -37,12 +39,15 @@ where
         xchain_txor_config: XchainTxConfig,
     ) -> Result<EthereumIndexer<T>> {
         let client = EthereumClient::new(config.clone()).await?;
+        /// TODO: should we add moralis api key to configuration file?
+        let pricer = MoralisPrice::new(None);
         Ok(EthereumIndexer {
             client,
             config,
             store,
             chains_blocks,
             xchain_txor_config,
+            pricer,
         })
     }
 
@@ -238,8 +243,18 @@ where
             let l_sig = l.topics[0];
 
             match events::get_store_data(l)? {
-                (Some(r), Some(e), xchain_tx) => {
+                (Some(r), Some(mut e), xchain_tx) => {
                     log::debug!("Request/Event/Tx\n{:?}\n{:?}\n{:?}", r, e, xchain_tx);
+                    if e.label == EventLabel::DepositInitiatedL1 {
+                        match self.compute_event_price(&e).await {
+                            Ok(price) => {
+                                log::debug!("Price: {:?}", price);
+                                e.price = Some(price);
+                            }
+                            Err(e) => log::warn!("Failed to compute event price: {:?}", e),
+                        }
+                    }
+
                     self.store.insert_event(e.clone()).await?;
 
                     if self.store.req_by_hash(&r.hash).await?.is_none() {
@@ -312,5 +327,20 @@ where
             }
         }
         Ok(())
+    }
+
+    async fn compute_event_price(&self, e: &Event) -> Result<EventPrice> {
+        let gas = self.client.get_tx_fees(&e.tx_hash).await?;
+        let eth_price = self
+            .pricer
+            .get_price("0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2", None)
+            .await?;
+        let mut usd_price = (gas as f64) * eth_price.parse::<f64>()?;
+        usd_price = usd_price / (10_u64.pow(18) as f64);
+
+        Ok(EventPrice {
+            gas,
+            usd_price: format!("{}", usd_price),
+        })
     }
 }

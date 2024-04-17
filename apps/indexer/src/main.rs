@@ -15,6 +15,7 @@ use tokio::sync::RwLock as AsyncRwLock;
 pub mod config;
 pub mod ethereum_indexer;
 pub mod handlers;
+pub mod price;
 pub mod starknet_indexer;
 pub mod storage;
 pub mod utils;

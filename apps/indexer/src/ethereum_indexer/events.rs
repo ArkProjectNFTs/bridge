@@ -55,6 +55,7 @@ pub fn get_store_data(log: Log) -> Result<(Option<Request>, Option<Event>, Optio
         block_timestamp: 0,
         block_number: log.block_number.unwrap().try_into().unwrap(),
         tx_hash: format!("{:#x}", log.transaction_hash.unwrap()),
+        price: None,
     };
 
     // TODO: not a fan of the mut here and for event, but as the type of data can change,

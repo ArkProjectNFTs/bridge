@@ -94,6 +94,12 @@ pub struct Request {
     pub content: String,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct EventPrice {
+    pub gas: u64,
+    pub usd_price: String,
+}
+
 /// Records event associated to requests.
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct Event {
@@ -107,6 +113,8 @@ pub struct Event {
     pub block_number: u64,
     // Transaction hash of the transaction which triggered the event.
     pub tx_hash: String,
+    // Transaction price
+    pub price: Option<EventPrice>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
