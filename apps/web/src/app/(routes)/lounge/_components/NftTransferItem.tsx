@@ -34,6 +34,7 @@ interface NftTransferItemProps {
     | "withdraw_completed_l2";
   tokenIds: Array<string>;
   totalCount: number;
+  txHash?: string;
 }
 
 function getDisplayedDate(timestamp?: number) {
@@ -63,6 +64,7 @@ export default function NftTransferItem({
   status,
   tokenIds,
   totalCount,
+  txHash,
 }: NftTransferItemProps) {
   const [open, setOpen] = useState(false);
   const [withdrawModalOpen, setWithdrawModalOpen] = useState(false);
@@ -145,19 +147,57 @@ export default function NftTransferItem({
           </div>
 
           <div>
-            {status === "withdraw_available_l1" && (
+            {status === "withdraw_available_l1" ? (
               <WithdrawButton
                 onSuccess={() => setWithdrawModalOpen(true)}
                 requestContent={requestContent}
               />
-            )}
+            ) : status === "withdraw_completed_l1" ||
+              status === "withdraw_completed_l2" ? (
+              <div className="text-left text-space-blue-source">
+                {arrivalChain === "Ethereum" ? (
+                  <a href={`https://etherscan.io/tx/${txHash}`}>
+                    <Typography
+                      className="underline"
+                      component="p"
+                      variant="body_text_14"
+                    >
+                      View on Etherscan
+                    </Typography>
+                  </a>
+                ) : (
+                  <>
+                    <a href={`https://voyager.online/tx/${txHash}`}>
+                      <Typography
+                        className="underline"
+                        component="p"
+                        variant="body_text_14"
+                      >
+                        View on Voyager
+                      </Typography>
+                    </a>
+                    <a href={`https://starkscan.co/tx/${txHash}`}>
+                      <Typography
+                        className="underline"
+                        component="p"
+                        variant="body_text_14"
+                      >
+                        View on Starkscan
+                      </Typography>
+                    </a>
+                  </>
+                )}
+              </div>
+            ) : null}
           </div>
 
-          <Collapsible.Trigger asChild>
-            <button className="flex h-9 w-9 items-center justify-center justify-self-end rounded-md border-2 border-asteroid-grey-600 text-2xl text-asteroid-grey-600 transition-colors hover:border-asteroid-grey-800 hover:text-asteroid-grey-800 dark:border-space-blue-400 dark:text-space-blue-400 dark:hover:border-space-blue-200 dark:hover:text-space-blue-200">
-              {open ? <MinusIcon /> : <PlusIcon />}
-            </button>
-          </Collapsible.Trigger>
+          {totalCount > 1 && (
+            <Collapsible.Trigger asChild>
+              <button className="flex h-9 w-9 items-center justify-center justify-self-end rounded-md border-2 border-asteroid-grey-600 text-2xl text-asteroid-grey-600 transition-colors hover:border-asteroid-grey-800 hover:text-asteroid-grey-800 dark:border-space-blue-400 dark:text-space-blue-400 dark:hover:border-space-blue-200 dark:hover:text-space-blue-200">
+                {open ? <MinusIcon /> : <PlusIcon />}
+              </button>
+            </Collapsible.Trigger>
+          )}
         </div>
 
         <NftTransferItemContent

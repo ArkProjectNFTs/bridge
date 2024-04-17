@@ -142,6 +142,7 @@ export default function NftTransferList({
                   status={bridgeRequest.status}
                   tokenIds={bridgeRequest.tokenIds}
                   totalCount={bridgeRequest.totalCount}
+                  txHash={bridgeRequest.txHash}
                 />
               );
             })}
@@ -183,6 +184,7 @@ export default function NftTransferList({
                   status={bridgeRequest.status}
                   tokenIds={bridgeRequest.tokenIds}
                   totalCount={bridgeRequest.totalCount}
+                  txHash={bridgeRequest.txHash}
                 />
               );
             })}

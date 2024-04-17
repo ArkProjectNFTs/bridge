@@ -64,7 +64,9 @@ function ArkQuestsBanner({ className }: ArkQuestsBannerProps) {
 
       <a
         className="flex h-[2.625rem] items-center justify-center rounded-full bg-sunshine-yellow-source px-6"
-        href="/"
+        href="https://quests.arkproject.dev/"
+        rel="noreferrer"
+        target="_blank"
       >
         <Typography className="text-void-black" variant="button_text_s">
           Check your progress
@@ -218,7 +220,7 @@ export default function CongratsModal({ isFromTransfer }: CongratsModalProps) {
             </Typography>
             <a
               className="mt-6 flex h-12 items-center rounded-full bg-space-blue-source px-5 text-white transition-colors hover:bg-space-blue-500 dark:text-galaxy-blue"
-              href="https://twitter.com/intent/tweet?text=I've just transferred my @Everai(s) on @Starknet using the ArkProject Bridge! Let's come together, holders and hit a new milestone on Ark Quests!"
+              href="https://twitter.com/intent/tweet?text=I've just transferred my @Everai(s) on @Starknet using the ArkProject Bridge! Let's come together, holders and hit a new milestone on Ark Quests! https://quests.arkproject.dev/"
               rel="noreferrer"
               target="_blank"
             >

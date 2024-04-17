@@ -17,7 +17,8 @@ export default function SmallBridgingQuestBanner({
         className,
         "rounded-2xl bg-galaxy-blue pt-4 text-white dark:bg-void-black"
       )}
-      href="/"
+      href="https://quests.arkproject.dev/"
+      rel="noreferrer"
       target="_blank"
     >
       <div className="flex flex-col items-start gap-4 px-4">

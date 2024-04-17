@@ -32,7 +32,9 @@ export default function BridgingQuestBanner({
         </Typography>
         <a
           className="flex h-[2.625rem] items-center justify-center rounded-full bg-space-blue-source px-6 text-white"
-          href="/"
+          href="https://quests.arkproject.dev/"
+          rel="noreferrer"
+          target="_blank"
         >
           <Typography variant="button_text_s">View quests</Typography>
         </a>
