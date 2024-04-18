@@ -4,7 +4,7 @@ services:
   indexer:
     container_name: starklane_indexer
     # build: .
-    image: ptisserand/starklane-indexer:latest
+    image: ghcr.io/arkprojectnfts/bridge:latest
     environment:
       - RUST_LOG=starklane_indexer=DEBUG
       - MORALIS_API_KEY
