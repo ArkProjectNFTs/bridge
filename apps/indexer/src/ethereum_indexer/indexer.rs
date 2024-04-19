@@ -39,7 +39,6 @@ where
         xchain_txor_config: XchainTxConfig,
     ) -> Result<EthereumIndexer<T>> {
         let client = EthereumClient::new(config.clone()).await?;
-        /// TODO: should we add moralis api key to configuration file?
         let pricer = MoralisPrice::new(None);
         Ok(EthereumIndexer {
             client,

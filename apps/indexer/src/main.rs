@@ -1,24 +1,19 @@
 //! Starklane indexer main entry point.
 extern crate config as external_crate_config;
 
-use crate::config::StarklaneIndexerConfig;
+use starklane_indexer::config::StarklaneIndexerConfig;
 use anyhow::Result;
 use axum::{http::Request, middleware::Next, response::Response, routing::get, Router, Server};
 use clap::Parser;
-use ethereum_indexer::EthereumIndexer;
-use handlers::{requests, AppState};
-use starknet_indexer::StarknetIndexer;
+use starklane_indexer::ethereum_indexer::EthereumIndexer;
+use starklane_indexer::handlers::{requests, AppState};
+use starklane_indexer::starknet_indexer::StarknetIndexer;
 use std::sync::Arc;
-use storage::mongo::MongoStore;
+use starklane_indexer::storage::{extract_database_name, mongo::MongoStore};
+use starklane_indexer::ChainsBlocks;
 use tokio::sync::RwLock as AsyncRwLock;
 
-pub mod config;
-pub mod ethereum_indexer;
-pub mod handlers;
-pub mod price;
-pub mod starknet_indexer;
-pub mod storage;
-pub mod utils;
+
 
 const ENV_PREFIX: &'static str = "INDEXER";
 const ENV_SEPARATOR: &'static str = "__"; // "_" can't be used since we have key with '_' in json
@@ -36,11 +31,6 @@ struct Args {
     api_server_ip: Option<String>,
 }
 
-#[derive(Clone, Debug)]
-pub struct ChainsBlocks {
-    sn: u64,
-    eth: u64,
-}
 
 async fn version_header<B>(req: Request<B>, next: Next<B>) -> Response {
     let mut response = next.run(req).await;
@@ -153,18 +143,3 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
-/// Extracts database name from connection string.
-/// Expecting the database name to be the latest fragment
-/// of the string after the right most '/'.
-fn extract_database_name(connection_string: &str) -> Option<&str> {
-    if let Some(pos) = connection_string.rfind('/') {
-        let db_name_start = pos + 1;
-        if let Some(pos) = connection_string[db_name_start..].find('?') {
-            Some(&connection_string[db_name_start..db_name_start + pos])
-        } else {
-            Some(&connection_string[db_name_start..])
-        }
-    } else {
-        None
-    }
-}

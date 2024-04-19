@@ -179,3 +179,20 @@ pub struct PendingWithdraw {
 
     pub message_hash: [u8; 32],
 }
+
+
+/// Extracts database name from connection string.
+/// Expecting the database name to be the latest fragment
+/// of the string after the right most '/'.
+pub fn extract_database_name(connection_string: &str) -> Option<&str> {
+    if let Some(pos) = connection_string.rfind('/') {
+        let db_name_start = pos + 1;
+        if let Some(pos) = connection_string[db_name_start..].find('?') {
+            Some(&connection_string[db_name_start..db_name_start + pos])
+        } else {
+            Some(&connection_string[db_name_start..])
+        }
+    } else {
+        None
+    }
+}
