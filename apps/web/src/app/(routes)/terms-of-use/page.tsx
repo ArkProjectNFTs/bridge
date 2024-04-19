@@ -70,7 +70,7 @@ export default function TermsOfUsePage() {
               >
                 http://quests.arkproject.dev/
               </a>
-              {`allows users to validate Ark quest to gather points and get rewards (to be determined and announced at a later stage). `}
+              {`allows users to validate quests to gather points and get rewards (to be determined and announced at a later stage). `}
             </Typography>
 
             <Typography
@@ -96,17 +96,8 @@ export default function TermsOfUsePage() {
               >
                 https://www.bridge.arkproject.dev/
               </a>{" "}
-              or{" "}
-              <a
-                className="text-space-blue-400 underline"
-                href="http://quests.arkproject.dev/privacy"
-                rel="noreferrer"
-                target="_blank"
-              >
-                http://quests.arkproject.dev/privacy
-              </a>{" "}
-              or otherwise interact with the services or tools we provide
-              (together the “ArkProject Services”).
+              or how you otherwise interact with the services or tools we
+              provide (together the “ArkProject Services”).
               <br />
               <br />
               Please read these Terms and our Privacy Policy located at{" "}
@@ -117,15 +108,6 @@ export default function TermsOfUsePage() {
                 target="_blank"
               >
                 https://bridge.arkproject.dev/privacy
-              </a>{" "}
-              and{" "}
-              <a
-                className="text-space-blue-400 underline"
-                href="http://quests.arkproject.dev/"
-                rel="noreferrer"
-                target="_blank"
-              >
-                http://quests.arkproject.dev/
               </a>{" "}
               carefully.
               <br />
@@ -207,7 +189,7 @@ export default function TermsOfUsePage() {
               <br />
               <br />
               If ArkQuests is suspended or discontinued, you acknowledge that
-              you no longer be able to validate Ark quests and that you will
+              you may no longer be able to validate Ark quests and that you will
               lose your points and rewards.
               <br />
               <br />

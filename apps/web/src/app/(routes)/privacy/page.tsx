@@ -64,7 +64,7 @@ export default function PrivacyPolicyPage() {
               >
                 http://quests.arkproject.dev/
               </a>
-              , allows users to validate Ark quest to gather points and get
+              , allows users to validate quests to gather points and get
               rewards.
               <br />
               <br />
@@ -217,7 +217,7 @@ export default function PrivacyPolicyPage() {
                 </li>
                 <li className="mb-4">
                   Carry out any other purpose described to you at the time the
-                  infor
+                  information was collected.
                 </li>
               </ul>
               These uses are either based on the performance of our agreement
@@ -495,7 +495,7 @@ export default function PrivacyPolicyPage() {
               variant="body_text_16"
             >
               We will only store your personal information as long as necessary
-              for the purposes specified in 2. above.
+              for the purposes specified above.
             </Typography>
 
             <Typography

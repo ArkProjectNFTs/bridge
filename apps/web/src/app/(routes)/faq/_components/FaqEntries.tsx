@@ -88,9 +88,10 @@ export default function FaqEntries({ className }: FaqEntriesProps) {
       </FaqEntry>
       <FaqEntry title="How do gas fees refunds work?">
         The first 200 holders who bridge their Everais to Starknet are eligible
-        for refunds. Each of these holders can receive a refund of up to $40.
-        The refunds will be made in STRK tokens and sent directly to the
-        Starknet wallet you used to bridge your Everai.
+        for refunds. Each of these holders can receive a refund of up to $40. At
+        the end of the campaign on May 10, the refunds will be made in STRK
+        tokens and sent directly to the Starknet wallet you used to bridge your
+        Everai.
       </FaqEntry>
       <FaqEntry title="What happens if there is a transfer error?">
         {`In the unlikely event of a transfer error during the bridging process,
@@ -105,6 +106,8 @@ export default function FaqEntries({ className }: FaqEntriesProps) {
         <a
           className="text-space-blue-400 underline"
           href="mailto:support@arkproject.dev"
+          rel="noreferrer"
+          target="_blank"
         >
           support@arkproject.dev
         </a>
@@ -117,13 +120,74 @@ export default function FaqEntries({ className }: FaqEntriesProps) {
         experience is as efficient as possible.
       </FaqEntry>
       <FaqEntry title="Why can't I see my NFT on Starknet (L2)?">
-        Some of the wallets (Argent, Braavos) and marketplaces (Unframed,
-        Element, HyperFlex, Pyramid, Ventory) on Starknet may take some time to
-        index your NFT and make it appear within their respective products or
-        platforms. So, keep in mind that it may take up to several hours for
-        your NFT to appear! Feel free to reach out to their respective support
-        channels if you believe there is an issue with the display of your item
-        within their ecosystem.
+        Some of the wallets (
+        <a
+          className="text-space-blue-400 underline"
+          href="https://www.argent.xyz/"
+          rel="noreferrer"
+          target="_blank"
+        >
+          Argent
+        </a>
+        ,{" "}
+        <a
+          className="text-space-blue-400 underline"
+          href="https://braavos.app/"
+          rel="noreferrer"
+          target="_blank"
+        >
+          Braavos
+        </a>
+        ) and marketplaces (
+        <a
+          className="text-space-blue-400 underline"
+          href="https://unframed.co/"
+          rel="noreferrer"
+          target="_blank"
+        >
+          Unframed
+        </a>
+        ,{" "}
+        <a
+          className="text-space-blue-400 underline"
+          href="https://element.market/starknet"
+          rel="noreferrer"
+          target="_blank"
+        >
+          Element
+        </a>
+        ,{" "}
+        <a
+          className="text-space-blue-400 underline"
+          href="https://hyperflex.market/"
+          rel="noreferrer"
+          target="_blank"
+        >
+          HyperFlex
+        </a>
+        ,{" "}
+        <a
+          className="text-space-blue-400 underline"
+          href="https://pyramid.market/"
+          rel="noreferrer"
+          target="_blank"
+        >
+          Pyramid
+        </a>
+        ,{" "}
+        <a
+          className="text-space-blue-400 underline"
+          href="https://ventory.gg/"
+          rel="noreferrer"
+          target="_blank"
+        >
+          Ventory
+        </a>
+        ) on Starknet may take some time to index your NFT and make it appear
+        within their respective products or platforms. So, keep in mind that it
+        may take up to several hours for your NFT to appear! Feel free to reach
+        out to their respective support channels if you believe there is an
+        issue with the display of your item within their ecosystem.
       </FaqEntry>
       <FaqEntry title="Can I bridge my NFT from Starknet (L2) to Ethereum (L1)?">
         The short answer is yes, but it’s a slightly different process. When you
@@ -172,9 +236,8 @@ export default function FaqEntries({ className }: FaqEntriesProps) {
         >
           Starknet (L1↔L2) messaging
         </a>{" "}
-        protocol for ERC-721 bridging smart contracts. The Cairo Security Clan
-        development team has reviewed the smart contracts, but we provide no
-        additional security guarantees.
+        {`protocol for ERC-721 bridging smart contracts. The Cairo Security Clan
+        development team has reviewed the smart contracts, you'll find the full report in the attachment below for transparency's sake`}{" "}
       </FaqEntry>
 
       <FaqEntry title="How about other and future collections?">
@@ -190,11 +253,12 @@ export default function FaqEntries({ className }: FaqEntriesProps) {
         >
           website
         </a>
-        . Just click on the “Collection Owner” section and register your
-        collection, we’ll be in touch shortly after once your collection is
+        .{" "}
+        {`Just click on the “Submit Collection” section and register your
+        collection, we'll be in touch shortly after once your collection is
         ready to be bridged. Please note that only Ethereum-based and
         Starknet-based collections will be supported for bridging (in the
-        foreseeable future).
+        foreseeable future).`}
       </FaqEntry>
     </div>
   );
