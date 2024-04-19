@@ -1,13 +1,46 @@
 use anyhow::Result;
 use async_trait::async_trait;
 use futures::TryStreamExt;
-use mongodb::{bson::doc, options::AggregateOptions};
+use mongodb::{bson::doc, options::{AggregateOptions, FindOptions}};
 
 use super::MongoStore;
-use crate::storage::{store::EventStore, Event};
+use crate::storage::{store::EventStore, Event, EventLabel};
 
 #[async_trait]
 impl EventStore for MongoStore {
+    ///
+    async fn insert_event(&self, event: Event) -> Result<()> {
+        self.events.insert_one(event, None).await?;
+
+        Ok(())
+    }
+
+    ///
+    async fn event_by_tx(&self, tx_hash: &str) -> Result<Option<Event>> {
+        Ok(self
+            .events
+            .find_one(doc! { "tx_hash": tx_hash }, None)
+            .await?)
+    }
+
+    ///
+    async fn events_by_label(&self, label: EventLabel, sort: bool) -> Result<Vec<Event>> {
+        let filter = doc! { "label": label};
+        let find_options = if sort {
+            Some(FindOptions::builder().sort(doc! { "block_number": 1 }).build())
+        } else {
+            None
+        };
+        let mut cursor = self.events.find(filter, find_options).await?;
+        let mut events: Vec<Event> = vec![];
+
+        while let Some(e) = cursor.try_next().await? {
+            events.push(e);
+        }
+
+        Ok(events)
+    }
+
     ///
     async fn events_by_request(&self, req_hash: &str) -> Result<Vec<Event>> {
         let filter = doc! { "req_hash": req_hash };
@@ -59,20 +92,5 @@ impl EventStore for MongoStore {
         }
 
         Ok(total_tokens)
-    }
-
-    ///
-    async fn event_by_tx(&self, tx_hash: &str) -> Result<Option<Event>> {
-        Ok(self
-            .events
-            .find_one(doc! { "tx_hash": tx_hash }, None)
-            .await?)
-    }
-
-    ///
-    async fn insert_event(&self, event: Event) -> Result<()> {
-        self.events.insert_one(event, None).await?;
-
-        Ok(())
     }
 }

@@ -1,10 +1,11 @@
 //! Structs and traits related to data to be stored
 //! after indexing Starklane bridge events.
 use crate::storage::{
-    BlockIndex, BridgeChain, CrossChainTx, CrossChainTxKind, Event, PendingWithdraw, Request,
+    BlockIndex, BridgeChain, CrossChainTx, CrossChainTxKind, Event, EventLabel, PendingWithdraw, Request,
 };
 use anyhow::Result;
 use async_trait::async_trait;
+
 
 /// Store related to cross chain transactions.
 #[async_trait]
@@ -68,14 +69,19 @@ pub trait EventStore {
     ///
     async fn insert_event(&self, event: Event) -> Result<()>;
 
-    ///
+    /// retrieve event for a given transaction hash
+    async fn event_by_tx(&self, tx_hash: &str) -> Result<Option<Event>>;
+
+    /// retrieve events by label
+    /// 
+    /// sort by block number when `sort` is true
+    async fn events_by_label(&self, label: EventLabel, sort: bool) -> Result<Vec<Event>>;
+
+    ///retrieve events for a given request hash
     async fn events_by_request(&self, req_hash: &str) -> Result<Vec<Event>>;
 
     ///
     async fn get_total_tokens_bridged_on_starknet(&self, contract_address: &str) -> Result<u64>;
-
-    ///
-    async fn event_by_tx(&self, tx_hash: &str) -> Result<Option<Event>>;
 }
 
 /// Store for bridged collections.
