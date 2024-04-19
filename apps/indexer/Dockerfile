@@ -9,11 +9,11 @@ COPY Starklane_ABI.json .
 COPY Cargo.toml Cargo.toml
 COPY Cargo.lock Cargo.lock
 COPY src src
+COPY refund refund
 # COPY doesn't check if file is present when matching is used
 COPY git-versio[n] git-version
 
-RUN cargo install --path .
-
+RUN cargo install --path . 
 #####
 FROM debian:bookworm-slim
 
