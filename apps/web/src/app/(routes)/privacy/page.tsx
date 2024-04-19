@@ -17,7 +17,7 @@ export default function PrivacyPolicyPage() {
               component="p"
               variant="body_text_16"
             >
-              Last updated on April 15, 2024
+              Last updated on April 19, 2024
             </Typography>
           </div>
 
