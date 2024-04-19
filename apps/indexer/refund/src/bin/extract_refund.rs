@@ -2,30 +2,16 @@
 use anyhow::{anyhow, Result};
 use clap::Parser;
 
-use serde::Serialize;
-
 use starklane_indexer::{price::moralis::MoralisPrice, storage::{extract_database_name, mongo::MongoStore, store::{EventStore, RequestStore}}};
 
+use refund::Refund;
 
 const ENV_PREFIX: &'static str = "INDEXER";
 const ENV_SEPARATOR: &'static str = "__"; // "_" can't be used since we have key with '_' in json
 
-#[derive(Serialize, Debug, Clone)]
-struct Refund {
-    #[serde(rename = "Token Address")]
-    token_address: String,
-    #[serde(rename = "Recipient")]
-    dest: String,
-    #[serde(rename = "Amount")]
-    amount: f64,
-    #[serde(rename = "USD")]
-    amount_usd: f64,
-    #[serde(rename = "Transaction Hash")]
-    tx_hash: String
-}
 
 #[derive(Parser, Debug)]
-#[clap(about = "Get refund")]
+#[clap(about = "Extract refund")]
 struct Args {
     #[clap(long, help = "Mongo db connection string", env = format!("{}{}MONGODB_URI", ENV_PREFIX, ENV_SEPARATOR))]
     mongodb: String,
