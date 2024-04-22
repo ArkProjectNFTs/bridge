@@ -3109,6 +3109,7 @@ dependencies = [
  "env_logger",
  "futures",
  "log",
+ "mongodb",
  "serde",
  "serde_json",
  "starklane_indexer",
