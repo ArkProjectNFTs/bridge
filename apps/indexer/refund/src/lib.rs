@@ -11,5 +11,5 @@ pub struct Refund {
     #[serde(rename = "USD")]
     pub amount_usd: f64,
     #[serde(rename = "Transaction Hash")]
-    pub tx_hash: String
+    pub tx_hash: String,
 }
