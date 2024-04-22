@@ -9,7 +9,7 @@ mod erc721_bridgeable {
     use openzeppelin::token::erc721::ERC721Component;
     use openzeppelin::access::ownable::OwnableComponent;
 
-    use starklane::token::interfaces::{IERC721Bridgeable, IERC721Mintable};
+    use starklane::token::interfaces::{IERC721Bridgeable, IERC721Mintable, IERC721Uri};
     use starklane::interfaces::IUpgradeable;
 
     component!(path: ERC721Component, storage: erc721, event: ERC721Event);
@@ -154,6 +154,24 @@ mod erc721_bridgeable {
             self.token_uris.write(token_id, token_uri);
         }
     }
+
+    #[abi(embed_v0)]
+    impl ERC721UriImpl of IERC721Uri<ContractState> {
+        fn base_uri(self: @ContractState) -> ByteArray {
+            self.erc721._base_uri()
+        }
+
+        fn set_base_uri(ref self: ContractState, base_uri: ByteArray) {
+            self.ownable.assert_only_owner();
+            self.erc721._set_base_uri(base_uri);
+        }
+
+        fn set_token_uri(ref self: ContractState, token_id: u256, token_uri: ByteArray) {
+            self.ownable.assert_only_owner();
+            assert(self.erc721._exists(token_id), 'ERC721: invalid token ID');
+            self.token_uris.write(token_id, token_uri);
+        }
+    }
 }
 
 #[cfg(test)]
@@ -168,6 +186,7 @@ mod tests {
         IERC721BridgeableDispatcher, IERC721BridgeableDispatcherTrait,
         IERC721Dispatcher, IERC721DispatcherTrait,
         IERC721MintableDispatcher, IERC721MintableDispatcherTrait,
+        IERC721UriDispatcher, IERC721UriDispatcherTrait,
     };
     use starklane::token::collection_manager;
 
@@ -402,4 +421,95 @@ mod tests {
         ownable.transfer_ownership(BOB);
         stop_prank(CheatTarget::One(contract_address));
     }
+
+    #[test]
+    fn test_set_base_uri() {
+        let COLLECTION_OWNER = collection_owner_addr_mock();
+        let new_uri = "https://this.is.a.test.com";
+        let contract_address = deploy_everai_collection();
+
+        let contract = IERC721UriDispatcher { contract_address};
+        assert_eq!(contract.base_uri(), "https://my.base.uri");
+        start_prank(CheatTarget::One(contract_address), COLLECTION_OWNER);
+        contract.set_base_uri(new_uri.clone());
+        stop_prank(CheatTarget::One(contract_address));
+        assert_eq!(contract.base_uri(), new_uri);
+    }
+
+    #[test]
+    #[should_panic(expected: ('Caller is not the owner',))]
+    fn should_panic_set_base_uri_not_owner() {
+        let COLLECTION_OWNER = collection_owner_addr_mock();
+        let ALICE = starknet::contract_address_const::<'alice'>();
+
+        let contract_address = deploy_everai_collection();
+
+        let ownable = IOwnableTwoStepDispatcher { contract_address };
+        assert_eq!(ownable.owner(), COLLECTION_OWNER, "bad owner");
+
+        start_prank(CheatTarget::One(contract_address), ALICE);
+        IERC721UriDispatcher { contract_address}.set_base_uri("https://this.is.a.test.com");
+        stop_prank(CheatTarget::One(contract_address));
+    }
+
+    #[test]
+    fn test_set_token_uri() {
+        let COLLECTION_OWNER = collection_owner_addr_mock();
+        let ALICE = starknet::contract_address_const::<'alice'>();
+        let new_uri = "https://this.is.a.test.com/68";
+        let contract_address = deploy_everai_collection();
+        let token_id = 42_u256;
+
+        start_prank(CheatTarget::One(contract_address), COLLECTION_OWNER);
+        IERC721MintableDispatcher { contract_address}.mint(ALICE, token_id);
+        stop_prank(CheatTarget::One(contract_address));
+        assert!(IERC721Dispatcher {contract_address}.token_uri(token_id) != new_uri.clone());
+
+        start_prank(CheatTarget::One(contract_address), COLLECTION_OWNER);
+        IERC721UriDispatcher { contract_address}.set_token_uri(token_id, new_uri.clone());
+        stop_prank(CheatTarget::One(contract_address));
+        assert_eq!(IERC721Dispatcher {contract_address}.token_uri(token_id), new_uri);
+    }
+
+    #[test]
+    #[should_panic(expected: 'ERC721: invalid token ID',)]
+    fn test_set_token_uri_for_invalid_token_id() {
+        let COLLECTION_OWNER = collection_owner_addr_mock();
+        let ALICE = starknet::contract_address_const::<'alice'>();
+        let new_uri = "https://this.is.a.test.com/68";
+        let contract_address = deploy_everai_collection();
+        let token_id = 42_u256;
+        let invalid_token_id = 68_u256;
+
+        start_prank(CheatTarget::One(contract_address), COLLECTION_OWNER);
+        IERC721MintableDispatcher { contract_address}.mint(ALICE, token_id);
+        stop_prank(CheatTarget::One(contract_address));
+        assert!(IERC721Dispatcher {contract_address}.token_uri(token_id) != new_uri.clone());
+
+        start_prank(CheatTarget::One(contract_address), COLLECTION_OWNER);
+        IERC721UriDispatcher { contract_address}.set_token_uri(invalid_token_id, new_uri.clone());
+        stop_prank(CheatTarget::One(contract_address));
+        assert_eq!(IERC721Dispatcher {contract_address}.token_uri(token_id), new_uri);
+    }
+
+    #[test]
+    #[should_panic(expected: 'Caller is not the owner',)]
+    fn should_panic_set_token_uri_not_owner_of_collection() {
+        let COLLECTION_OWNER = collection_owner_addr_mock();
+        let ALICE = starknet::contract_address_const::<'alice'>();
+        let new_uri = "https://this.is.a.test.com/68";
+        let contract_address = deploy_everai_collection();
+        let token_id = 42_u256;
+
+        start_prank(CheatTarget::One(contract_address), COLLECTION_OWNER);
+        IERC721MintableDispatcher { contract_address}.mint(ALICE, token_id);
+        stop_prank(CheatTarget::One(contract_address));
+        assert!(IERC721Dispatcher {contract_address}.token_uri(token_id) != new_uri.clone());
+
+        start_prank(CheatTarget::One(contract_address), ALICE);
+        IERC721UriDispatcher { contract_address}.set_token_uri(token_id, new_uri.clone());
+        stop_prank(CheatTarget::One(contract_address));
+        assert_eq!(IERC721Dispatcher {contract_address}.token_uri(token_id), new_uri);
+    }
+
 }

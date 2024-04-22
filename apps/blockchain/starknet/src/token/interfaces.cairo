@@ -14,6 +14,13 @@ trait IERC721<T> {
 }
 
 #[starknet::interface]
+trait IERC721Uri<T> {
+    fn base_uri(self: @T) -> ByteArray;
+    fn set_base_uri(ref self: T, base_uri: ByteArray);
+    fn set_token_uri(ref self: T, token_id: u256, token_uri: ByteArray);
+}
+
+#[starknet::interface]
 trait IERC721Mintable<T> {
     fn mint(ref self: T, to: ContractAddress, token_id: u256);
     fn mint_range(ref self: T, to: ContractAddress, start: u256, end: u256);
