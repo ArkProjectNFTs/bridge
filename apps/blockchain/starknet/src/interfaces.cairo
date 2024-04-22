@@ -45,6 +45,9 @@ trait IUpgradeable<T> {
 trait IStarklaneCollectionAdmin<T> {
     // try to upgrade the given collection with given class_hash
     fn collection_upgrade(ref self: T, collection: ContractAddress, class_hash: ClassHash);
+
+    // transfer owner of the given collection to the given address
+    fn collection_transfer_ownership(ref self: T, collection: ContractAddress, new_owner: ContractAddress);
 }
 
 //////////////////////////
