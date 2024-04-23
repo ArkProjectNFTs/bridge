@@ -24,6 +24,10 @@ pub fn get_store_data(
     if event.keys[0] == selector!("CollectionDeployedFromL1") {
         return Ok((None, None, None));
     }
+    if event.keys.len() < 4 || event.data.is_empty() {
+        log::debug!("not handled event: {:?}", event.keys);
+        return Ok((None, None, None));
+    }
 
     let hash = u256_to_hex(&event.keys[1..])?;
     let block_timestamp = event.keys[3];
