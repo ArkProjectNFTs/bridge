@@ -105,7 +105,9 @@ export default function NftTransferItem({
             />
             <div className="text-left">
               <Typography component="p" variant="body_text_bold_14">
-                {collectionName} Collection
+                {tokenIds.length === 1
+                  ? `${collectionName} #${tokenIds[0]}`
+                  : `${collectionName} Collection`}
               </Typography>
               <Typography
                 className="dark:text-space-blue-300"
