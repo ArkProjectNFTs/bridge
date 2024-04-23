@@ -72,7 +72,7 @@ export default function MarketplacesList() {
           />
           <ArrowIcon className="flex-shrink-0" />
         </a>
-        <a
+        {/* <a
           className="flex h-[5.625rem] items-center justify-between rounded-xl border border-asteroid-grey-100 bg-white px-6 transition-colors hover:bg-space-blue-100 dark:border-space-blue-800 dark:bg-space-blue-900 dark:hover:bg-space-blue-800"
           href="https://hyperflex.market/starknet/collection/0x02acee8c430f62333cf0e0e7a94b2347b5513b4c25f699461dd8d7b23c072478"
         >
@@ -91,7 +91,7 @@ export default function MarketplacesList() {
             width={68}
           />
           <ArrowIcon className="flex-shrink-0" />
-        </a>
+        </a> */}
         <a
           className="flex h-[5.625rem] items-center justify-between rounded-xl border border-asteroid-grey-100 bg-white px-6 transition-colors hover:bg-space-blue-100 dark:border-space-blue-800 dark:bg-space-blue-900 dark:hover:bg-space-blue-800"
           href="https://ventory.gg/collection/0x02acee8c430f62333cf0e0e7a94b2347b5513b4c25f699461dd8d7b23c072478"
