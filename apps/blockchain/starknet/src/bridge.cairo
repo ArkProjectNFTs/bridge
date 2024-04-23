@@ -14,6 +14,7 @@ mod bridge {
     use starknet::contract_address::ContractAddressZeroable;
     use starknet::eth_address::EthAddressZeroable;
 
+    use openzeppelin::access::ownable::OwnableComponent;
     use openzeppelin::access::ownable::interface::{
         IOwnableDispatcher, IOwnableDispatcherTrait
     };
@@ -49,10 +50,15 @@ mod bridge {
 
     use poseidon::poseidon_hash_span;
 
+    component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
+
+    #[abi(embed_v0)]
+    impl OwnableTwoStepMixinImpl = OwnableComponent::OwnableTwoStepMixinImpl<ContractState>;
+
+    impl OwnableInternalImpl = OwnableComponent::InternalImpl<ContractState>;
+
     #[storage]
     struct Storage {
-        // Bridge administrator.
-        bridge_admin: ContractAddress,
         // Bridge address on L1 (to allow it to consume messages).
         bridge_l1_address: EthAddress,
         // The class to deploy for ERC721 tokens.
@@ -72,6 +78,9 @@ mod bridge {
 
         // Bridge enabled flag
         enabled: bool,
+        
+        #[substorage(v0)]
+        ownable: OwnableComponent::Storage,
     }
 
     #[constructor]
@@ -81,8 +90,7 @@ mod bridge {
         bridge_l1_address: EthAddress,
         erc721_bridgeable_class: ClassHash,
     ) {
-        self.bridge_admin.write(bridge_admin);
-
+        self.ownable.initializer(bridge_admin);
         // TODO: add validation of inputs.
         self.bridge_l1_address.write(bridge_l1_address);
         self.erc721_bridgeable_class.write(erc721_bridgeable_class);
@@ -98,6 +106,8 @@ mod bridge {
         WithdrawRequestCompleted: WithdrawRequestCompleted,
         ReplacedClassHash: ReplacedClassHash,
         BridgeEnabled: BridgeEnabled,
+        #[flat]
+        OwnableEvent: OwnableComponent::Event,
     }
 
 
@@ -348,7 +358,7 @@ mod bridge {
 
     /// Ensures the caller is the bridge admin. Revert if it's not.
     fn ensure_is_admin(self: @ContractState) {
-        assert(starknet::get_caller_address() == self.bridge_admin.read(), 'Unauthorized call');
+        self.ownable.assert_only_owner();
     }
 
     /// Ensures the bridge is enabled

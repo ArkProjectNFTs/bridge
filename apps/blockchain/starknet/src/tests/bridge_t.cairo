@@ -709,7 +709,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic]
+    #[should_panic(expected: ('Caller is not the owner',))]
     fn upgrade_as_not_admin() {
         let erc721b_contract_class = declare("erc721_bridgeable");
 
@@ -722,6 +722,46 @@ mod tests {
         start_prank(CheatTarget::One(bridge_address), alice);
         bridge.upgrade(erc721b_contract_class.class_hash);
         stop_prank(CheatTarget::One(bridge_address));        
+    }
+
+    #[test]
+    fn support_two_step_transfer_ownership() {
+        let erc721b_contract_class = declare("erc721_bridgeable");
+
+        let BRIDGE_ADMIN = starknet::contract_address_const::<'starklane'>();
+        let BRIDGE_L1 = EthAddress { address: 'starklane_l1' };
+        let ALICE = starknet::contract_address_const::<'alice'>();
+        let contract_address = deploy_starklane(BRIDGE_ADMIN, BRIDGE_L1, erc721b_contract_class.class_hash);
+        let ownable = IOwnableTwoStepDispatcher { contract_address};
+
+        assert_eq!(ownable.owner(), BRIDGE_ADMIN, "bad owner");
+        start_prank(CheatTarget::One(contract_address), BRIDGE_ADMIN);
+        ownable.transfer_ownership(ALICE);
+        stop_prank(CheatTarget::One(contract_address));
+        assert_eq!(ownable.owner(), BRIDGE_ADMIN, "bad owner");
+        assert_eq!(ownable.pending_owner(), ALICE, "bad pending owner");
+
+        start_prank(CheatTarget::One(contract_address), ALICE);
+        ownable.accept_ownership();
+        stop_prank(CheatTarget::One(contract_address));
+        assert_eq!(ownable.owner(), ALICE, "bad owner");
+    }
+
+    #[test]
+    #[should_panic(expected: ('Caller is not the owner',))]
+    fn should_panic_transfer_not_owner() {
+        let erc721b_contract_class = declare("erc721_bridgeable");
+
+        let BRIDGE_ADMIN = starknet::contract_address_const::<'starklane'>();
+        let BRIDGE_L1 = EthAddress { address: 'starklane_l1' };
+        let ALICE = starknet::contract_address_const::<'alice'>();
+        let contract_address = deploy_starklane(BRIDGE_ADMIN, BRIDGE_L1, erc721b_contract_class.class_hash);
+        let ownable = IOwnableTwoStepDispatcher { contract_address};
+
+        assert_eq!(ownable.owner(), BRIDGE_ADMIN, "bad owner");
+        start_prank(CheatTarget::One(contract_address), ALICE);
+        ownable.transfer_ownership(ALICE);
+        stop_prank(CheatTarget::One(contract_address));
     }
 
     #[test]
@@ -790,7 +830,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected: ('Unauthorized call',))]
+    #[should_panic(expected: ('Caller is not the owner',))]
     fn collection_transfer_ownership_as_not_admin() {
         let BRIDGE_L1 = EthAddress { address: 'starklane_l1' };
         let OWNER_L1: EthAddress = 0xe00.try_into().unwrap();
