@@ -169,7 +169,11 @@ export default function NftTransferItem({
                   </a>
                 ) : (
                   <>
-                    <a href={`https://voyager.online/tx/${txHash}`}>
+                    <a
+                      href={`https://voyager.online/tx/${txHash}`}
+                      rel="noreferrer"
+                      target="_blank"
+                    >
                       <Typography
                         className="underline"
                         component="p"
@@ -178,7 +182,11 @@ export default function NftTransferItem({
                         View on Voyager
                       </Typography>
                     </a>
-                    <a href={`https://starkscan.co/tx/${txHash}`}>
+                    <a
+                      href={`https://starkscan.co/tx/${txHash}`}
+                      rel="noreferrer"
+                      target="_blank"
+                    >
                       <Typography
                         className="underline"
                         component="p"
