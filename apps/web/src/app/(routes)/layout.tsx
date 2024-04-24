@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/react";
 import clsx from "clsx";
 import { type Metadata } from "next";
 import localFont from "next/font/local";
@@ -9,6 +10,7 @@ import RootLayoutContainer from "./root-layout-container";
 
 export const metadata: Metadata = {
   description: "Start moving your Everai on Starknet",
+  metadataBase: new URL("https://bridge.arkproject.dev"),
   openGraph: {
     description: "Start moving your Everai on Starknet",
     images: ["https://bridge.arkproject.dev/medias/bridge_thumbnail.png"],
@@ -93,6 +95,7 @@ function RootLayout({ children }: PropsWithChildren) {
       suppressHydrationWarning
     >
       <RootLayoutContainer>{children}</RootLayoutContainer>
+      <Analytics />
     </html>
   );
 }
