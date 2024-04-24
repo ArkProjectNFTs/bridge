@@ -29,6 +29,7 @@ mod bridge {
         CollectionDeployedFromL1,
         ReplacedClassHash,
         BridgeEnabled,
+        CollectionWhiteListUpdated,
     };
 
     use starklane::request::{
@@ -108,6 +109,7 @@ mod bridge {
         WithdrawRequestCompleted: WithdrawRequestCompleted,
         ReplacedClassHash: ReplacedClassHash,
         BridgeEnabled: BridgeEnabled,
+        CollectionWhiteListUpdated: CollectionWhiteListUpdated,
         #[flat]
         OwnableEvent: OwnableComponent::Event,
     }
@@ -315,6 +317,10 @@ mod bridge {
         fn white_list_collection(ref self: ContractState, collection: ContractAddress, enabled: bool) {
             ensure_is_admin(@self);
             _white_list_collection(ref self, collection, enabled);
+            self.emit(CollectionWhiteListUpdated {
+                collection,
+                enabled,
+            });
         }
 
         fn is_white_listed(self: @ContractState, collection: ContractAddress) -> bool {
@@ -465,6 +471,10 @@ mod bridge {
         let (already_white_listed, _) = self.white_listed_list.read(l2_addr_from_deploy);
         if already_white_listed != true {
             _white_list_collection(ref self, l2_addr_from_deploy, true);
+            self.emit(CollectionWhiteListUpdated {
+                collection: l2_addr_from_deploy,
+                enabled: true,
+            });
         }
         l2_addr_from_deploy
     }

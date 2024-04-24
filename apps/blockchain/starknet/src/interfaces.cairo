@@ -100,3 +100,10 @@ struct L1L2CollectionMappingUpdated {
     #[key]
     collection_l2: ContractAddress
 }
+
+#[derive(Drop, starknet::Event)]
+struct CollectionWhiteListUpdated {
+    #[key]
+    collection: ContractAddress,
+    enabled: bool,
+} 

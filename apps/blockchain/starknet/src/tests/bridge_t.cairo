@@ -772,6 +772,66 @@ mod tests {
     }
 
     #[test]
+    fn whitelist_collection_update_events() {
+        let erc721b_contract_class = declare("erc721_bridgeable");
+
+        let BRIDGE_ADMIN = starknet::contract_address_const::<'starklane'>();
+        let BRIDGE_L1 = EthAddress { address: 'starklane_l1' };
+
+        let bridge_address = deploy_starklane(BRIDGE_ADMIN, BRIDGE_L1, erc721b_contract_class.class_hash);
+        let bridge = IStarklaneDispatcher { contract_address: bridge_address };
+        
+        let collection1 = starknet::contract_address_const::<'collection1'>();
+        let collection2 = starknet::contract_address_const::<'collection2'>();
+        let collection3 = starknet::contract_address_const::<'collection3'>();
+        start_prank(CheatTarget::One(bridge_address), BRIDGE_ADMIN);
+        bridge.enable_white_list(true);
+        stop_prank(CheatTarget::One(bridge_address));
+
+        let mut spy = spy_events(SpyOn::One(bridge_address));
+        start_prank(CheatTarget::One(bridge_address), BRIDGE_ADMIN);
+        bridge.white_list_collection(collection1, true);
+        stop_prank(CheatTarget::One(bridge_address));
+        spy.assert_emitted(@array![
+            (
+                bridge_address,
+                bridge::Event::CollectionWhiteListUpdated(
+                    bridge::CollectionWhiteListUpdated {
+                        collection: collection1,
+                        enabled: true,
+                    }
+                )
+            )
+        ]);
+
+        start_prank(CheatTarget::One(bridge_address), BRIDGE_ADMIN);
+        bridge.white_list_collection(collection2, true);
+        bridge.white_list_collection(collection1, false);
+        stop_prank(CheatTarget::One(bridge_address));
+        spy.assert_emitted(@array![
+            (
+                bridge_address,
+                bridge::Event::CollectionWhiteListUpdated(
+                    bridge::CollectionWhiteListUpdated {
+                        collection: collection2,
+                        enabled: true,
+                    }
+                )
+            ),
+            (
+                bridge_address,
+                bridge::Event::CollectionWhiteListUpdated(
+                    bridge::CollectionWhiteListUpdated {
+                        collection: collection1,
+                        enabled: false,
+                    }
+                )
+            )
+        ]);
+
+    }
+
+    #[test]
     #[should_panic]
     fn deposit_token_not_enabled() {
         // Need to declare here to get the class hash before deploy anything.
