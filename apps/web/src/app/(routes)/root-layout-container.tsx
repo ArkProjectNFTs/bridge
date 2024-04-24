@@ -1,7 +1,7 @@
 "use client";
 
 import clsx from "clsx";
-import { type PropsWithChildren } from "react";
+import React, { type PropsWithChildren } from "react";
 
 import { api } from "~/utils/api";
 
@@ -31,4 +31,8 @@ function RootLayoutContainer({ children }: PropsWithChildren) {
   );
 }
 
-export default api.withTRPC(RootLayoutContainer);
+const Component = api.withTRPC(
+  RootLayoutContainer
+) as React.FC<PropsWithChildren>;
+
+export default Component;
