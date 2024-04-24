@@ -73,9 +73,11 @@ mod bridge {
 
         // White list enabled flag
         white_list_enabled: bool,
+        
         // Registry of whitelisted collections
-        white_list: LegacyMap::<ContractAddress, bool>,
-
+        white_listed_list: LegacyMap::<ContractAddress, (bool, ContractAddress)>,
+        white_listed_head: ContractAddress,
+        
         // Bridge enabled flag
         enabled: bool,
         
@@ -312,11 +314,29 @@ mod bridge {
 
         fn white_list_collection(ref self: ContractState, collection: ContractAddress, enabled: bool) {
             ensure_is_admin(@self);
-            self.white_list.write(collection, enabled);
+            _white_list_collection(ref self, collection, enabled);
         }
 
         fn is_white_listed(self: @ContractState, collection: ContractAddress) -> bool {
             _is_white_listed(self, collection)
+        }
+
+        fn get_white_listed_collections(self: @ContractState) -> Span<ContractAddress> {
+            let mut white_listed = array![];
+            let mut current = self.white_listed_head.read();
+            loop {
+                if current.is_zero() {
+                    break;
+                }
+                let (enabled, next) = self.white_listed_list.read(current);
+                if !enabled {
+                    break;
+                } else {
+                    white_listed.append(current);
+                    current = next;
+                }
+            };
+            white_listed.span()
         }
 
         fn enable(ref self: ContractState, enable: bool) {
@@ -442,8 +462,9 @@ mod bridge {
             );
 
         // update whitelist if needed
-        if self.white_list.read(l2_addr_from_deploy) != true {
-            self.white_list.write(l2_addr_from_deploy, true);
+        let (already_white_listed, _) = self.white_listed_list.read(l2_addr_from_deploy);
+        if already_white_listed != true {
+            _white_list_collection(ref self, l2_addr_from_deploy, true);
         }
         l2_addr_from_deploy
     }
@@ -451,8 +472,62 @@ mod bridge {
     fn _is_white_listed(self: @ContractState, collection: ContractAddress) -> bool {
             let enabled = self.white_list_enabled.read();
             if (enabled) {
-                return self.white_list.read(collection);
+                let (ret, _) = self.white_listed_list.read(collection);
+                return ret;
             }
             true
+    }
+
+    fn _white_list_collection(ref self: ContractState, collection: ContractAddress, enabled: bool) {
+        let no_value = starknet::contract_address_const::<0>();
+        let (current, _) = self.white_listed_list.read(collection);
+        if current != enabled {
+            let mut prev = self.white_listed_head.read();
+            if enabled {
+                self.white_listed_list.write(collection, (enabled, no_value));
+                if prev.is_zero() {
+                    self.white_listed_head.write(collection);
+                    return;
+                }
+                // find last element
+                loop {
+                    let (_, next) = self.white_listed_list.read(prev);
+                    if next.is_zero() {
+                        break;
+                    }
+                    let (active, _) = self.white_listed_list.read(next);
+                    if !active {
+                        break;
+                    }
+                    prev = next;
+                };
+                self.white_listed_list.write(prev, (true, collection));
+            } else { 
+                // change head
+                if prev == collection {
+                    let (_, next) = self.white_listed_list.read(prev);
+                    self.white_listed_list.write(collection, (false, no_value));
+                    self.white_listed_head.write(next);
+                    return;
+                }
+                // removed element from linked list
+                loop {
+                    let (active, next) = self.white_listed_list.read(prev);
+                    if next.is_zero() {
+                        // end of list
+                        break;
+                    }
+                    if !active {
+                        break;
+                    }
+                    if next == collection {
+                        let (_, target) = self.white_listed_list.read(collection);
+                        self.white_listed_list.write(prev, (active, target));
+                        break;
+                    }
+                };
+                self.white_listed_list.write(collection, (false, no_value));
+            }
+        }
     }
 }
