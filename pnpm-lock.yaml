@@ -59,13 +59,16 @@ importers:
         version: 10.26.0(@trpc/server@10.26.0)
       '@trpc/next':
         specifier: ^10.26.0
-        version: 10.26.0(@tanstack/react-query@4.29.7)(@trpc/client@10.26.0)(@trpc/react-query@10.26.0)(@trpc/server@10.26.0)(next@13.4.2)(react-dom@18.2.0)(react@18.2.0)
+        version: 10.45.2(@tanstack/react-query@4.29.7)(@trpc/client@10.26.0)(@trpc/react-query@10.26.0)(@trpc/server@10.26.0)(next@13.4.2)(react-dom@18.2.0)(react@18.2.0)
       '@trpc/react-query':
         specifier: ^10.26.0
         version: 10.26.0(@tanstack/react-query@4.29.7)(@trpc/client@10.26.0)(@trpc/server@10.26.0)(react-dom@18.2.0)(react@18.2.0)
       '@trpc/server':
         specifier: ^10.26.0
         version: 10.26.0
+      '@vercel/analytics':
+        specifier: ^1.2.2
+        version: 1.2.2(next@13.4.2)(react@18.2.0)
       alchemy-sdk:
         specifier: ^2.8.3
         version: 2.8.3
@@ -4071,13 +4074,13 @@ packages:
       '@trpc/server': 10.26.0
     dev: false
 
-  /@trpc/next@10.26.0(@tanstack/react-query@4.29.7)(@trpc/client@10.26.0)(@trpc/react-query@10.26.0)(@trpc/server@10.26.0)(next@13.4.2)(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-p328crXBH6C228LKxjqbpDEXdLmy4+LdgsZuYK3oFMqaJEmCT22b+zcQ9IvQrcPfDxhKOpJym0QpuDNaWpG2qg==}
+  /@trpc/next@10.45.2(@tanstack/react-query@4.29.7)(@trpc/client@10.26.0)(@trpc/react-query@10.26.0)(@trpc/server@10.26.0)(next@13.4.2)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-RSORmfC+/nXdmRY1pQ0AalsVgSzwNAFbZLYHiTvPM5QQ8wmMEHilseCYMXpu0se/TbPt9zVR6Ka2d7O6zxKkXg==}
     peerDependencies:
       '@tanstack/react-query': ^4.18.0
-      '@trpc/client': 10.26.0
-      '@trpc/react-query': 10.26.0
-      '@trpc/server': 10.26.0
+      '@trpc/client': 10.45.2
+      '@trpc/react-query': 10.45.2
+      '@trpc/server': 10.45.2
       next: '*'
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
@@ -4089,7 +4092,6 @@ packages:
       next: 13.4.2(@babel/core@7.23.9)(react-dom@18.2.0)(react@18.2.0)
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
-      react-ssr-prepass: 1.5.0(react@18.2.0)
     dev: false
 
   /@trpc/react-query@10.26.0(@tanstack/react-query@4.29.7)(@trpc/client@10.26.0)(@trpc/server@10.26.0)(react-dom@18.2.0)(react@18.2.0):
@@ -4497,6 +4499,22 @@ packages:
 
   /@ungap/structured-clone@1.2.0:
     resolution: {integrity: sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==}
+
+  /@vercel/analytics@1.2.2(next@13.4.2)(react@18.2.0):
+    resolution: {integrity: sha512-X0rctVWkQV1e5Y300ehVNqpOfSOufo7ieA5PIdna8yX/U7Vjz0GFsGf4qvAhxV02uQ2CVt7GYcrFfddXXK2Y4A==}
+    peerDependencies:
+      next: '>= 13'
+      react: ^18 || ^19
+    peerDependenciesMeta:
+      next:
+        optional: true
+      react:
+        optional: true
+    dependencies:
+      next: 13.4.2(@babel/core@7.23.9)(react-dom@18.2.0)(react@18.2.0)
+      react: 18.2.0
+      server-only: 0.0.1
+    dev: false
 
   /@wagmi/connectors@4.1.12(@types/react@18.2.6)(@wagmi/core@2.6.3)(react-dom@18.2.0)(react-native@0.73.4)(react@18.2.0)(typescript@5.3.3)(viem@2.9.9)(zod@3.21.4):
     resolution: {integrity: sha512-zqCJMOwpi8ssFjndVxVh3iUMwzcA7dPCjswhcy4xZyy1jm/VvGYC3o1wotq/gTCqUrz0SPIMGimZm4S6865b8A==}
@@ -9877,14 +9895,6 @@ packages:
       react-is: 18.2.0
     dev: false
 
-  /react-ssr-prepass@1.5.0(react@18.2.0):
-    resolution: {integrity: sha512-yFNHrlVEReVYKsLI5lF05tZoHveA5pGzjFbFJY/3pOqqjGOmMmqx83N4hIjN2n6E1AOa+eQEUxs3CgRnPmT0RQ==}
-    peerDependencies:
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0
-    dependencies:
-      react: 18.2.0
-    dev: false
-
   /react-style-singleton@2.2.1(@types/react@18.2.6)(react@18.2.0):
     resolution: {integrity: sha512-ZWj0fHEMyWkHzKYUr2Bs/4zU6XLmq9HsgBURm7g5pAVfyn49DgUiNgY2d4lXRlYSiCif9YBGpQleewkcqddc7g==}
     engines: {node: '>=10'}
@@ -10258,6 +10268,10 @@ packages:
       send: 0.18.0
     transitivePeerDependencies:
       - supports-color
+    dev: false
+
+  /server-only@0.0.1:
+    resolution: {integrity: sha512-qepMx2JxAa5jjfzxG79yPPq+8BuFToHd1hm7kI+Z4zAq1ftQiP7HcxMhDDItrbtwVeLg/cY2JnKnrcFkmiswNA==}
     dev: false
 
   /set-blocking@2.0.0:

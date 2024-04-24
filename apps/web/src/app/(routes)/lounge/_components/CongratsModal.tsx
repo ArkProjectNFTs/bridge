@@ -220,7 +220,7 @@ export default function CongratsModal({ isFromTransfer }: CongratsModalProps) {
             </Typography>
             <a
               className="mt-6 flex h-12 items-center rounded-full bg-space-blue-source px-5 text-white transition-colors hover:bg-space-blue-500 dark:text-galaxy-blue"
-              href="https://twitter.com/intent/tweet?text=I've just transferred my @Everai(s) on @Starknet using the ArkProject Bridge! Let's come together, holders and hit a new milestone on Ark Quests! https://quests.arkproject.dev/"
+              href="https://twitter.com/intent/tweet?text=I've just transferred my @Everai(s) on @Starknet using the ArkProject Bridge! Let's come together and hit a new milestone on Ark Quests! https://bridge.arkproject.dev/"
               rel="noreferrer"
               target="_blank"
             >

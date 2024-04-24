@@ -1,38 +1,33 @@
-"use client";
-
+import { Analytics } from "@vercel/analytics/react";
 import clsx from "clsx";
-// import { type Metadata } from "next";
+import { type Metadata } from "next";
 import localFont from "next/font/local";
+import { type PropsWithChildren } from "react";
 
 import "~/styles/globals.css";
-import { api } from "~/utils/api";
 
-import Header from "../_components/Header";
-import MobilePlaceholder from "../_components/MobilePlaceholder";
-import useCurrentChain from "../_hooks/useCurrentChain";
-import Providers from "./providers";
+import RootLayoutContainer from "./root-layout-container";
 
-// export const metadata: Metadata = {
-//   description: "",
-//   // openGraph: {
-//   //   description:
-//   //     "",
-//   //   images: [""],
-//   //   title: "ArkProject",
-//   //   type: "website",
-//   //   url: "https://www.arkproject.dev",
-//   // },
-//   title: "ArkProject Bridge",
-//   // twitter: {
-//   //   card: "summary_large_image",
-//   //   creator: "@ArkProjectNFTs",
-//   //   description:
-//   //     "",
-//   //   images: [""],
-//   //   site: "@ArkProjectNFTs",
-//   //   title: "ArkProject",
-//   // },
-// };
+export const metadata: Metadata = {
+  description: "Start moving your Everai on Starknet",
+  metadataBase: new URL("https://bridge.arkproject.dev"),
+  openGraph: {
+    description: "Start moving your Everai on Starknet",
+    images: ["https://bridge.arkproject.dev/medias/bridge_thumbnail.png"],
+    title: "ArkProject",
+    type: "website",
+    url: "https://bridge.arkproject.dev",
+  },
+  title: "ArkProject Bridge",
+  twitter: {
+    card: "summary_large_image",
+    creator: "@ArkProjectNFTs",
+    description: "Start moving your Everai on Starknet",
+    images: ["https://bridge.arkproject.dev/medias/bridge_thumbnail.png"],
+    site: "@ArkProjectNFTs",
+    title: "ArkProject",
+  },
+};
 
 const arkProjectFont = localFont({
   src: [
@@ -91,9 +86,7 @@ const styreneAFont = localFont({
   variable: "--font-styrene-a",
 });
 
-function RootLayout({ children }: { children: React.ReactNode }) {
-  const { targetChain } = useCurrentChain();
-
+function RootLayout({ children }: PropsWithChildren) {
   return (
     <html
       className={clsx(arkProjectFont.variable, styreneAFont.variable)}
@@ -101,22 +94,10 @@ function RootLayout({ children }: { children: React.ReactNode }) {
       // suppresHydrationWarning only applies one level deep, necessary because <html> is updated before page load by next-themes
       suppressHydrationWarning
     >
-      <body
-        className={clsx(
-          "bg-space-blue-50 text-galaxy-blue dark:bg-void-black dark:text-white",
-          targetChain
-        )}
-      >
-        <Providers>
-          <Header />
-          <div className="hidden min-h-screen md:block">{children}</div>
-        </Providers>
-        <div className="block h-screen md:hidden">
-          <MobilePlaceholder />
-        </div>
-      </body>
+      <RootLayoutContainer>{children}</RootLayoutContainer>
+      <Analytics />
     </html>
   );
 }
 
-export default api.withTRPC(RootLayout);
+export default RootLayout;
