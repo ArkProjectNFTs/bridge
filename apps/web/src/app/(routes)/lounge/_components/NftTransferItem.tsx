@@ -122,9 +122,26 @@ export default function NftTransferItem({
           <NftTransferStatus className="ml-3" status={status} />
 
           <div className="ml-2 flex flex-col items-start gap-1">
-            <Typography variant="button_text_s">
-              {getDisplayedDate(arrivalTimestamp)}
-            </Typography>
+            {arrivalTimestamp !== undefined && (
+              <Typography variant="button_text_s">
+                {getDisplayedDate(arrivalTimestamp)}
+              </Typography>
+            )}
+            {status === "deposit_initiated_l1" ? (
+              <Typography
+                className="text-asteroid-grey-400"
+                variant="body_text_14"
+              >
+                Transfer can take few minutes
+              </Typography>
+            ) : status === "deposit_initiated_l2" ? (
+              <Typography
+                className="text-asteroid-grey-400"
+                variant="body_text_14"
+              >
+                Transfer can take up to 4 hours
+              </Typography>
+            ) : null}
             <div className="flex items-center gap-2">
               {arrivalChain === "Ethereum" ? (
                 <Image
