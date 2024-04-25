@@ -20,7 +20,7 @@ export default function useL1Withdraw({ onSuccess }: UseL1WithdrawProps) {
       hash: withdrawHash,
     });
 
-  const utils = api.useContext();
+  const utils = api.useUtils();
 
   function withdraw(requestContent: Array<string>) {
     writeContractWithdraw({
