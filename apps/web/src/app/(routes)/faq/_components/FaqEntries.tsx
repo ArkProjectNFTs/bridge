@@ -87,7 +87,7 @@ export default function FaqEntries({ className }: FaqEntriesProps) {
         security of your transactions on the blockchain.
       </FaqEntry>
       <FaqEntry title="How do gas fees refunds work?">
-        The first 200 holders who bridge their Everais to Starknet are eligible
+        The first 1000 holders who bridge their Everais to Starknet are eligible
         for refunds. Each of these holders can receive a refund of up to $40. At
         the end of the campaign on May 10, the refunds will be made in STRK
         tokens and sent directly to the Starknet wallet you used to bridge your
