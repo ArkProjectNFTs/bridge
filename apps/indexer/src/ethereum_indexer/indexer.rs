@@ -254,7 +254,8 @@ where
                             Err(e) => log::warn!("Failed to compute event price: {:?}", e),
                         }
                     }
-
+                    
+                    log::info!("Insert event: {:?}", &e);
                     self.store.insert_event(e.clone()).await?;
 
                     if self.store.req_by_hash(&r.hash).await?.is_none() {
@@ -319,7 +320,8 @@ where
                         event.label = EventLabel::WithdrawAvailableL1;
                         // TODO: which transaction hash we should set?
                         event.tx_hash = "0x435553544f4d5f5452414e53414354494f4e".to_owned(); // CUSTOM_TRANSACTION
-
+                        
+                        log::info!("Insert event: {:?}", &event);
                         self.store.insert_event(event).await?;
                         self.store.remove_pending_withdraw(pending).await?;
                     }
