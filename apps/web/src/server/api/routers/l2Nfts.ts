@@ -8,6 +8,7 @@ import {
   getL2ContractsForOwner,
   getL2NftsForOwner,
   getL2NftsMetadataBatch,
+  getL2WhitelistedCollections,
   getMediaObjectFromUrl,
 } from "../helpers/l2nfts";
 import { type Collection, type Nft } from "../types";
@@ -36,17 +37,26 @@ export const l2NftsRouter = createTRPCRouter({
 
       try {
         const contractsForOwner = await getL2ContractsForOwner(address);
+        const whitelistedCollections = await getL2WhitelistedCollections();
 
         const collections: Array<Collection> = contractsForOwner.result.map(
           (contract) => {
             const media = getMediaObjectFromUrl(contract.image);
+            const isBridgeable =
+              whitelistedCollections === undefined ||
+              whitelistedCollections.some(
+                (whitelistedCollection) =>
+                  validateAndParseAddress(
+                    whitelistedCollection
+                  ).toLowerCase() ===
+                  validateAndParseAddress(
+                    contract.contract_address
+                  ).toLowerCase()
+              );
 
             return {
               contractAddress: contract.contract_address,
-              isBridgeable: true,
-
-              // isBridgeable:
-              //   contract.contract_address ===
+              isBridgeable,
               media,
               name: contract.name ?? contract.symbol ?? "Unknown",
               totalBalance: contract.tokens_count,

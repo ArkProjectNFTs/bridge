@@ -18,7 +18,7 @@ export default function TransferStarknetNftsAction() {
           icon={<ClockIcon />}
           variant="space_blue"
         >
-          <b>Important note: </b>You will have to wait about 4 hours before you
+          <b>Important note: </b>You will have to wait about 12 hours before you
           can claim your assets on Ethereum.
         </Notification>
       )}

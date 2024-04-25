@@ -46,6 +46,7 @@ export default function CollectionGrid({
                   <Link
                     className="pb-2.5 pl-2.5"
                     href={`/bridge/${nftCollection.contractAddress}`}
+                    prefetch
                   >
                     {children}
                   </Link>

@@ -139,7 +139,7 @@ export default function NftTransferItem({
                 className="text-asteroid-grey-400"
                 variant="body_text_14"
               >
-                Transfer can take up to 4 hours
+                Transfer can take up to 12 hours
               </Typography>
             ) : null}
             <div className="flex items-center gap-2">
