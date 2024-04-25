@@ -136,7 +136,7 @@ export default function useTransferStarknetNfts() {
       // await writeAsync();
       const depositData = await starknetAccount?.execute(depositCalls);
       if (depositData !== undefined) {
-        router.push(`lounge/${depositData.transaction_hash}`);
+        router.push(`/lounge/${depositData.transaction_hash}`);
         setIsSigning(false);
       }
     } catch (error) {
