@@ -36,7 +36,7 @@ export default function MarketplacesList() {
         </a>
         <a
           className="flex h-[5.625rem] items-center justify-between rounded-xl border border-asteroid-grey-100 bg-white px-6 transition-colors hover:bg-space-blue-100 dark:border-space-blue-800 dark:bg-space-blue-900 dark:hover:bg-space-blue-800"
-          href="https://unframed.co/"
+          href="https://unframed.co/collection/0x02acee8c430f62333cf0e0e7a94b2347b5513b4c25f699461dd8d7b23c072478"
           rel="noreferrer"
           target="_blank"
         >
