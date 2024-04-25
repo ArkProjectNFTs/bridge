@@ -27,7 +27,7 @@ export default function GasRefundInfoModal() {
           refunds work?
         </Typography>
         <Typography component="p" variant="body_text_18">
-          The first <b>200 holders</b> who bridge Everai to Starknet are
+          The first <b>1000 holders</b> who bridge Everai to Starknet are
           eligible for refunds.
           <br />
           <br /> Each of these holders can receive a refund of up to <b>$40</b>.
