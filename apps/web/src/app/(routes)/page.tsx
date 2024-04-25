@@ -13,7 +13,7 @@ export default function Page() {
         <main className="mx-auto mt-[5.75rem] flex h-[calc(100vh-12.875rem)] w-full justify-center overflow-hidden text-center">
           <Image
             alt="Everai"
-            className="-mr-8 mt-8 h-full w-auto"
+            className="-mr-8 h-[68vh] max-h-full w-auto self-end"
             height={580}
             src="/medias/everai_samourai_1.png"
             width={549}
@@ -74,7 +74,7 @@ export default function Page() {
           </div>
           <Image
             alt="Everai"
-            className="-ml-8 mt-8 h-full w-auto"
+            className="-ml-8 h-[68vh] max-h-full w-auto self-end"
             height={580}
             src="/medias/everai_samourai_2.png"
             width={549}
