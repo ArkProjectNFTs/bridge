@@ -1,6 +1,6 @@
 import { InjectedConnector as InjectedStarknetConnector } from "@starknet-react/core";
 import { type StaticImageData } from "next/image";
-import { coinbaseWallet, injected } from "wagmi/connectors";
+import { coinbaseWallet, injected, walletConnect } from "wagmi/connectors";
 // import { WalletConnectConnector } from "wagmi/connectors/walletConnect";
 
 import argentXLogo from "../../../../public/logos/argentX.png";
@@ -21,6 +21,9 @@ export const ethereumConnectors = [
   coinbaseWallet({
     appName: "Arklane",
     darkMode: true,
+  }),
+  walletConnect({
+    projectId: "834a150924b84c5bac21ad1e5a32d40d",
   }),
 ];
 
