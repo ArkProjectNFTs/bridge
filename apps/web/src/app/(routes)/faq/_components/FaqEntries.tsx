@@ -118,6 +118,11 @@ export default function FaqEntries({ className }: FaqEntriesProps) {
         Transfers typically complete within a few minutes to a few hours,
         depending on network congestion. We strive to ensure that your bridging
         experience is as efficient as possible.
+        <b>
+          Important note: From Starknet (L2) to (L1), the bridging time can take
+          up to 12 hours in certain circumstances due to the recently increased
+          size of the blocks!
+        </b>
       </FaqEntry>
       <FaqEntry title="Why can't I see my NFT on Starknet (L2)?">
         Some of the wallets (
@@ -201,7 +206,7 @@ export default function FaqEntries({ className }: FaqEntriesProps) {
         <br />
         First, you can follow the exact same process as when bridging to
         Starknet (L2), you just need to choose Ethereum (L1) as your
-        destination, and it may take up to 4 hours for you to be able to
+        destination, and it may take up to 12 hours for you to be able to
         withdraw your NFT.
         <br />
         <br />
