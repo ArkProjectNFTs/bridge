@@ -37,9 +37,7 @@ export const l2NftsRouter = createTRPCRouter({
 
       try {
         const contractsForOwner = await getL2ContractsForOwner(address);
-        const whitelistedCollections = (await getL2WhitelistedCollections()) as
-          | Array<string>
-          | undefined;
+        const whitelistedCollections = await getL2WhitelistedCollections();
 
         const collections: Array<Collection> = contractsForOwner.result.map(
           (contract) => {
