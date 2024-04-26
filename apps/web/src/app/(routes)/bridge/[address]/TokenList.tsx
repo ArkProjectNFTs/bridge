@@ -85,7 +85,7 @@ export default function TokenList({ nftContractAddress }: TokenListProps) {
   // const hasMoreThan100Nfts =
   //   nftsData.pages.length > 1 || (nftsData.pages.length === 1 && hasNextPage);
   const hasMoreThanMaxSelectNfts =
-    nftsData.pages[0]?.ownedNfts.length ?? 0 > MAX_SELECTED_ITEMS;
+    (nftsData.pages[0]?.ownedNfts.length ?? 0) > MAX_SELECTED_ITEMS;
 
   const isAllSelected =
     (totalSelectedNfts === MAX_SELECTED_ITEMS ||
