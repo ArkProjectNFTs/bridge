@@ -82,8 +82,10 @@ export default function TokenList({ nftContractAddress }: TokenListProps) {
     return <NftsLoadingState className="mt-20" type="token" />;
   }
 
-  const hasMoreThan100Nfts =
-    nftsData.pages.length > 1 || (nftsData.pages.length === 1 && hasNextPage);
+  // const hasMoreThan100Nfts =
+  //   nftsData.pages.length > 1 || (nftsData.pages.length === 1 && hasNextPage);
+  const hasMoreThanMaxSelectNfts =
+    nftsData.pages[0]?.ownedNfts.length ?? 0 > MAX_SELECTED_ITEMS;
 
   const isAllSelected =
     (totalSelectedNfts === MAX_SELECTED_ITEMS ||
@@ -137,7 +139,7 @@ export default function TokenList({ nftContractAddress }: TokenListProps) {
             size="small"
           >
             <Typography variant="button_text_s">
-              {hasMoreThan100Nfts ? "Select 100 Max" : "Select All"}
+              {hasMoreThanMaxSelectNfts ? "Select 30 Max" : "Select All"}
             </Typography>
           </Button>
         )}
