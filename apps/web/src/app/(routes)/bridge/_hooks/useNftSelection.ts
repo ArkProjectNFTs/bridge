@@ -5,7 +5,7 @@ import useAccountFromChain from "~/app/_hooks/useAccountFromChain";
 import useCurrentChain from "~/app/_hooks/useCurrentChain";
 import { type Nft } from "~/server/api/types";
 
-export const MAX_SELECTED_ITEMS = 100;
+export const MAX_SELECTED_ITEMS = 30;
 
 export default function useNftSelection() {
   const { sourceChain } = useCurrentChain();
