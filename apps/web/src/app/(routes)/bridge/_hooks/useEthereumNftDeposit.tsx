@@ -69,8 +69,7 @@ export default function useEthereumNftDeposit() {
         false,
       ],
       functionName: "depositTokens",
-      // TODO @YohanTz: Get needed gas from ?
-      value: parseGwei("40000"),
+      value: parseGwei((40000 * selectedTokenIds.length).toString()),
     });
   }
 
