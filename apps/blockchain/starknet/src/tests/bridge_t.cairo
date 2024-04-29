@@ -513,6 +513,8 @@ mod tests {
         assert!(erc721.owner_of(1) == OWNER_L2, "Wrong owner after req");
 
         assert!(bridge.is_white_listed(deployed_address), "Collection shall be whitelisted");
+        let white_listed = bridge.get_white_listed_collections();
+        assert_eq!(*white_listed.at(0), deployed_address, "Collection whitelisted shall be in list");
     }
 
     #[test]
@@ -603,6 +605,230 @@ mod tests {
             false,
             false);
         stop_prank(CheatTarget::One(bridge_address));
+    }
+
+    #[test]
+    fn whitelist_collection_is_empty_by_default() {
+        let erc721b_contract_class = declare("erc721_bridgeable");
+
+        let BRIDGE_ADMIN = starknet::contract_address_const::<'starklane'>();
+        let BRIDGE_L1 = EthAddress { address: 'starklane_l1' };
+
+        let bridge_address = deploy_starklane(BRIDGE_ADMIN, BRIDGE_L1, erc721b_contract_class.class_hash);
+        let bridge = IStarklaneDispatcher { contract_address: bridge_address };
+        
+        start_prank(CheatTarget::One(bridge_address), BRIDGE_ADMIN);
+        bridge.enable_white_list(true);
+        stop_prank(CheatTarget::One(bridge_address));
+        assert!(bridge.get_white_listed_collections().is_empty(), "White list shall be empty by default");        
+    }
+
+    #[test]
+    fn whitelist_collection_is_updated_when_collection_is_added() {
+        let erc721b_contract_class = declare("erc721_bridgeable");
+
+        let BRIDGE_ADMIN = starknet::contract_address_const::<'starklane'>();
+        let BRIDGE_L1 = EthAddress { address: 'starklane_l1' };
+
+        let bridge_address = deploy_starklane(BRIDGE_ADMIN, BRIDGE_L1, erc721b_contract_class.class_hash);
+        let bridge = IStarklaneDispatcher { contract_address: bridge_address };
+        
+        start_prank(CheatTarget::One(bridge_address), BRIDGE_ADMIN);
+        bridge.enable_white_list(true);
+        stop_prank(CheatTarget::One(bridge_address));
+        
+        let collection1 = starknet::contract_address_const::<'collection1'>();
+        let collection2 = starknet::contract_address_const::<'collection2'>();
+        let collection3 = starknet::contract_address_const::<'collection3'>();
+
+        start_prank(CheatTarget::One(bridge_address), BRIDGE_ADMIN);
+        bridge.white_list_collection(collection1, true);
+        stop_prank(CheatTarget::One(bridge_address));
+        
+        let white_listed = bridge.get_white_listed_collections();
+        assert_eq!(white_listed.len(), 1, "White list shall contain 1 element");
+        assert_eq!(*white_listed.at(0), collection1, "Wrong collection address in white list");
+
+        start_prank(CheatTarget::One(bridge_address), BRIDGE_ADMIN);
+        bridge.white_list_collection(collection2, true);
+        bridge.white_list_collection(collection3, true);
+        stop_prank(CheatTarget::One(bridge_address));
+
+        let white_listed = bridge.get_white_listed_collections();
+        assert_eq!(white_listed.len(), 3, "White list shall contain 3 elements");
+        assert_eq!(*white_listed.at(0), collection1, "Wrong collection address in white list");
+        assert_eq!(*white_listed.at(1), collection2, "Wrong collection address in white list");
+        assert_eq!(*white_listed.at(2), collection3, "Wrong collection address in white list");
+        assert!(bridge.is_white_listed(collection1), "Collection1 should be whitelisted");
+        assert!(bridge.is_white_listed(collection2), "Collection1 should be whitelisted");
+        assert!(bridge.is_white_listed(collection3), "Collection1 should be whitelisted");
+
+        start_prank(CheatTarget::One(bridge_address), BRIDGE_ADMIN);
+        bridge.white_list_collection(collection2, true);
+        stop_prank(CheatTarget::One(bridge_address));
+
+        let white_listed = bridge.get_white_listed_collections();
+        assert_eq!(white_listed.len(), 3, "White list shall contain 3 elements");
+        assert_eq!(*white_listed.at(0), collection1, "Wrong collection address in white list");
+        assert_eq!(*white_listed.at(1), collection2, "Wrong collection address in white list");
+        assert_eq!(*white_listed.at(2), collection3, "Wrong collection address in white list");
+        assert!(bridge.is_white_listed(collection1), "Collection1 should be whitelisted");
+        assert!(bridge.is_white_listed(collection2), "Collection1 should be whitelisted");
+        assert!(bridge.is_white_listed(collection3), "Collection1 should be whitelisted");
+    }
+
+    #[test]
+    fn whitelist_collection_is_updated_when_collection_is_removed() {
+        let erc721b_contract_class = declare("erc721_bridgeable");
+
+        let BRIDGE_ADMIN = starknet::contract_address_const::<'starklane'>();
+        let BRIDGE_L1 = EthAddress { address: 'starklane_l1' };
+
+        let bridge_address = deploy_starklane(BRIDGE_ADMIN, BRIDGE_L1, erc721b_contract_class.class_hash);
+        let bridge = IStarklaneDispatcher { contract_address: bridge_address };
+        
+        start_prank(CheatTarget::One(bridge_address), BRIDGE_ADMIN);
+        bridge.enable_white_list(true);
+        stop_prank(CheatTarget::One(bridge_address));
+        
+        let collection1 = starknet::contract_address_const::<'collection1'>();
+        let collection2 = starknet::contract_address_const::<'collection2'>();
+        let collection3 = starknet::contract_address_const::<'collection3'>();
+
+        start_prank(CheatTarget::One(bridge_address), BRIDGE_ADMIN);
+        bridge.white_list_collection(collection1, true);
+        bridge.white_list_collection(collection2, true);
+        bridge.white_list_collection(collection3, true);
+        stop_prank(CheatTarget::One(bridge_address));
+        
+        let white_listed = bridge.get_white_listed_collections();
+        assert_eq!(white_listed.len(), 3, "White list shall contain 3 elements");
+        assert_eq!(*white_listed.at(0), collection1, "Wrong collection address in white list");
+        assert_eq!(*white_listed.at(1), collection2, "Wrong collection address in white list");
+        assert_eq!(*white_listed.at(2), collection3, "Wrong collection address in white list");
+        assert!(bridge.is_white_listed(collection1), "Collection1 should be whitelisted");
+        assert!(bridge.is_white_listed(collection2), "Collection1 should be whitelisted");
+        assert!(bridge.is_white_listed(collection3), "Collection1 should be whitelisted");
+
+        start_prank(CheatTarget::One(bridge_address), BRIDGE_ADMIN);
+        bridge.white_list_collection(collection2, false);
+        stop_prank(CheatTarget::One(bridge_address));
+        let white_listed = bridge.get_white_listed_collections();
+        assert_eq!(white_listed.len(), 2, "White list shall contain 2 elements");
+        assert_eq!(*white_listed.at(0), collection1, "Wrong collection address in white list");
+        assert_eq!(*white_listed.at(1), collection3, "Wrong collection address in white list");
+        assert!(bridge.is_white_listed(collection1), "Collection1 should be whitelisted");
+        assert!(!bridge.is_white_listed(collection2), "Collection1 should not be whitelisted");
+        assert!(bridge.is_white_listed(collection3), "Collection1 should be whitelisted");
+
+        start_prank(CheatTarget::One(bridge_address), BRIDGE_ADMIN);
+        bridge.white_list_collection(collection1, false);
+        bridge.white_list_collection(collection3, false);
+        stop_prank(CheatTarget::One(bridge_address));
+        let white_listed = bridge.get_white_listed_collections();
+        assert!(white_listed.is_empty(), "White list shall be empty");
+        assert!(!bridge.is_white_listed(collection1), "Collection1 should not be whitelisted");
+        assert!(!bridge.is_white_listed(collection2), "Collection1 should not be whitelisted");
+        assert!(!bridge.is_white_listed(collection3), "Collection1 should not be whitelisted");
+
+        start_prank(CheatTarget::One(bridge_address), BRIDGE_ADMIN);
+        bridge.white_list_collection(collection1, true);
+        bridge.white_list_collection(collection3, true);
+        stop_prank(CheatTarget::One(bridge_address));
+        
+        let white_listed = bridge.get_white_listed_collections();
+        assert_eq!(white_listed.len(), 2, "White list shall contain 2 elements");
+        assert_eq!(*white_listed.at(0), collection1, "Wrong collection address in white list");
+        assert_eq!(*white_listed.at(1), collection3, "Wrong collection address in white list");
+        assert!(bridge.is_white_listed(collection1), "Collection1 should be whitelisted");
+        assert!(!bridge.is_white_listed(collection2), "Collection1 should not be whitelisted");
+        assert!(bridge.is_white_listed(collection3), "Collection1 should be whitelisted");
+
+        start_prank(CheatTarget::One(bridge_address), BRIDGE_ADMIN);
+        bridge.white_list_collection(collection1, false);
+        bridge.white_list_collection(collection2, true);
+        stop_prank(CheatTarget::One(bridge_address));
+        
+        let white_listed = bridge.get_white_listed_collections();
+        assert_eq!(white_listed.len(), 2, "White list shall contain 2 elements");
+        assert_eq!(*white_listed.at(0), collection3, "Wrong collection address in white list");
+        assert_eq!(*white_listed.at(1), collection2, "Wrong collection address in white list");
+        assert!(!bridge.is_white_listed(collection1), "Collection1 should not be whitelisted");
+        assert!(bridge.is_white_listed(collection2), "Collection1 should be whitelisted");
+        assert!(bridge.is_white_listed(collection3), "Collection1 should be whitelisted");
+
+        start_prank(CheatTarget::One(bridge_address), BRIDGE_ADMIN);
+        bridge.white_list_collection(collection2, false);
+        bridge.white_list_collection(collection3, false);
+        bridge.white_list_collection(collection1, false);
+        bridge.white_list_collection(collection1, false);
+        stop_prank(CheatTarget::One(bridge_address));
+        
+        let white_listed = bridge.get_white_listed_collections();
+        assert!(white_listed.is_empty(), "White list shall be empty");
+        assert!(!bridge.is_white_listed(collection1), "Collection1 should not be whitelisted");
+        assert!(!bridge.is_white_listed(collection2), "Collection1 should not be whitelisted");
+        assert!(!bridge.is_white_listed(collection3), "Collection1 should not be whitelisted");
+    }
+
+    #[test]
+    fn whitelist_collection_update_events() {
+        let erc721b_contract_class = declare("erc721_bridgeable");
+
+        let BRIDGE_ADMIN = starknet::contract_address_const::<'starklane'>();
+        let BRIDGE_L1 = EthAddress { address: 'starklane_l1' };
+
+        let bridge_address = deploy_starklane(BRIDGE_ADMIN, BRIDGE_L1, erc721b_contract_class.class_hash);
+        let bridge = IStarklaneDispatcher { contract_address: bridge_address };
+        
+        let collection1 = starknet::contract_address_const::<'collection1'>();
+        let collection2 = starknet::contract_address_const::<'collection2'>();
+        let collection3 = starknet::contract_address_const::<'collection3'>();
+        start_prank(CheatTarget::One(bridge_address), BRIDGE_ADMIN);
+        bridge.enable_white_list(true);
+        stop_prank(CheatTarget::One(bridge_address));
+
+        let mut spy = spy_events(SpyOn::One(bridge_address));
+        start_prank(CheatTarget::One(bridge_address), BRIDGE_ADMIN);
+        bridge.white_list_collection(collection1, true);
+        stop_prank(CheatTarget::One(bridge_address));
+        spy.assert_emitted(@array![
+            (
+                bridge_address,
+                bridge::Event::CollectionWhiteListUpdated(
+                    bridge::CollectionWhiteListUpdated {
+                        collection: collection1,
+                        enabled: true,
+                    }
+                )
+            )
+        ]);
+
+        start_prank(CheatTarget::One(bridge_address), BRIDGE_ADMIN);
+        bridge.white_list_collection(collection2, true);
+        bridge.white_list_collection(collection1, false);
+        stop_prank(CheatTarget::One(bridge_address));
+        spy.assert_emitted(@array![
+            (
+                bridge_address,
+                bridge::Event::CollectionWhiteListUpdated(
+                    bridge::CollectionWhiteListUpdated {
+                        collection: collection2,
+                        enabled: true,
+                    }
+                )
+            ),
+            (
+                bridge_address,
+                bridge::Event::CollectionWhiteListUpdated(
+                    bridge::CollectionWhiteListUpdated {
+                        collection: collection1,
+                        enabled: false,
+                    }
+                )
+            )
+        ]);
+
     }
 
     #[test]
@@ -709,7 +935,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic]
+    #[should_panic(expected: ('Caller is not the owner',))]
     fn upgrade_as_not_admin() {
         let erc721b_contract_class = declare("erc721_bridgeable");
 
@@ -722,6 +948,46 @@ mod tests {
         start_prank(CheatTarget::One(bridge_address), alice);
         bridge.upgrade(erc721b_contract_class.class_hash);
         stop_prank(CheatTarget::One(bridge_address));        
+    }
+
+    #[test]
+    fn support_two_step_transfer_ownership() {
+        let erc721b_contract_class = declare("erc721_bridgeable");
+
+        let BRIDGE_ADMIN = starknet::contract_address_const::<'starklane'>();
+        let BRIDGE_L1 = EthAddress { address: 'starklane_l1' };
+        let ALICE = starknet::contract_address_const::<'alice'>();
+        let contract_address = deploy_starklane(BRIDGE_ADMIN, BRIDGE_L1, erc721b_contract_class.class_hash);
+        let ownable = IOwnableTwoStepDispatcher { contract_address};
+
+        assert_eq!(ownable.owner(), BRIDGE_ADMIN, "bad owner");
+        start_prank(CheatTarget::One(contract_address), BRIDGE_ADMIN);
+        ownable.transfer_ownership(ALICE);
+        stop_prank(CheatTarget::One(contract_address));
+        assert_eq!(ownable.owner(), BRIDGE_ADMIN, "bad owner");
+        assert_eq!(ownable.pending_owner(), ALICE, "bad pending owner");
+
+        start_prank(CheatTarget::One(contract_address), ALICE);
+        ownable.accept_ownership();
+        stop_prank(CheatTarget::One(contract_address));
+        assert_eq!(ownable.owner(), ALICE, "bad owner");
+    }
+
+    #[test]
+    #[should_panic(expected: ('Caller is not the owner',))]
+    fn should_panic_transfer_not_owner() {
+        let erc721b_contract_class = declare("erc721_bridgeable");
+
+        let BRIDGE_ADMIN = starknet::contract_address_const::<'starklane'>();
+        let BRIDGE_L1 = EthAddress { address: 'starklane_l1' };
+        let ALICE = starknet::contract_address_const::<'alice'>();
+        let contract_address = deploy_starklane(BRIDGE_ADMIN, BRIDGE_L1, erc721b_contract_class.class_hash);
+        let ownable = IOwnableTwoStepDispatcher { contract_address};
+
+        assert_eq!(ownable.owner(), BRIDGE_ADMIN, "bad owner");
+        start_prank(CheatTarget::One(contract_address), ALICE);
+        ownable.transfer_ownership(ALICE);
+        stop_prank(CheatTarget::One(contract_address));
     }
 
     #[test]
@@ -790,7 +1056,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected: ('Unauthorized call',))]
+    #[should_panic(expected: ('Caller is not the owner',))]
     fn collection_transfer_ownership_as_not_admin() {
         let BRIDGE_L1 = EthAddress { address: 'starklane_l1' };
         let OWNER_L1: EthAddress = 0xe00.try_into().unwrap();

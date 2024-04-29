@@ -28,6 +28,7 @@ trait IStarklane<T> {
     fn is_white_list_enabled(self: @T) -> bool;
     fn white_list_collection(ref self: T, collection: ContractAddress, enabled: bool);
     fn is_white_listed(self: @T, collection: ContractAddress) -> bool;
+    fn get_white_listed_collections(self: @T) -> Span<ContractAddress>;
 
     fn enable(ref self: T, enable: bool);
     fn is_enabled(self: @T) -> bool;
@@ -99,3 +100,10 @@ struct L1L2CollectionMappingUpdated {
     #[key]
     collection_l2: ContractAddress
 }
+
+#[derive(Drop, starknet::Event)]
+struct CollectionWhiteListUpdated {
+    #[key]
+    collection: ContractAddress,
+    enabled: bool,
+} 
