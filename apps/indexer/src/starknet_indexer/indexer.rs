@@ -217,6 +217,7 @@ where
                 Ok(store_data) => match store_data {
                     (Some(req), Some(ev), xchain_tx) => {
                         log::debug!("Request/Event/Tx\n{:?}\n{:?}\n{:?}", req, ev, xchain_tx);
+                        log::info!("Insert event: {:?}", &ev);
                         self.store.insert_event(ev.clone()).await?;
 
                         if self.store.req_by_hash(&req.hash).await?.is_none() {
