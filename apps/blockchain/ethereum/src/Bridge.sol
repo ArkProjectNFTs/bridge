@@ -20,6 +20,9 @@ error NotSupportedYetError();
 error CollectionMappingError();
 error NotWhiteListedError();
 error BridgeNotEnabledError();
+error TooManyTokensError();
+
+uint256 constant MAX_PAYLOAD_LENGTH = 300;
 
 /**
    @title Starklane bridge contract.
@@ -128,7 +131,9 @@ contract Starklane is IStarklaneEvent, UUPSOwnableProxied, StarklaneState, Stark
         req.tokenIds = ids;
 
         uint256[] memory payload = Protocol.requestSerialize(req);
-
+        if (payload.length >= MAX_PAYLOAD_LENGTH) {
+            revert TooManyTokensError();
+        }
         IStarknetMessaging(_starknetCoreAddress).sendMessageToL2{value: msg.value}(
             snaddress.unwrap(_starklaneL2Address),
             felt252.unwrap(_starklaneL2Selector),
