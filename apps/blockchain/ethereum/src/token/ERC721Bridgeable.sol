@@ -49,25 +49,6 @@ contract ERC721Bridgeable is ERC721, UUPSOwnableProxied, IERC721Bridgeable {
     }
 
     /**
-       @notice A free minting for testing.
-    */
-    function mintRangeFree(
-        address to,
-        uint256 idStart,
-        uint256 idEnd
-    )
-        external
-    {
-        require(idStart < idEnd, "Bad range");
-
-        uint256 id = idStart;
-
-        for (id; id <= idEnd; id++) {
-            _mint(to, id);
-        }
-    }
-
-    /**
        @inheritdoc IERC721Bridgeable
 
        @dev In this implementation, the owner is the bridge by default. So `onlyOwner`
