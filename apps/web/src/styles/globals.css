@@ -31,3 +31,13 @@
   --color-primary-800: #970e26;
   --color-primary-900: #740d1d;
 }
+
+@media screen and (max-width: 1024px) {
+  .mobile {
+    display: block;
+  }
+
+  .desktop {
+    display: none;
+  }
+}
