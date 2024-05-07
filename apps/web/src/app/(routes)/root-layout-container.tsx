@@ -22,9 +22,9 @@ function RootLayoutContainer({ children }: PropsWithChildren) {
     >
       <Providers>
         <Header />
-        <div className="hidden min-h-screen md:block">{children}</div>
+        <div className="desktop block min-h-screen">{children}</div>
       </Providers>
-      <div className="block h-screen md:hidden">
+      <div className="mobile hidden h-screen">
         <MobilePlaceholder />
       </div>
     </body>
