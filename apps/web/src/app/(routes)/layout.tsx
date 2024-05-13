@@ -9,16 +9,16 @@ import "~/styles/globals.css";
 import RootLayoutContainer from "./root-layout-container";
 
 export const metadata: Metadata = {
-  description: "Start moving your Everai on Starknet",
+  description: "Start moving your Ethereum NFTs on Starknet",
   metadataBase: new URL("https://bridge.arkproject.dev"),
   openGraph: {
     description: "Start moving your Everai on Starknet",
     images: ["https://bridge.arkproject.dev/medias/bridge_thumbnail.png"],
-    title: "ArkProject",
+    title: "ArkProject: Starknet NFT Bridge",
     type: "website",
     url: "https://bridge.arkproject.dev",
   },
-  title: "ArkProject Bridge",
+  title: "ArkProject: Starknet NFT Bridge",
   twitter: {
     card: "summary_large_image",
     creator: "@ArkProjectNFTs",
