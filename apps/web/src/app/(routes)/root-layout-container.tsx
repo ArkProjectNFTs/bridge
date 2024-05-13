@@ -26,7 +26,9 @@ function RootLayoutContainer({ children }: PropsWithChildren) {
     >
       <Providers>
         <Header />
-        <div className={cn("desktop block min-h-screen")}>{children}</div>
+        <div className={cn(!isHomePage && "desktop", "block min-h-screen")}>
+          {children}
+        </div>
       </Providers>
       {!isHomePage && (
         <div className="mobile hidden h-screen">
