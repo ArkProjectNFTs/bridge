@@ -34,7 +34,7 @@ export default function ConnectWalletsButton() {
   return (
     <>
       <button
-        className="mx-auto flex h-12 w-full items-center justify-center gap-2.5 rounded-full bg-space-blue-source px-9 dark:bg-space-blue-source sm:w-auto"
+        className="mx-auto hidden h-12 w-full items-center justify-center gap-2.5 rounded-full bg-space-blue-source px-9 dark:bg-space-blue-source sm:w-auto md:flex"
         onClick={toggleConnectModal}
       >
         <Typography

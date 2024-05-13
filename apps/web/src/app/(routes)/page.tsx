@@ -10,15 +10,15 @@ export default function Page() {
   return (
     <>
       <div className="flex">
-        <main className="mx-auto mt-[5.75rem] flex h-[calc(100vh-12.875rem)] w-full justify-center overflow-hidden text-center">
+        <main className="mx-auto mt-[5.75rem] flex h-[calc(100vh-12.875rem)] w-full justify-center overflow-hidden px-2 text-center md:px-0">
           <Image
             alt="Everai"
-            className="-mr-8 h-[68vh] max-h-full w-auto self-end"
+            className="-mr-8 hidden h-[68vh] max-h-full w-auto self-end md:block"
             height={580}
             src="/medias/everai_samourai_1.png"
             width={549}
           />
-          <div className="flex w-full min-w-[35.125rem] flex-col items-center justify-center gap-8">
+          <div className="flex w-full flex-col items-center justify-center gap-8 md:min-w-[35.125rem]">
             <Image
               alt="background"
               className="absolute inset-0 -z-10 h-full w-full object-cover"
@@ -43,7 +43,7 @@ export default function Page() {
                 target="_blank"
               >
                 <Typography
-                  className="text-space-blue-source underline"
+                  className="hidden text-space-blue-source underline md:block"
                   variant="body_text_14"
                 >
                   See more quests
@@ -74,7 +74,7 @@ export default function Page() {
           </div>
           <Image
             alt="Everai"
-            className="-ml-8 h-[68vh] max-h-full w-auto self-end"
+            className="-ml-8 hidden h-[68vh] max-h-full w-auto self-end md:block"
             height={580}
             src="/medias/everai_samourai_2.png"
             width={549}
