@@ -34,10 +34,10 @@
 
 @media screen and (max-width: 1024px) {
   .mobile {
-    display: block;
+    display: block !important;
   }
 
   .desktop {
-    display: none;
+    display: none !important;
   }
 }

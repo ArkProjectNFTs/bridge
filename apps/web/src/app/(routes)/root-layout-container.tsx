@@ -1,6 +1,8 @@
 "use client";
 
 import clsx from "clsx";
+import { cn } from "design-system/src/lib/utils";
+import { usePathname } from "next/navigation";
 import React, { type PropsWithChildren } from "react";
 
 import { api } from "~/utils/api";
@@ -12,6 +14,8 @@ import Providers from "./providers";
 
 function RootLayoutContainer({ children }: PropsWithChildren) {
   const { targetChain } = useCurrentChain();
+  const pathname = usePathname();
+  const isHomePage = pathname === "/";
 
   return (
     <body
@@ -22,11 +26,15 @@ function RootLayoutContainer({ children }: PropsWithChildren) {
     >
       <Providers>
         <Header />
-        <div className="desktop block min-h-screen">{children}</div>
+        <div className={cn(!isHomePage && "desktop", "block min-h-screen")}>
+          {children}
+        </div>
       </Providers>
-      <div className="mobile hidden h-screen">
-        <MobilePlaceholder />
-      </div>
+      {!isHomePage && (
+        <div className="mobile hidden h-screen">
+          <MobilePlaceholder />
+        </div>
+      )}
     </body>
   );
 }

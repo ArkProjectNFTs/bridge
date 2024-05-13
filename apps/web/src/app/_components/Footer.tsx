@@ -9,9 +9,9 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer className="sticky bottom-0 left-0 top-[100vh] flex w-full flex-col bg-void-black px-6 py-9 text-asteroid-grey-200 sm:h-[7.125rem] sm:flex-row sm:items-center sm:justify-between">
+    <footer className="sticky bottom-0 left-0 top-[100vh] flex w-full flex-col bg-void-black px-6 py-9 text-asteroid-grey-200 md:h-[7.125rem] md:flex-row md:items-center md:justify-between">
       <div className="flex items-center gap-9 text-white">
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           <Typography variant="body_text_14">In Partnership with</Typography>
           <Image
             alt="Starkware"
@@ -21,7 +21,7 @@ export default function Footer() {
           />
         </div>
       </div>
-      <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:gap-8">
+      <div className="mt-6 flex flex-col gap-6 md:mt-0 md:flex-row md:items-center md:gap-8">
         <Link
           className="transition-colors hover:text-space-blue-source"
           href="/terms-of-use"
