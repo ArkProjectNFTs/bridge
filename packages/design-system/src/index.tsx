@@ -36,3 +36,4 @@ export { ClockIcon } from "./icons/ClockIcon";
 export { LowFeesIcon } from "./icons/LowFeesIcon";
 export { MediumFeesIcon } from "./icons/MediumFeesIcon";
 export { HighFeesIcon } from "./icons/HighFeesIcon";
+export { LogoIcon } from "./icons/LogoIcon";

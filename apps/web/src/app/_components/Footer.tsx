@@ -1,24 +1,19 @@
 import {
   GitHubIcon,
+  LogoIcon,
   TelegramIcon,
   TwitterIcon,
   Typography,
 } from "design-system";
-import Image from "next/image";
 import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer className="sticky bottom-0 left-0 top-[100vh] flex w-full flex-col bg-void-black px-6 py-9 text-asteroid-grey-200 sm:h-[7.125rem] sm:flex-row sm:items-center sm:justify-between">
-      <div className="flex items-center gap-9 text-white">
+    <footer className="sticky bottom-0 left-0 top-[100vh] flex w-full flex-col bg-white px-6 py-9 text-space-blue-900 dark:bg-void-black dark:text-asteroid-grey-200 sm:h-[7.125rem] sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex items-center gap-9 text-space-blue-900 dark:text-white">
         <div className="flex items-center gap-2">
           <Typography variant="body_text_14">In Partnership with</Typography>
-          <Image
-            alt="Starkware"
-            height={30}
-            src="/logos/starkware.svg"
-            width={164}
-          />
+          <LogoIcon />
         </div>
       </div>
       <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:gap-8">
@@ -52,7 +47,7 @@ export default function Footer() {
         </Typography>
         <div className="flex items-center gap-3">
           <a
-            className="rounded-full transition-colors hover:text-white"
+            className="rounded-full transition-colors hover:text-space-blue-800 dark:hover:text-white"
             href="https://github.com/ArkProjectNFTs"
             rel="noreferrer"
             target="_blank"
@@ -60,7 +55,7 @@ export default function Footer() {
             <GitHubIcon />
           </a>
           <a
-            className="rounded-full transition-colors hover:text-white"
+            className="rounded-full transition-colors hover:text-space-blue-800 dark:hover:text-white"
             href="https://t.me/arkprojectnfts"
             rel="noreferrer"
             target="_blank"
@@ -68,7 +63,7 @@ export default function Footer() {
             <TelegramIcon />
           </a>
           <a
-            className="rounded-full transition-colors hover:text-white"
+            className="rounded-full transition-colors hover:text-space-blue-800 dark:hover:text-white"
             href="https://twitter.com/ArkProjectNFTs"
             rel="noreferrer"
             target="_blank"
