@@ -16,7 +16,6 @@ function RootLayoutContainer({ children }: PropsWithChildren) {
   const { targetChain } = useCurrentChain();
   const pathname = usePathname();
   const isHomePage = pathname === "/";
-  console.log(isHomePage);
 
   return (
     <body
