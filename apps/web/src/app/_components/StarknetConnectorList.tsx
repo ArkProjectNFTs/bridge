@@ -5,6 +5,7 @@ import {
   useBalance,
   useConnect,
   useDisconnect,
+  useStarkProfile,
 } from "@starknet-react/core";
 import clsx from "clsx";
 import { Typography } from "design-system";
@@ -40,6 +41,10 @@ export default function StarknetConnectorList({
   const [pendingConnectorId, setPendingConnectorId] = useState<
     string | undefined
   >(undefined);
+
+  const { data: starkProfile } = useStarkProfile({
+    address,
+  });
 
   useEffect(() => {
     if (showCopiedMessage) {
@@ -112,7 +117,7 @@ export default function StarknetConnectorList({
           )}
           <div className="relative mx-auto">
             <Typography className="mx-auto" variant="button_text_s">
-              {shortAddress}
+              {starkProfile?.name ?? shortAddress}
             </Typography>
             <AnimatePresence>
               {showCopiedMessage && (
