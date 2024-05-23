@@ -109,9 +109,14 @@ export default function StarknetConnectorList({
         >
           {activeConnector?.id !== undefined && (
             <Image
+              src={
+                starkProfile?.profilePicture ??
+                WALLET_LOGOS_BY_ID[activeConnector?.id] ??
+                ""
+              }
               alt="connector"
+              className="rounded-full"
               height={28}
-              src={WALLET_LOGOS_BY_ID[activeConnector?.id] ?? ""}
               width={28}
             />
           )}

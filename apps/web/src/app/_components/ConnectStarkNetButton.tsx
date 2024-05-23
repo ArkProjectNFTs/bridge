@@ -52,6 +52,7 @@ export default function ConnectStarknetButton() {
             <Image
               src={
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                starkProfile?.profilePicture ??
                 WALLET_LOGOS_BY_ID[connector.id] ??
                 DEFAULT_STARKNET_CONNECTOR_LOGO
               }
