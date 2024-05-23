@@ -49,12 +49,13 @@ export default function ConnectStarknetButton() {
             width={28}
           />
           {connector !== undefined && (
-            <Image
+            //eslint-disable-next-line @next/next/no-img-element
+            <img
               src={
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 starkProfile?.profilePicture ??
-                WALLET_LOGOS_BY_ID[connector.id] ??
-                DEFAULT_STARKNET_CONNECTOR_LOGO
+                WALLET_LOGOS_BY_ID[connector.id]?.src ??
+                DEFAULT_STARKNET_CONNECTOR_LOGO.src
               }
               // eslint-disable-next-line @typescript-eslint/restrict-template-expressions, @typescript-eslint/unbound-method
               alt={`${connector.name} logo`}

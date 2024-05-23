@@ -108,10 +108,11 @@ export default function StarknetConnectorList({
           )}
         >
           {activeConnector?.id !== undefined && (
-            <Image
+            //eslint-disable-next-line @next/next/no-img-element
+            <img
               src={
                 starkProfile?.profilePicture ??
-                WALLET_LOGOS_BY_ID[activeConnector?.id] ??
+                WALLET_LOGOS_BY_ID[activeConnector?.id]?.src ??
                 ""
               }
               alt="connector"
