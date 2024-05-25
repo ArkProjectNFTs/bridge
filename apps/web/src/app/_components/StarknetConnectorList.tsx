@@ -20,6 +20,7 @@ import {
   WALLET_LOGOS_BY_ID,
 } from "../_lib/utils/connectors";
 import ConditionalWrapper from "./ConditionalWrapper";
+import { getStarknetPFPIfExists } from "~/utils/profile";
 
 interface StarknetConnectorListProps {
   onWalletConnect: () => void;
@@ -111,7 +112,7 @@ export default function StarknetConnectorList({
             //eslint-disable-next-line @next/next/no-img-element
             <img
               src={
-                starkProfile?.profilePicture ??
+                getStarknetPFPIfExists(starkProfile?.profilePicture) ??
                 WALLET_LOGOS_BY_ID[activeConnector?.id]?.src ??
                 ""
               }

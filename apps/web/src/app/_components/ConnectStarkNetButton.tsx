@@ -11,6 +11,7 @@ import {
   WALLET_LOGOS_BY_ID,
 } from "../_lib/utils/connectors";
 import { useConnectModals } from "./WalletModals/WalletModalsContext";
+import { getStarknetPFPIfExists } from "~/utils/profile";
 
 export default function ConnectStarknetButton() {
   const isSSR = useIsSSR();
@@ -53,7 +54,7 @@ export default function ConnectStarknetButton() {
             <img
               src={
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                starkProfile?.profilePicture ??
+                getStarknetPFPIfExists(starkProfile?.profilePicture) ??
                 WALLET_LOGOS_BY_ID[connector.id]?.src ??
                 DEFAULT_STARKNET_CONNECTOR_LOGO.src
               }
