@@ -14,13 +14,14 @@ import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { useCopyToClipboard } from "usehooks-ts";
 
+import { getStarknetPFPIfExists } from "~/utils/profile";
+
 import {
   CHAIN_WALLET_ILLUSTRATION_BY_NAME,
   DOWNLOAD_LINK_BY_CONNECTOR_ID,
   WALLET_LOGOS_BY_ID,
 } from "../_lib/utils/connectors";
 import ConditionalWrapper from "./ConditionalWrapper";
-import { getStarknetPFPIfExists } from "~/utils/profile";
 
 interface StarknetConnectorListProps {
   onWalletConnect: () => void;

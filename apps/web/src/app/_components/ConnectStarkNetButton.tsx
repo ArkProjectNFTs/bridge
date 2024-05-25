@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useMemo } from "react";
 
 import { useIsSSR } from "~/app/_hooks/useIsSSR";
+import { getStarknetPFPIfExists } from "~/utils/profile";
 
 import {
   CHAIN_LOGOS_BY_NAME,
@@ -11,7 +12,6 @@ import {
   WALLET_LOGOS_BY_ID,
 } from "../_lib/utils/connectors";
 import { useConnectModals } from "./WalletModals/WalletModalsContext";
-import { getStarknetPFPIfExists } from "~/utils/profile";
 
 export default function ConnectStarknetButton() {
   const isSSR = useIsSSR();
