@@ -5,6 +5,7 @@ import {
   useBalance,
   useConnect,
   useDisconnect,
+  useStarkProfile,
 } from "@starknet-react/core";
 import clsx from "clsx";
 import { Typography } from "design-system";
@@ -12,6 +13,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { useCopyToClipboard } from "usehooks-ts";
+
+import { getStarknetPFPIfExists } from "~/utils/profile";
 
 import {
   CHAIN_WALLET_ILLUSTRATION_BY_NAME,
@@ -40,6 +43,10 @@ export default function StarknetConnectorList({
   const [pendingConnectorId, setPendingConnectorId] = useState<
     string | undefined
   >(undefined);
+
+  const { data: starkProfile } = useStarkProfile({
+    address,
+  });
 
   useEffect(() => {
     if (showCopiedMessage) {
@@ -103,16 +110,22 @@ export default function StarknetConnectorList({
           )}
         >
           {activeConnector?.id !== undefined && (
-            <Image
+            //eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={
+                getStarknetPFPIfExists(starkProfile?.profilePicture) ??
+                WALLET_LOGOS_BY_ID[activeConnector?.id]?.src ??
+                ""
+              }
               alt="connector"
+              className="rounded-full"
               height={28}
-              src={WALLET_LOGOS_BY_ID[activeConnector?.id] ?? ""}
               width={28}
             />
           )}
           <div className="relative mx-auto">
             <Typography className="mx-auto" variant="button_text_s">
-              {shortAddress}
+              {starkProfile?.name ?? shortAddress}
             </Typography>
             <AnimatePresence>
               {showCopiedMessage && (

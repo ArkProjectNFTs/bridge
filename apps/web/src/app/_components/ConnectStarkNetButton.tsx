@@ -1,9 +1,10 @@
-import { useAccount, useStarkName } from "@starknet-react/core";
+import { useAccount, useStarkProfile } from "@starknet-react/core";
 import { Typography } from "design-system";
 import Image from "next/image";
 import { useMemo } from "react";
 
 import { useIsSSR } from "~/app/_hooks/useIsSSR";
+import { getStarknetPFPIfExists } from "~/utils/profile";
 
 import {
   CHAIN_LOGOS_BY_NAME,
@@ -17,7 +18,9 @@ export default function ConnectStarknetButton() {
   const { address, connector, isConnected } = useAccount();
   const { toggleConnectStarknetWalletModal } = useConnectModals();
 
-  const { data: starkName } = useStarkName({ address });
+  const { data: starkProfile } = useStarkProfile({
+    address,
+  });
 
   const shortAddress = useMemo(
     () => (address ? `${address.slice(0, 6)}...${address.slice(-4)}` : ""),
@@ -35,7 +38,9 @@ export default function ConnectStarknetButton() {
         onClick={toggleConnectStarknetWalletModal}
       >
         <Typography variant="button_text_xs">
-          {isConnected ? starkName ?? shortAddress : "Connect Starknet Wallet"}
+          {isConnected
+            ? starkProfile?.name ?? shortAddress
+            : "Connect Starknet Wallet"}
         </Typography>
         <div className="flex">
           <Image
@@ -45,11 +50,13 @@ export default function ConnectStarknetButton() {
             width={28}
           />
           {connector !== undefined && (
-            <Image
+            //eslint-disable-next-line @next/next/no-img-element
+            <img
               src={
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                WALLET_LOGOS_BY_ID[connector.id] ??
-                DEFAULT_STARKNET_CONNECTOR_LOGO
+                getStarknetPFPIfExists(starkProfile?.profilePicture) ??
+                WALLET_LOGOS_BY_ID[connector.id]?.src ??
+                DEFAULT_STARKNET_CONNECTOR_LOGO.src
               }
               // eslint-disable-next-line @typescript-eslint/restrict-template-expressions, @typescript-eslint/unbound-method
               alt={`${connector.name} logo`}

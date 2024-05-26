@@ -1,4 +1,7 @@
-import { useAccount as useStarknetAccount } from "@starknet-react/core";
+import {
+  useStarkProfile,
+  useAccount as useStarknetAccount,
+} from "@starknet-react/core";
 import { Typography } from "design-system";
 import { useMemo } from "react";
 import { useAccount as useEthereumAccount } from "wagmi";
@@ -13,6 +16,10 @@ export default function TransferNftsWalletSummary() {
 
   const { address: ethereumAddress } = useEthereumAccount();
   const { address: starknetAddress } = useStarknetAccount();
+
+  const { data: starkProfile } = useStarkProfile({
+    address: starknetAddress,
+  });
 
   // TODO @YohanTz: Hook wrapper around wagmi and starknet-react
   const shortEthereumAddress = useMemo(
@@ -33,7 +40,7 @@ export default function TransferNftsWalletSummary() {
 
   const shortAddressByChain: Record<Chain, string | undefined> = {
     Ethereum: shortEthereumAddress,
-    Starknet: shortStarknetAddress,
+    Starknet: starkProfile?.name ?? shortStarknetAddress,
   };
 
   return (
