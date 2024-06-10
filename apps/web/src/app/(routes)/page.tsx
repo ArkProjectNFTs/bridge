@@ -26,30 +26,6 @@ export default function Page() {
               src="/medias/home_background.png"
               width={1510}
             />
-            <div className="flex items-center gap-2 rounded-full bg-void-black px-3 py-2 text-white">
-              <Typography
-                className="rounded-full bg-space-blue-source px-1.5 py-0.5"
-                variant="button_text_xs"
-              >
-                New
-              </Typography>
-              <Typography component="p" variant="body_text_14">
-                Bridging is an ArkProject Quest
-              </Typography>
-              <a
-                className=""
-                href="https://quests.arkproject.dev/"
-                rel="noreferrer"
-                target="_blank"
-              >
-                <Typography
-                  className="hidden text-space-blue-source underline md:block"
-                  variant="body_text_14"
-                >
-                  See more quests
-                </Typography>
-              </a>
-            </div>
 
             <Typography
               className="text-white"

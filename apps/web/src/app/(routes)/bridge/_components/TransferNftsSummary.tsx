@@ -2,7 +2,6 @@ import { useAccount as useStarknetAccount } from "@starknet-react/core";
 import clsx from "clsx";
 import { Button, Drawer, SideModal, Typography } from "design-system";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { useAccount as useEthereumAccount } from "wagmi";
 
@@ -11,7 +10,6 @@ import useCurrentChain from "~/app/_hooks/useCurrentChain";
 import useIsFullyConnected from "~/app/_hooks/useIsFullyConnected";
 
 import useNftSelection from "../_hooks/useNftSelection";
-import SmallBridgingQuestBanner from "./SmallBridgingQuestBanner";
 import TransferNftsAction from "./TransferNftsAction";
 import TransferNftsList from "./TransferNftsList";
 import TransferNftsWalletSummary from "./TransferNftsWalletSummary";
@@ -138,10 +136,8 @@ function TransferNftsNotConnected() {
 
 function TransferSummary() {
   const { totalSelectedNfts } = useNftSelection();
-  const pathname = usePathname();
 
   const hasSelectedNfts = totalSelectedNfts > 0;
-  const showBridgingQuestBanner = pathname === "/bridge";
   const isFullyConnected = useIsFullyConnected();
 
   return (
@@ -180,8 +176,6 @@ function TransferSummary() {
       ) : (
         <TransferNftsNotConnected />
       )}
-
-      {showBridgingQuestBanner && <SmallBridgingQuestBanner className="mt-8" />}
     </>
   );
 }
