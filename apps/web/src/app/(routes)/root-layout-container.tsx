@@ -1,5 +1,6 @@
 "use client";
 
+import Hotjar from "@hotjar/browser";
 import clsx from "clsx";
 import { cn } from "design-system/src/lib/utils";
 import { usePathname } from "next/navigation";
@@ -8,9 +9,15 @@ import React, { type PropsWithChildren } from "react";
 import { api } from "~/utils/api";
 
 import Header from "../_components/Header";
+import Logger from "../_components/Logger";
 import MobilePlaceholder from "../_components/MobilePlaceholder";
 import useCurrentChain from "../_hooks/useCurrentChain";
 import Providers from "./providers";
+
+const siteId = 5032874;
+const hotjarVersion = 6;
+
+Hotjar.init(siteId, hotjarVersion);
 
 function RootLayoutContainer({ children }: PropsWithChildren) {
   const { targetChain } = useCurrentChain();
@@ -35,6 +42,7 @@ function RootLayoutContainer({ children }: PropsWithChildren) {
           <MobilePlaceholder />
         </div>
       )}
+      <Logger />
     </body>
   );
 }

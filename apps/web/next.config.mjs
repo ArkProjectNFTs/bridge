@@ -3,6 +3,7 @@
  * for Docker builds.
  */
 await import("./env.mjs");
+import { withLogtail } from "@logtail/next";
 
 /** @type {import("next").NextConfig} */
 const config = {
@@ -35,4 +36,4 @@ const config = {
     return config;
   },
 };
-export default config;
+export default withLogtail(config);
