@@ -1,22 +1,23 @@
 "use client";
 
-import { useEffect } from "react";
 import { log } from "@logtail/next";
+import { useEffect } from "react";
 
 export default function Logger() {
   useEffect(() => {
     function logError(event: ErrorEvent) {
       console.log("ERROR DETECTED");
       log.error(event.message, {
-        error: event.error,
-        url: event.filename,
-        line: event.lineno,
         column: event.colno,
+        line: event.lineno,
+        url: event.filename,
       });
     }
     function logUnhandledRejection(event: PromiseRejectionEvent) {
       console.log("ERROR DETECTED");
-      log.error("Unhandled Promise Rejection", { reason: event.reason });
+      log.error("Unhandled Promise Rejection", {
+        reason: event.reason as string,
+      });
     }
 
     window.addEventListener("error", logError);
