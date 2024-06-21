@@ -11,6 +11,14 @@ import Header from "../_components/Header";
 import MobilePlaceholder from "../_components/MobilePlaceholder";
 import useCurrentChain from "../_hooks/useCurrentChain";
 import Providers from "./providers";
+import Logger from "../_components/Logger";
+
+import Hotjar from "@hotjar/browser";
+
+const siteId = 5032874;
+const hotjarVersion = 6;
+
+Hotjar.init(siteId, hotjarVersion);
 
 function RootLayoutContainer({ children }: PropsWithChildren) {
   const { targetChain } = useCurrentChain();
@@ -35,6 +43,7 @@ function RootLayoutContainer({ children }: PropsWithChildren) {
           <MobilePlaceholder />
         </div>
       )}
+      <Logger />
     </body>
   );
 }
