@@ -128,11 +128,17 @@ export const bridgeRequestRouter = createTRPCRouter({
             };
           }, {});
         } else {
+          const bridgeRequestsTokens = bridgeRequests.map((bridgeRequest) => ({
+            contract_address: bridgeRequest.req.collection_src,
+            token_id: bridgeRequest.token_ids[0],
+          }));
           const requestMetadatas = await getL2NftsMetadataBatch(
-            bridgeRequests.map((bridgeRequest) => ({
-              contract_address: bridgeRequest.req.collection_src,
-              token_id: bridgeRequest.token_ids[0],
-            }))
+            Object.values(
+              bridgeRequestsTokens.reduce((acc, token) => {
+                acc[token.token_id] = token;
+                return acc;
+              }, {} as Record<string, { contract_address: string; token_id: string }>)
+            )
           );
           requestMetadataByReqHash = requestMetadatas.result.reduce(
             (acc, current) => {
