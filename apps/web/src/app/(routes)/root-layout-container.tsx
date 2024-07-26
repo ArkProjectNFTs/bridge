@@ -8,7 +8,6 @@ import React, { type PropsWithChildren } from "react";
 
 import { api } from "~/utils/api";
 
-import Banner from "../_components/Banner";
 import Header from "../_components/Header";
 import Logger from "../_components/Logger";
 import MobilePlaceholder from "../_components/MobilePlaceholder";
