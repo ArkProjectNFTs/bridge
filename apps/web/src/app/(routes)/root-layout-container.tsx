@@ -33,7 +33,6 @@ function RootLayoutContainer({ children }: PropsWithChildren) {
       )}
     >
       <Providers>
-        <Banner />
         <Header />
         <div className={cn(!isHomePage && "desktop", "block min-h-screen")}>
           {children}
