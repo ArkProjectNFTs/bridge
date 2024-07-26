@@ -12,6 +12,7 @@ import useNftSelection from "../(routes)/bridge/_hooks/useNftSelection";
 import useAccountFromChain from "../_hooks/useAccountFromChain";
 import useCurrentChain from "../_hooks/useCurrentChain";
 import useIsFullyConnected from "../_hooks/useIsFullyConnected";
+import Banner from "./Banner";
 import ConnectEthereumButton from "./ConnectEthereumButton";
 import ConnectStarkNetButton from "./ConnectStarkNetButton";
 import Logo from "./Logo";
@@ -89,44 +90,47 @@ export default function Header() {
   const pathname = usePathname();
 
   return (
-    <header className="fixed z-20 flex h-23 w-full items-center justify-center bg-white p-6 dark:bg-void-black md:justify-between">
-      <Link href="/">
-        <Logo />
-      </Link>
-      <div className="hidden items-center gap-8 md:flex">
-        <Link href="/portfolio">
-          <Typography
-            className={clsx(
-              pathname === "/portfolio" && "text-space-blue-source",
-              "transition-colors hover:text-space-blue-source"
-            )}
-            variant="heading_light_xxs"
-          >
-            Portfolio
-          </Typography>
+    <header className="fixed z-20 w-full">
+      <Banner />
+      <div className="flex h-23 w-full items-center justify-center bg-white p-6 dark:bg-void-black md:justify-between">
+        <Link href="/">
+          <Logo />
         </Link>
-        <BridgeLink />
-        <LoungeLink />
-        <a
-          href="https://everai.typeform.com/to/PMyHymLn"
-          rel="noreferrer"
-          target="_blank"
-        >
-          <Typography
-            className="transition-colors hover:text-space-blue-source"
-            variant="heading_light_xxs"
+        <div className="hidden items-center gap-8 md:flex">
+          <Link href="/portfolio">
+            <Typography
+              className={clsx(
+                pathname === "/portfolio" && "text-space-blue-source",
+                "transition-colors hover:text-space-blue-source"
+              )}
+              variant="heading_light_xxs"
+            >
+              Portfolio
+            </Typography>
+          </Link>
+          <BridgeLink />
+          <LoungeLink />
+          <a
+            href="https://everai.typeform.com/to/PMyHymLn"
+            rel="noreferrer"
+            target="_blank"
           >
-            Submit Collection
-          </Typography>
-        </a>
-      </div>
-      <div className="hidden items-center gap-4 md:flex">
-        <div className="flex gap-4">
-          {/* TODO @YohanTz: Modal context? */}
-          <ConnectEthereumButton />
-          <ConnectStarkNetButton />
+            <Typography
+              className="transition-colors hover:text-space-blue-source"
+              variant="heading_light_xxs"
+            >
+              Submit Collection
+            </Typography>
+          </a>
         </div>
-        <DarkModeButton />
+        <div className="hidden items-center gap-4 md:flex">
+          <div className="flex gap-4">
+            {/* TODO @YohanTz: Modal context? */}
+            <ConnectEthereumButton />
+            <ConnectStarkNetButton />
+          </div>
+          <DarkModeButton />
+        </div>
       </div>
     </header>
   );
