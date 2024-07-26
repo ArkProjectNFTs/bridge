@@ -3,7 +3,7 @@ export default function Banner() {
     <div className="bg-space-blue-400 px-4 py-2 font-semibold">
       <p className="text-center">
         Important Notice: The Bridge will be temporarily unavailable from
-        XX/XX/XXXX for at least 3 weeks due to a comprehensive audit. We
+        07/30/2024 for at least 3 weeks due to a comprehensive audit. We
         apologize for any inconvenience this may cause and appreciate your
         understanding.
       </p>
