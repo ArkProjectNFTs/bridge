@@ -14,4 +14,4 @@ anvil = "http://127.0.0.1:8545"
 
 [etherscan]
 goerli = { key = "${ETHERSCAN_API_KEY}" }
-anvil = { key = "${ETHERSCAN_API_KEY", chainId=31337}
+anvil = { key = "FAKE KEY", chainId=31337}
