@@ -313,6 +313,33 @@ library Cairo {
         return (packedLen, s);
     }
 
+    /**
+     @notice Deserialize a cairo address array from the given buffer
+
+     @param buf Buffer where data is serialized
+     @param offset Offset in 'buf' where deserialization must start
+
+     @return The offset increment applied to deserialize and the deserialized value.
+    */
+
+    function cairoAddressArrayDeserialize(
+        uint256[] memory buf,
+        uint256 offset
+    )
+        internal
+        pure
+        returns (address[] memory, uint256)
+    {
+        uint256 len = buf[offset++];  
+        address[] memory result = new address[](len);
+
+        for (uint256 i = 0; i < len; i++) {
+            result[i] = address(uint160(buf[offset++]));
+        }
+
+        return (result, offset);
+    }
+
     /** 
         @notice Commputes the length of the packed cairo string.
 

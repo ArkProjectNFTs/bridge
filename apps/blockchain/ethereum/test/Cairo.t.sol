@@ -119,6 +119,37 @@ contract CairoTest is Test {
     }
 
     //
+
+    function test_cairoAddressArrayDeserialize() public {
+        uint256;
+        buf1[0] = 0;
+        (address[] memory result1, uint256 newOffset1) = Cairo.cairoAddressArrayDeserialize(buf1, 0);
+        assertEq(result1.length, 0);
+        assertEq(newOffset1, 1); 
+
+        uint256;
+        buf2[0] = 2; 
+        buf2[1] = uint160(address(0x1234567890abcdef1234567890abcdef12345678));
+        buf2[2] = uint160(address(0xabcdefabcdefabcdefabcdefabcdefabcdefabcd));
+
+        (address[] memory result2, uint256 newOffset2) = Cairo.cairoAddressArrayDeserialize(buf2, 0);
+        assertEq(result2.length, 2);
+        assertEq(result2[0], address(0x1234567890abcdef1234567890abcdef12345678));
+        assertEq(result2[1], address(0xabcdefabcdefabcdefabcdefabcdefabcdefabcd));
+        assertEq(newOffset2, 3);
+
+        uint256;
+        buf3[0] = 1; 
+        buf3[1] = uint160(address(0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef));
+
+        (address[] memory result3, uint256 newOffset3) = Cairo.cairoAddressArrayDeserialize(buf3, 0);
+        assertEq(result3.length, 1);
+        assertEq(result3[0], address(0xdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef));
+        assertEq(newOffset3, 2); 
+        
+    }
+
+    //
     function test_cairoStringPack() public {
         uint256[] memory bufEmpty = Cairo.cairoStringPack("");
         assertEq(bufEmpty[0], 0);
