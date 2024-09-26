@@ -43,7 +43,14 @@ contract StarklaneEscrow is Context {
                 // (but it's better to check with supported interfaces? It's 2 calls instead
                 // of one where we control the fail.)
                 //(bool success, bytes memory data) = contractAddress.call("");
-                IERC1155(collection).safeTransferFrom(msg.sender, address(this), id, 1, "");
+                //IERC1155(collection).safeTransferFrom(msg.sender, address(this), id, 1, "");
+                  bytes4 selector = IERC1155.safeTransferFrom.selector;
+                (bool success, ) = collection.call(
+                    abi.encodeWithSelector(
+                        selector, msg.sender, address(this), id, 1, ""
+                    )
+                );
+                require(success, "ERC1155 transfer failed");
             }
 
             _escrow[collection][id] = msg.sender;
@@ -80,6 +87,8 @@ contract StarklaneEscrow is Context {
         } else {
             // TODO:
             // Check here if the token supply is currently 0.
+             uint256 tokenbalance = IERC1155(collection).balanceOf(from , id);
+            require(tokenBalance > 0, "Insufficient token balance for transfer");
             IERC1155(collection).safeTransferFrom(from, to, id, 1, "");
         }
 
