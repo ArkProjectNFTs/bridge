@@ -69,6 +69,7 @@ contract StarklaneEscrow is Context {
         internal
         returns (bool)
     {
+        require(to != address(0) , "Invalid Owner address");
         if (!_isEscrowed(collection, id)) {
             return false;
         }
@@ -80,6 +81,10 @@ contract StarklaneEscrow is Context {
         } else {
             // TODO:
             // Check here if the token supply is currently 0.
+            // Complete TODO here --->>
+            uint256 tokenbalance = IERC1155(collection).balanceOf(from , id);
+            require(tokenBalance > 0, "Insufficient token balance for transfer");
+
             IERC1155(collection).safeTransferFrom(from, to, id, 1, "");
         }
 
