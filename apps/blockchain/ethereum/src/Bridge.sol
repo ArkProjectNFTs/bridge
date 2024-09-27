@@ -262,11 +262,7 @@ contract Starklane is IStarklaneEvent, UUPSOwnableProxied, StarklaneState, Stark
         for (uint256 i = 0; i < req.tokenIds.length; i++) {
             uint256 id = req.tokenIds[i];
                 // Attempt to withdraw from escrow and check if it was successful
-             bool _waswithdrawFromEscrow =  _withdrawFromEscrow(ctype, collectionL1, req.ownerL1, id);
-              if(! _waswithdrawFromEscrow){
-            // Revert the transaction with a message if escrow withdrawal fails
-             revert("Escrow withdrawal failed for token ID");
-           }
+             _withdrawFromEscrow(ctype, collectionL1, req.ownerL1, id);
         }
     }
 
