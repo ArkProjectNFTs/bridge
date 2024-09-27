@@ -200,13 +200,12 @@ library Cairo {
     {
         uint256 _offset = offset;
 
-        // Arrays always have their length first in Cairo.
         buf[_offset] = arr.length;
         _offset++;
 
         for (uint256 i = 0; i < arr.length; i++) {
-            // Cast the address to uint256 and serialize it.
-            _offset += uint256Serialize(uint256(uint160(arr[i])), buf, _offset);
+            buf[_offset] = uint256(uint160(arr[i]));
+            _offset++;
         }
 
         return _offset - offset;
