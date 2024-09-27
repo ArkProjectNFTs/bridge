@@ -28,7 +28,6 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "dotenv-cli": "^7.0.0",
-    "starklane": "file:"
+    "dotenv-cli": "^7.0.0"
   }
 }
