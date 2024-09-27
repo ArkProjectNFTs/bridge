@@ -48,7 +48,7 @@ contract ProtocolTest is Test {
         string[] memory uris = new string[](1);
         uris[0] = "abcd";
 
-        uint256[] memory newOwners = new address[](1);
+        address[] memory newOwners = new address[](1);
         values[0] = 0x123;
 
         Request memory req = Request ({
