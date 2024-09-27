@@ -29,6 +29,10 @@ contract BridgeTest is Test, IStarklaneEvent {
     address erc1155C1;
     address snCore;
 
+    address collectionL1= address(0x1);
+    snaddress collectionL2 = Cairo.snaddressWrap(0x2);
+
+
     address payable internal alice;
     address payable internal bob;
 
@@ -599,6 +603,32 @@ contract BridgeTest is Test, IStarklaneEvent {
         ( ,uint256[] memory reqContent) = abi.decode(depositRequestEvent.data, (uint256, uint256[]));
         assert(payload.length == reqContent.length);
         return (nonce, payload);
+    }
+     
+    // here is test   for set L1 L2 collection 
+   
+    function test_SetL1L2CollectionMapping() public {
+    
+        // Check for the event emission
+        vm.expectEmit(true, true, true, true);
+        emit L1L2CollectionMappingUpdated(collectionL1, snaddress.unwrap(collectionL2));
+       IStarklane(bridge).setL1L2CollectionMapping(collectionL1, collectionL2, false);
+    }
+
+    function testInvalidL1Address() public {
+        vm.expectRevert("Invalid L1 address");
+       IStarklane(bridge).setL1L2CollectionMapping(address(0), collectionL2, false);
+    }
+
+    function testInvalidL2Address() public {
+        vm.expectRevert("Invalid L2 address");
+        IStarklane(bridge).setL1L2CollectionMapping(collectionL1, Cairo.snaddressWrap(0), false);
+    }
+
+    function testInvalidUnwrappedL2Address() public {
+        snaddress invalidCollectionL2 = Cairo.snaddressWrap(0x0); 
+        vm.expectRevert("Invalid L2 address");
+        IStarklane(bridge).setL1L2CollectionMapping(collectionL1, invalidCollectionL2, false);
     }
 
 }
