@@ -21,7 +21,7 @@ mod tests {
         IOwnableTwoStepDispatcher, IOwnableTwoStepDispatcherTrait
     };
     
-    use starknet::{ContractAddress, ClassHash, EthAddress};
+    use starknet::{ContractAddress, ClassHash, EthAddress, class_hash_const};
     use starklane::{
         request::{Request, compute_request_hash},
         interfaces::{IStarklaneDispatcher, IStarklaneDispatcherTrait, 
@@ -783,7 +783,7 @@ mod tests {
         
         let collection1 = starknet::contract_address_const::<'collection1'>();
         let collection2 = starknet::contract_address_const::<'collection2'>();
-        let collection3 = starknet::contract_address_const::<'collection3'>();
+        let _collection3 = starknet::contract_address_const::<'collection3'>();
         start_prank(CheatTarget::One(bridge_address), BRIDGE_ADMIN);
         bridge.enable_white_list(true);
         stop_prank(CheatTarget::One(bridge_address));
@@ -1080,4 +1080,138 @@ mod tests {
         stop_prank(CheatTarget::One(bridge_address));
     }
     
+    #[test]
+    fn enable_white_list() {
+        let erc721b_contract_class = declare("erc721_bridgeable");
+
+        let BRIDGE_ADMIN = starknet::contract_address_const::<'starklane'>();
+        let BRIDGE_L1 = EthAddress { address: 'starklane_l1' };
+
+        let bridge_address = deploy_starklane(BRIDGE_ADMIN, BRIDGE_L1, erc721b_contract_class.class_hash);
+        let bridge = IStarklaneDispatcher { contract_address: bridge_address };
+
+        assert_eq!(bridge.is_white_list_enabled(), false);
+
+        let mut spy = spy_events(SpyOn::One(bridge_address));
+        start_prank(CheatTarget::One(bridge_address), BRIDGE_ADMIN);
+        bridge.enable_white_list(true);
+        stop_prank(CheatTarget::One(bridge_address));
+        spy.assert_emitted(@array![
+            (
+                bridge_address,
+                bridge::Event::WhiteListEnabled(
+                    bridge::WhiteListEnabled {
+                        enabled: true,
+                    }
+                )
+            )
+        ]);
+
+        assert_eq!(bridge.is_white_list_enabled(), true);
+    }
+
+    #[test]
+    fn set_bridge_l1_addr() {
+        let erc721b_contract_class = declare("erc721_bridgeable");
+
+        let BRIDGE_ADMIN = starknet::contract_address_const::<'starklane'>();
+        let BRIDGE_L1 = EthAddress { address: 'starklane_l1' };
+        let NEW_BRIDGE_L1 = EthAddress { address: 'new_starklane_l1' };
+
+        let bridge_address = deploy_starklane(BRIDGE_ADMIN, BRIDGE_L1, erc721b_contract_class.class_hash);
+        let bridge = IStarklaneDispatcher { contract_address: bridge_address };
+
+        assert_eq!(bridge.get_bridge_l1_addr(), BRIDGE_L1);
+
+        let mut spy = spy_events(SpyOn::One(bridge_address));
+        start_prank(CheatTarget::One(bridge_address), BRIDGE_ADMIN);
+        bridge.set_bridge_l1_addr(NEW_BRIDGE_L1);
+        stop_prank(CheatTarget::One(bridge_address));
+        spy.assert_emitted(@array![
+            (
+                bridge_address,
+                bridge::Event::BridgeL1AddressUpdated(
+                    bridge::BridgeL1AddressUpdated {
+                        address: NEW_BRIDGE_L1,
+                    }
+                )
+            )
+        ]);
+
+        assert_eq!(bridge.get_bridge_l1_addr(), NEW_BRIDGE_L1);
+    }
+
+    #[test]
+    fn set_erc721_class_hash() {
+        let erc721b_contract_class = declare("erc721_bridgeable");
+
+        let BRIDGE_ADMIN = starknet::contract_address_const::<'starklane'>();
+        let BRIDGE_L1 = EthAddress { address: 'starklane_l1' };
+        let ERC721_CLASS_HASH = class_hash_const::<'ERC721_CLASS_HASH'>();
+
+        let bridge_address = deploy_starklane(BRIDGE_ADMIN, BRIDGE_L1, erc721b_contract_class.class_hash);
+        let bridge = IStarklaneDispatcher { contract_address: bridge_address };
+
+        assert_eq!(bridge.get_erc721_class_hash(), erc721b_contract_class.class_hash);
+
+        let mut spy = spy_events(SpyOn::One(bridge_address));
+        start_prank(CheatTarget::One(bridge_address), BRIDGE_ADMIN);
+        bridge.set_erc721_class_hash(ERC721_CLASS_HASH);
+        stop_prank(CheatTarget::One(bridge_address));
+        spy.assert_emitted(@array![
+            (
+                bridge_address,
+                bridge::Event::ERC721ClassHashUpdated(
+                    bridge::ERC721ClassHashUpdated {
+                        class_hash: ERC721_CLASS_HASH,
+                    }
+                )
+            )
+        ]);
+
+        assert_eq!(bridge.get_erc721_class_hash(), ERC721_CLASS_HASH);
+    }
+
+    #[test]
+    fn set_l1_l2_collection_mapping() {
+        let erc721b_contract_class = declare("erc721_bridgeable");
+
+        let BRIDGE_ADMIN = starknet::contract_address_const::<'starklane'>();
+        let BRIDGE_L1 = EthAddress { address: 'starklane_l1' };
+        let COLLECTION_OWNER = starknet::contract_address_const::<'collection owner'>();
+
+        let bridge_address = deploy_starklane(BRIDGE_ADMIN, BRIDGE_L1, erc721b_contract_class.class_hash);
+        let bridge = IStarklaneDispatcher { contract_address: bridge_address };
+
+        let collection_l1 = EthAddress { address: 0x4269};
+
+        let erc721b_address = deploy_erc721b(
+            erc721b_contract_class,
+            "everai",
+            "DUO",
+            bridge_address,
+            COLLECTION_OWNER
+        );
+
+        assert_eq!(bridge.get_erc721_class_hash(), erc721b_contract_class.class_hash);
+
+        let mut spy = spy_events(SpyOn::One(bridge_address));
+        start_prank(CheatTarget::One(bridge_address), BRIDGE_ADMIN);
+        bridge.set_l1_l2_collection_mapping(collection_l1, erc721b_address);
+        stop_prank(CheatTarget::One(bridge_address));
+        spy.assert_emitted(@array![
+            (
+                bridge_address,
+                bridge::Event::L1L2CollectionMappingUpdated(
+                    bridge::L1L2CollectionMappingUpdated {
+                        collection_l1,
+                        collection_l2: erc721b_address
+                    }
+                )
+            )
+        ]);
+
+        assert_eq!(bridge.get_l1_collection_address(erc721b_address), collection_l1);
+        assert_eq!(bridge.get_l2_collection_address(collection_l1), erc721b_address);
+    }
 }

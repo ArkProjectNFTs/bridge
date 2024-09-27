@@ -24,12 +24,9 @@ mod bridge {
         IStarklaneCollectionAdmin};
     // events
     use starklane::interfaces::{
-        DepositRequestInitiated,
-        WithdrawRequestCompleted,
-        CollectionDeployedFromL1,
-        ReplacedClassHash,
-        BridgeEnabled,
-        CollectionWhiteListUpdated,
+        DepositRequestInitiated, WithdrawRequestCompleted, CollectionDeployedFromL1,
+        ReplacedClassHash, BridgeEnabled, CollectionWhiteListUpdated, WhiteListEnabled,
+        BridgeL1AddressUpdated, ERC721ClassHashUpdated, L1L2CollectionMappingUpdated
     };
 
     use starklane::request::{
@@ -110,6 +107,10 @@ mod bridge {
         ReplacedClassHash: ReplacedClassHash,
         BridgeEnabled: BridgeEnabled,
         CollectionWhiteListUpdated: CollectionWhiteListUpdated,
+        WhiteListEnabled: WhiteListEnabled,
+        BridgeL1AddressUpdated: BridgeL1AddressUpdated,
+        ERC721ClassHashUpdated: ERC721ClassHashUpdated,
+        L1L2CollectionMappingUpdated: L1L2CollectionMappingUpdated,
         #[flat]
         OwnableEvent: OwnableComponent::Event,
     }
@@ -211,6 +212,7 @@ mod bridge {
         fn set_bridge_l1_addr(ref self: ContractState, address: EthAddress) {
             ensure_is_admin(@self);
             self.bridge_l1_address.write(address);
+            self.emit(BridgeL1AddressUpdated { address });
         }
 
         fn get_bridge_l1_addr(self: @ContractState) -> EthAddress {
@@ -220,6 +222,7 @@ mod bridge {
         fn set_erc721_class_hash(ref self: ContractState, class_hash: ClassHash) {
             ensure_is_admin(@self);
             self.erc721_bridgeable_class.write(class_hash);
+            self.emit(ERC721ClassHashUpdated { class_hash });
         }
 
         fn get_erc721_class_hash(self: @ContractState) -> ClassHash {
@@ -308,6 +311,7 @@ mod bridge {
         fn enable_white_list(ref self: ContractState, enable: bool) {
             ensure_is_admin(@self);
             self.white_list_enabled.write(enable);
+            self.emit(WhiteListEnabled { enabled: enable });
         }
 
         fn is_white_list_enabled(self: @ContractState) -> bool {
@@ -361,6 +365,7 @@ mod bridge {
             ensure_is_admin(@self);
             self.l1_to_l2_addresses.write(collection_l1, collection_l2);
             self.l2_to_l1_addresses.write(collection_l2, collection_l1);
+            self.emit(L1L2CollectionMappingUpdated { collection_l1, collection_l2 });
         }
     }
 
