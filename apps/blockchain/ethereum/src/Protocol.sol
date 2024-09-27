@@ -286,7 +286,7 @@ library Protocol {
         (inc, req.tokenURIs) = Cairo.cairoStringArrayDeserialize(buf, offset);
         offset += inc;
 
-        (req.newOwners, inc) = Cairo.cairoAddressArrayDeserialize(buf, offset);
+        (inc, req.newOwners) = Cairo.cairoAddressArrayDeserialize(buf, offset);
         offset += inc;
 
         return req;

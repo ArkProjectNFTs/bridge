@@ -125,26 +125,24 @@ contract CairoTest is Test {
         uint256[] memory buf2 = new uint256[](3);
         uint256[] memory buf3 = new uint256[](2);
         buf1[0] = 0;
-        (address[] memory result1, uint256 newOffset1) = Cairo.cairoAddressArrayDeserialize(buf1, 0);
+        (uint256 newOffset1, address[] memory result1) = Cairo.cairoAddressArrayDeserialize(buf1, 0);
         assertEq(result1.length, 0);
         assertEq(newOffset1, 1); 
 
-        uint256;
         buf2[0] = 2; 
         buf2[1] = uint160(address(0x1234567890AbcdEF1234567890aBcdef12345678));
         buf2[2] = uint160(address(0xABcdEFABcdEFabcdEfAbCdefabcdeFABcDEFabCD));
 
-        (address[] memory result2, uint256 newOffset2) = Cairo.cairoAddressArrayDeserialize(buf2, 0);
+        (uint256 newOffset2, address[] memory result2) = Cairo.cairoAddressArrayDeserialize(buf2, 0);
         assertEq(result2.length, 2);
         assertEq(result2[0], address(0x1234567890AbcdEF1234567890aBcdef12345678));
         assertEq(result2[1], address(0xABcdEFABcdEFabcdEfAbCdefabcdeFABcDEFabCD));
         assertEq(newOffset2, 3);
 
-        uint256;
         buf3[0] = 1; 
         buf3[1] = uint160(address(0xDeaDbeefdEAdbeefdEadbEEFdeadbeEFdEaDbeeF));
 
-        (address[] memory result3, uint256 newOffset3) = Cairo.cairoAddressArrayDeserialize(buf3, 0);
+        (uint256 newOffset3, address[] memory result3) = Cairo.cairoAddressArrayDeserialize(buf3, 0);
         assertEq(result3.length, 1);
         assertEq(result3[0], address(0xDeaDbeefdEAdbeefdEadbEEFdeadbeEFdEaDbeeF));
         assertEq(newOffset3, 2); 
@@ -163,6 +161,7 @@ contract CairoTest is Test {
         assertEq(buf1[0], 2); 
         assertEq(buf1[1], uint160(address(0x1234567890AbcdEF1234567890aBcdef12345678))); 
         assertEq(buf1[2], uint160(address(0xABcdEFABcdEFabcdEfAbCdefabcdeFABcDEFabCD)));  
+        assertEq(offset1, 3);
 
         address[] memory arr2 = new address[](1);
         arr2[0] = address(0xDeaDbeefdEAdbeefdEadbEEFdeadbeEFdEaDbeeF);
@@ -172,6 +171,7 @@ contract CairoTest is Test {
 
         assertEq(buf2[0], 1);
         assertEq(buf2[1], uint160(address(0xDeaDbeefdEAdbeefdEadbEEFdeadbeEFdEaDbeeF))); 
+        assertEq(offset2, 2);
 
         address[] memory arr3 = new address[](0);
 
@@ -180,6 +180,7 @@ contract CairoTest is Test {
         uint256 offset3 = Cairo.addressArraySerialize(arr3, buf3, 0);
 
         assertEq(buf3[0], 0);
+        assertEq(offset3, 1);
 
     }
 

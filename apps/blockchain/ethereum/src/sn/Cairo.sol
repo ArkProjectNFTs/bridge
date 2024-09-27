@@ -360,7 +360,7 @@ library Cairo {
     )
         internal
         pure
-        returns (address[] memory, uint256)
+        returns (uint256, address[] memory)
     {
         uint256 len = buf[offset++];  
         address[] memory result = new address[](len);
@@ -369,7 +369,7 @@ library Cairo {
             result[i] = address(uint160(buf[offset++]));
         }
 
-        return (result, offset);
+        return (offset, result);
     }
 
     /** 
