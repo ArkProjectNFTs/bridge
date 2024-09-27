@@ -1147,7 +1147,7 @@ mod tests {
 
         let BRIDGE_ADMIN = starknet::contract_address_const::<'starklane'>();
         let BRIDGE_L1 = EthAddress { address: 'starklane_l1' };
-        let CLASS_HASH_ZERO = class_hash_const::<0>();
+        let ERC721_CLASS_HASH = class_hash_const::<'ERC721_CLASS_HASH'>();
 
         let bridge_address = deploy_starklane(BRIDGE_ADMIN, BRIDGE_L1, erc721b_contract_class.class_hash);
         let bridge = IStarklaneDispatcher { contract_address: bridge_address };
@@ -1156,20 +1156,20 @@ mod tests {
 
         let mut spy = spy_events(SpyOn::One(bridge_address));
         start_prank(CheatTarget::One(bridge_address), BRIDGE_ADMIN);
-        bridge.set_erc721_class_hash(CLASS_HASH_ZERO);
+        bridge.set_erc721_class_hash(ERC721_CLASS_HASH);
         stop_prank(CheatTarget::One(bridge_address));
         spy.assert_emitted(@array![
             (
                 bridge_address,
                 bridge::Event::ERC721ClassHashUpdated(
                     bridge::ERC721ClassHashUpdated {
-                        class_hash: CLASS_HASH_ZERO,
+                        class_hash: ERC721_CLASS_HASH,
                     }
                 )
             )
         ]);
 
-        assert_eq!(bridge.get_erc721_class_hash(), CLASS_HASH_ZERO);
+        assert_eq!(bridge.get_erc721_class_hash(), ERC721_CLASS_HASH);
     }
 
     #[test]

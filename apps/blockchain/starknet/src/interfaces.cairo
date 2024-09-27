@@ -115,10 +115,12 @@ struct WhiteListEnabled {
 
 #[derive(Drop, starknet::Event)]
 struct BridgeL1AddressUpdated {
+    #[key]
     address: EthAddress,
 }
 
 #[derive(Drop, starknet::Event)]
 struct ERC721ClassHashUpdated {
+    #[key]
     class_hash: ClassHash,
 }
