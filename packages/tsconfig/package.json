@@ -6,8 +6,5 @@
     "base.json",
     "nextjs.json",
     "react-library.json"
-  ],
-  "dependencies": {
-    "tsconfig": "file:"
-  }
+  ]
 }
