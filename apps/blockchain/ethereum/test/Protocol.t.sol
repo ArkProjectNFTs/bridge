@@ -5,20 +5,18 @@ import "forge-std/Test.sol";
 import "../src/Protocol.sol";
 
 /**
-   @title Protocol testing.
-*/
+ * @title Protocol testing.
+ */
 contract ProtocolTest is Test {
-
     //
-    function setUp() public {
-    }
+    function setUp() public {}
 
     //
     function buildRequestDummy() public pure returns (Request memory) {
         uint256[] memory ids = new uint256[](1);
         ids[0] = 1;
 
-        Request memory req = Request ({
+        Request memory req = Request({
             header: Cairo.felt252Wrap(0x1),
             hash: 0x1,
             collectionL1: address(0x0),
@@ -32,7 +30,7 @@ contract ProtocolTest is Test {
             tokenValues: new uint256[](0),
             tokenURIs: new string[](0),
             newOwners: new uint256[](0)
-            });
+        });
 
         return req;
     }
@@ -51,7 +49,7 @@ contract ProtocolTest is Test {
         uint256[] memory newOwners = new uint256[](1);
         values[0] = 0x123;
 
-        Request memory req = Request ({
+        Request memory req = Request({
             header: Cairo.felt252Wrap(0x1),
             hash: 0x1,
             collectionL1: address(0x0),
@@ -65,48 +63,24 @@ contract ProtocolTest is Test {
             tokenValues: values,
             tokenURIs: uris,
             newOwners: newOwners
-            });
+        });
 
         return req;
     }
 
     //
     function test_requestHeader() public {
-        felt252 header = Protocol.requestHeaderV1(
-            CollectionType.ERC721,
-            false,
-            false);
-        assertEq(
-            felt252.unwrap(header),
-            0x0101
-        );
+        felt252 header = Protocol.requestHeaderV1(CollectionType.ERC721, false, false);
+        assertEq(felt252.unwrap(header), 0x0101);
 
-        header = Protocol.requestHeaderV1(
-            CollectionType.ERC1155,
-            false,
-            false);
-        assertEq(
-            felt252.unwrap(header),
-            0x0201
-        );
+        header = Protocol.requestHeaderV1(CollectionType.ERC1155, false, false);
+        assertEq(felt252.unwrap(header), 0x0201);
 
-        header = Protocol.requestHeaderV1(
-            CollectionType.ERC721,
-            true,
-            false);
-        assertEq(
-            felt252.unwrap(header),
-            0x010101
-        );
+        header = Protocol.requestHeaderV1(CollectionType.ERC721, true, false);
+        assertEq(felt252.unwrap(header), 0x010101);
 
-        header = Protocol.requestHeaderV1(
-            CollectionType.ERC721,
-            true,
-            true);
-        assertEq(
-            felt252.unwrap(header),
-            0x01010101
-        );
+        header = Protocol.requestHeaderV1(CollectionType.ERC721, true, true);
+        assertEq(felt252.unwrap(header), 0x01010101);
         assertTrue(Protocol.canUseWithdrawAuto(felt252.unwrap(header)));
     }
 
@@ -115,17 +89,10 @@ contract ProtocolTest is Test {
         uint256[] memory ids = new uint256[](1);
         ids[0] = 88;
 
-        uint256 hash = Protocol.requestHash(
-            123,
-            0x0000000000000000000000000000000000000000,
-            Cairo.snaddressWrap(0x1),
-            ids
-        );
+        uint256 hash =
+            Protocol.requestHash(123, 0x0000000000000000000000000000000000000000, Cairo.snaddressWrap(0x1), ids);
 
-        assertEq(
-            hash,
-            0xbb7ca67ee263bd2bb68dc88b530300222a3700bceca4e537079047fff89a0402
-        );
+        assertEq(hash, 0xbb7ca67ee263bd2bb68dc88b530300222a3700bceca4e537079047fff89a0402);
     }
 
     //
@@ -212,6 +179,4 @@ contract ProtocolTest is Test {
         assertEq(req.tokenURIs.length, 0);
         assertEq(req.newOwners.length, 0);
     }
-
-
 }
