@@ -5,13 +5,11 @@ import "forge-std/Test.sol";
 import "../src/sn/Cairo.sol";
 
 /**
-   @title Cairo testing.
-*/
+ * @title Cairo testing.
+ */
 contract CairoTest is Test {
-
     //
-    function setUp() public {
-    }
+    function setUp() public {}
 
     //
     function test_isFelt252() public {
@@ -21,7 +19,7 @@ contract CairoTest is Test {
     }
 
     //
-    function test_felt252Wrap() public  {
+    function test_felt252Wrap() public {
         felt252 f = Cairo.felt252Wrap(1);
         uint256 v = 1;
         assertTrue(felt252.unwrap(f) == v);
@@ -31,7 +29,7 @@ contract CairoTest is Test {
     }
 
     //
-    function test_snaddressWrap() public  {
+    function test_snaddressWrap() public {
         snaddress a = Cairo.snaddressWrap(1);
         uint256 v = 1;
         assertTrue(snaddress.unwrap(a) == v);
@@ -112,10 +110,7 @@ contract CairoTest is Test {
     function test_cairoStringSerializedLength() public {
         assertEq(Cairo.cairoStringSerializedLength(""), 3);
         assertEq(Cairo.cairoStringSerializedLength("ABCD"), 3);
-        assertEq(
-            Cairo.cairoStringSerializedLength(
-                "ABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890abcdefg"),
-            4);
+        assertEq(Cairo.cairoStringSerializedLength("ABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890abcdefg"), 4);
     }
 
     //
@@ -137,7 +132,6 @@ contract CairoTest is Test {
         assertEq(bufLong[2], 0x0035363738393061626364656667);
         assertEq(bufLong[3], 13);
         assertEq(bufLong.length, 4);
-
     }
 
     //
@@ -166,9 +160,7 @@ contract CairoTest is Test {
         offset += Cairo.cairoStringSerialize("ABCD", buf, offset);
         assertEq(offset, 3);
         assertEq(buf[0], 0);
-        assertEq(
-            buf[1],
-            0x0041424344);
+        assertEq(buf[1], 0x0041424344);
         assertEq(buf[2], 4);
     }
 
@@ -230,6 +222,4 @@ contract CairoTest is Test {
         assertEq(inc, 1);
         assertEq(strs.length, 0);
     }
-
 }
-

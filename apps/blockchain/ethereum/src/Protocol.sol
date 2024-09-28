@@ -6,22 +6,18 @@ import "./sn/Cairo.sol";
 import "./token/TokenUtil.sol";
 
 /**
-   @notice Request to bridge tokens.
-*/
+ * @notice Request to bridge tokens.
+ */
 struct Request {
     felt252 header;
     uint256 hash;
-
     address collectionL1;
     snaddress collectionL2;
-
     address ownerL1;
     snaddress ownerL2;
-
     string name;
     string symbol;
     string uri;
-
     uint256[] tokenIds;
     uint256[] tokenValues;
     string[] tokenURIs;
@@ -31,10 +27,9 @@ struct Request {
 error CollectionTypeMaskUnsupported();
 
 /**
-   @title Library related to the protocol for bridging tokens.
-*/
+ * @title Library related to the protocol for bridging tokens.
+ */
 library Protocol {
-
     // Byte 0 of the header: Version.
     uint256 private constant HEADER_V1 = 0x01;
 
@@ -50,36 +45,24 @@ library Protocol {
     uint256 private constant WITHDRAW_AUTO = (0x01 << (8 * 3));
 
     /**
-       @notice Verifies if the given header supports the withdraw auto.
-
-       @return True if withdraw auto is supported, false otherwise.
-    */
-    function canUseWithdrawAuto(
-        uint256 header
-    )
-        internal
-        pure
-        returns (bool)
-    {
+     * @notice Verifies if the given header supports the withdraw auto.
+     *
+     *    @return True if withdraw auto is supported, false otherwise.
+     */
+    function canUseWithdrawAuto(uint256 header) internal pure returns (bool) {
         return (header & WITHDRAW_AUTO) == WITHDRAW_AUTO;
     }
 
     /**
-       @notice Retrieves the collection type from the header.
-
-       @return Collection type found in the header.
-    */
-    function collectionTypeFromHeader(
-        uint256 header
-    )
-        internal
-        pure
-        returns (CollectionType)
-    {
+     * @notice Retrieves the collection type from the header.
+     *
+     *    @return Collection type found in the header.
+     */
+    function collectionTypeFromHeader(uint256 header) internal pure returns (CollectionType) {
         uint256 ct = header & COLLECTION_TYPE_MASK;
         if (ct == ERC721_TYPE) {
             return CollectionType.ERC721;
-        } else if (ct == ERC1155_TYPE)  {
+        } else if (ct == ERC1155_TYPE) {
             return CollectionType.ERC1155;
         } else {
             revert CollectionTypeMaskUnsupported();
@@ -87,21 +70,17 @@ library Protocol {
     }
 
     /**
-       @notice Computes the V1 header value.
-
-       @dev Header is a felt252 (31 bits).
-       Byte 0 is the version (0x1).
-       Byte 1 is the contract interface (0x1 = ERC721, 0x2 = ERC1155).
-       Byte 2 is the deposit config.
-       Byte 3 is the withdraw config.
-
-       @param ctype The collection type.
-    */
-    function requestHeaderV1(
-        CollectionType ctype,
-        bool useDepositAutoBurn,
-        bool useWithdrawAuto
-    )
+     * @notice Computes the V1 header value.
+     *
+     *    @dev Header is a felt252 (31 bits).
+     *    Byte 0 is the version (0x1).
+     *    Byte 1 is the contract interface (0x1 = ERC721, 0x2 = ERC1155).
+     *    Byte 2 is the deposit config.
+     *    Byte 3 is the withdraw config.
+     *
+     *    @param ctype The collection type.
+     */
+    function requestHeaderV1(CollectionType ctype, bool useDepositAutoBurn, bool useWithdrawAuto)
         internal
         pure
         returns (felt252)
@@ -117,7 +96,7 @@ library Protocol {
         if (useDepositAutoBurn) {
             h |= DEPOSIT_AUTO_BURN;
         }
-        
+
         if (useWithdrawAuto) {
             h |= WITHDRAW_AUTO;
         }
@@ -126,21 +105,16 @@ library Protocol {
     }
 
     /**
-       @notice Computes the request hash.
-
-       @param salt Random salt.
-       @param collection Token collection contract address (L1).
-       @param toL2Address New owner on Starknet (L2).
-       @param tokenIds List of token ids to be transfered.
-
-       @return Request hash.
-    */
-    function requestHash(
-        uint256 salt,
-        address collection,
-        snaddress toL2Address,
-        uint256[] memory tokenIds
-    )
+     * @notice Computes the request hash.
+     *
+     *    @param salt Random salt.
+     *    @param collection Token collection contract address (L1).
+     *    @param toL2Address New owner on Starknet (L2).
+     *    @param tokenIds List of token ids to be transfered.
+     *
+     *    @return Request hash.
+     */
+    function requestHash(uint256 salt, address collection, snaddress toL2Address, uint256[] memory tokenIds)
         internal
         pure
         returns (uint256)
@@ -160,19 +134,13 @@ library Protocol {
     }
 
     /**
-       @notice Computes the serialized length of a request.
-
-       @param req Request of which the length is computed.
-
-       @return Length of the uint256[] that can contain the serialized request.
-    */
-    function requestSerializedLength(
-        Request memory req
-    )
-        internal
-        pure
-        returns (uint256)
-    {
+     * @notice Computes the serialized length of a request.
+     *
+     *    @param req Request of which the length is computed.
+     *
+     *    @return Length of the uint256[] that can contain the serialized request.
+     */
+    function requestSerializedLength(Request memory req) internal pure returns (uint256) {
         // Constant length part of the request is always 7 uint256 long.
         uint256 len = 7;
 
@@ -197,20 +165,14 @@ library Protocol {
     }
 
     /**
-       @notice Serializes a bridge request into an array of uint256
-       that is compatible with serialization expected by Starknet messaging.
-
-       @param req Request to serialize.
-
-       @return uint256[] with the serialized request.
-    */
-    function requestSerialize(
-        Request memory req
-    )
-        internal
-        pure
-        returns (uint256[] memory)
-    {
+     * @notice Serializes a bridge request into an array of uint256
+     *    that is compatible with serialization expected by Starknet messaging.
+     *
+     *    @param req Request to serialize.
+     *
+     *    @return uint256[] with the serialized request.
+     */
+    function requestSerialize(Request memory req) internal pure returns (uint256[] memory) {
         uint256[] memory buf = new uint256[](requestSerializedLength(req));
 
         // Constant length part of the request.
@@ -239,21 +201,14 @@ library Protocol {
     }
 
     /**
-       @notice Deserializes a request from uint256[] from starknet messaging.
-
-       @param buf Uint256[] buffer with the serialized request.
-       @param offset Offset in the buffer where deserialization starts.
-
-       @return Request.
-    */
-    function requestDeserialize(
-        uint256[] memory buf,
-        uint256 offset
-    )
-        internal
-        pure
-        returns (Request memory)
-    {
+     * @notice Deserializes a request from uint256[] from starknet messaging.
+     *
+     *    @param buf Uint256[] buffer with the serialized request.
+     *    @param offset Offset in the buffer where deserialization starts.
+     *
+     *    @return Request.
+     */
+    function requestDeserialize(uint256[] memory buf, uint256 offset) internal pure returns (Request memory) {
         Request memory req;
 
         req.header = Cairo.felt252Wrap(buf[offset++]);
@@ -291,5 +246,4 @@ library Protocol {
 
         return req;
     }
-
 }
