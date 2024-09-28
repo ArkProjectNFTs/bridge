@@ -537,7 +537,7 @@ contract BridgeTest is Test, IStarklaneEvent {
             tokenIds: ids,
             tokenValues: new uint256[](0),
             tokenURIs: new string[](0),
-            newOwners: new uint256[](0)
+            newOwners: new address[](0)
             });
 
         return req;

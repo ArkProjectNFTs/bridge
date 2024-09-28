@@ -181,6 +181,38 @@ library Cairo {
     }
 
     /**
+         @notice Serializes an array of addresses.
+
+        @param arr Array of addresses to be serialized.
+        @param buf Buffer where serialized form is saved.
+        @param offset Offset in `buf` where serialization must start.
+
+        @return Offset increment applied to serialize the value.
+    */
+    function addressArraySerialize(
+        address[] memory arr,
+        uint256[] memory buf,
+        uint256 offset
+    )
+        internal
+        pure
+        returns (uint256)
+    {
+        uint256 _offset = offset;
+
+        buf[_offset] = arr.length;
+        _offset++;
+
+        for (uint256 i = 0; i < arr.length; i++) {
+            buf[_offset] = uint256(uint160(arr[i]));
+            _offset++;
+        }
+
+        return _offset - offset;
+    }
+
+
+    /**
        @notice Deserializes an array of uint256 from the given buffer.
 
        @param buf Buffer where data is serialized.
@@ -311,6 +343,33 @@ library Cairo {
         string memory s = cairoStringUnpack(buf, offset);
         uint256 packedLen = 1 + buf[offset] + 1 + 1;
         return (packedLen, s);
+    }
+
+    /**
+     @notice Deserialize a cairo address array from the given buffer
+
+     @param buf Buffer where data is serialized
+     @param offset Offset in 'buf' where deserialization must start
+
+     @return The offset increment applied to deserialize and the deserialized value.
+    */
+
+    function cairoAddressArrayDeserialize(
+        uint256[] memory buf,
+        uint256 offset
+    )
+        internal
+        pure
+        returns (uint256, address[] memory)
+    {
+        uint256 len = buf[offset++];  
+        address[] memory result = new address[](len);
+
+        for (uint256 i = 0; i < len; i++) {
+            result[i] = address(uint160(buf[offset++]));
+        }
+
+        return (offset, result);
     }
 
     /** 

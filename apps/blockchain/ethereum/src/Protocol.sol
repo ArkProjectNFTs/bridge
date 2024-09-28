@@ -25,7 +25,7 @@ struct Request {
     uint256[] tokenIds;
     uint256[] tokenValues;
     string[] tokenURIs;
-    uint256[] newOwners;
+    address[] newOwners;
 }
 
 error CollectionTypeMaskUnsupported();
@@ -233,7 +233,7 @@ library Protocol {
         offset += Cairo.uint256ArraySerialize(req.tokenIds, buf, offset);
         offset += Cairo.uint256ArraySerialize(req.tokenValues, buf, offset);
         offset += Cairo.cairoStringArraySerialize(req.tokenURIs, buf, offset);
-        offset += Cairo.uint256ArraySerialize(req.newOwners, buf, offset);
+        offset += Cairo.addressArraySerialize(req.newOwners, buf, offset);
 
         return buf;
     }
@@ -286,7 +286,7 @@ library Protocol {
         (inc, req.tokenURIs) = Cairo.cairoStringArrayDeserialize(buf, offset);
         offset += inc;
 
-        (inc, req.newOwners) = Cairo.uint256ArrayDeserialize(buf, offset);
+        (inc, req.newOwners) = Cairo.cairoAddressArrayDeserialize(buf, offset);
         offset += inc;
 
         return req;

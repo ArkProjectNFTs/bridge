@@ -31,7 +31,7 @@ contract ProtocolTest is Test {
             tokenIds: ids,
             tokenValues: new uint256[](0),
             tokenURIs: new string[](0),
-            newOwners: new uint256[](0)
+            newOwners: new address[](0)
             });
 
         return req;
@@ -48,7 +48,7 @@ contract ProtocolTest is Test {
         string[] memory uris = new string[](1);
         uris[0] = "abcd";
 
-        uint256[] memory newOwners = new uint256[](1);
+        address[] memory newOwners = new address[](1);
         values[0] = 0x123;
 
         Request memory req = Request ({
