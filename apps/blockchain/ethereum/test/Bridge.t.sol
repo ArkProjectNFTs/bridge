@@ -479,7 +479,7 @@ contract BridgeTest is Test, IStarklaneEvent {
         vm.stopPrank();
     }
 
-    function test_UpdateMinimumGasFee() public {
+    function test_updateMinimumGasFee() public {
         IStarklane(bridge).updateMinimumGasFee(0.0001 ether);
         assertEq(IStarklane(bridge).getMinimumGasFee(), 0.0001 ether);
 
@@ -505,7 +505,7 @@ contract BridgeTest is Test, IStarklaneEvent {
             tokenIds: ids,
             tokenValues: new uint256[](0),
             tokenURIs: new string[](0),
-            newOwners: new uint256[](0)
+            newOwners: new address[](0)
         });
 
         return req;
