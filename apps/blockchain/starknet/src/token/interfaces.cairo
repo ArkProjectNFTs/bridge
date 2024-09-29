@@ -30,9 +30,10 @@ trait IERC721Mintable<T> {
 /// ERC721 that can be manipulated by the bridge.
 #[starknet::interface]
 trait IERC721Bridgeable<T> {
+    fn burn(ref self: T, token_id: u256);
+    
     fn mint_from_bridge(ref self: T, to: ContractAddress, token_id: u256);
 
     fn mint_from_bridge_uri(ref self: T, to: ContractAddress, token_id: u256, token_uri: ByteArray);
 
-    fn burn(ref self: T, token_id: u256);
 }
