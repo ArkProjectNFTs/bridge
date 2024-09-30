@@ -616,18 +616,18 @@ contract BridgeTest is Test, IStarklaneEvent {
     }
 
     function test_SetL1L2CollectionMappingWith_InvalidL1Address() public {
-         vm.expectRevert(abi.encodeWithSignature("InvalidL1AddressError()"));
+         vm.expectRevert(InvalidL1AddressError.selector);
        IStarklane(bridge).setL1L2CollectionMapping(address(0), collectionL2, false);
     }
 
     function test_SetL1L2CollectionMappingWith_InvalidL2Address() public {
-        vm.expectRevert(abi.encodeWithSignature("InvalidL2AddressError()"));
+        vm.expectRevert(InvalidL2AddressError.selector);
         IStarklane(bridge).setL1L2CollectionMapping(collectionL1, Cairo.snaddressWrap(0), false);
     }
 
     function test_SetL1L2CollectionMappingWith_InvalidUnwrappedL2Address() public {
         snaddress invalidCollectionL2 = Cairo.snaddressWrap(0x0); 
-        vm.expectRevert(abi.encodeWithSignature("InvalidL2AddressError()"));
+        vm.expectRevert(InvalidL2AddressError.selector);
         IStarklane(bridge).setL1L2CollectionMapping(collectionL1, invalidCollectionL2, false);
     }
 
