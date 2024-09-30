@@ -21,6 +21,8 @@ error CollectionMappingError();
 error NotWhiteListedError();
 error BridgeNotEnabledError();
 error TooManyTokensError();
+error InvalidL1AddressError();
+error InvalidL2AddressError();
 
 uint256 constant MAX_PAYLOAD_LENGTH = 300;
 
@@ -370,8 +372,12 @@ contract Starklane is IStarklaneEvent, UUPSOwnableProxied, StarklaneState, Stark
         snaddress collectionL2,
         bool force
     ) external onlyOwner {
-            require( collectionL1 != address(0x0), "Invalid L1 address");
-           require(snaddress.unwrap(collectionL2) != 0, "Invalid L2 address");
+          if (collectionL1 == address(0x0)) {
+              revert InvalidL1AddressError();
+            }
+          if (snaddress.unwrap(collectionL2) == 0x0) {
+               revert InvalidL2AddressError();
+            }
         _setL1L2AddressMapping(collectionL1, collectionL2, force);
         emit L1L2CollectionMappingUpdated(collectionL1, snaddress.unwrap(collectionL2));
     }
