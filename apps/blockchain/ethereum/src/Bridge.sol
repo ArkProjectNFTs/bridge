@@ -21,6 +21,8 @@ error CollectionMappingError();
 error NotWhiteListedError();
 error BridgeNotEnabledError();
 error TooManyTokensError();
+error InvalidL1AddressError();
+error InvalidL2AddressError();
 
 uint256 constant MAX_PAYLOAD_LENGTH = 300;
 
@@ -261,7 +263,7 @@ contract Starklane is IStarklaneEvent, UUPSOwnableProxied, StarklaneState, Stark
         address collectionL1 = req.collectionL1;
         for (uint256 i = 0; i < req.tokenIds.length; i++) {
             uint256 id = req.tokenIds[i];
-            _withdrawFromEscrow(ctype, collectionL1, req.ownerL1, id);
+             _withdrawFromEscrow(ctype, collectionL1, req.ownerL1, id);
         }
     }
 
@@ -370,6 +372,12 @@ contract Starklane is IStarklaneEvent, UUPSOwnableProxied, StarklaneState, Stark
         snaddress collectionL2,
         bool force
     ) external onlyOwner {
+          if (collectionL1 == address(0x0)) {
+              revert InvalidL1AddressError();
+            }
+          if (snaddress.unwrap(collectionL2) == 0x0) {
+               revert InvalidL2AddressError();
+            }
         _setL1L2AddressMapping(collectionL1, collectionL2, force);
         emit L1L2CollectionMappingUpdated(collectionL1, snaddress.unwrap(collectionL2));
     }
