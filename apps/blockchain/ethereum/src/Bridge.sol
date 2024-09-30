@@ -23,6 +23,8 @@ error BridgeNotEnabledError();
 error TooManyTokensError();
 error MinimumGasFeeError();
 error NotbridgeInitializerError();
+error InvalidL1AddressError();
+error InvalidL2AddressError();
 
 uint256 constant MAX_PAYLOAD_LENGTH = 300;
 /**
@@ -247,7 +249,7 @@ contract Starklane is
         address collectionL1 = req.collectionL1;
         for (uint256 i = 0; i < req.tokenIds.length; i++) {
             uint256 id = req.tokenIds[i];
-            _withdrawFromEscrow(ctype, collectionL1, req.ownerL1, id);
+             _withdrawFromEscrow(ctype, collectionL1, req.ownerL1, id);
         }
     }
 
@@ -345,8 +347,18 @@ contract Starklane is
     function isEnabled() external view returns (bool) {
         return _enabled;
     }
-
-    function setL1L2CollectionMapping(address collectionL1, snaddress collectionL2, bool force) external onlyOwner {
+    
+    function setL1L2CollectionMapping(
+        address collectionL1,
+        snaddress collectionL2,
+        bool force
+    ) external onlyOwner {
+          if (collectionL1 == address(0x0)) {
+              revert InvalidL1AddressError();
+            }
+          if (snaddress.unwrap(collectionL2) == 0x0) {
+               revert InvalidL2AddressError();
+            }
         _setL1L2AddressMapping(collectionL1, collectionL2, force);
         emit L1L2CollectionMappingUpdated(collectionL1, snaddress.unwrap(collectionL2));
     }
