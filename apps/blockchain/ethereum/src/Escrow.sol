@@ -16,6 +16,9 @@ contract StarklaneEscrow is Context {
     // Mapping (collectionAddres => (tokenId => depositor)).
     mapping(address => mapping(uint256 => address)) _escrow;
 
+    // Storage gaps
+    uint256[50] private __gap;
+
     /**
        @notice Deposits the given tokens into escrow.
 

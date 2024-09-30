@@ -33,6 +33,9 @@ contract StarklaneMessaging is Ownable {
     // The mapping mimics the Starknet messaging with a ref count like status.
     mapping(bytes32 => uint256) _autoWithdrawn;
 
+    // Storage gaps
+    uint256[50] private __gap;
+
     /**
      */
     event MessageHashAutoWithdrawAdded(bytes32 msgHash);

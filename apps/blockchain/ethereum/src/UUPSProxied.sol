@@ -15,6 +15,9 @@ contract UUPSOwnableProxied is Ownable, UUPSUpgradeable {
 
     // Mapping for implementations initialization.
     mapping(address implementation => bool initialized) _initializedImpls;
+  
+    // Storage gaps
+    uint256[50] private __gap;
 
     // onlyInit
     modifier onlyInit() {
@@ -56,4 +59,3 @@ contract UUPSOwnableProxied is Ownable, UUPSUpgradeable {
             revert NotPayableError();
         }
 }
-

@@ -23,6 +23,9 @@ contract CollectionManager {
     // Mapping between L1<->L2 contracts addresses.
     mapping(address => snaddress) _l1ToL2Addresses;
 
+    // Storage gaps
+    uint256[50] private __gap;
+
     /**
        @notice A collection has been deployed due to the
        first token being bridged from L2.
@@ -165,4 +168,3 @@ contract CollectionManager {
     }
 
 }
-

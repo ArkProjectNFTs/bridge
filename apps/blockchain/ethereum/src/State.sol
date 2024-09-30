@@ -20,6 +20,9 @@ contract StarklaneState is Ownable {
 
     // Bridge L2 selector to deposit token from L1.
     felt252 _starklaneL2Selector;
+    
+    // Storage gaps
+    uint256[50] private __gap;
 
     /**
        @notice Retrieves info about Starklane L2 mapping.
