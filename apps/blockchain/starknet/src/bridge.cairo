@@ -160,6 +160,9 @@ mod bridge {
             if is_escrowed {
                 IERC721Dispatcher { contract_address: collection_l2 }
                 .transfer_from(from, to, token_id);
+
+           let null_value = starknet::contract_address_const::<0>();
+           self.escrow.write((collection_l2, token_id), null_value);
             } else {
                 if (req.uris.len() != 0) {
                     let token_uri = req.uris[i];
