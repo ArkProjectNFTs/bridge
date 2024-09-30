@@ -540,6 +540,7 @@ mod bridge {
                         self.white_listed_list.write(prev, (active, target));
                         break;
                     }
+                    prev = next;
                 };
                 self.white_listed_list.write(collection, (false, no_value));
             }
