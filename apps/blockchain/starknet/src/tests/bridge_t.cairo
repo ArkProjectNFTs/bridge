@@ -273,7 +273,8 @@ mod tests {
         req.ids = ids;
         let mut buf = array![];
         req.serialize(ref buf);
-        
+        //get mapping value before withdrawal 
+
         let mut l1_handler = L1Handler {
             contract_address: bridge_address,
             // selector: 0x03593216f3a8b22f4cf375e5486e3d13bfde9d0f26976d20ac6f653c73f7e507,
@@ -286,7 +287,6 @@ mod tests {
         l1_handler.execute().unwrap();
         let bridge = IStarklaneDispatcher { contract_address: bridge_address };
 
-        // Deserialize the request and check some expected values.
         let mut sp = buf.span();
         let req = Serde::<Request>::deserialize(ref sp).unwrap();
 
@@ -297,7 +297,8 @@ mod tests {
 
         assert!(erc721.owner_of(0) == OWNER_L2, "Wrong owner after req");
         assert!(erc721.owner_of(1) == OWNER_L2, "Wrong owner after req");
-
+        //get mapping value after withdrawal , then compare to see if it has been cleared
+        
         spy.assert_emitted(@array![
             (
                 bridge_address,
@@ -1214,4 +1215,80 @@ mod tests {
         assert_eq!(bridge.get_l1_collection_address(erc721b_address), collection_l1);
         assert_eq!(bridge.get_l2_collection_address(collection_l1), erc721b_address);
     }
+
+    #[test]
+fn test_escrow_clearing_after_withdrawal() {
+    // Setup
+    let erc721b_contract_class = declare("erc721_bridgeable");
+    let BRIDGE_ADMIN = starknet::contract_address_const::<'starklane'>();
+    let BRIDGE_L1 = EthAddress { address: 'starklane_l1' };
+    let COLLECTION_OWNER = starknet::contract_address_const::<'collection owner'>();
+    let OWNER_L1 = EthAddress { address: 'owner_l1' };
+    let OWNER_L2 = starknet::contract_address_const::<'owner_l2'>();
+
+    // Deploy bridge and ERC721 contract
+    let bridge_address = deploy_starklane(BRIDGE_ADMIN, BRIDGE_L1, erc721b_contract_class.class_hash);
+    let erc721b_address = deploy_erc721b(
+        erc721b_contract_class,
+        "TestToken",
+        "TT",
+        bridge_address,
+        COLLECTION_OWNER
+    );
+
+    let bridge = IStarklaneDispatcher { contract_address: bridge_address };
+    let erc721 = IERC721Dispatcher { contract_address: erc721b_address };
+
+    // Mint a token and deposit it to the bridge
+    mint_range(erc721b_address, COLLECTION_OWNER, COLLECTION_OWNER, 0, 1);
+    start_prank(CheatTarget::One(erc721b_address), COLLECTION_OWNER);
+    erc721.set_approval_for_all(bridge_address, true);
+    stop_prank(CheatTarget::One(erc721b_address));
+
+    start_prank(CheatTarget::One(bridge_address), COLLECTION_OWNER);
+    bridge.deposit_tokens(
+        0x123,
+        erc721b_address,
+        OWNER_L1,
+        array![0].span(),
+        false,
+        false
+    );
+    stop_prank(CheatTarget::One(bridge_address));
+
+    // Verify token is in escrow
+    assert_eq!(erc721.owner_of(0), bridge_address, "Token should be in escrow");
+
+    // Prepare withdrawal request
+    let collection_l1: EthAddress = 0xe0c.try_into().unwrap();
+    let mut req = setup_request(
+        collection_l1,
+        erc721b_address,
+        OWNER_L1,
+        OWNER_L2,
+        "TestToken",
+        "TT",
+        "base_uri"
+    );
+    req.ids = array![0].span();
+    let mut buf = array![];
+    req.serialize(ref buf);
+
+    // Execute withdrawal
+    let mut l1_handler = L1Handler {
+        contract_address: bridge_address,
+        function_selector: selector!("withdraw_auto_from_l1"),
+        from_address: BRIDGE_L1.into(),
+        payload: buf.span()
+    };
+    l1_handler.execute().unwrap();
+
+    // Verify token is transferred to OWNER_L2
+    assert_eq!(erc721.owner_of(0), OWNER_L2, "Token should be transferred to OWNER_L2");
+
+    // Verify escrow is cleared
+    let is_escrowed = bridge.is_token_escrowed(erc721b_address, 0);
+    assert!(!is_escrowed, "Escrow should be cleared after withdrawal");
+}
+
 }

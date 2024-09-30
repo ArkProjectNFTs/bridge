@@ -370,6 +370,10 @@ mod bridge {
             self.l2_to_l1_addresses.write(collection_l2, collection_l1);
             self.emit(L1L2CollectionMappingUpdated { collection_l1, collection_l2 });
         }
+
+        fn is_token_escrowed(ref self: ContractState, collection: ContractAddress, token_id: u256) -> bool {
+            !self.escrow.read((collection, token_id)).is_zero()
+        }      
     }
 
     #[abi(embed_v0)]

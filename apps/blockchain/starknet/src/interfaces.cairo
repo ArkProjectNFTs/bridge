@@ -34,6 +34,7 @@ trait IStarklane<T> {
     fn is_enabled(self: @T) -> bool;
 
     fn set_l1_l2_collection_mapping(ref self: T , collection_l1: EthAddress, collection_l2: ContractAddress);
+    fn is_token_escrowed(ref self: T, collection: ContractAddress, token_id: u256) -> bool;
 }
 
 /// Upgradeable contract.
