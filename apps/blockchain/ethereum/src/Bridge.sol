@@ -22,7 +22,6 @@ error NotWhiteListedError();
 error BridgeNotEnabledError();
 error TooManyTokensError();
 error MinimumGasFeeError();
-error NotbridgeInitializerError();
 error InvalidL1AddressError();
 error InvalidL2AddressError();
 
