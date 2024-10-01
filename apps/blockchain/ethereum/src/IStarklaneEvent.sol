@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: MIT
-
 pragma solidity ^0.8.0;
 
 interface IStarklaneEvent {
-
     /**
        @notice Request initiated on L1.
     */
@@ -59,5 +57,12 @@ interface IStarklaneEvent {
     event L1L2CollectionMappingUpdated(
         address indexed colllectionL1,
         uint256 indexed collectionL2
+    );
+
+    /**
+        @notice Minimum gas fee updated
+     */
+    event MinimumGasFeeUpdated(
+        uint256 indexed gasFee
     );
 }

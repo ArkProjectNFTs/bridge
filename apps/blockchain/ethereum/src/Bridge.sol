@@ -21,6 +21,7 @@ error CollectionMappingError();
 error NotWhiteListedError();
 error BridgeNotEnabledError();
 error TooManyTokensError();
+error MinimumGasFeeError();
 error InvalidL1AddressError();
 error InvalidL2AddressError();
 
@@ -33,10 +34,11 @@ contract Starklane is IStarklaneEvent, UUPSOwnableProxied, StarklaneState, Stark
 
     // Mapping (collectionAddress => bool)
     mapping(address => bool) _whiteList;
+    // update the minimum gas fee
+    uint256 _minimumGasFee = 5e13; // 0.00005 ETH
     address[] _collections;
     bool _enabled;
     bool _whiteListEnabled;
-
 
     /**
        @notice Initializes the implementation, only callable once.
@@ -87,6 +89,9 @@ contract Starklane is IStarklaneEvent, UUPSOwnableProxied, StarklaneState, Stark
         external
         payable
     {
+        if (msg.value < _minimumGasFee) {
+            revert MinimumGasFeeError();
+        }
         if (!Cairo.isFelt252(snaddress.unwrap(ownerL2))) {
             revert CairoWrapError();
         }
@@ -267,6 +272,7 @@ contract Starklane is IStarklaneEvent, UUPSOwnableProxied, StarklaneState, Stark
         }
     }
 
+
     /**
         @notice Enable collection whitelist for deposit
 
@@ -287,7 +293,6 @@ contract Starklane is IStarklaneEvent, UUPSOwnableProxied, StarklaneState, Stark
         _whiteListCollection(collection, enable);
         emit CollectionWhiteListUpdated(collection, enable);
     }
-    
     
     /**
         @notice Check if white list is globally enabled
@@ -382,4 +387,12 @@ contract Starklane is IStarklaneEvent, UUPSOwnableProxied, StarklaneState, Stark
         emit L1L2CollectionMappingUpdated(collectionL1, snaddress.unwrap(collectionL2));
     }
 
+    function updateMinimumGasFee(uint256 newMinimumGasFee) external onlyOwner {
+        _minimumGasFee = newMinimumGasFee;
+        emit MinimumGasFeeUpdated(newMinimumGasFee);
+    }
+
+    function getMinimumGasFee() external view returns (uint256) {
+        return _minimumGasFee;
+    }
 }

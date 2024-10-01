@@ -1,9 +1,6 @@
 // SPDX-License-Identifier: MIT
-
 pragma solidity ^0.8.0;
-
 import "./sn/Cairo.sol";
-
 /**
  */
 interface IStarklane {
@@ -11,7 +8,6 @@ interface IStarklane {
        @notice Deposits token in escrow and initiates the
        transfer to Starknet. Will revert if any of the token is missing approval
        for the bridge as operator.
-
        @param salt A salt used to generate the request hash.
        @param collectionL1 Address of the collection contract.
        @param ownerL2 New owner address on Starknet.
@@ -30,7 +26,6 @@ interface IStarklane {
 
     /**
        @notice Withdraw tokens received from L2.
-
        @param request Serialized request containing the tokens to be withdrawed. 
     */
     function withdrawTokens(
@@ -53,7 +48,6 @@ interface IStarklane {
 
     /**
         @notice Cancel a given request.
-
         @param payload Request to cancel
         @param nonce Nonce used for request sending.
      */
@@ -65,7 +59,6 @@ interface IStarklane {
     /**
        @notice Adds the hash of a message that can be consumed with the auto
        method.
-
        @param msgHash Hash of the message to be considered as consumable.
     */
     function addMessageHashForAutoWithdraw(
@@ -82,7 +75,6 @@ interface IStarklane {
     
     /**
         @notice Enable whitelist for deposit
-
         @param enable enabled if true
      */
     function enableWhiteList(
@@ -91,7 +83,6 @@ interface IStarklane {
 
     /**
         @notice Update whitelist status for given collection
-
         @param collection Collection address
         @param enable white list is enabled if true
      */
@@ -117,7 +108,6 @@ interface IStarklane {
 
     /**
         @notice Enable bridge
-
         @param enable enabled if true
      */
     function enableBridge(
@@ -141,4 +131,15 @@ interface IStarklane {
         bool force
     ) external;
 
+    /**
+     * @param newMinimumGasFee New minimum gas fee
+     */
+    function updateMinimumGasFee(
+        uint256 newMinimumGasFee
+    ) external;
+
+    /**
+     * @return Minimum gas fee
+     */
+    function getMinimumGasFee() external view returns (uint256);
 }
