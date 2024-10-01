@@ -252,16 +252,13 @@ contract Starklane is IStarklaneEvent, UUPSOwnableProxied, StarklaneState, Stark
         uint256[] memory payload,
         uint256 nonce
     ) external {
-        Request memory req = Protocol.requestDeserialize(payload, 0);
-        if (msg.sender != req.ownerL1) {
-            revert NotbridgeInitializerError();
-        }
         IStarknetMessaging(_starknetCoreAddress).cancelL1ToL2Message(
             snaddress.unwrap(_starklaneL2Address), 
             felt252.unwrap(_starklaneL2Selector), 
             payload,
             nonce
         );
+        Request memory req = Protocol.requestDeserialize(payload, 0);
         _cancelRequest(req);
         emit CancelRequestCompleted(req.hash, block.timestamp);
     }
@@ -275,6 +272,7 @@ contract Starklane is IStarklaneEvent, UUPSOwnableProxied, StarklaneState, Stark
              _withdrawFromEscrow(ctype, collectionL1, req.ownerL1, id);
         }
     }
+
 
     /**
         @notice Enable collection whitelist for deposit
