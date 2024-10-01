@@ -3,6 +3,8 @@
 pragma solidity ^0.8.0;
 
 import "openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Proxy.sol";
+import "openzeppelin-contracts/contracts/utils/Create2.sol";
+import "openzeppelin-contracts/contracts/utils/Address.sol";
 
 import "./ERC721Bridgeable.sol";
 import "./ERC1155Bridgeable.sol";
@@ -10,8 +12,10 @@ import "./ERC1155Bridgeable.sol";
 /**
    @title Collection contract deployer.
 */
-library Deployer {
+ library Deployer {
 
+    // Error message
+    error AlreadyDeployed();
     /**
        @notice Deploys a UUPS proxied ERC721 contract.
 
@@ -20,6 +24,7 @@ library Deployer {
 
        @return Address of the proxy.
     */
+ 
     function deployERC721Bridgeable(
         string memory name,
         string memory symbol
@@ -27,7 +32,16 @@ library Deployer {
         public
         returns (address)
     {
-        address impl = address(new ERC721Bridgeable());
+        bytes32 salt = keccak256(abi.encodePacked(name, symbol));
+        bytes memory bytecode = type(ERC721Bridgeable).creationCode;
+        address precomputedImpl = Create2.computeAddress(salt, keccak256(bytecode));
+
+        if (Address.isContract(precomputedImpl)) {
+            revert AlreadyDeployed();
+        }
+
+        address impl = address(new ERC721Bridgeable{salt: salt}());
+        
         
         bytes memory dataInit = abi.encodeWithSelector(
             ERC721Bridgeable.initialize.selector,
@@ -50,7 +64,15 @@ library Deployer {
         public
         returns (address)
     {
-        address impl = address(new ERC1155Bridgeable());
+        bytes32 salt = keccak256(abi.encodePacked(uri));
+        bytes memory bytecode = type(ERC721Bridgeable).creationCode;
+        address precomputedImpl = Create2.computeAddress(salt, keccak256(bytecode));
+
+        if (Address.isContract(precomputedImpl)) {
+            revert AlreadyDeployed();
+        }
+        address impl = address(new ERC1155Bridgeable{salt: salt}());
+   
         
         bytes memory dataInit = abi.encodeWithSelector(
             ERC1155Bridgeable.initialize.selector,
@@ -59,4 +81,7 @@ library Deployer {
 
         return address(new ERC1967Proxy(impl, dataInit));
     }
+
+
+
 }
