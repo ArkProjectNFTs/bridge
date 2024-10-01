@@ -368,6 +368,7 @@ contract BridgeTest is Test, IStarklaneEvent {
         address collection = IStarklane(bridge).withdrawTokens(reqSerialized);
 
        // TODO: add verification of event emission.
+    }
 
 assertEq(IERC721(collection).ownerOf(888), bob);
 
@@ -684,4 +685,5 @@ function test_SetL1L2CollectionMappingWith_InvalidUnwrappedL2Address() public {
     snaddress invalidCollectionL2 = Cairo.snaddressWrap(0x0); 
     vm.expectRevert(InvalidL2AddressError.selector);
     IStarklane(bridge).setL1L2CollectionMapping(collectionL1, invalidCollectionL2, false);
+  }
 }
