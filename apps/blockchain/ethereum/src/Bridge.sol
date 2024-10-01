@@ -231,17 +231,14 @@ contract Starklane is IStarklaneEvent, UUPSOwnableProxied, StarklaneState, Stark
     function startRequestCancellation(
         uint256[] memory payload,
         uint256 nonce
-    ) external {
-        Request memory req = Protocol.requestDeserialize(payload, 0);
-        if (msg.sender != req.ownerL1) {
-            revert NotbridgeInitializerError();
-        }
+    ) external onlyOwner {
         IStarknetMessaging(_starknetCoreAddress).startL1ToL2MessageCancellation(
             snaddress.unwrap(_starklaneL2Address), 
             felt252.unwrap(_starklaneL2Selector), 
             payload,
             nonce
         );
+        Request memory req = Protocol.requestDeserialize(payload, 0);
         emit CancelRequestStarted(req.hash, block.timestamp);
     }
 
