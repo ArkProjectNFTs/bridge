@@ -694,74 +694,142 @@ mod tests {
         let collection1 = starknet::contract_address_const::<'collection1'>();
         let collection2 = starknet::contract_address_const::<'collection2'>();
         let collection3 = starknet::contract_address_const::<'collection3'>();
-
+        let collection4 = starknet::contract_address_const::<'collection4'>();
+        let collection5 = starknet::contract_address_const::<'collection5'>();
+  
         start_prank(CheatTarget::One(bridge_address), BRIDGE_ADMIN);
         bridge.white_list_collection(collection1, true);
         bridge.white_list_collection(collection2, true);
         bridge.white_list_collection(collection3, true);
+        bridge.white_list_collection(collection4, true);
+        bridge.white_list_collection(collection5, true);
         stop_prank(CheatTarget::One(bridge_address));
         
         let white_listed = bridge.get_white_listed_collections();
-        assert_eq!(white_listed.len(), 3, "White list shall contain 3 elements");
+        assert_eq!(white_listed.len(), 5, "White list shall contain 5 elements");
         assert_eq!(*white_listed.at(0), collection1, "Wrong collection address in white list");
         assert_eq!(*white_listed.at(1), collection2, "Wrong collection address in white list");
         assert_eq!(*white_listed.at(2), collection3, "Wrong collection address in white list");
+        assert_eq!(*white_listed.at(3), collection4, "Wrong collection address in white list");
+        assert_eq!(*white_listed.at(4), collection5, "Wrong collection address in white list");
         assert!(bridge.is_white_listed(collection1), "Collection1 should be whitelisted");
         assert!(bridge.is_white_listed(collection2), "Collection1 should be whitelisted");
         assert!(bridge.is_white_listed(collection3), "Collection1 should be whitelisted");
+        assert!(bridge.is_white_listed(collection4), "Collection1 should be whitelisted");
+        assert!(bridge.is_white_listed(collection5), "Collection1 should be whitelisted");
+
+        let mut spy = spy_events(SpyOn::One(bridge_address));
 
         start_prank(CheatTarget::One(bridge_address), BRIDGE_ADMIN);
-        bridge.white_list_collection(collection2, false);
-        stop_prank(CheatTarget::One(bridge_address));
-        let white_listed = bridge.get_white_listed_collections();
-        assert_eq!(white_listed.len(), 2, "White list shall contain 2 elements");
-        assert_eq!(*white_listed.at(0), collection1, "Wrong collection address in white list");
-        assert_eq!(*white_listed.at(1), collection3, "Wrong collection address in white list");
-        assert!(bridge.is_white_listed(collection1), "Collection1 should be whitelisted");
-        assert!(!bridge.is_white_listed(collection2), "Collection1 should not be whitelisted");
-        assert!(bridge.is_white_listed(collection3), "Collection1 should be whitelisted");
-
-        start_prank(CheatTarget::One(bridge_address), BRIDGE_ADMIN);
-        bridge.white_list_collection(collection1, false);
         bridge.white_list_collection(collection3, false);
         stop_prank(CheatTarget::One(bridge_address));
         let white_listed = bridge.get_white_listed_collections();
-        assert!(white_listed.is_empty(), "White list shall be empty");
-        assert!(!bridge.is_white_listed(collection1), "Collection1 should not be whitelisted");
-        assert!(!bridge.is_white_listed(collection2), "Collection1 should not be whitelisted");
+        assert_eq!(white_listed.len(), 4, "White list shall contain 4 elements");
+        assert_eq!(*white_listed.at(0), collection1, "Wrong collection address in white list");
+        assert_eq!(*white_listed.at(1), collection2, "Wrong collection address in white list");
+        assert_eq!(*white_listed.at(2), collection4, "Wrong collection address in white list");
+        assert_eq!(*white_listed.at(3), collection5, "Wrong collection address in white list");
+        assert!(bridge.is_white_listed(collection1), "Collection1 should be whitelisted");
+        assert!(bridge.is_white_listed(collection2), "Collection1 should be whitelisted");
         assert!(!bridge.is_white_listed(collection3), "Collection1 should not be whitelisted");
+        assert!(bridge.is_white_listed(collection4), "Collection1 should be whitelisted");
+        assert!(bridge.is_white_listed(collection5), "Collection1 should be whitelisted");
+        
+        spy.assert_emitted(@array![
+            (
+                bridge_address,
+                bridge::Event::CollectionWhiteListUpdated(
+                    bridge::CollectionWhiteListUpdated {
+                        collection: collection3,
+                        enabled: false,
+                    }
+                )
+            )
+        ]);
 
         start_prank(CheatTarget::One(bridge_address), BRIDGE_ADMIN);
-        bridge.white_list_collection(collection1, true);
+        bridge.white_list_collection(collection1, false);
+        bridge.white_list_collection(collection4, false);
+        stop_prank(CheatTarget::One(bridge_address));
+
+        let white_listed = bridge.get_white_listed_collections();
+        assert_eq!(white_listed.len(), 2, "White list shall contain 2 elements");
+        assert_eq!(*white_listed.at(0), collection2, "Wrong collection address in white list");
+        assert_eq!(*white_listed.at(1), collection5, "Wrong collection address in white list");
+        assert!(!bridge.is_white_listed(collection1), "Collection1 should not be whitelisted");
+        assert!(!bridge.is_white_listed(collection4), "Collection1 should not be whitelisted");
+
+        spy.assert_emitted(@array![
+            (
+                bridge_address,
+                bridge::Event::CollectionWhiteListUpdated(
+                    bridge::CollectionWhiteListUpdated {
+                        collection: collection1,
+                        enabled: false,
+                    }
+                )
+            ),
+            (
+                bridge_address,
+                bridge::Event::CollectionWhiteListUpdated(
+                    bridge::CollectionWhiteListUpdated {
+                        collection: collection4,
+                        enabled: false,
+                    }
+                )
+            )
+        ]);
+
+        start_prank(CheatTarget::One(bridge_address), BRIDGE_ADMIN);
         bridge.white_list_collection(collection3, true);
+        bridge.white_list_collection(collection2, false);
         stop_prank(CheatTarget::One(bridge_address));
         
         let white_listed = bridge.get_white_listed_collections();
         assert_eq!(white_listed.len(), 2, "White list shall contain 2 elements");
-        assert_eq!(*white_listed.at(0), collection1, "Wrong collection address in white list");
+        assert_eq!(*white_listed.at(0), collection5, "Wrong collection address in white list");
         assert_eq!(*white_listed.at(1), collection3, "Wrong collection address in white list");
-        assert!(bridge.is_white_listed(collection1), "Collection1 should be whitelisted");
+        assert!(bridge.is_white_listed(collection5), "Collection1 should be whitelisted");
         assert!(!bridge.is_white_listed(collection2), "Collection1 should not be whitelisted");
         assert!(bridge.is_white_listed(collection3), "Collection1 should be whitelisted");
 
+        spy.assert_emitted(@array![
+            (
+                bridge_address,
+                bridge::Event::CollectionWhiteListUpdated(
+                    bridge::CollectionWhiteListUpdated {
+                        collection: collection3,
+                        enabled: true,
+                    }
+                )
+            ),
+            (
+                bridge_address,
+                bridge::Event::CollectionWhiteListUpdated(
+                    bridge::CollectionWhiteListUpdated {
+                        collection: collection2,
+                        enabled: false,
+                    }
+                )
+            )
+        ]);
+
         start_prank(CheatTarget::One(bridge_address), BRIDGE_ADMIN);
-        bridge.white_list_collection(collection1, false);
+        bridge.white_list_collection(collection3, false);
         bridge.white_list_collection(collection2, true);
         stop_prank(CheatTarget::One(bridge_address));
         
         let white_listed = bridge.get_white_listed_collections();
         assert_eq!(white_listed.len(), 2, "White list shall contain 2 elements");
-        assert_eq!(*white_listed.at(0), collection3, "Wrong collection address in white list");
+        assert_eq!(*white_listed.at(0), collection5, "Wrong collection address in white list");
         assert_eq!(*white_listed.at(1), collection2, "Wrong collection address in white list");
-        assert!(!bridge.is_white_listed(collection1), "Collection1 should not be whitelisted");
+        assert!(!bridge.is_white_listed(collection3), "Collection1 should not be whitelisted");
         assert!(bridge.is_white_listed(collection2), "Collection1 should be whitelisted");
-        assert!(bridge.is_white_listed(collection3), "Collection1 should be whitelisted");
+        assert!(bridge.is_white_listed(collection5), "Collection1 should be whitelisted");
 
         start_prank(CheatTarget::One(bridge_address), BRIDGE_ADMIN);
+        bridge.white_list_collection(collection5, false);
         bridge.white_list_collection(collection2, false);
-        bridge.white_list_collection(collection3, false);
-        bridge.white_list_collection(collection1, false);
-        bridge.white_list_collection(collection1, false);
         stop_prank(CheatTarget::One(bridge_address));
         
         let white_listed = bridge.get_white_listed_collections();
@@ -769,6 +837,8 @@ mod tests {
         assert!(!bridge.is_white_listed(collection1), "Collection1 should not be whitelisted");
         assert!(!bridge.is_white_listed(collection2), "Collection1 should not be whitelisted");
         assert!(!bridge.is_white_listed(collection3), "Collection1 should not be whitelisted");
+        assert!(!bridge.is_white_listed(collection4), "Collection1 should not be whitelisted");
+        assert!(!bridge.is_white_listed(collection5), "Collection1 should not be whitelisted");
     }
 
     #[test]
