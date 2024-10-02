@@ -13,10 +13,9 @@ import "./token/ERC721MintFree.sol";
 import "./token/IERC721MintRangeFree.sol";
 
 /**
-   @title Escrow testing.
-*/
+ * @title Escrow testing.
+ */
 contract EscrowTest is Test {
-
     EscrowPublic escrow;
     address erc721;
 
@@ -76,32 +75,20 @@ contract EscrowTest is Test {
 }
 
 /**
-   @title Escrow interface exposed for test.
+ * @title Escrow interface exposed for test.
  */
 contract EscrowPublic is StarklaneEscrow {
-
     /**
-       @notice test _depositIntoEscrow.
-    */
-    function depositIntoEscrow(
-        CollectionType collectionType,
-        address collection,
-        uint256[] memory ids
-    )
-        public
-    {
+     * @notice test _depositIntoEscrow.
+     */
+    function depositIntoEscrow(CollectionType collectionType, address collection, uint256[] memory ids) public {
         _depositIntoEscrow(collectionType, collection, ids);
     }
 
     /**
-       @notice test _withdrawFromEscrow.
-    */
-    function withdrawFromEscrow(
-        CollectionType collectionType,
-        address collection,
-        address to,
-        uint256 id
-    )
+     * @notice test _withdrawFromEscrow.
+     */
+    function withdrawFromEscrow(CollectionType collectionType, address collection, address to, uint256 id)
         public
         returns (bool)
     {
