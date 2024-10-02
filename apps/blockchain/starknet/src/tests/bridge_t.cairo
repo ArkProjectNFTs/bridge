@@ -697,7 +697,6 @@ mod tests {
         let collection4 = starknet::contract_address_const::<'collection4'>();
         let collection5 = starknet::contract_address_const::<'collection5'>();
   
-        let mut spy = spy_events(SpyOn::One(bridge_address));
         start_prank(CheatTarget::One(bridge_address), BRIDGE_ADMIN);
         bridge.white_list_collection(collection1, true);
         bridge.white_list_collection(collection2, true);
@@ -719,6 +718,8 @@ mod tests {
         assert!(bridge.is_white_listed(collection4), "Collection1 should be whitelisted");
         assert!(bridge.is_white_listed(collection5), "Collection1 should be whitelisted");
 
+        let mut spy = spy_events(SpyOn::One(bridge_address));
+
         start_prank(CheatTarget::One(bridge_address), BRIDGE_ADMIN);
         bridge.white_list_collection(collection3, false);
         stop_prank(CheatTarget::One(bridge_address));
@@ -733,6 +734,7 @@ mod tests {
         assert!(!bridge.is_white_listed(collection3), "Collection1 should not be whitelisted");
         assert!(bridge.is_white_listed(collection4), "Collection1 should be whitelisted");
         assert!(bridge.is_white_listed(collection5), "Collection1 should be whitelisted");
+        
         spy.assert_emitted(@array![
             (
                 bridge_address,
