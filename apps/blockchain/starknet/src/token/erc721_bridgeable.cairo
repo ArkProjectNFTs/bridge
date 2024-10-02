@@ -301,6 +301,39 @@ mod tests {
         assert_eq!(erc721.token_uri(0), "myuri", "bad uri");
     }
 
+ /// Should burn token from bridge call.
+    #[test]
+    fn burn_from_bridge() {
+        let BRIDGE = bridge_addr_mock();
+
+        let DUO_OWNER = starknet::contract_address_const::<128>();
+
+        let contract_address = deploy_everai_collection();
+
+        let erc721b = IERC721BridgeableDispatcher { contract_address };
+
+        // Mint a token first to be able to burn it later
+        start_prank(CheatTarget::One(contract_address), BRIDGE);
+        erc721b.mint_from_bridge(DUO_OWNER, 42_u256);
+        stop_prank(CheatTarget::One(contract_address));
+
+        // Check that the owner is set correctly after minting
+        let erc721 = IERC721Dispatcher { contract_address };
+        assert!(erc721.owner_of(42_u256) == DUO_OWNER, "bad owner after mint");
+
+        // Burn the token
+        start_prank(CheatTarget::One(contract_address), BRIDGE);
+        erc721b.burn(42_u256);
+        stop_prank(CheatTarget::One(contract_address));
+
+        // balance_of
+         start_prank(CheatTarget::One(contract_address), BRIDGE);
+       let balance = erc721.balance_of(BRIDGE);
+       assert(balance == 0, 'token was not burn');
+        stop_prank(CheatTarget::One(contract_address));
+
+    }
+
     /// Should not mint token if not bridge.
     #[test]
     #[should_panic(expected: ('ERC721: only bridge can mint', ))]

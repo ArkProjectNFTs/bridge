@@ -7,7 +7,7 @@ trait IERC721<T> {
     fn owner_of(self: @T, token_id: u256) -> ContractAddress;
     fn token_uri(self: @T, token_id: u256) -> ByteArray;
     fn is_approved_for_all(self: @T, owner: ContractAddress, operator: ContractAddress) -> bool;
-
+    fn balance_of(self: @T, owner: ContractAddress) -> u256;
     fn set_approval_for_all(ref self: T, operator: ContractAddress, approved: bool);
     fn transfer_from(ref self: T, from: ContractAddress, to: ContractAddress, token_id: u256);
     fn approve(ref self: T, to: ContractAddress, token_id: u256);
@@ -31,9 +31,8 @@ trait IERC721Mintable<T> {
 #[starknet::interface]
 trait IERC721Bridgeable<T> {
     fn burn(ref self: T, token_id: u256);
-    
+
     fn mint_from_bridge(ref self: T, to: ContractAddress, token_id: u256);
 
     fn mint_from_bridge_uri(ref self: T, to: ContractAddress, token_id: u256, token_uri: ByteArray);
-
 }
