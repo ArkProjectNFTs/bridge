@@ -5,13 +5,11 @@ import "forge-std/Test.sol";
 import "../src/sn/Cairo.sol";
 
 /**
-   @title Cairo testing.
-*/
+ * @title Cairo testing.
+ */
 contract CairoTest is Test {
-
     //
-    function setUp() public {
-    }
+    function setUp() public {}
 
     //
     function test_isFelt252() public {
@@ -21,7 +19,7 @@ contract CairoTest is Test {
     }
 
     //
-    function test_felt252Wrap() public  {
+    function test_felt252Wrap() public {
         felt252 f = Cairo.felt252Wrap(1);
         uint256 v = 1;
         assertTrue(felt252.unwrap(f) == v);
@@ -31,7 +29,7 @@ contract CairoTest is Test {
     }
 
     //
-    function test_snaddressWrap() public  {
+    function test_snaddressWrap() public {
         snaddress a = Cairo.snaddressWrap(1);
         uint256 v = 1;
         assertTrue(snaddress.unwrap(a) == v);
@@ -112,14 +110,10 @@ contract CairoTest is Test {
     function test_cairoStringSerializedLength() public {
         assertEq(Cairo.cairoStringSerializedLength(""), 3);
         assertEq(Cairo.cairoStringSerializedLength("ABCD"), 3);
-        assertEq(
-            Cairo.cairoStringSerializedLength(
-                "ABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890abcdefg"),
-            4);
+        assertEq(Cairo.cairoStringSerializedLength("ABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890abcdefg"), 4);
     }
 
     //
-
     function test_cairoAddressArrayDeserialize() public {
         uint256[] memory buf1 = new uint256[](1);
         uint256[] memory buf2 = new uint256[](3);
@@ -127,9 +121,9 @@ contract CairoTest is Test {
         buf1[0] = 0;
         (uint256 newOffset1, address[] memory result1) = Cairo.cairoAddressArrayDeserialize(buf1, 0);
         assertEq(result1.length, 0);
-        assertEq(newOffset1, 1); 
+        assertEq(newOffset1, 1);
 
-        buf2[0] = 2; 
+        buf2[0] = 2;
         buf2[1] = uint160(address(0x1234567890AbcdEF1234567890aBcdef12345678));
         buf2[2] = uint160(address(0xABcdEFABcdEFabcdEfAbCdefabcdeFABcDEFabCD));
 
@@ -139,14 +133,13 @@ contract CairoTest is Test {
         assertEq(result2[1], address(0xABcdEFABcdEFabcdEfAbCdefabcdeFABcDEFabCD));
         assertEq(newOffset2, 3);
 
-        buf3[0] = 1; 
+        buf3[0] = 1;
         buf3[1] = uint160(address(0xDeaDbeefdEAdbeefdEadbEEFdeadbeEFdEaDbeeF));
 
         (uint256 newOffset3, address[] memory result3) = Cairo.cairoAddressArrayDeserialize(buf3, 0);
         assertEq(result3.length, 1);
         assertEq(result3[0], address(0xDeaDbeefdEAdbeefdEadbEEFdeadbeEFdEaDbeeF));
-        assertEq(newOffset3, 2); 
-        
+        assertEq(newOffset3, 2);
     }
 
     //
@@ -158,9 +151,9 @@ contract CairoTest is Test {
         uint256[] memory buf1 = new uint256[](3);
         uint256 offset1 = Cairo.addressArraySerialize(arr1, buf1, 0);
 
-        assertEq(buf1[0], 2); 
-        assertEq(buf1[1], uint160(address(0x1234567890AbcdEF1234567890aBcdef12345678))); 
-        assertEq(buf1[2], uint160(address(0xABcdEFABcdEFabcdEfAbCdefabcdeFABcDEFabCD)));  
+        assertEq(buf1[0], 2);
+        assertEq(buf1[1], uint160(address(0x1234567890AbcdEF1234567890aBcdef12345678)));
+        assertEq(buf1[2], uint160(address(0xABcdEFABcdEFabcdEfAbCdefabcdeFABcDEFabCD)));
         assertEq(offset1, 3);
 
         address[] memory arr2 = new address[](1);
@@ -170,7 +163,7 @@ contract CairoTest is Test {
         uint256 offset2 = Cairo.addressArraySerialize(arr2, buf2, 0);
 
         assertEq(buf2[0], 1);
-        assertEq(buf2[1], uint160(address(0xDeaDbeefdEAdbeefdEadbEEFdeadbeEFdEaDbeeF))); 
+        assertEq(buf2[1], uint160(address(0xDeaDbeefdEAdbeefdEadbEEFdeadbeEFdEaDbeeF)));
         assertEq(offset2, 2);
 
         address[] memory arr3 = new address[](0);
@@ -181,9 +174,7 @@ contract CairoTest is Test {
 
         assertEq(buf3[0], 0);
         assertEq(offset3, 1);
-
     }
-
 
     //
     function test_cairoStringPack() public {
@@ -204,7 +195,6 @@ contract CairoTest is Test {
         assertEq(bufLong[2], 0x0035363738393061626364656667);
         assertEq(bufLong[3], 13);
         assertEq(bufLong.length, 4);
-
     }
 
     //
@@ -233,9 +223,7 @@ contract CairoTest is Test {
         offset += Cairo.cairoStringSerialize("ABCD", buf, offset);
         assertEq(offset, 3);
         assertEq(buf[0], 0);
-        assertEq(
-            buf[1],
-            0x0041424344);
+        assertEq(buf[1], 0x0041424344);
         assertEq(buf[2], 4);
     }
 
@@ -297,6 +285,4 @@ contract CairoTest is Test {
         assertEq(inc, 1);
         assertEq(strs.length, 0);
     }
-
 }
-
