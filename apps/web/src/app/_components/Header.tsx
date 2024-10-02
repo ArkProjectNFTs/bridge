@@ -12,7 +12,6 @@ import useNftSelection from "../(routes)/bridge/_hooks/useNftSelection";
 import useAccountFromChain from "../_hooks/useAccountFromChain";
 import useCurrentChain from "../_hooks/useCurrentChain";
 import useIsFullyConnected from "../_hooks/useIsFullyConnected";
-import Banner from "./Banner";
 import ConnectEthereumButton from "./ConnectEthereumButton";
 import ConnectStarkNetButton from "./ConnectStarkNetButton";
 import Logo from "./Logo";
@@ -91,7 +90,6 @@ export default function Header() {
 
   return (
     <header className="fixed z-20 w-full">
-      <Banner />
       <div className="flex h-23 w-full items-center justify-center bg-white p-6 dark:bg-void-black md:justify-between">
         <Link href="/">
           <Logo />
