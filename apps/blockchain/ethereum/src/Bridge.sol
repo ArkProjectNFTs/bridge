@@ -44,7 +44,7 @@ contract Starklane is
     bool _enabled;
     bool _whiteListEnabled;
 // updatable the minimum gas fee
-    uint256 _minimumGasFee = 5e13; // 0.00005 ETH
+    uint256 _minimumGasFee = 5e13;// 0.00005 ETH
 
     /**
      * @notice Initializes the implementation, only callable once.
