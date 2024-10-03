@@ -44,6 +44,8 @@ contract Starklane is
     bool _enabled;
     bool _whiteListEnabled;
 // updatable the minimum gas fee
+// Using an arbitrary gas value here for L1-L2 messaging fees, adjustable as network conditions evolve.
+// This value serves as a flexible baseline, allowing for real-time adjustments to reflect gas changes.
     uint256 _minimumGasFee = 5e13;// 0.00005 ETH
 
     /**
