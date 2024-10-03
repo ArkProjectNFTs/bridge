@@ -110,4 +110,16 @@ interface IStarklane {
      * @param force Force flag
      */
     function setL1L2CollectionMapping(address collectionL1, snaddress collectionL2, bool force) external;
+
+    /**
+     * @param newMinimumGasFee New minimum gas fee
+     */
+    function updateMinimumGasFee(
+        uint256 newMinimumGasFee
+    ) external;
+
+    /**
+     * @return Minimum gas fee
+     */
+    function getMinimumGasFee() external view returns (uint256);
 }
