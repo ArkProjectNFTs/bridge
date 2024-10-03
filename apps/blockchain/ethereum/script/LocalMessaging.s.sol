@@ -5,7 +5,6 @@ import "forge-std/Script.sol";
 
 import "./Utils.sol";
 
-
 import "src/sn/StarknetMessagingLocal.sol";
 
 contract LocalMessaging is Script {
@@ -13,7 +12,7 @@ contract LocalMessaging is Script {
 
     function run() public {
         Config memory config = Utils.loadConfig();
-        
+
         string memory json = "local_messaging";
         vm.startBroadcast(config.deployerPrivateKey);
 
