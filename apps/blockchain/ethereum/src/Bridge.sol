@@ -23,6 +23,7 @@ error BridgeNotEnabledError();
 error TooManyTokensError();
 error InvalidL1AddressError();
 error InvalidL2AddressError();
+error MinimumGasFeeError();
 
 uint256 constant MAX_PAYLOAD_LENGTH = 300;
 
@@ -49,8 +50,12 @@ contract Starklane is
      *    @param data Data to init the implementation.
      */
     function initialize(bytes calldata data) public onlyInit {
-        (address owner, IStarknetMessaging starknetCoreAddress, uint256 starklaneL2Address, uint256 starklaneL2Selector)
-        = abi.decode(data, (address, IStarknetMessaging, uint256, uint256));
+        (
+            address owner,
+            IStarknetMessaging starknetCoreAddress,
+            uint256 starklaneL2Address,
+            uint256 starklaneL2Selector
+        ) = abi.decode(data, (address, IStarknetMessaging, uint256, uint256));
         _enabled = false;
         _starknetCoreAddress = starknetCoreAddress;
 
@@ -77,6 +82,9 @@ contract Starklane is
         uint256[] calldata ids,
         bool useAutoBurn
     ) external payable {
+        if (msg.value < _minimumGasFee) {
+            revert MinimumGasFeeError();
+        }
         if (!Cairo.isFelt252(snaddress.unwrap(ownerL2))) {
             revert CairoWrapError();
         }
@@ -110,7 +118,8 @@ contract Starklane is
         req.ownerL2 = ownerL2;
 
         if (ctype == CollectionType.ERC721) {
-            (req.name, req.symbol, req.uri, req.tokenURIs) = TokenUtil.erc721Metadata(collectionL1, ids);
+            (req.name, req.symbol, req.uri, req.tokenURIs) = TokenUtil
+                .erc721Metadata(collectionL1, ids);
         } else {
             (req.uri) = TokenUtil.erc1155Metadata(collectionL1);
         }
@@ -123,8 +132,12 @@ contract Starklane is
         if (payload.length >= MAX_PAYLOAD_LENGTH) {
             revert TooManyTokensError();
         }
-        IStarknetMessaging(_starknetCoreAddress).sendMessageToL2{value: msg.value}(
-            snaddress.unwrap(_starklaneL2Address), felt252.unwrap(_starklaneL2Selector), payload
+        IStarknetMessaging(_starknetCoreAddress).sendMessageToL2{
+            value: msg.value
+        }(
+            snaddress.unwrap(_starklaneL2Address),
+            felt252.unwrap(_starklaneL2Selector),
+            payload
         );
 
         emit DepositRequestInitiated(req.hash, block.timestamp, payload);
@@ -133,11 +146,13 @@ contract Starklane is
     /**
      * @notice Withdraw tokens received from L2.
      *
-     *    @param request Serialized request containing the tokens to be withdrawed. 
+     *    @param request Serialized request containing the tokens to be withdrawed.
      *
      *    @return Address of the collection targetted by the request (or newly deployed).
      */
-    function withdrawTokens(uint256[] calldata request) external payable returns (address) {
+    function withdrawTokens(
+        uint256[] calldata request
+    ) external payable returns (address) {
         if (!_enabled) {
             revert BridgeNotEnabledError();
         }
@@ -152,18 +167,30 @@ contract Starklane is
             // _consumeMessageAutoWithdraw(_starklaneL2Address, request);
             revert NotSupportedYetError();
         } else {
-            _consumeMessageStarknet(_starknetCoreAddress, _starklaneL2Address, request);
+            _consumeMessageStarknet(
+                _starknetCoreAddress,
+                _starklaneL2Address,
+                request
+            );
         }
 
         Request memory req = Protocol.requestDeserialize(request, 0);
 
-        address collectionL1 = _verifyRequestAddresses(req.collectionL1, req.collectionL2);
+        address collectionL1 = _verifyRequestAddresses(
+            req.collectionL1,
+            req.collectionL2
+        );
 
         CollectionType ctype = Protocol.collectionTypeFromHeader(header);
 
         if (collectionL1 == address(0x0)) {
             if (ctype == CollectionType.ERC721) {
-                collectionL1 = _deployERC721Bridgeable(req.name, req.symbol, req.collectionL2, req.hash);
+                collectionL1 = _deployERC721Bridgeable(
+                    req.name,
+                    req.symbol,
+                    req.collectionL2,
+                    req.hash
+                );
                 // update whitelist if needed
                 _whiteListCollection(collectionL1, true);
             } else {
@@ -174,7 +201,12 @@ contract Starklane is
         for (uint256 i = 0; i < req.tokenIds.length; i++) {
             uint256 id = req.tokenIds[i];
 
-            bool wasEscrowed = _withdrawFromEscrow(ctype, collectionL1, req.ownerL1, id);
+            bool wasEscrowed = _withdrawFromEscrow(
+                ctype,
+                collectionL1,
+                req.ownerL1,
+                id
+            );
 
             if (!wasEscrowed) {
                 // TODO: perhaps, implement the same interface for ERC721 and ERC1155
@@ -196,10 +228,16 @@ contract Starklane is
      *     @param payload Request to cancel
      *     @param nonce Nonce used for request sending.
      */
-    function startRequestCancellation(uint256[] memory payload, uint256 nonce) external onlyOwner {
+    function startRequestCancellation(
+        uint256[] memory payload,
+        uint256 nonce
+    ) external onlyOwner {
         IStarknetMessaging(_starknetCoreAddress).startL1ToL2MessageCancellation(
-            snaddress.unwrap(_starklaneL2Address), felt252.unwrap(_starklaneL2Selector), payload, nonce
-        );
+                snaddress.unwrap(_starklaneL2Address),
+                felt252.unwrap(_starklaneL2Selector),
+                payload,
+                nonce
+            );
         Request memory req = Protocol.requestDeserialize(payload, 0);
         emit CancelRequestStarted(req.hash, block.timestamp);
     }
@@ -212,7 +250,10 @@ contract Starklane is
      */
     function cancelRequest(uint256[] memory payload, uint256 nonce) external {
         IStarknetMessaging(_starknetCoreAddress).cancelL1ToL2Message(
-            snaddress.unwrap(_starklaneL2Address), felt252.unwrap(_starklaneL2Selector), payload, nonce
+            snaddress.unwrap(_starklaneL2Address),
+            felt252.unwrap(_starklaneL2Selector),
+            payload,
+            nonce
         );
         Request memory req = Protocol.requestDeserialize(payload, 0);
         _cancelRequest(req);
@@ -274,7 +315,11 @@ contract Starklane is
      *
      *     @return array of white listed collections
      */
-    function getWhiteListedCollections() external view returns (address[] memory) {
+    function getWhiteListedCollections()
+        external
+        view
+        returns (address[] memory)
+    {
         uint256 offset = 0;
         uint256 nbElem = _collections.length;
         // solidity doesn't support dynamic length array in memory
@@ -324,7 +369,11 @@ contract Starklane is
         return _enabled;
     }
 
-    function setL1L2CollectionMapping(address collectionL1, snaddress collectionL2, bool force) external onlyOwner {
+    function setL1L2CollectionMapping(
+        address collectionL1,
+        snaddress collectionL2,
+        bool force
+    ) external onlyOwner {
         if (collectionL1 == address(0x0)) {
             revert InvalidL1AddressError();
         }
@@ -332,6 +381,18 @@ contract Starklane is
             revert InvalidL2AddressError();
         }
         _setL1L2AddressMapping(collectionL1, collectionL2, force);
-        emit L1L2CollectionMappingUpdated(collectionL1, snaddress.unwrap(collectionL2));
+        emit L1L2CollectionMappingUpdated(
+            collectionL1,
+            snaddress.unwrap(collectionL2)
+        );
+    }
+
+    function updateMinimumGasFee(uint256 newMinimumGasFee) external onlyOwner {
+        _minimumGasFee = newMinimumGasFee;
+        emit MinimumGasFeeUpdated(newMinimumGasFee);
+    }
+
+    function getMinimumGasFee() external view returns (uint256) {
+        return _minimumGasFee;
     }
 }
