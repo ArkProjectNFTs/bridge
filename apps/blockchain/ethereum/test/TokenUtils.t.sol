@@ -5,30 +5,31 @@ import "forge-std/Test.sol";
 import "../src/token/TokenUtil.sol";
 
 interface IUnderscoreBaseUri {
-    function _baseUri() view external returns(string memory);
+    function _baseUri() external view returns (string memory);
 }
 
 interface IBaseUri {
-    function baseUri() view external returns(string memory);
+    function baseUri() external view returns (string memory);
 }
 
 contract WithUnderscoreBaseUri is IUnderscoreBaseUri {
-    function _baseUri() view external returns (string memory) {
+    function _baseUri() external view returns (string memory) {
         return "_baseURI here";
     }
 }
 
 contract WithBaseUri is IBaseUri {
-    function baseUri() view external returns (string memory) {
+    function baseUri() external view returns (string memory) {
         return "baseUri here";
     }
 }
 
 contract WithoutBaseUri {
-    function dummy() pure external returns (string memory) {
+    function dummy() external pure returns (string memory) {
         return "dummy";
     }
 }
+
 contract WithFallback {
     fallback() external payable {}
 }
@@ -40,7 +41,6 @@ contract WithInternaBaseUri {
 }
 
 contract TokenUtilTest is Test {
-
     function test_with_baseuri() public {
         bool success = false;
         string memory uri = "";
