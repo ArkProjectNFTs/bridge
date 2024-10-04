@@ -15,13 +15,12 @@ mod bridge {
     use starknet::eth_address::EthAddressZeroable;
 
     use openzeppelin::access::ownable::OwnableComponent;
-    use openzeppelin::access::ownable::interface::{
-        IOwnableDispatcher, IOwnableDispatcherTrait
-    };
+    use openzeppelin::access::ownable::interface::{IOwnableDispatcher, IOwnableDispatcherTrait};
 
-    use starklane::interfaces::{IStarklane, 
-        IUpgradeable, IUpgradeableDispatcher, IUpgradeableDispatcherTrait, 
-        IStarklaneCollectionAdmin};
+    use starklane::interfaces::{
+        IStarklane, IUpgradeable, IUpgradeableDispatcher, IUpgradeableDispatcherTrait,
+        IStarklaneCollectionAdmin
+    };
     // events
     use starklane::interfaces::{
         DepositRequestInitiated, WithdrawRequestCompleted, CollectionDeployedFromL1,
@@ -30,28 +29,26 @@ mod bridge {
     };
 
     use starklane::request::{
-        Request,
-        compute_request_header_v1,
-        compute_request_hash,
-        collection_type_from_header,
+        Request, compute_request_header_v1, compute_request_hash, collection_type_from_header,
     };
     use starklane::token::{
         interfaces::{
-            IERC721Dispatcher, IERC721DispatcherTrait,
-            IERC721BridgeableDispatcher, IERC721BridgeableDispatcherTrait,
+            IERC721Dispatcher, IERC721DispatcherTrait, IERC721BridgeableDispatcher,
+            IERC721BridgeableDispatcherTrait,
         },
         collection_manager::{
-            CollectionType,
-            deploy_erc721_bridgeable, verify_collection_address, erc721_metadata,
+            CollectionType, deploy_erc721_bridgeable, verify_collection_address, erc721_metadata,
         },
     };
 
     use poseidon::poseidon_hash_span;
+    use snforge_std::{load, map_entry_address};
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
 
     #[abi(embed_v0)]
-    impl OwnableTwoStepMixinImpl = OwnableComponent::OwnableTwoStepMixinImpl<ContractState>;
+    impl OwnableTwoStepMixinImpl =
+        OwnableComponent::OwnableTwoStepMixinImpl<ContractState>;
 
     impl OwnableInternalImpl = OwnableComponent::InternalImpl<ContractState>;
 
@@ -68,17 +65,13 @@ mod bridge {
         // Registry of escrowed token for collections.
         // <(collection_l2_address, token_id), original_depositor_l2_address>
         escrow: LegacyMap::<(ContractAddress, u256), ContractAddress>,
-
         // White list enabled flag
         white_list_enabled: bool,
-        
         // Registry of whitelisted collections
         white_listed_list: LegacyMap::<ContractAddress, (bool, ContractAddress)>,
         white_listed_head: ContractAddress,
-        
         // Bridge enabled flag
         enabled: bool,
-        
         #[substorage(v0)]
         ownable: OwnableComponent::Storage,
     }
@@ -127,14 +120,9 @@ mod bridge {
     /// to be more flexible? And the first felt25 being the header
     /// defines how the deserialization takes place?
     #[l1_handler]
-    fn withdraw_auto_from_l1(
-        ref self: ContractState,
-        from_address: felt252,
-        req: Request
-    ) {
+    fn withdraw_auto_from_l1(ref self: ContractState, from_address: felt252, req: Request) {
         ensure_is_enabled(@self);
-        assert(self.bridge_l1_address.read().into() == from_address,
-               'Invalid L1 msg sender');
+        assert(self.bridge_l1_address.read().into() == from_address, 'Invalid L1 msg sender');
 
         // TODO: recompute HASH to ensure data are not altered.
         // TODO: Validate all fields the request (cf. FSM).
@@ -159,29 +147,32 @@ mod bridge {
 
             if is_escrowed {
                 IERC721Dispatcher { contract_address: collection_l2 }
-                .transfer_from(from, to, token_id);
+                    .transfer_from(from, to, token_id);
 
-           let null_value = starknet::contract_address_const::<0>();
-           self.escrow.write((collection_l2, token_id), null_value);
+                let null_value = starknet::contract_address_const::<0>();
+                self.escrow.write((collection_l2, token_id), null_value);
             } else {
                 if (req.uris.len() != 0) {
                     let token_uri = req.uris[i];
                     IERC721BridgeableDispatcher { contract_address: collection_l2 }
-                    .mint_from_bridge_uri(to, token_id, token_uri.clone());
+                        .mint_from_bridge_uri(to, token_id, token_uri.clone());
                 } else {
                     IERC721BridgeableDispatcher { contract_address: collection_l2 }
-                    .mint_from_bridge(to, token_id);
+                        .mint_from_bridge(to, token_id);
                 }
             }
 
             i += 1;
         };
 
-        self.emit(WithdrawRequestCompleted {
-            hash: req.hash,
-            block_timestamp: starknet::info::get_block_timestamp(),
-            req_content: req
-        });
+        self
+            .emit(
+                WithdrawRequestCompleted {
+                    hash: req.hash,
+                    block_timestamp: starknet::info::get_block_timestamp(),
+                    req_content: req
+                }
+            );
     }
 
     #[abi(embed_v0)]
@@ -191,10 +182,12 @@ mod bridge {
 
             match starknet::replace_class_syscall(class_hash) {
                 Result::Ok(_) => {
-                    self.emit(ReplacedClassHash {
-                        contract: starknet::get_contract_address(),
-                        class: class_hash,
-                    })
+                    self
+                        .emit(
+                            ReplacedClassHash {
+                                contract: starknet::get_contract_address(), class: class_hash,
+                            }
+                        )
                 },
                 Result::Err(revert_reason) => panic(revert_reason),
             };
@@ -203,7 +196,6 @@ mod bridge {
 
     #[abi(embed_v0)]
     impl BridgeImpl of IStarklane<ContractState> {
-
         fn get_l1_collection_address(self: @ContractState, address: ContractAddress) -> EthAddress {
             self.l2_to_l1_addresses.read(address)
         }
@@ -240,8 +232,10 @@ mod bridge {
         /// * `collection_l2` - Address of the collection on L2.
         /// * `owner_l1` - Address of the owner on L1.
         /// * `tokens_ids` - Tokens to be bridged on L1.
-        /// * `use_withdraw_auto` - Tokens are automatically withdrawn on L1 using Starklane indexer.
-        /// * `use_deposit_burn_auto` - Tokens are automatically burnt on L2 once transferred using Starklane indexer.
+        /// * `use_withdraw_auto` - Tokens are automatically withdrawn on L1 using Starklane
+        /// indexer.
+        /// * `use_deposit_burn_auto` - Tokens are automatically burnt on L2 once transferred using
+        /// Starklane indexer.
         ///
         /// TODO: add new_owners, values and uris.
         /// TODO: better to use a struct than too much arguments? (DepositParams/DepositInputs/???)
@@ -298,17 +292,17 @@ mod bridge {
             let mut buf: Array<felt252> = array![];
             req.serialize(ref buf);
 
-            starknet::send_message_to_l1_syscall(
-                self.bridge_l1_address.read().into(),
-                buf.span(),
-            )
+            starknet::send_message_to_l1_syscall(self.bridge_l1_address.read().into(), buf.span(),)
                 .unwrap_syscall();
-            
-            self.emit(DepositRequestInitiated {
-                hash: req.hash,
-                block_timestamp: starknet::info::get_block_timestamp(),
-                req_content: req
-            });
+
+            self
+                .emit(
+                    DepositRequestInitiated {
+                        hash: req.hash,
+                        block_timestamp: starknet::info::get_block_timestamp(),
+                        req_content: req
+                    }
+                );
         }
 
         fn enable_white_list(ref self: ContractState, enable: bool) {
@@ -321,13 +315,12 @@ mod bridge {
             self.white_list_enabled.read()
         }
 
-        fn white_list_collection(ref self: ContractState, collection: ContractAddress, enabled: bool) {
+        fn white_list_collection(
+            ref self: ContractState, collection: ContractAddress, enabled: bool
+        ) {
             ensure_is_admin(@self);
             _white_list_collection(ref self, collection, enabled);
-            self.emit(CollectionWhiteListUpdated {
-                collection,
-                enabled,
-            });
+            self.emit(CollectionWhiteListUpdated { collection, enabled, });
         }
 
         fn is_white_listed(self: @ContractState, collection: ContractAddress) -> bool {
@@ -355,40 +348,38 @@ mod bridge {
         fn enable(ref self: ContractState, enable: bool) {
             ensure_is_admin(@self);
             self.enabled.write(enable);
-            self.emit(BridgeEnabled {
-                enable: enable
-            });
+            self.emit(BridgeEnabled { enable: enable });
         }
 
         fn is_enabled(self: @ContractState) -> bool {
             self.enabled.read()
         }
 
-        fn set_l1_l2_collection_mapping(ref self: ContractState, collection_l1: EthAddress, collection_l2: ContractAddress) {
+        fn set_l1_l2_collection_mapping(
+            ref self: ContractState, collection_l1: EthAddress, collection_l2: ContractAddress
+        ) {
             ensure_is_admin(@self);
             self.l1_to_l2_addresses.write(collection_l1, collection_l2);
             self.l2_to_l1_addresses.write(collection_l2, collection_l1);
             self.emit(L1L2CollectionMappingUpdated { collection_l1, collection_l2 });
         }
-
-        fn is_token_escrowed(ref self: ContractState, collection: ContractAddress, token_id: u256) -> bool {
-            !self.escrow.read((collection, token_id)).is_zero()
-        }      
     }
 
     #[abi(embed_v0)]
     impl BridgeCollectionAdminImpl of IStarklaneCollectionAdmin<ContractState> {
-        fn collection_upgrade(ref self: ContractState, collection: ContractAddress, class_hash: ClassHash) {
+        fn collection_upgrade(
+            ref self: ContractState, collection: ContractAddress, class_hash: ClassHash
+        ) {
             ensure_is_admin(@self);
-            IUpgradeableDispatcher { contract_address: collection }
-                .upgrade(class_hash);
+            IUpgradeableDispatcher { contract_address: collection }.upgrade(class_hash);
         }
 
         // transfer owner of the given collection to the given address
-        fn collection_transfer_ownership(ref self: ContractState, collection: ContractAddress, new_owner: ContractAddress) {
+        fn collection_transfer_ownership(
+            ref self: ContractState, collection: ContractAddress, new_owner: ContractAddress
+        ) {
             ensure_is_admin(@self);
-            IOwnableDispatcher { contract_address: collection }
-                .transfer_ownership(new_owner);
+            IOwnableDispatcher { contract_address: collection }.transfer_ownership(new_owner);
         }
     }
 
@@ -438,7 +429,6 @@ mod bridge {
     ///
     /// * `req` - Request for bridging assets.
     fn ensure_erc721_deployment(ref self: ContractState, req: @Request) -> ContractAddress {
-
         let l1_req: EthAddress = *req.collection_l1;
         let l2_req: ContractAddress = *req.collection_l2;
 
@@ -483,21 +473,21 @@ mod bridge {
         let (already_white_listed, _) = self.white_listed_list.read(l2_addr_from_deploy);
         if already_white_listed != true {
             _white_list_collection(ref self, l2_addr_from_deploy, true);
-            self.emit(CollectionWhiteListUpdated {
-                collection: l2_addr_from_deploy,
-                enabled: true,
-            });
+            self
+                .emit(
+                    CollectionWhiteListUpdated { collection: l2_addr_from_deploy, enabled: true, }
+                );
         }
         l2_addr_from_deploy
     }
 
     fn _is_white_listed(self: @ContractState, collection: ContractAddress) -> bool {
-            let enabled = self.white_list_enabled.read();
-            if (enabled) {
-                let (ret, _) = self.white_listed_list.read(collection);
-                return ret;
-            }
-            true
+        let enabled = self.white_list_enabled.read();
+        if (enabled) {
+            let (ret, _) = self.white_listed_list.read(collection);
+            return ret;
+        }
+        true
     }
 
     fn _white_list_collection(ref self: ContractState, collection: ContractAddress, enabled: bool) {
@@ -524,7 +514,7 @@ mod bridge {
                     prev = next;
                 };
                 self.white_listed_list.write(prev, (true, collection));
-            } else { 
+            } else {
                 // change head
                 if prev == collection {
                     let (_, next) = self.white_listed_list.read(prev);

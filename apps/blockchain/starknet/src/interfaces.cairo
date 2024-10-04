@@ -4,7 +4,6 @@ use starklane::request::Request;
 
 #[starknet::interface]
 trait IStarklane<T> {
-
     fn deposit_tokens(
         ref self: T,
         salt: felt252,
@@ -33,8 +32,9 @@ trait IStarklane<T> {
     fn enable(ref self: T, enable: bool);
     fn is_enabled(self: @T) -> bool;
 
-    fn set_l1_l2_collection_mapping(ref self: T , collection_l1: EthAddress, collection_l2: ContractAddress);
-    fn is_token_escrowed(ref self: T, collection: ContractAddress, token_id: u256) -> bool;
+    fn set_l1_l2_collection_mapping(
+        ref self: T, collection_l1: EthAddress, collection_l2: ContractAddress
+    );
 }
 
 /// Upgradeable contract.
@@ -49,7 +49,9 @@ trait IStarklaneCollectionAdmin<T> {
     fn collection_upgrade(ref self: T, collection: ContractAddress, class_hash: ClassHash);
 
     // transfer owner of the given collection to the given address
-    fn collection_transfer_ownership(ref self: T, collection: ContractAddress, new_owner: ContractAddress);
+    fn collection_transfer_ownership(
+        ref self: T, collection: ContractAddress, new_owner: ContractAddress
+    );
 }
 
 //////////////////////////
