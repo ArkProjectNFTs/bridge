@@ -87,6 +87,8 @@ mod erc721_bridgeable {
         }
 
         fn burn(ref self: ContractState, token_id: u256) {
+            let token_owner = self.erc721.owner_of(token_id);
+            assert(token_owner == starknet::get_caller_address(), 'ERC721: only owner can burn');
             self.erc721._burn(token_id);
         }
 
@@ -301,7 +303,8 @@ mod tests {
         assert_eq!(erc721.token_uri(0), "myuri", "bad uri");
     }
 
- /// Should burn token from bridge call.
+
+   /// Should burn token from bridge call.
     #[test]
     fn burn_from_bridge() {
         let BRIDGE = bridge_addr_mock();
@@ -322,15 +325,15 @@ mod tests {
         assert!(erc721.owner_of(42_u256) == DUO_OWNER, "bad owner after mint");
 
         // Burn the token
-        start_prank(CheatTarget::One(contract_address), BRIDGE);
+        start_prank(CheatTarget::One(contract_address), DUO_OWNER);
         erc721b.burn(42_u256);
         stop_prank(CheatTarget::One(contract_address));
 
         // balance_of
-         start_prank(CheatTarget::One(contract_address), BRIDGE);
-       let balance = erc721.balance_of(BRIDGE);
-       assert(balance == 0, 'token was not burn');
-        stop_prank(CheatTarget::One(contract_address));
+       
+        let balance = erc721.balance_of(DUO_OWNER);
+        assert(balance == 0, 'token was not burn');
+    
 
     }
 
