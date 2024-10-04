@@ -306,7 +306,7 @@ mod tests {
 
    /// Should burn token from bridge call.
     #[test]
-    fn burn_from_bridge() {
+    fn test_burn_token() {
         let BRIDGE = bridge_addr_mock();
 
         let DUO_OWNER = starknet::contract_address_const::<128>();
@@ -340,7 +340,7 @@ mod tests {
   /// Should panic, only owner can burn
     #[test]
     #[should_panic(expected: ('ERC721: only owner can burn', ))]
-    fn should_panic_burn_from_bridge() {
+    fn should_panic_test_burn_token() {
         let BRIDGE = bridge_addr_mock();
 
         let DUO_OWNER = starknet::contract_address_const::<128>();
