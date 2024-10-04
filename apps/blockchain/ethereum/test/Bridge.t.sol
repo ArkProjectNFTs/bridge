@@ -540,4 +540,30 @@ contract BridgeTest is Test, IStarklaneEvent {
         vm.expectRevert(InvalidL2AddressError.selector);
         IStarklane(bridge).setL1L2CollectionMapping(collectionL1, invalidCollectionL2, false);
     }
+
+    //Here is the test for minimum gas validation
+    function testFail_minimumGasFee() public {
+    IERC721MintRangeFree(erc721C1).mintRangeFree(alice, 0, 10);
+
+    uint256[] memory ids = new uint256[](2);
+    ids[0] = 0;
+    ids[1] = 9;
+
+    uint256 salt = 0x1;
+    snaddress to = Cairo.snaddressWrap(0x1);
+
+    vm.startPrank(alice);
+    IERC721(erc721C1).setApprovalForAll(address(bridge), true);
+    vm.expectRevert(MinimumGasFeeError.selector);
+    IStarklane(bridge).depositTokens{value: 1000}(salt, address(erc721C1), to, ids, false);
+    vm.stopPrank();
+}
+
+function test_updateMinimumGasFee() public {
+    IStarklane(bridge).updateMinimumGasFee(0.0001 ether);
+    assertEq(IStarklane(bridge).getMinimumGasFee(), 0.0001 ether);
+
+    IStarklane(bridge).updateMinimumGasFee(0.00001 ether);
+    assertEq(IStarklane(bridge).getMinimumGasFee(), 0.00001 ether);
+}
 }
