@@ -56,6 +56,25 @@ contract BridgeTest is Test, IStarklaneEvent {
     }
 
     //
+    function test_initializersDisabled() public {
+        // Deploy a new instance of Starklane
+        Starklane newStarklane = new Starklane();
+        
+        // Try to initialize the contract directly
+        bytes memory initData = abi.encode(
+            address(this),
+            address(0),  // Mock Starknet Core address
+            uint256(0),  // Mock Starklane L2 address
+            uint256(0)   // Mock Starklane L2 selector
+        );
+        
+        // Expect the initialization to revert
+        vm.expectRevert("Initializable: contract is already initialized");
+        newStarklane.initialize(initData);
+    }
+    
+
+    //
     function testFail_invalidIds() public {
         uint256[] memory ids = new uint256[](0);
 

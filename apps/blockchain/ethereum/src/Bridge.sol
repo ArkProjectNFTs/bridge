@@ -13,6 +13,7 @@ import "./Messaging.sol";
 import "./UUPSProxied.sol";
 
 import "starknet/IStarknetMessaging.sol";
+import "openzeppelin-contracts/contracts/proxy/utils/Initializable.sol";
 
 import "./IStarklaneEvent.sol";
 
@@ -50,9 +51,12 @@ contract Starklane is
 
     /**
      * @notice Initializes the implementation, only callable once.
-     *
-     *    @param data Data to init the implementation.
      */
+
+     constructor() {
+        _disableInitializers();
+    }
+    
     function initialize(bytes calldata data) public onlyInit {
         (
             address owner,
