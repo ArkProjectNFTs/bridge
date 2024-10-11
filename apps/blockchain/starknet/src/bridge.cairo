@@ -42,7 +42,6 @@ mod bridge {
     };
 
     use poseidon::poseidon_hash_span;
-    use snforge_std::{load, map_entry_address};
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
 

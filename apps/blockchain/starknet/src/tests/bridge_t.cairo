@@ -37,7 +37,7 @@ mod tests {
 
     use snforge_std::{
         declare, ContractClass, ContractClassTrait, start_prank, stop_prank, CheatTarget, L1Handler,
-        get_class_hash, spy_events, SpyOn
+        get_class_hash, spy_events, SpyOn, load, map_entry_address,
     };
 
     #[derive(Drop)]
@@ -1319,6 +1319,10 @@ mod tests {
         let mut buf = array![];
         req.serialize(ref buf);
 
+        start_prank(CheatTarget::One(bridge_address), BRIDGE_ADMIN);
+        bridge.set_l1_l2_collection_mapping(collection_l1, erc721b_address);
+        stop_prank(CheatTarget::One(bridge_address));
+
         // Execute withdrawal
         let mut l1_handler = L1Handler {
             contract_address: bridge_address,
@@ -1332,12 +1336,12 @@ mod tests {
         assert_eq!(erc721.owner_of(0), OWNER_L2, "Token should be transferred to OWNER_L2");
 
         // Verify escrow is cleared
-        let is_escrowed = load(
+        let escrowed = load(
             bridge_address,
             map_entry_address(selector!("escrow"), array![erc721b_address.into(), 0, 0].span()),
             1
-        )
-            .is_zero();
+        );
+        let is_escrowed = escrowed.len() == 0 && (*escrowed[0]).is_zero();
         assert!(!is_escrowed, "Escrow should be cleared after withdrawal");
     }
 }
