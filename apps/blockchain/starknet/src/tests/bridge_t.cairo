@@ -1341,7 +1341,7 @@ mod tests {
             map_entry_address(selector!("escrow"), array![erc721b_address.into(), 0, 0].span()),
             1
         );
-        let is_escrowed = escrowed.len() == 0 && (*escrowed[0]).is_zero();
+        let is_escrowed = escrowed.len() == 1 && (*escrowed[0]).is_non_zero();
         assert!(!is_escrowed, "Escrow should be cleared after withdrawal");
     }
 }
