@@ -1,14 +1,14 @@
-use serde::Serde;
-use traits::Into;
 use array::{ArrayTrait, SpanTrait};
-use result::ResultTrait;
 use option::OptionTrait;
-use zeroable::Zeroable;
-use starknet::{ContractAddress, ClassHash, EthAddress};
+use result::ResultTrait;
+use serde::Serde;
+use starklane::byte_array_extra::SpanFeltTryIntoByteArray;
 use starknet::contract_address::ContractAddressZeroable;
 use starknet::eth_address::EthAddressZeroable;
+use starknet::{ContractAddress, ClassHash, EthAddress};
 use super::interfaces::{IERC721Dispatcher, IERC721DispatcherTrait};
-use starklane::byte_array_extra::SpanFeltTryIntoByteArray;
+use traits::Into;
+use zeroable::Zeroable;
 
 #[derive(Drop, PartialEq)]
 enum CollectionType {
@@ -31,8 +31,7 @@ struct ERC721Metadata {
 /// * `erc721` - Dispatcher of ERC721 contract.
 /// * `token_ids` - An optional list of token to extract individual URI.
 fn erc721_metadata(
-    contract_address: ContractAddress,
-    token_ids: Option<Span<u256>>
+    contract_address: ContractAddress, token_ids: Option<Span<u256>>
 ) -> Option<ERC721Metadata> {
     let erc721 = IERC721Dispatcher { contract_address };
 
@@ -48,9 +47,9 @@ fn erc721_metadata(
                 let token_id = *ids[i];
                 let token_uri =
                     match token_uri_from_contract_call(erc721.contract_address, token_id) {
-                        Option::Some(uri) => uri,
-                        Option::None => "",
-                    };
+                    Option::Some(uri) => uri,
+                    Option::None => "",
+                };
 
                 out_uris.append(token_uri);
 
@@ -59,18 +58,11 @@ fn erc721_metadata(
 
             out_uris.span()
         },
-        Option::None => {
-            array![].span()
-        }
+        Option::None => { array![].span() }
     };
 
     Option::Some(
-        ERC721Metadata {
-            name: erc721.name(),
-            symbol: erc721.symbol(),
-            base_uri: "",
-            uris
-        }
+        ERC721Metadata { name: erc721.name(), symbol: erc721.symbol(), base_uri: "", uris }
     )
 }
 
@@ -87,8 +79,7 @@ fn erc721_metadata(
 /// * `collection_address` - Collection address of the collection.
 /// * `token_id` - Token id.
 fn token_uri_from_contract_call(
-    collection_address: ContractAddress,
-    token_id: u256,
+    collection_address: ContractAddress, token_id: u256,
 ) -> Option<ByteArray> {
     // TODO: add the interface detection when the standard is out.
 
@@ -104,20 +95,14 @@ fn token_uri_from_contract_call(
     // len: 0 -> empty
     // len: 1 -> 'old' string
     // len > 1 -> ByteArray
-    match starknet::call_contract_syscall(
-        collection_address,
-        token_uri_selector,
-        calldata,
-    ) {
+    match starknet::call_contract_syscall(collection_address, token_uri_selector, calldata,) {
         Result::Ok(span) => span.try_into(),
         Result::Err(_e) => {
             match starknet::call_contract_syscall(
                 collection_address, tokenURI_selector, calldata,
             ) {
                 Result::Ok(span) => span.try_into(),
-                Result::Err(_e) => {
-                    Option::None
-                }
+                Result::Err(_e) => { Option::None }
             }
         }
     }
@@ -168,12 +153,8 @@ fn deploy_erc721_bridgeable(
 /// * `l1_bridge` - Contract address on L1 in the bridge storage.
 /// * `l2_bridge` - Contract address on L2 in the bridge storage.
 fn verify_collection_address(
-    l1_req: EthAddress,
-    l2_req: ContractAddress,
-    l1_bridge: EthAddress,
-    l2_bridge: ContractAddress,
+    l1_req: EthAddress, l2_req: ContractAddress, l1_bridge: EthAddress, l2_bridge: ContractAddress,
 ) -> ContractAddress {
-
     // L1 address must always be set as we receive the request from L1.
     if l1_req.is_zero() {
         panic!("L1 address cannot be 0");

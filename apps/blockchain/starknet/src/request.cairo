@@ -1,14 +1,14 @@
+use array::{ArrayTrait, SpanTrait};
+use keccak::{keccak_u256s_be_inputs, keccak_u256s_le_inputs};
+use option::OptionTrait;
+use poseidon::poseidon_hash_span;
 ///! Request to bridge tokens.
 
 use serde::Serde;
-use traits::{Into, TryInto};
-use option::OptionTrait;
-use array::{ArrayTrait, SpanTrait};
-use starknet::{ContractAddress, EthAddress};
-use poseidon::poseidon_hash_span;
-use keccak::{keccak_u256s_be_inputs, keccak_u256s_le_inputs};
 
 use starklane::token::collection_manager::CollectionType;
+use starknet::{ContractAddress, EthAddress};
+use traits::{Into, TryInto};
 
 // Byte 1 of the header.
 const HEADER_V1: u256 = 0x01;
@@ -30,37 +30,30 @@ struct Request {
     header: felt252,
     // Unique hash of the request.
     hash: u256,
-
     // Address of the collection on Ethereum.
     collection_l1: EthAddress,
     // Address of the collection on Starknet.
     collection_l2: ContractAddress,
-
     // Owner on Ethereum (for all the tokens in the request).
     owner_l1: EthAddress,
     // Owners on Starknet (for all the tokens in the request).
     owner_l2: ContractAddress,
-
     // Collection name (ERC1155: not used).
     name: ByteArray,
     // Collection symbol (ERC1155: not used).
     symbol: ByteArray,
     // Base URI for the collection.
     base_uri: ByteArray,
-
     // Tokens to be bridged.
     ids: Span<u256>,
-
     // Amounts for each token
     // ERC721: not used.
     // ERC1155: if empty, the amount is 1 for each token id, else length must match `ids`.
     values: Span<u256>,
-
     // URIs for each individual token
     // ERC721: must be empty if `base_uri` is provided, else length must match `ids`.
     // ERC1155: not used.
     uris: Span<ByteArray>,
-
     // New owners on starknet. This allows a batch migration of the tokens to
     // different owners.
     // Must be empty if `owner_l2` is not 0. Otherwise, length must match `ids`.
@@ -110,9 +103,7 @@ fn collection_type_from_header(header: felt252) -> CollectionType {
 /// * `use_deposit_burn_auto` - Enables burn auto in the header.
 /// * `use_withdraw_auto` - Enables withdraw auto in the header.
 fn compute_request_header_v1(
-    ctype: CollectionType,
-    use_deposit_burn_auto: bool,
-    use_withdraw_auto: bool,
+    ctype: CollectionType, use_deposit_burn_auto: bool, use_withdraw_auto: bool,
 ) -> felt252 {
     let mut header: u256 = HEADER_V1;
 
@@ -144,10 +135,7 @@ fn compute_request_header_v1(
 /// * `to_l1_address` - New owner on Ethereum (L1).
 /// * `token_ids` - List of token ids to be transferred.
 fn compute_request_hash(
-    salt: felt252,
-    collection: ContractAddress,
-    to_l1_address: EthAddress,
-    token_ids: Span<u256>,
+    salt: felt252, collection: ContractAddress, to_l1_address: EthAddress, token_ids: Span<u256>,
 ) -> u256 {
     let c_felt: felt252 = collection.into();
     let mut buf: Array<u256> = array![salt.into(), c_felt.into(), to_l1_address.address.into()];
@@ -169,12 +157,8 @@ fn compute_request_hash(
     let hash = keccak_u256s_be_inputs(span);
 
     // Ensure keccak endianness compatibility.
-    u256 {
-        low: integer::u128_byte_reverse(hash.high),
-        high: integer::u128_byte_reverse(hash.low)
-    }
+    u256 { low: integer::u128_byte_reverse(hash.high), high: integer::u128_byte_reverse(hash.low) }
 }
-
 
 
 // **** TESTS ****
@@ -192,14 +176,12 @@ trait IContractRequest<T> {
 
 #[starknet::contract]
 mod contract_req_test {
-    use super::{compute_request_hash, IContractRequest};
     use array::{ArrayTrait, SpanTrait};
     use starknet::{ContractAddress, EthAddress};
+    use super::{compute_request_hash, IContractRequest};
 
     #[storage]
-    struct Storage {
-
-    }
+    struct Storage {}
 
     #[abi(embed_v0)]
     impl ContractTestImpl of IContractRequest<ContractState> {
@@ -217,24 +199,23 @@ mod contract_req_test {
 
 #[cfg(test)]
 mod tests {
-    use debug::PrintTrait;
-    use serde::Serde;
     use array::{ArrayTrait, SpanTrait};
+    use debug::PrintTrait;
     use integer::{U8IntoFelt252, U32IntoFelt252, Felt252TryIntoU32};
-    use traits::{Into, TryInto};
     use option::OptionTrait;
     use result::ResultTrait;
-    use starknet::{ContractAddress, EthAddress};
-    use super::{
-        Request, WITHDRAW_AUTO, DEPOSIT_AUTO_BURN, ERC721_TYPE, ERC1155_TYPE,
-        can_use_withdraw_auto, collection_type_from_header,
-        compute_request_header_v1, compute_request_hash,
-        contract_req_test, IContractRequestDispatcher, IContractRequestDispatcherTrait,
-    };
-
-    use starklane::token::collection_manager::CollectionType;
+    use serde::Serde;
 
     use snforge_std::{declare, ContractClassTrait};
+
+    use starklane::token::collection_manager::CollectionType;
+    use starknet::{ContractAddress, EthAddress};
+    use super::{
+        Request, WITHDRAW_AUTO, DEPOSIT_AUTO_BURN, ERC721_TYPE, ERC1155_TYPE, can_use_withdraw_auto,
+        collection_type_from_header, compute_request_header_v1, compute_request_hash,
+        contract_req_test, IContractRequestDispatcher, IContractRequestDispatcherTrait,
+    };
+    use traits::{Into, TryInto};
 
     #[test]
     fn can_use_withdraw_auto_test() {
@@ -252,7 +233,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected: ('Invalid collection type', ))]
+    #[should_panic(expected: ('Invalid collection type',))]
     fn collection_type_from_header_test_fail() {
         let h: felt252 = 0;
         assert(collection_type_from_header(h) == CollectionType::ERC721, 'Invalid ERC721 CT');
@@ -280,15 +261,13 @@ mod tests {
         let contract_address = contract.deploy(@array![]).unwrap();
         let disp = IContractRequestDispatcher { contract_address };
 
-        let hash = disp.compute_request_hash_from_contract(
-            salt,
-            collection,
-            to_l1_address,
-            ids.span()
-        );
+        let hash = disp
+            .compute_request_hash_from_contract(salt, collection, to_l1_address, ids.span());
 
-        assert(hash == 0xbb7ca67ee263bd2bb68dc88b530300222a3700bceca4e537079047fff89a0402_u256,
-               'Invalid req hash');
+        assert(
+            hash == 0xbb7ca67ee263bd2bb68dc88b530300222a3700bceca4e537079047fff89a0402_u256,
+            'Invalid req hash'
+        );
     }
 
     /// Should deserialize from buffer.

@@ -1,31 +1,27 @@
 #[starknet::contract]
 mod bridge {
-    use core::byte_array::ByteArrayTrait;
     use array::{ArrayTrait, SpanTrait};
-    use traits::{Into, TryInto};
-    use zeroable::Zeroable;
-    use serde::Serde;
-    use option::OptionTrait;
-    use debug::PrintTrait;
+    use core::byte_array::ByteArrayTrait;
 
     use core::starknet::SyscallResultTrait;
-
-    use starknet::{ClassHash, ContractAddress, EthAddress};
-    use starknet::contract_address::ContractAddressZeroable;
-    use starknet::eth_address::EthAddressZeroable;
+    use debug::PrintTrait;
 
     use openzeppelin::access::ownable::OwnableComponent;
     use openzeppelin::access::ownable::interface::{IOwnableDispatcher, IOwnableDispatcherTrait};
+    use option::OptionTrait;
 
-    use starklane::interfaces::{
-        IStarklane, IUpgradeable, IUpgradeableDispatcher, IUpgradeableDispatcherTrait,
-        IStarklaneCollectionAdmin
-    };
+    use poseidon::poseidon_hash_span;
+    use serde::Serde;
     // events
     use starklane::interfaces::{
         DepositRequestInitiated, WithdrawRequestCompleted, CollectionDeployedFromL1,
         ReplacedClassHash, BridgeEnabled, CollectionWhiteListUpdated, WhiteListEnabled,
         BridgeL1AddressUpdated, ERC721ClassHashUpdated, L1L2CollectionMappingUpdated
+    };
+
+    use starklane::interfaces::{
+        IStarklane, IUpgradeable, IUpgradeableDispatcher, IUpgradeableDispatcherTrait,
+        IStarklaneCollectionAdmin
     };
 
     use starklane::request::{
@@ -40,8 +36,12 @@ mod bridge {
             CollectionType, deploy_erc721_bridgeable, verify_collection_address, erc721_metadata,
         },
     };
+    use starknet::contract_address::ContractAddressZeroable;
+    use starknet::eth_address::EthAddressZeroable;
 
-    use poseidon::poseidon_hash_span;
+    use starknet::{ClassHash, ContractAddress, EthAddress};
+    use traits::{Into, TryInto};
+    use zeroable::Zeroable;
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
 
