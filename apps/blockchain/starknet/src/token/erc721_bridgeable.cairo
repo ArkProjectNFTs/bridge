@@ -3,14 +3,14 @@
 
 #[starknet::contract]
 mod erc721_bridgeable {
-    use starknet::{ContractAddress, ClassHash};
+    use openzeppelin::access::ownable::OwnableComponent;
 
     use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc721::ERC721Component;
-    use openzeppelin::access::ownable::OwnableComponent;
+    use starklane::interfaces::IUpgradeable;
 
     use starklane::token::interfaces::{IERC721Bridgeable, IERC721Mintable, IERC721Uri};
-    use starklane::interfaces::IUpgradeable;
+    use starknet::{ContractAddress, ClassHash};
 
     component!(path: ERC721Component, storage: erc721, event: ERC721Event);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
@@ -21,7 +21,7 @@ mod erc721_bridgeable {
     impl ERC721Impl = ERC721Component::ERC721Impl<ContractState>;
     #[abi(embed_v0)]
     impl ERC721CamelOnly = ERC721Component::ERC721CamelOnlyImpl<ContractState>;
-    
+
     impl ERC721InternalImpl = ERC721Component::InternalImpl<ContractState>;
 
     // SRC5
@@ -29,7 +29,8 @@ mod erc721_bridgeable {
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[abi(embed_v0)]
-    impl OwnableTwoStepMixinImpl = OwnableComponent::OwnableTwoStepMixinImpl<ContractState>;
+    impl OwnableTwoStepMixinImpl =
+        OwnableComponent::OwnableTwoStepMixinImpl<ContractState>;
 
     impl OwnableInternalImpl = OwnableComponent::InternalImpl<ContractState>;
 
@@ -79,8 +80,7 @@ mod erc721_bridgeable {
     impl ERC721BridgeableImpl of IERC721Bridgeable<ContractState> {
         fn mint_from_bridge(ref self: ContractState, to: ContractAddress, token_id: u256) {
             assert(
-                starknet::get_caller_address() == self.bridge.read(),
-                'ERC721: only bridge can mint'
+                starknet::get_caller_address() == self.bridge.read(), 'ERC721: only bridge can mint'
             );
 
             self.erc721._mint(to, token_id);
@@ -93,14 +93,18 @@ mod erc721_bridgeable {
         }
 
 
-        fn mint_from_bridge_uri(ref self: ContractState, to: ContractAddress, token_id: u256, token_uri: ByteArray) {
+        fn mint_from_bridge_uri(
+            ref self: ContractState, to: ContractAddress, token_id: u256, token_uri: ByteArray
+        ) {
             IERC721Bridgeable::mint_from_bridge(ref self, to, token_id);
             self.token_uris.write(token_id, token_uri);
         }
     }
 
     #[abi(embed_v0)]
-    impl ERC721BridgeableMetadataImpl of ERC721Component::interface::IERC721Metadata<ContractState> {
+    impl ERC721BridgeableMetadataImpl of ERC721Component::interface::IERC721Metadata<
+        ContractState
+    > {
         fn name(self: @ContractState) -> ByteArray {
             self.erc721.name()
         }
@@ -120,7 +124,9 @@ mod erc721_bridgeable {
     }
 
     #[abi(embed_v0)]
-    impl ERC721BridgeableMetadataCamelOnlyImpl of ERC721Component::interface::IERC721MetadataCamelOnly<ContractState> {
+    impl ERC721BridgeableMetadataCamelOnlyImpl of ERC721Component::interface::IERC721MetadataCamelOnly<
+        ContractState
+    > {
         fn tokenURI(self: @ContractState, tokenId: u256) -> ByteArray {
             self.token_uri(tokenId)
         }
@@ -148,15 +154,17 @@ mod erc721_bridgeable {
         fn mint_range(ref self: ContractState, to: ContractAddress, start: u256, end: u256) {
             let mut token_id = start;
             loop {
-                    if token_id == end {
-                        break ();
-                    }
+                if token_id == end {
+                    break ();
+                }
                 self.mint(to, token_id);
                 token_id += 1_u256;
             }
         }
 
-        fn mint_uri(ref self: ContractState, to: ContractAddress, token_id: u256, token_uri: ByteArray) {
+        fn mint_uri(
+            ref self: ContractState, to: ContractAddress, token_id: u256, token_uri: ByteArray
+        ) {
             self.mint(to, token_id);
             self.token_uris.write(token_id, token_uri);
         }
@@ -183,33 +191,32 @@ mod erc721_bridgeable {
 
 #[cfg(test)]
 mod tests {
-    use super::erc721_bridgeable;
+    use array::{ArrayTrait, SpanTrait};
+    use core::result::ResultTrait;
+
+    use debug::PrintTrait;
 
     use openzeppelin::access::ownable::interface::{
         IOwnableTwoStepDispatcher, IOwnableTwoStepDispatcherTrait
     };
-
-    use starklane::token::interfaces::{
-        IERC721BridgeableDispatcher, IERC721BridgeableDispatcherTrait,
-        IERC721Dispatcher, IERC721DispatcherTrait,
-        IERC721MintableDispatcher, IERC721MintableDispatcherTrait,
-        IERC721UriDispatcher, IERC721UriDispatcherTrait,
-    };
-    use starklane::token::collection_manager;
-
-    use debug::PrintTrait;
-    use serde::Serde;
-    use array::{ArrayTrait, SpanTrait};
-    use zeroable::Zeroable;
     use option::OptionTrait;
-    use core::result::ResultTrait;
-    use traits::{TryInto, Into};
-    use starknet::contract_address::Felt252TryIntoContractAddress;
-    use starknet::class_hash::Felt252TryIntoClassHash;
-    use starknet::{ContractAddress, ClassHash};
+    use serde::Serde;
 
 
     use snforge_std::{declare, ContractClassTrait, start_prank, stop_prank, CheatTarget};
+    use starklane::token::collection_manager;
+
+    use starklane::token::interfaces::{
+        IERC721BridgeableDispatcher, IERC721BridgeableDispatcherTrait, IERC721Dispatcher,
+        IERC721DispatcherTrait, IERC721MintableDispatcher, IERC721MintableDispatcherTrait,
+        IERC721UriDispatcher, IERC721UriDispatcherTrait,
+    };
+    use starknet::class_hash::Felt252TryIntoClassHash;
+    use starknet::contract_address::Felt252TryIntoContractAddress;
+    use starknet::{ContractAddress, ClassHash};
+    use super::erc721_bridgeable;
+    use traits::{TryInto, Into};
+    use zeroable::Zeroable;
 
     /// Deploy a ERC721Bridgeable instance, reusable in tests.
     fn deploy_erc721b(
@@ -248,7 +255,8 @@ mod tests {
             "DUO",
             "https://my.base.uri",
             bridge_addr_mock(),
-            collection_owner_addr_mock())
+            collection_owner_addr_mock()
+        )
     }
 
     /// Should have correct constructor valules.
@@ -272,11 +280,12 @@ mod tests {
         let TOKEN_ID = 244;
 
         let contract_address = deploy_everai_collection();
-        let erc721 = IERC721Dispatcher { contract_address };        
-        
+        let erc721 = IERC721Dispatcher { contract_address };
+
         let new_uri = "https:...";
         start_prank(CheatTarget::One(contract_address), COLLECTION_OWNER);
-        IERC721MintableDispatcher { contract_address }.mint_uri(NEW_DUO_OWNER, TOKEN_ID, new_uri.clone());
+        IERC721MintableDispatcher { contract_address }
+            .mint_uri(NEW_DUO_OWNER, TOKEN_ID, new_uri.clone());
         stop_prank(CheatTarget::One(contract_address));
 
         let fetched_uri = erc721.token_uri(TOKEN_ID);
@@ -287,7 +296,7 @@ mod tests {
     #[test]
     fn mint_from_bridge() {
         let BRIDGE = bridge_addr_mock();
-        
+
         let NEW_DUO_OWNER = starknet::contract_address_const::<128>();
 
         let contract_address = deploy_everai_collection();
@@ -304,7 +313,7 @@ mod tests {
     }
 
 
-   /// Should burn token from bridge call.
+    /// Should burn token from bridge call.
     #[test]
     fn test_burn_token() {
         let BRIDGE = bridge_addr_mock();
@@ -330,16 +339,14 @@ mod tests {
         stop_prank(CheatTarget::One(contract_address));
 
         // balance_of
-       
+
         let balance = erc721.balance_of(DUO_OWNER);
         assert(balance == 0, 'token was not burn');
-    
-
     }
 
-  /// Should panic, only owner can burn
+    /// Should panic, only owner can burn
     #[test]
-    #[should_panic(expected: ('ERC721: only owner can burn', ))]
+    #[should_panic(expected: ('ERC721: only owner can burn',))]
     fn should_panic_test_burn_token() {
         let BRIDGE = bridge_addr_mock();
 
@@ -361,13 +368,11 @@ mod tests {
         // Burn the token by wrong owner
         start_prank(CheatTarget::One(contract_address), BRIDGE);
         erc721b.burn(42_u256);
-       
-
     }
 
     /// Should not mint token if not bridge.
     #[test]
-    #[should_panic(expected: ('ERC721: only bridge can mint', ))]
+    #[should_panic(expected: ('ERC721: only bridge can mint',))]
     fn should_panic_mint_from_bridge_fail() {
         let NEW_DUO_OWNER = starknet::contract_address_const::<128>();
 
@@ -417,7 +422,9 @@ mod tests {
         erc721.mint_uri(NEW_DUO_OWNER, TOKEN_ID, new_uri.clone());
         stop_prank(CheatTarget::One(contract_address));
 
-        let fetched_uri = collection_manager::token_uri_from_contract_call(contract_address, TOKEN_ID)
+        let fetched_uri = collection_manager::token_uri_from_contract_call(
+            contract_address, TOKEN_ID
+        )
             .expect('token mint failed');
         assert_eq!(fetched_uri, new_uri, "bad uri");
     }
@@ -459,7 +466,7 @@ mod tests {
         stop_prank(CheatTarget::One(contract_address));
         assert_eq!(ownable.owner(), COLLECTION_OWNER, "bad owner");
         assert_eq!(ownable.pending_owner(), ALICE, "bad pending owner");
-        
+
         start_prank(CheatTarget::One(contract_address), COLLECTION_OWNER);
         ownable.transfer_ownership(BOB);
         stop_prank(CheatTarget::One(contract_address));
@@ -497,7 +504,7 @@ mod tests {
         let new_uri = "https://this.is.a.test.com";
         let contract_address = deploy_everai_collection();
 
-        let contract = IERC721UriDispatcher { contract_address};
+        let contract = IERC721UriDispatcher { contract_address };
         assert_eq!(contract.base_uri(), "https://my.base.uri");
         start_prank(CheatTarget::One(contract_address), COLLECTION_OWNER);
         contract.set_base_uri(new_uri.clone());
@@ -517,7 +524,7 @@ mod tests {
         assert_eq!(ownable.owner(), COLLECTION_OWNER, "bad owner");
 
         start_prank(CheatTarget::One(contract_address), ALICE);
-        IERC721UriDispatcher { contract_address}.set_base_uri("https://this.is.a.test.com");
+        IERC721UriDispatcher { contract_address }.set_base_uri("https://this.is.a.test.com");
         stop_prank(CheatTarget::One(contract_address));
     }
 
@@ -530,14 +537,14 @@ mod tests {
         let token_id = 42_u256;
 
         start_prank(CheatTarget::One(contract_address), COLLECTION_OWNER);
-        IERC721MintableDispatcher { contract_address}.mint(ALICE, token_id);
+        IERC721MintableDispatcher { contract_address }.mint(ALICE, token_id);
         stop_prank(CheatTarget::One(contract_address));
-        assert!(IERC721Dispatcher {contract_address}.token_uri(token_id) != new_uri.clone());
+        assert!(IERC721Dispatcher { contract_address }.token_uri(token_id) != new_uri.clone());
 
         start_prank(CheatTarget::One(contract_address), COLLECTION_OWNER);
-        IERC721UriDispatcher { contract_address}.set_token_uri(token_id, new_uri.clone());
+        IERC721UriDispatcher { contract_address }.set_token_uri(token_id, new_uri.clone());
         stop_prank(CheatTarget::One(contract_address));
-        assert_eq!(IERC721Dispatcher {contract_address}.token_uri(token_id), new_uri);
+        assert_eq!(IERC721Dispatcher { contract_address }.token_uri(token_id), new_uri);
     }
 
     #[test]
@@ -551,14 +558,14 @@ mod tests {
         let invalid_token_id = 68_u256;
 
         start_prank(CheatTarget::One(contract_address), COLLECTION_OWNER);
-        IERC721MintableDispatcher { contract_address}.mint(ALICE, token_id);
+        IERC721MintableDispatcher { contract_address }.mint(ALICE, token_id);
         stop_prank(CheatTarget::One(contract_address));
-        assert!(IERC721Dispatcher {contract_address}.token_uri(token_id) != new_uri.clone());
+        assert!(IERC721Dispatcher { contract_address }.token_uri(token_id) != new_uri.clone());
 
         start_prank(CheatTarget::One(contract_address), COLLECTION_OWNER);
-        IERC721UriDispatcher { contract_address}.set_token_uri(invalid_token_id, new_uri.clone());
+        IERC721UriDispatcher { contract_address }.set_token_uri(invalid_token_id, new_uri.clone());
         stop_prank(CheatTarget::One(contract_address));
-        assert_eq!(IERC721Dispatcher {contract_address}.token_uri(token_id), new_uri);
+        assert_eq!(IERC721Dispatcher { contract_address }.token_uri(token_id), new_uri);
     }
 
     #[test]
@@ -571,14 +578,13 @@ mod tests {
         let token_id = 42_u256;
 
         start_prank(CheatTarget::One(contract_address), COLLECTION_OWNER);
-        IERC721MintableDispatcher { contract_address}.mint(ALICE, token_id);
+        IERC721MintableDispatcher { contract_address }.mint(ALICE, token_id);
         stop_prank(CheatTarget::One(contract_address));
-        assert!(IERC721Dispatcher {contract_address}.token_uri(token_id) != new_uri.clone());
+        assert!(IERC721Dispatcher { contract_address }.token_uri(token_id) != new_uri.clone());
 
         start_prank(CheatTarget::One(contract_address), ALICE);
-        IERC721UriDispatcher { contract_address}.set_token_uri(token_id, new_uri.clone());
+        IERC721UriDispatcher { contract_address }.set_token_uri(token_id, new_uri.clone());
         stop_prank(CheatTarget::One(contract_address));
-        assert_eq!(IERC721Dispatcher {contract_address}.token_uri(token_id), new_uri);
+        assert_eq!(IERC721Dispatcher { contract_address }.token_uri(token_id), new_uri);
     }
-
 }

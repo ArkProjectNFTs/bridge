@@ -1,23 +1,32 @@
 #[cfg(test)]
 mod tests {
+    use array::{ArrayTrait, SpanTrait};
+
+    use core::traits::TryInto;
+
+    use openzeppelin::access::ownable::interface::{
+        IOwnableTwoStepDispatcher, IOwnableTwoStepDispatcherTrait
+    };
+    use option::OptionTrait;
+    use result::ResultTrait;
+    use serde::Serde;
     use snforge_std::{
         cheatcodes::{events::EventFetcher, events::EventAssertions, l1_handler::L1HandlerTrait},
         event_name_hash,
     };
 
-    use core::traits::TryInto;
-    use array::{ArrayTrait, SpanTrait};
-    use traits::Into;
-    use result::ResultTrait;
-    use option::OptionTrait;
-    use serde::Serde;
-    use zeroable::Zeroable;
-
-    use openzeppelin::access::ownable::interface::{
-        IOwnableTwoStepDispatcher, IOwnableTwoStepDispatcherTrait
+    use snforge_std::{
+        declare, ContractClass, ContractClassTrait, start_prank, stop_prank, CheatTarget, L1Handler,
+        get_class_hash, spy_events, SpyOn, load, map_entry_address,
     };
-
-    use starknet::{ContractAddress, ClassHash, EthAddress, class_hash_const};
+    use starklane::bridge::bridge;
+    use starklane::token::{
+        interfaces::{
+            IERC721Dispatcher, IERC721DispatcherTrait, IERC721BridgeableDispatcher,
+            IERC721BridgeableDispatcherTrait, IERC721MintableDispatcher,
+            IERC721MintableDispatcherTrait,
+        },
+    };
     use starklane::{
         request::{Request, compute_request_hash},
         interfaces::{
@@ -26,19 +35,10 @@ mod tests {
             IStarklaneCollectionAdminDispatcherTrait,
         },
     };
-    use starklane::token::{
-        interfaces::{
-            IERC721Dispatcher, IERC721DispatcherTrait, IERC721BridgeableDispatcher,
-            IERC721BridgeableDispatcherTrait, IERC721MintableDispatcher,
-            IERC721MintableDispatcherTrait,
-        },
-    };
-    use starklane::bridge::bridge;
 
-    use snforge_std::{
-        declare, ContractClass, ContractClassTrait, start_prank, stop_prank, CheatTarget, L1Handler,
-        get_class_hash, spy_events, SpyOn, load, map_entry_address,
-    };
+    use starknet::{ContractAddress, ClassHash, EthAddress, class_hash_const};
+    use traits::Into;
+    use zeroable::Zeroable;
 
     #[derive(Drop)]
     struct BridgeDeployedConfig {
