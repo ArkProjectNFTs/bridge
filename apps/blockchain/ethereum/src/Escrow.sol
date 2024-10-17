@@ -15,6 +15,9 @@ contract StarklaneEscrow is Context {
     // Mapping (collectionAddres => (tokenId => depositor)).
     mapping(address => mapping(uint256 => address)) _escrow;
 
+    // Storage gaps
+    uint256[50] private __gap;
+
     /**
      * @notice Deposits the given tokens into escrow.
      *
@@ -87,4 +90,8 @@ contract StarklaneEscrow is Context {
     function _isEscrowed(address collection, uint256 id) internal view returns (bool) {
         return _escrow[collection][id] > address(0x0);
     }
+
 }
+
+
+
