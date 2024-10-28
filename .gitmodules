@@ -4,3 +4,6 @@
 [submodule "apps/blockchain/contracts/ethereum/lib/openzeppelin-contracts"]
 	path = apps/blockchain/ethereum/lib/openzeppelin-contracts
 	url = https://github.com/OpenZeppelin/openzeppelin-contracts
+[submodule "apps/blockchain/ethereum/lib/openzeppelin-contracts-upgradeable"]
+	path = apps/blockchain/ethereum/lib/openzeppelin-contracts-upgradeable
+	url = https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable
