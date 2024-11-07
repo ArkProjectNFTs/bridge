@@ -15,6 +15,7 @@ import "./UUPSProxied.sol";
 import "starknet/IStarknetMessaging.sol";
 
 import "./IStarklaneEvent.sol";
+import "openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
 
 error NotSupportedYetError();
 error CollectionMappingError();
@@ -36,7 +37,8 @@ contract Starklane is
     StarklaneState,
     StarklaneEscrow,
     StarklaneMessaging,
-    CollectionManager
+    CollectionManager,
+    Initializable
 {
     // Mapping (collectionAddress => bool)
     mapping(address => bool) _whiteList;
@@ -47,19 +49,29 @@ contract Starklane is
 // Using an arbitrary gas value here for L1-L2 messaging fees, adjustable as network conditions evolve.
 // This value serves as a flexible baseline, allowing for real-time adjustments to reflect gas changes.
     uint256 _minimumGasFee = 5e13;// 0.00005 ETH
+    /**
+     * @notice Starklane contract constructor.
+     * 
+     * @dev Makes the contract initializable only once
+     */ 
+    
+    constructor() {
+        _disableInitializers();
+    }
 
     /**
      * @notice Initializes the implementation, only callable once.
      *
      *    @param data Data to init the implementation.
      */
-    function initialize(bytes calldata data) public onlyInit {
+    function initialize(bytes calldata data) public initializer {
         (
             address owner,
             IStarknetMessaging starknetCoreAddress,
             uint256 starklaneL2Address,
             uint256 starklaneL2Selector
         ) = abi.decode(data, (address, IStarknetMessaging, uint256, uint256));
+
         _enabled = false;
         _starknetCoreAddress = starknetCoreAddress;
 

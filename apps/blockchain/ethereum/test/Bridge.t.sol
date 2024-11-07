@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 import "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol";
 import "openzeppelin-contracts/contracts/token/ERC1155/IERC1155.sol";
+import "openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
 
 import "forge-std/Test.sol";
 import "../src/IStarklane.sol";
@@ -55,6 +56,24 @@ contract BridgeTest is Test, IStarklaneEvent {
         IStarklane(bridge).enableBridge(true);
     }
 
+    //
+    function test_initializersDisabled() public {
+        // Deploy a new instance of Starklane
+        Starklane newStarklane = new Starklane();
+
+        // Try to initialize the contract directly
+        bytes memory initData = abi.encode(
+            address(this),
+            address(0),  // Mock Starknet Core address
+            uint256(0),  // Mock Starklane L2 address
+            uint256(0)   // Mock Starklane L2 selector
+        );
+
+        // Expect the initialization to revert
+        vm.expectRevert(Initializable.InvalidInitialization.selector);
+        newStarklane.initialize(initData);
+    }
+    
     //
     function testFail_invalidIds() public {
         uint256[] memory ids = new uint256[](0);
