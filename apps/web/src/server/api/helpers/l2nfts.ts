@@ -165,7 +165,7 @@ export async function getL2WhitelistedCollections() {
 }
 
 export function getMediaObjectFromUrl(
-  image: string | undefined | null
+  image: null | string | undefined
 ): NftMedia {
   if (image === undefined) {
     return { format: "image", src: undefined };
