@@ -10,26 +10,26 @@ const nftApiUrl = process.env.NEXT_PUBLIC_ARK_API_DOMAIN ?? "";
 
 type PortfolioApiResponse = {
   data: Array<{
-    best_offer: string | null;
+    best_offer: null | string;
     collection_address: string;
     collection_name: string;
     currency_address: string;
     floor: string;
     list_price: string;
     metadata: {
-      animation_key: string | null;
-      animation_mime_type: string | null;
-      animation_url: string | null;
-      attributes: string | null;
-      background_color: string | null;
-      description: string | null;
-      external_url: string | null;
-      image: string | null;
-      image_data: string | null;
-      image_key: string | null;
-      image_mime_type: string | null;
-      name: string | null;
-      youtube_url: string | null;
+      animation_key: null | string;
+      animation_mime_type: null | string;
+      animation_url: null | string;
+      attributes: null | string;
+      background_color: null | string;
+      description: null | string;
+      external_url: null | string;
+      image: null | string;
+      image_data: null | string;
+      image_key: null | string;
+      image_mime_type: null | string;
+      name: null | string;
+      youtube_url: null | string;
     };
   }>;
   token_count: number;
