@@ -16,7 +16,7 @@ type PortfolioApiResponse = {
     currency_address: string;
     floor: string;
     list_price: string;
-    metadata: {
+    metadata?: {
       animation_key: null | string;
       animation_mime_type: null | string;
       animation_url: null | string;
@@ -31,6 +31,7 @@ type PortfolioApiResponse = {
       name: null | string;
       youtube_url: null | string;
     };
+    token_id: string;
   }>;
   token_count: number;
 };
@@ -45,20 +46,34 @@ export async function getL2ContractsForOwner(address: string) {
   return apiResponse;
 }
 
-type ArkBatchNftsApiResponse = {
-  result: Array<{
-    contract_address: string;
-    contract_name: string;
-    metadata?: { normalized: { image?: string; name?: string } };
+type TokenApiResponse = {
+  data: Array<{
+    collection_address: string;
+    collection_image: null | string;
+    collection_name: null | string;
+    metadata: {
+      animation_key: null | string;
+      animation_mime_type: null | string;
+      animation_url: null | string;
+      background_color: null | string;
+      description: null | string;
+      external_url: null | string;
+      image: null | string;
+      image_data: null | string;
+      image_key: null | string;
+      image_key_540_540: null | string;
+      image_mime_type: null | string;
+      name: null | string;
+      youtube_url: null | string;
+    };
     owner: string;
     token_id: string;
   }>;
 };
+
 export async function getL2NftsMetadataBatch(
   tokens: Array<{ contract_address: string; token_id: string }>
 ) {
-  const url = `${nftApiUrl}/v1/tokens/batch`;
-
   const body = JSON.stringify({
     tokens: tokens.map((token) => ({
       contract_address: validateAndParseAddress(token.contract_address),
@@ -66,56 +81,79 @@ export async function getL2NftsMetadataBatch(
     })),
   });
 
-  const nftsResponse = await fetch(url, {
-    body,
-    headers: requestsHeader,
-    method: "POST",
-  });
+  let nfts: {
+    collection_address: string;
+    collection_image: null | string;
+    collection_name: null | string;
+    metadata: {
+      animation_key: null | string;
+      animation_mime_type: null | string;
+      animation_url: null | string;
+      background_color: null | string;
+      description: null | string;
+      external_url: null | string;
+      image: null | string;
+      image_data: null | string;
+      image_key: null | string;
+      image_key_540_540: null | string;
+      image_mime_type: null | string;
+      name: null | string;
+      youtube_url: null | string;
+    };
+    owner: string;
+    token_id: string;
+  }[] = [];
 
-  const nfts = (await nftsResponse.json()) as ArkBatchNftsApiResponse;
+  for (const token of tokens) {
+    const url = `${nftApiUrl}/tokens/${token.contract_address}/0x534e5f4d41494e/${token.token_id}`;
+    const nftsResponse = await fetch(url, {
+      body,
+      headers: requestsHeader,
+      method: "POST",
+    });
+
+    const response = (await nftsResponse.json()) as TokenApiResponse;
+    nfts = nfts.concat(response.data);
+  }
 
   return nfts;
 }
 
-type ArkNftsApiResponse = {
-  result: Array<{
-    contract_address: string;
-    metadata: {
-      normalized: { image: null | string; name: null | string };
-    } | null;
-    owner: string;
-    token_id: string;
-  }>;
-  total_count: number;
-};
 export async function getL2NftsForOwner(
   userAddress: string,
   contractAddress: string | undefined
 ) {
-  const url = `${nftApiUrl}/v1/owners/${validateAndParseAddress(
-    userAddress
-  )}/tokens${
-    contractAddress !== undefined
-      ? `?contract_address=${validateAndParseAddress(contractAddress)}`
-      : ""
-  }`;
+  const url = `${nftApiUrl}/portfolio/${validateAndParseAddress(userAddress)}`;
 
   const nftsResponse = await fetch(url, {
     headers: requestsHeader,
   });
 
-  const nfts = (await nftsResponse.json()) as ArkNftsApiResponse;
+  const nfts = (await nftsResponse.json()) as PortfolioApiResponse;
 
-  return nfts;
+  return {
+    data: contractAddress
+      ? nfts.data.filter(
+          (d) =>
+            d.collection_address === validateAndParseAddress(contractAddress)
+        )
+      : nfts.data,
+    token_count: nfts.token_count,
+  };
 }
 
 type ArkCollectionInfoApiResponse = {
-  result: { contract_address: string; name: string; symbol: string };
+  data: {
+    address: string;
+    description: null | string;
+    image: null | string;
+    name: null | string;
+  };
 };
 export async function getL2ContractMetadata(contractAddress: string) {
-  const url = `${nftApiUrl}/v1/contracts/${validateAndParseAddress(
+  const url = `${nftApiUrl}/collections/${validateAndParseAddress(
     contractAddress
-  )}`;
+  )}/0x534e5f4d41494e`;
 
   const contractInfoResponse = await fetch(url, {
     headers: requestsHeader,
