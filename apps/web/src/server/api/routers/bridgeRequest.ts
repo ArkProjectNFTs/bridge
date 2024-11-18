@@ -140,20 +140,15 @@ export const bridgeRequestRouter = createTRPCRouter({
               }, {} as Record<string, { contract_address: string; token_id: string }>)
             )
           );
-          requestMetadataByReqHash = requestMetadatas.result.reduce(
-            (acc, current) => {
-              return {
-                ...acc,
-                [`${current.token_id}`]: {
-                  contractName: current.contract_name,
-                  media: getMediaObjectFromUrl(
-                    current.metadata?.normalized.image
-                  ),
-                },
-              };
-            },
-            {}
-          );
+          requestMetadataByReqHash = requestMetadatas.reduce((acc, current) => {
+            return {
+              ...acc,
+              [`${current.token_id}`]: {
+                contractName: current.collection_name,
+                media: getMediaObjectFromUrl(current.metadata?.image),
+              },
+            };
+          }, {});
         }
 
         const bridgeRequestsWithMetadata = bridgeRequests.map(
