@@ -35,7 +35,7 @@
     "ETHERSCAN_API_KEY",
     "ETHERSCAN_API_DOMAIN"
   ],
-  "pipeline": {
+  "tasks": {
     "build:l1": {
       "cache": false
     },

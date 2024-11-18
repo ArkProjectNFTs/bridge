@@ -12,5 +12,4 @@ export type Collection = {
   isBridgeable: boolean;
   media: NftMedia;
   name: string;
-  totalBalance: number;
 };

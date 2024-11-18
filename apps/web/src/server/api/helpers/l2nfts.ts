@@ -8,29 +8,41 @@ const requestsHeader = {
 };
 const nftApiUrl = process.env.NEXT_PUBLIC_ARK_API_DOMAIN ?? "";
 
-type ArkCollectionsApiResponse = {
-  result: Array<{
-    contract_address: string;
-    contract_type: string;
-    image?: string;
-    name: string;
-    symbol: string;
-    tokens_count: number;
+type PortfolioApiResponse = {
+  data: Array<{
+    best_offer: string | null;
+    collection_address: string;
+    collection_name: string;
+    currency_address: string;
+    floor: string;
+    list_price: string;
+    metadata: {
+      animation_key: string | null;
+      animation_mime_type: string | null;
+      animation_url: string | null;
+      attributes: string | null;
+      background_color: string | null;
+      description: string | null;
+      external_url: string | null;
+      image: string | null;
+      image_data: string | null;
+      image_key: string | null;
+      image_mime_type: string | null;
+      name: string | null;
+      youtube_url: string | null;
+    };
   }>;
-  total_count: number;
+  token_count: number;
 };
 export async function getL2ContractsForOwner(address: string) {
-  const url = `${nftApiUrl}/v1/owners/${validateAndParseAddress(
-    address
-  )}/contracts`;
+  const url = `${nftApiUrl}/portfolio/${validateAndParseAddress(address)}`;
 
   const contractsResponse = await fetch(url, {
     headers: requestsHeader,
   });
-  const contracts =
-    (await contractsResponse.json()) as ArkCollectionsApiResponse;
+  const apiResponse = (await contractsResponse.json()) as PortfolioApiResponse;
 
-  return contracts;
+  return apiResponse;
 }
 
 type ArkBatchNftsApiResponse = {
@@ -152,11 +164,13 @@ export async function getL2WhitelistedCollections() {
   }
 }
 
-export function getMediaObjectFromUrl(image: string | undefined): NftMedia {
+export function getMediaObjectFromUrl(
+  image: string | undefined | null
+): NftMedia {
   if (image === undefined) {
     return { format: "image", src: undefined };
   }
-  const mediaSrc = image.replace("ipfs://", process.env.IPFS_GATEWAY ?? "");
+  const mediaSrc = image?.replace("ipfs://", process.env.IPFS_GATEWAY ?? "");
   const mediaFormat = mediaSrc?.split(".").pop() === "mp4" ? "video" : "image";
 
   return { format: mediaFormat, src: mediaSrc };

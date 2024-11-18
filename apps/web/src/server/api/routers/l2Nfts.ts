@@ -36,35 +36,31 @@ export const l2NftsRouter = createTRPCRouter({
       } = input;
 
       try {
-        const contractsForOwner = await getL2ContractsForOwner(address);
+        const response = await getL2ContractsForOwner(address);
         const whitelistedCollections = await getL2WhitelistedCollections();
 
-        const collections: Array<Collection> = contractsForOwner.result.map(
-          (contract) => {
-            const media = getMediaObjectFromUrl(contract.image);
-            const isBridgeable =
-              whitelistedCollections === undefined ||
-              whitelistedCollections.some(
-                (whitelistedCollection) =>
-                  validateAndParseAddress(
-                    whitelistedCollection
-                  ).toLowerCase() ===
-                  validateAndParseAddress(
-                    contract.contract_address
-                  ).toLowerCase()
-              );
+        const collections: Array<Collection> = response.data.map((contract) => {
+          const media = getMediaObjectFromUrl(contract.metadata.image);
+          const isBridgeable =
+            whitelistedCollections === undefined ||
+            whitelistedCollections.some(
+              (whitelistedCollection) =>
+                validateAndParseAddress(whitelistedCollection).toLowerCase() ===
+                validateAndParseAddress(
+                  contract.collection_address
+                ).toLowerCase()
+            );
 
-            return {
-              contractAddress: contract.contract_address,
-              isBridgeable,
-              media,
-              name: contract.name ?? contract.symbol ?? "Unknown",
-              totalBalance: contract.tokens_count,
-            };
-          }
-        );
+          return {
+            contractAddress: contract.collection_address,
+            isBridgeable,
+            media,
+            name: contract.collection_name ?? "Unknown",
+            totalBalance: 1,
+          };
+        });
 
-        return { collections, totalCount: contractsForOwner.total_count };
+        return { collections, totalCount: response.token_count };
       } catch (error) {
         console.error("getL2NftCollectionsByWallet error: ", error);
         return { collections: [], totalCount: 0 };
