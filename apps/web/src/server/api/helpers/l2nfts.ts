@@ -74,12 +74,6 @@ type TokenApiResponse = {
 export async function getL2NftsMetadataBatch(
   tokens: Array<{ contract_address: string; token_id: string }>
 ) {
-  const body = JSON.stringify({
-    tokens: tokens.map((token) => ({
-      contract_address: validateAndParseAddress(token.contract_address),
-      token_id: token.token_id,
-    })),
-  });
 
   let nfts: {
     collection_address: string;
