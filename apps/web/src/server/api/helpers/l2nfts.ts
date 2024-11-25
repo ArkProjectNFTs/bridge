@@ -107,9 +107,8 @@ export async function getL2NftsMetadataBatch(
   for (const token of tokens) {
     const url = `${nftApiUrl}/tokens/${token.contract_address}/0x534e5f4d41494e/${token.token_id}`;
     const nftsResponse = await fetch(url, {
-      body,
       headers: requestsHeader,
-      method: "POST",
+      method: "GET",
     });
 
     const response = (await nftsResponse.json()) as TokenApiResponse;
