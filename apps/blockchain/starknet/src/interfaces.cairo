@@ -1,6 +1,6 @@
 use array::{SpanTrait};
-use starknet::{ClassHash, ContractAddress, EthAddress};
 use starklane::request::Request;
+use starknet::{ClassHash, ContractAddress, EthAddress};
 
 #[starknet::interface]
 trait IStarklane<T> {

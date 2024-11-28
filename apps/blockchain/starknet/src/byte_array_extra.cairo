@@ -33,7 +33,6 @@ impl SpanFeltTryIntoByteArray of TryInto<Span<felt252>, ByteArray> {
 }
 
 
-
 #[cfg(test)]
 mod tests {
     use core::serde::Serde;
@@ -90,9 +89,14 @@ mod tests {
         let mut a = ArrayTrait::new();
         orig.serialize(ref a);
         assert_eq!(*a[0], 1, "Wrong data len");
-        assert_eq!(*a[1], 0x546869732070616c696e64726f6d65206973206e6f7420617320676f6f642c, "Wrong data[0]");
-        assert_eq!(*a[2], 0x20627574206174206c656173742069742773206c6f6e6720656e6f756768, "Wrong pending word");
+        assert_eq!(
+            *a[1], 0x546869732070616c696e64726f6d65206973206e6f7420617320676f6f642c, "Wrong data[0]"
+        );
+        assert_eq!(
+            *a[2],
+            0x20627574206174206c656173742069742773206c6f6e6720656e6f756768,
+            "Wrong pending word"
+        );
         assert_eq!(*a[3], 30, "Wrong pending word len");
     }
-
 }
