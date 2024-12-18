@@ -23,7 +23,7 @@ error WithdrawAlreadyError();
  *    In solidity, when we query a mapping, if the key does not exist, 0 is returned when
  *    the value is an uint256.
  *
- *    For this reason, we use here a enum-like to ensure the correct state of the message.
+ *    For this reason, we use here an enum-like to ensure the correct state of the message.
  */
 contract StarklaneMessaging is Ownable {
     // Messages sent directly from L2 indexer, that can be withdrawn with
