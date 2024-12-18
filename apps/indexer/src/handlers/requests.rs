@@ -63,7 +63,7 @@ pub async fn reqs_info_from_wallet(
     Path(wallet): Path<String>,
     state: State<AppState>,
 ) -> Result<Json<Vec<RequestInfo>>, (StatusCode, String)> {
-    let wallet = normalize_hex(&wallet).expect("Wallet address shall be an hexadecimal string");
+    let wallet = normalize_hex(&wallet).expect("Wallet address shall be a hexadecimal string");
 
     let mut dtos: Vec<RequestInfo> = vec![];
 
@@ -97,7 +97,7 @@ pub async fn reqs_info_from_wallet(
 }
 
 pub async fn transaction(Path(txhash): Path<String>, state: State<AppState>) -> StatusCode {
-    let txhash = normalize_hex(&txhash).expect("Transaction hash shall be an hexadecimal string");
+    let txhash = normalize_hex(&txhash).expect("Transaction hash shall be a hexadecimal string");
     if let Ok(event) = state.store.event_by_tx(&txhash).await {
         if event.is_some() {
             return StatusCode::OK;
@@ -124,7 +124,7 @@ pub async fn contract_stats(
     state: State<AppState>,
 ) -> Result<Json<Stats>, (StatusCode, String)> {
     let contract_address = normalize_hex(&eth_contract_address)
-        .expect("Contract address shall be an hexadecimal string");
+        .expect("Contract address shall be a hexadecimal string");
 
     let total_tokens_bridged_on_starknet = state
         .store
